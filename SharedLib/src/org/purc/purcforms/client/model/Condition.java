@@ -6,7 +6,7 @@ import java.util.Date;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
-
+import java.util.ArrayList;
 
 /**
  * A condition which is part of a rule. For definition of a rule, go to the Rule class.
@@ -97,7 +97,14 @@ public class Condition implements Serializable{
 		return value;
 	}
 	public void setValue(String value) {
-		this.value = value;
+		String temp[]=new String[100];
+		temp = value.split(" ");
+		try{
+		this.value = temp[0];
+		setSecondValue(temp[2]);
+		}
+		catch(Exception e){
+		}
 	}
 	public int getId() {
 		return id;
