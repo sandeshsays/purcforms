@@ -103,6 +103,7 @@ public class XformParser {
 
 		//If model xml has been supplied, use it to replace the existing one.
 		if(modelXml != null){
+			//modelXml = removeNewXmlDeclaration(modelXml);
 			Element node = XmlUtil.getDocument(modelXml).getDocumentElement();//XformConverter.getNode(XformConverter.getDocument(modelXml).getDocumentElement().toString());
 			Element dataNode = XformUtil.getInstanceDataNode(doc);
 			Node parent = dataNode.getParentNode();
@@ -113,6 +114,18 @@ public class XformParser {
 		return getFormDef(doc);
 	}
 
+	public static String removeNewXmlDeclaration(String modelXml){
+		
+		String _modelXml="";
+		try{
+			int beginIndex="<?xml version='1.0' encoding='UTF-8' ?>\n".length();
+			_modelXml = modelXml.substring(beginIndex);
+		}
+		catch(Exception e){
+			_modelXml = modelXml;
+		}
+		return _modelXml;
+	}
 
 	/**
 	 * Converts an xml document object to a form definition object.
@@ -472,6 +485,9 @@ public class XformParser {
 		
 		if(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_NAME) != null)
 			formDef.setName(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_NAME));
+		
+		if(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY) != null)
+			formDef.setFormKey(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY));
 	}
 
 	

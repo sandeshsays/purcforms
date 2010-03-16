@@ -39,6 +39,9 @@ public class FormDef implements Serializable{
 
 	/** The display name of the form. */
 	private String name = ModelConstants.EMPTY_STRING;
+	
+	/** The form key. */
+	private String formKey = ModelConstants.EMPTY_STRING;
 
 	/** The numeric unique identifier of the form definition. */
 	private int id = ModelConstants.NULL_ID;
@@ -114,6 +117,7 @@ public class FormDef implements Serializable{
 	public FormDef(FormDef formDef, boolean copyValidationRules) {
 		setId(formDef.getId());
 		setName(formDef.getName());
+		setFormKey(formDef.getFormKey());
 
 		//I just don't think we need this in addition to the id
 		setVariableName(formDef.getVariableName());
@@ -139,9 +143,10 @@ public class FormDef implements Serializable{
 	 * @param pages - collection of page definitions.
 	 * @param rules - collection of branching rules.
 	 */
-	public FormDef(int id, String name, String variableName,Vector pages, Vector skipRules, Vector validationRules, HashMap<Integer,DynamicOptionDef> dynamicOptions, String descTemplate) {
+	public FormDef(int id, String name, String formKey, String variableName,Vector pages, Vector skipRules, Vector validationRules, HashMap<Integer,DynamicOptionDef> dynamicOptions, String descTemplate) {
 		setId(id);
 		setName(name);
+		setFormKey(formKey);
 
 		//I just don't think we need this in addition to the id
 		setVariableName(variableName);
@@ -243,6 +248,14 @@ public class FormDef implements Serializable{
 
 	public void setVariableName(String variableName) {
 		this.variableName = variableName;
+	}
+
+	public String getFormKey() {
+		return formKey;
+	}
+
+	public void setFormKey(String formKey) {
+		this.formKey = formKey;
 	}
 
 	public int getId() {
@@ -365,6 +378,7 @@ public class FormDef implements Serializable{
 	 */
 	public void updateDoc(boolean withData){
 		dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NAME, name);
+		dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY, formKey);
 
 		//TODO Check that this comment out does not introduce bugs
 		//We do not want a refreshed xform to overwrite existing formDef id
@@ -1162,6 +1176,7 @@ public class FormDef implements Serializable{
 
 	public Element getLanguageNode() {
 		com.google.gwt.xml.client.Document doc = XMLParser.createDocument();
+		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"")); 
 		Element rootNode = doc.createElement("xform");
 		rootNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id+"");
 		doc.appendChild(rootNode);

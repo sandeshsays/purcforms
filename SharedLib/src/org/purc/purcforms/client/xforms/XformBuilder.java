@@ -46,6 +46,8 @@ public class XformBuilder {
 
 		//Create a new document.
 		Document doc = XMLParser.createDocument();
+		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"")); 
+		
 		formDef.setDoc(doc);
 
 		//Create the document root node.
@@ -90,6 +92,7 @@ public class XformBuilder {
 		Element formNode =  doc.createElement(formDef.getVariableName());
 		formNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NAME, formDef.getName());
 		formNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, String.valueOf(formDef.getId()));
+		formNode.setAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY, String.valueOf(formDef.getFormKey()));
 		instanceNode.appendChild(formNode);
 		formDef.setDataNode(formNode);
 

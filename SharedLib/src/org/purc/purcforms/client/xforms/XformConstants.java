@@ -53,6 +53,8 @@ public class XformConstants {
 	public static final String NODE_NAME_VALUE = PREFIX_XFORMS_AND_COLON+"value";
 	public static final String NODE_NAME_GROUP = PREFIX_XFORMS_AND_COLON+"group";
 
+	
+	
 	public static final String NODE_NAME_XFORMS_MINUS_PREFIX = "xforms";
 	public static final String NODE_NAME_INSTANCE_MINUS_PREFIX = "instance";
 	public static final String NODE_NAME_MODEL_MINUS_PREFIX = "model";
@@ -87,6 +89,7 @@ public class XformConstants {
 	public static final String ATTRIBUTE_NAME_REQUIRED = "required";
 	public static final String ATTRIBUTE_NAME_TYPE = "type";
 	public static final String ATTRIBUTE_NAME_NAME = "name";
+	public static final String ATTRIBUTE_NAME_FORM_KEY = "formKey";
 	public static final String ATTRIBUTE_NAME_XMLNS = "xmlns:"+PREFIX_XFORMS;
 	public static final String ATTRIBUTE_NAME_DESCRIPTION_TEMPLATE = "description-template"; //eg ${/patient/family_name}$
 	public static final String ATTRIBUTE_NAME_ACTION = "action";
