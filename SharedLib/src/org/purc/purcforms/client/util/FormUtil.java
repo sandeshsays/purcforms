@@ -151,6 +151,9 @@ public class FormUtil {
 		final boolean allowDecimalPoints = allowDecimal;
 		return new KeyboardListenerAdapter() {
 			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+				if( keyCode == '%' || keyCode == '&' || keyCode == '('){
+					((TextBox) sender).cancelKey();
+				}
 				if ((!Character.isDigit(keyCode)) && (keyCode != (char) KeyboardListener.KEY_TAB)
 						&& (keyCode != (char) KeyboardListener.KEY_BACKSPACE) && (keyCode != (char) KeyboardListener.KEY_LEFT)
 						&& (keyCode != (char) KeyboardListener.KEY_UP) && (keyCode != (char) KeyboardListener.KEY_RIGHT)

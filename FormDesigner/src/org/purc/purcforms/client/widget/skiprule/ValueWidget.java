@@ -398,9 +398,16 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Pop
 	}
 
 	private void addNumericKeyboardListener(){
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL){
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL && function != ModelConstants.FUNCTION_LENGTH){
 			keyboardListener1 = FormUtil.getAllowNumericOnlyKeyboardListener(txtValue1, questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC ? false : true);
 			keyboardListener2 = FormUtil.getAllowNumericOnlyKeyboardListener(txtValue2, questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC ? false : true);
+
+			txtValue1.addKeyboardListener(keyboardListener1);
+			txtValue2.addKeyboardListener(keyboardListener2);
+		}
+		else if(function == ModelConstants.FUNCTION_LENGTH){
+			keyboardListener1 = FormUtil.getAllowNumericOnlyKeyboardListener(txtValue1, false);
+			keyboardListener2 = FormUtil.getAllowNumericOnlyKeyboardListener(txtValue2, false );
 
 			txtValue1.addKeyboardListener(keyboardListener1);
 			txtValue2.addKeyboardListener(keyboardListener2);
