@@ -110,7 +110,7 @@ public class PreviewView extends FormRunnerView {
 				return;
 
 			String xml = XformUtil.getInstanceDataDoc(formDef.getDoc()).toString();
-			xml = FormDesignerUtil.formatXml("<?xml version='1.0' encoding='UTF-8' ?> " + xml);
+			xml = FormDesignerUtil.formatXml(/*"<?xml version='1.0' encoding='UTF-8' ?> " +*/ xml);
 			submitListener.onSubmit(xml);
 		}
 	}

@@ -366,6 +366,7 @@ public class DesignSurfaceView extends DesignGroupView implements /*WindowResize
 			return null;
 
 		com.google.gwt.xml.client.Document doc = XMLParser.createDocument();
+		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"")); 
 		Element rootNode = doc.createElement("Form");
 		if(formDef != null)
 			rootNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, formDef.getId()+"");
@@ -420,6 +421,7 @@ public class DesignSurfaceView extends DesignGroupView implements /*WindowResize
 			return null;
 
 		com.google.gwt.xml.client.Document doc = XMLParser.createDocument();
+		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"")); 
 		Element rootNode = doc.createElement("Form");
 		if(formDef != null)
 			rootNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, formDef.getId()+"");
