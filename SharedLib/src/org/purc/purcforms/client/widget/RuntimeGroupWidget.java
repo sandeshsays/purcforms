@@ -60,6 +60,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private List<Element> dataNodes = new ArrayList<Element>();
 	private AbsolutePanel selectedPanel = new AbsolutePanel();
 	private boolean isRepeated = false;
+	private boolean isEnabled = false;
 	private boolean isLocked = false;
 	private Image image;
 	private HTML html;
@@ -165,7 +166,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				QuestionDef qtn = null;
 				qtn = formDef.getQuestion(qtnBinding);
 				if(qtn != null){
-					
+					isEnabled = qtn.isEnabled();
 					isLocked = qtn.isLocked();
 					
 				}
@@ -325,12 +326,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_BUTTON)){
 			widget = new Button(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
 			((Button)widget).setTabIndex(tabIndex);
-			
-			//questionDef = (QuestionDef)formDef.getQuestion(binding);
-			//isLocked = questionDef.isLocked();
-		   if(isLocked == true ){ 
+						
+		   if(isLocked == true || isEnabled == false ){ 
 			   if(binding.equalsIgnoreCase("browse") || binding.equalsIgnoreCase("clear"))
-				   ((Button)widget).setEnabled(false);//------------------------------simon's fix--------------------
+				   ((Button)widget).setEnabled(false);
 		   }
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LISTBOX)){
