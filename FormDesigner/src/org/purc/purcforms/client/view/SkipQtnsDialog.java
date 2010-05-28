@@ -280,7 +280,7 @@ public class SkipQtnsDialog  extends DialogBox {
 		}
 		
 		btnDeselect.setEnabled(false);
-		btnOk.setEnabled(lbSelQtns.getItemCount() > 0);
+		btnOk.setEnabled(true);
 	}
 	
 	
