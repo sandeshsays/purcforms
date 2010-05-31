@@ -570,6 +570,9 @@ public class PageDef implements Serializable{
 	 * @return true if it contains, else false.
 	 */
 	public boolean contains(QuestionDef qtn){
+		if(questions == null)
+			return false;
+		
 		return questions.contains(qtn);
 	}
 

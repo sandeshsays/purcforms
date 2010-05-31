@@ -147,7 +147,7 @@ public class XformParserUtil {
 		if(pos > 0)
 			return pos;
 	
-	//the order of the code below should not be changed as for example 'starts with' can be taken even when conditon is 'not(starts-with'	
+	//the order of the code below should not be changed as for example 'starts with' can be taken even when condition is 'not(starts-with'	
 		pos = expression.lastIndexOf("not(starts-with");
 		if(pos > 0)
 			return pos;
