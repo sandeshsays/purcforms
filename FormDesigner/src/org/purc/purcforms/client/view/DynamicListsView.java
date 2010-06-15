@@ -279,8 +279,16 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 
 		//Populate the list of parent options from a single select question.
 		if(type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
-			if(!(parentQuestionDef.getOptionCount() > 0))
+			if(!(parentQuestionDef.getOptionCount() > 0)){
+				
+				//we are creating new DynamicOptionDef() because we want to allow
+				//one specify type to be single select dynamic without specifying any
+				//options for cases where they will be got from the server using the
+				//external source widget filter property.
+				dynamicOptionDef = new DynamicOptionDef();
+				dynamicOptionDef.setQuestionId(questionDef.getId());
 				return;
+			}
 
 			List options = parentQuestionDef.getOptions();
 			for(int i=0; i<options.size(); i++){
@@ -291,8 +299,18 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 
 		//Populate the list of parent options from a dynamic selection list question.
 		if(type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+			
+			if(dynamicOptionDef == null){
+				//we are creating new DynamicOptionDef() because we want to allow
+				//one specify type to be single select dynamic without specifying any
+				//options for cases where they will be got from the server using the
+				//external source widget filter property.
+				dynamicOptionDef = new DynamicOptionDef();
+				dynamicOptionDef.setQuestionId(questionDef.getId());
+			}
+			
 			DynamicOptionDef options = formDef.getChildDynamicOptions(parentQuestionDef.getId());
-			if(options != null){
+			if(options != null && options.getParentToChildOptions() != null){
 				Iterator<Entry<Integer,List<OptionDef>>> iterator = options.getParentToChildOptions().entrySet().iterator();
 				while(iterator.hasNext()){
 					Entry<Integer,List<OptionDef>> entry = iterator.next();
@@ -308,6 +326,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		//If there is any selection, update the table of options.
 		if(lbOption.getSelectedIndex() >= 0)
 			updateOptionList();
+		
 	}
 
 	/**
@@ -323,7 +342,12 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * that is being edited on this widget.
 	 */
 	public void updateDynamicLists(){
-		if(dynamicOptionDef == null || dynamicOptionDef.size() == 0){
+		//dynamicOptionDef.size() == 0 is commented out because we want to allow
+		//one specify type to be single select dynamic without specifying any
+		//options for cases where they will be got from the server using the
+		//external source widget filter property.
+		
+		if(dynamicOptionDef == null /*|| dynamicOptionDef.size() == 0*/){
 			if(parentQuestionDef != null)
 				formDef.removeDynamicOptions(parentQuestionDef.getId());
 			return;
@@ -368,7 +392,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 */
 	public void onClick(Widget sender){		
 		if(sender == btnAdd)
-			addNewOption();
+			addNewOption().setFocus(true);
 		else{
 			int rowCount = table.getRowCount();
 			for(int row = 1; row < rowCount; row++){
@@ -419,13 +443,14 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * Adds a new dynamic list option to the table.
 	 */
-	private void addNewOption(){
+	private TextBox addNewOption(){
 		table.removeRow(table.getRowCount() - 1);
 		TextBox textBox = addOption("","",table.getRowCount());
 		textBox.setFocus(true);
 		textBox.selectAll();
 		addAddButton();
 		addNewOptionDef();
+		return textBox;
 	}
 
 
@@ -519,13 +544,18 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 				if(optionDef == null)
 					optionDef = addNewOptionDef();
 
+				String orgTextDefBinding = FormDesignerUtil.getXmlTagName(optionDef.getText());
+				
 				optionDef.setText(txtText.getText());
 
 				//automatically set the binding, if empty.
 				TextBox txtBinding = (TextBox)table.getWidget(row, 1);
 				String binding = txtBinding.getText();
-				if(binding == null || binding.trim().length() == 0)
+				//if(binding == null || binding.trim().length() == 0){
+				if(binding == null || binding.trim().length() == 0 || binding.equals(orgTextDefBinding)){
 					txtBinding.setText(FormDesignerUtil.getXmlTagName(optionDef.getText()));
+					optionDef.setVariableName(txtBinding.getText());
+				}
 
 				break;
 			}
@@ -613,12 +643,19 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 							return;
 						}
 						row++;
-						col = 0;
+						col = 1; //0;
 					}
 					else{
 						if(textBox.getText() == null || textBox.getText().trim().length() == 0)
 							return;
-						col = 1;
+						else if(row == (rowCount - 2)){
+							addNewOption();
+							return;
+						}
+						else
+							row++;
+						
+						col = 0; //1;
 					}
 
 					textBox = ((TextBox)table.getWidget(row, col));
@@ -672,7 +709,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		}
 
 		OptionDef currentOptionDef;
-		List list = new ArrayList();
+		List<OptionDef> list = new ArrayList<OptionDef>();
 
 		//Remove all from index before selected all the way downwards
 		while(optns.size() >= index){
@@ -711,7 +748,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		}
 
 		OptionDef currentItem; // = parent.getChild(index - 1);
-		List list = new ArrayList();
+		List<OptionDef> list = new ArrayList<OptionDef>();
 
 		//Remove all otions below selected index
 		while(optns.size() > 0 && optns.size() > index){

@@ -6,13 +6,14 @@ import java.util.Vector;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
+
 /**
  * @author Cosmin
  * 
  */
-//TODO: descendant axis doesn't work
+// TODO: descendant axis doesn't work
 
-public class XPathLocationStep implements Serializable{
+public class XPathLocationStep implements Serializable {
 	String axis = null;
 	String nodeTest = null;
 	String nodePrefix = null;
@@ -46,22 +47,22 @@ public class XPathLocationStep implements Serializable{
 			// child:: is probably incorrect
 			nodeTest = ".";
 		} else
-			// test if we have an axis
-			if (next.indexOf("::") == -1)
-				if (next.startsWith("@")) {
-					axis = "attribute";
-					next = new String(next.toCharArray(), 1, next.length() - 1);
-				} else
-					axis = "child";
-			else {
-				pattIndex = next.indexOf("::");
-				if (pattIndex != -1) {
-					axis = new String(next.toCharArray(), 0, pattIndex);
-					next = new String(next.toCharArray(), pattIndex + 2, next
-							.length()
-							- pattIndex - 2);
-				}
+		// test if we have an axis
+		if (next.indexOf("::") == -1)
+			if (next.startsWith("@")) {
+				axis = "attribute";
+				next = new String(next.toCharArray(), 1, next.length() - 1);
+			} else
+				axis = "child";
+		else {
+			pattIndex = next.indexOf("::");
+			if (pattIndex != -1) {
+				axis = new String(next.toCharArray(), 0, pattIndex);
+				next = new String(next.toCharArray(), pattIndex + 2, next
+						.length()
+						- pattIndex - 2);
 			}
+		}
 
 		pattIndex = next.indexOf("[");
 		if (pattIndex != -1) {
@@ -109,32 +110,49 @@ public class XPathLocationStep implements Serializable{
 		if (axis.equals("child") || axis.equals("descendant")) {
 			for (i = 0; i < nodeCount; i++) {
 				Node node = (Node) contextNodeSet.elementAt(i);
-				int childCount = node.getChildNodes().getLength();
+				int childCount = 0;
+				if (node != null && node.getChildNodes() != null)
+					childCount = node.getChildNodes().getLength();
 
 				for (int j = 0; j < childCount; j++) {
 					if (node.getChildNodes().item(j).getNodeType() == Node.ELEMENT_NODE) {
-						Element childNode = (Element) node.getChildNodes().item(j);
+						Element childNode = (Element) node.getChildNodes()
+								.item(j);
 						String childName = childNode.getNodeName();
 
-						//Small addition to cater for nodes with prefixes
+						// Small addition to cater for nodes with prefixes
 						int pos = childName.indexOf(':');
-						if(pos >= 0)
-							childName = childName.substring(pos+1);
-						
+						if (pos >= 0)
+							childName = childName.substring(pos + 1);
+
 						String prefix = null;
 						if (nodePrefix != null) {
 							Element element = (Element) childNode;
 							prefix = element.getNamespaceURI();
 						}
 
-						if (nodeTest.equals("*") || nodeTest.equalsIgnoreCase(childName) //TODO This was just changed from equals to make xpath expressions case insensitive
+						if (nodeTest.equals("*")
+								|| nodeTest.equalsIgnoreCase(childName) // TODO
+																		// This
+																		// was
+																		// just
+																		// changed
+																		// from
+																		// equals
+																		// to
+																		// make
+																		// xpath
+																		// expressions
+																		// case
+																		// insensitive
 								|| nodeTest.equals("node()")) {
 							if (((nodePrefix != null) && (nodePrefix
 									.equals(prefix)))
 									|| (nodePrefix == null))
 								outputNodeSet.addElement(childNode);
 						} else if (nodeTest.equals("text()"))
-							outputNodeSet.addElement(childNode.getChildNodes().item(0).getNodeValue());
+							outputNodeSet.addElement(childNode.getChildNodes()
+									.item(0).getNodeValue());
 
 						if (axis.equals("descendant")) {
 							Vector descendants = null;
@@ -146,7 +164,8 @@ public class XPathLocationStep implements Serializable{
 						}
 					} else if (node.getChildNodes().item(j).getNodeType() == Node.TEXT_NODE) {
 						if (nodeTest.equals("text()"))
-							outputNodeSet.addElement(node.getChildNodes().item(j).getNodeValue());
+							outputNodeSet.addElement(node.getChildNodes().item(
+									j).getNodeValue());
 					}
 				}
 			}
@@ -181,26 +200,29 @@ public class XPathLocationStep implements Serializable{
 				Object startNode = null;
 				// find first element in the contextNodeSet
 				for (Enumeration nodes = contextNodeSet.elements(); nodes
-				.hasMoreElements();) {
+						.hasMoreElements();) {
 					startNode = nodes.nextElement();
 					if (startNode instanceof Element)
 						break;
 				}
 
 				if (startNode instanceof Element) {
-					//Element tmp = null;
+					// Element tmp = null;
 					Node tmp = null;
-					//while ( (((Element)startNode).getParentNode() instanceof Element) && 
-					//((tmp = (Element)((Element) startNode).getParentNode()) != null))
-					
-					//while((tmp = (Element)((Element) startNode).getParentNode()) != null)
-					//	startNode = tmp;
+					// while ( (((Element)startNode).getParentNode() instanceof
+					// Element) &&
+					// ((tmp = (Element)((Element) startNode).getParentNode())
+					// != null))
+
+					// while((tmp = (Element)((Element)
+					// startNode).getParentNode()) != null)
+					// startNode = tmp;
 					tmp = ((Node) startNode).getParentNode();
-					while(tmp != null){
+					while (tmp != null) {
 						startNode = tmp;
 						tmp = ((Node) startNode).getParentNode();
 					}
-					
+
 					outputNodeSet.addElement(startNode);
 				} else {
 					// System.out.println("couldn't find root");
@@ -210,7 +232,7 @@ public class XPathLocationStep implements Serializable{
 			} else if (nodeTest.equals(".")) {
 				// simply copy the input vector
 				for (Enumeration enumeration = contextNodeSet.elements(); enumeration
-				.hasMoreElements();)
+						.hasMoreElements();)
 					outputNodeSet.addElement(enumeration.nextElement());
 			}
 		}
@@ -234,7 +256,19 @@ public class XPathLocationStep implements Serializable{
 			if (node.getChildNodes().item(j).getNodeType() == Node.ELEMENT_NODE) {
 				Node childNode = (Node) node.getChildNodes().item(j);
 				String name = ((Element) childNode).getNodeName();
-				if (nodeTest.equals("*") || nodeTest.equalsIgnoreCase(name)) //TODO This was just changed from equals to make xpath expression case insensitive
+				if (nodeTest.equals("*") || nodeTest.equalsIgnoreCase(name)) // TODO
+																				// This
+																				// was
+																				// just
+																				// changed
+																				// from
+																				// equals
+																				// to
+																				// make
+																				// xpath
+																				// expression
+																				// case
+																				// insensitive
 					matchingDescendants.addElement(node);
 
 				Node[] moreDescendants = null;
