@@ -1833,25 +1833,36 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return;
 
 		DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(0);
-		if(!(widget.getWrappedWidget() instanceof ListBox /*|| widget.getWrappedWidget() instanceof TextBox*/))
-			return;
-
+		
 		QuestionDef questionDef = widget.getQuestionDef();
 		if(questionDef == null)
 			return;
+		
+		int type = questionDef.getDataType();
+		
+		if(!(widget.getWrappedWidget() instanceof ListBox || 
+				(widget.getWrappedWidget() instanceof TextBox && (type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)) ))
+			return;
+
 
 		x = widget.getLeftInt() + selectedPanel.getAbsoluteLeft();
 		y = widget.getTopInt() + selectedPanel.getAbsoluteTop();
 
-		if(widget.getLayoutNode() != null)
+		if(widget.getLayoutNode() != null){
 			widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
-		selectedPanel.remove(widget);
+			widget.setLayoutNode(null);
+		}
+		
 		selectedDragController.clearSelection();
 
-		if(widget.getWrappedWidget() instanceof ListBox)
+		if(widget.getWrappedWidget() instanceof ListBox){
+			selectedPanel.remove(widget);
 			addNewRadioButtonSet(questionDef,vertically);
-		else
-			;//addNewSearchServerWidget(questionDef.getVariableName(),questionDef.getText(), true);
+		}
+		else{
+			//addNewSearchServerWidget(questionDef.getVariableName(),questionDef.getText(), true);
+			widget.onDataTypeChanged(questionDef, questionDef.getDataType());
+		}
 
 		//increase height if the last widget is beyond our current y coordinate.
 		int height = FormUtil.convertDimensionToInt(getHeight());
