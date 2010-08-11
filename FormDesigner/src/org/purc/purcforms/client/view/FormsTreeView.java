@@ -394,25 +394,25 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		}
 	}
 
-	private TreeItem loadPage(PageDef pageDef, TreeItem formRoot){
+	private TreeItem loadPage(PageDef pageDef,TreeItem formRoot){
 		TreeItem pageRoot = addImageItem(formRoot, pageDef.getName(), images.drafts(),pageDef,null);
 		loadQuestions(pageDef.getQuestions(),pageRoot);
 		return pageRoot;
 	}
 
-	private void loadQuestions(Vector<QuestionDef> questions,TreeItem root){
+	private void loadQuestions(Vector questions,TreeItem root){
 		if(questions != null){
 			for(int currentQtnNo=0; currentQtnNo<questions.size(); currentQtnNo++)
 				loadQuestion((QuestionDef)questions.elementAt(currentQtnNo),root);
 		}
 	}
 
-	private TreeItem loadQuestion(QuestionDef questionDef, TreeItem root){
+	private TreeItem loadQuestion(QuestionDef questionDef,TreeItem root){
 		TreeItem questionRoot = addImageItem(root, questionDef.getDisplayText(), images.lookup(),questionDef,questionDef.getHelpText());
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
-			List<?> options = questionDef.getOptions();
+			List options = questionDef.getOptions();
 			for(int currentOptionNo=0; currentOptionNo < options.size(); currentOptionNo++){
 				OptionDef optionDef = (OptionDef)options.get(currentOptionNo);
 				addImageItem(questionRoot, optionDef.getText(), images.markRead(),optionDef,null);
@@ -801,7 +801,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		moveFormItemUp(item,parent);
 
 		TreeItem currentItem; // = parent.getChild(index - 1);
-		List<TreeItem> list = new ArrayList<TreeItem>();
+		List list = new ArrayList();
 
 		item.remove();
 
@@ -880,7 +880,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		moveFormItemDown(item,parent);
 
 		TreeItem currentItem; // = parent.getChild(index - 1);
-		List<TreeItem> list = new ArrayList<TreeItem>();
+		List list = new ArrayList();
 
 		item.remove();
 

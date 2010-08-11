@@ -38,6 +38,9 @@ public class MultimediaServlet extends HttpServlet {
 
 		String sFormId = request.getParameter("formId");
 		String xpath = request.getParameter("xpath");
+		String contentType = request.getParameter("contentType");
+		String name = request.getParameter("name");
+		
 		if("recentbinary".equals(request.getParameter("action"))){
 			byte[] postData = (byte[])getSessionData(request,sFormId,KEY_MULTIMEDIA_POST_DATA+getFieldKey(sFormId,xpath)); //(byte[])session.getAttribute(KEY_MULTIMEDIA_POST_DATA+getFieldKey(sFormId,xpath));
 			if(postData != null){				
@@ -152,7 +155,7 @@ public class MultimediaServlet extends HttpServlet {
 	
 	private Object getSessionData(HttpServletRequest request,String formId, String key){
 		HttpSession session = request.getSession();
-		HashMap<String,Object> dataMap = (HashMap<String, Object>)session.getAttribute(getFormKey(formId));
+		HashMap<String,Object> dataMap = (HashMap<String,Object>)session.getAttribute(getFormKey(formId));
 		
 		if(dataMap != null)
 			return dataMap.get(key);

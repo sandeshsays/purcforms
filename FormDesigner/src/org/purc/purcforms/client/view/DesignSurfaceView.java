@@ -81,6 +81,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	/** The layout xml document object. */
 	Document doc;
 
+	/** The height offset when the form designer is used as a widget embedded in a GWT application. */
+	private int embeddedHeightOffset = 0;
+
+	
 	public DesignSurfaceView(){
 		super(null);
 	}
@@ -180,6 +184,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		dragControllers.add(tabs.getWidgetCount()-1,selectedDragController);
 		panel.setHeight(sHeight);
+		String s = getHeight();
+
 		//This is needed for IE
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {
@@ -746,7 +752,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		tabs.clear();
 		pageWidgets.clear();
 
-		Vector<PageDef> pages = formDef.getPages();
+		Vector pages = formDef.getPages();
 		if(pages != null){
 			for(int i=0; i<pages.size(); i++){
 				PageDef pageDef = (PageDef)pages.get(i);
@@ -940,7 +946,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @return this is always null.
 	 */
 	protected DesignWidgetWrapper addNewCheckBoxSet(QuestionDef questionDef, boolean vertically, int tabIndex){
-		List<OptionDef> options = questionDef.getOptions();
+		List options = questionDef.getOptions();
 		for(int i=0; i < options.size(); i++){
 			/*if(i != 0){
 				y += 40;
@@ -985,7 +991,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		x = 35 + selectedPanel.getAbsoluteLeft();
 		y += 25;
 
-		Vector<QuestionDef> questions = questionDef.getRepeatQtnsDef().getQuestions();
+		Vector questions = questionDef.getRepeatQtnsDef().getQuestions();
 		if(questions == null)
 			return addNewTextBox(select); //TODO Bug here
 		for(int index = 0; index < questions.size(); index++){
@@ -1286,6 +1292,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param offset the height offset in pixels.
 	 */
 	public void setEmbeddedHeightOffset(int offset){
+		embeddedHeightOffset = offset;
 	}
 
 	/**

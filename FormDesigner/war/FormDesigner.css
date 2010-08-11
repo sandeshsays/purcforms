@@ -179,3 +179,10 @@ body, html {
     width: auto;
 }
 
+.gwt-TabBar {
+  padding-top: 2px;
+  border-bottom: 4px solid #ffffff;
+  background-color: #ffffff;
+  display: none;
+} 
+

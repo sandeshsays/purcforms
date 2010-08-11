@@ -24,7 +24,7 @@ public class LanguageUtil {
 		return translate(XMLParser.parse(srcXml),XMLParser.parse(languageXml).getDocumentElement());
 	}*/
 
-	public static String translate(Document doc, Node parentLangNode){
+	private static String translate(Document doc, Node parentLangNode){
 		NodeList nodes = parentLangNode.getChildNodes();
 		for(int index = 0; index < nodes.getLength(); index++){
 			Node node = nodes.item(index);
@@ -36,7 +36,7 @@ public class LanguageUtil {
 			if(xpath == null || value == null)
 				continue;
 
-			Vector<?> result = new XPathExpression(doc, xpath).getResult();
+			Vector result = new XPathExpression(doc, xpath).getResult();
 			if(result != null){
 				
 				//TODO We need to uniquely identify nodes and so each xpath should

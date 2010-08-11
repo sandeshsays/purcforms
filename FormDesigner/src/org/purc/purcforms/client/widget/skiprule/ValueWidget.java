@@ -29,17 +29,16 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -49,7 +48,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author daniel
  *
  */
-public class ValueWidget extends Composite implements ItemSelectionListener, CloseHandler<PopupPanel>{
+public class ValueWidget extends Composite implements ItemSelectionListener, CloseHandler{
 
 	private static final String EMPTY_VALUE = "_____";
 	private static final String BETWEEN_WIDGET_SEPARATOR = "   "+ LocaleText.get("and") + "   ";
@@ -64,7 +63,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private TextBox txtValue1 = new TextBox();
 	private TextBox txtValue2 = new TextBox();
 	private Label lblAnd = new Label(BETWEEN_WIDGET_SEPARATOR);
-	private Anchor valueAnchor;
+	private Hyperlink valueHyperlink;
 	private PopupPanel popup;
 
 	private KeyPressHandler keyboardListener1;
@@ -93,7 +92,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	public void setOperator(int operator){
 		if(this.operator != operator){ 
 			if(this.operator == ModelConstants.OPERATOR_IS_NULL || this.operator == ModelConstants.OPERATOR_IS_NOT_NULL)
-				valueAnchor.setText(EMPTY_VALUE);
+				valueHyperlink.setText(EMPTY_VALUE);
 
 			/*if((this.operator == PurcConstants.OPERATOR_IN_LIST || this.operator == PurcConstants.OPERATOR_NOT_IN_LIST) &&
 			  !(operator == PurcConstants.OPERATOR_IN_LIST || operator == PurcConstants.OPERATOR_NOT_IN_LIST))
@@ -103,24 +102,24 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		this.operator = operator;
 
 		if(operator == ModelConstants.OPERATOR_IS_NULL || operator == ModelConstants.OPERATOR_IS_NOT_NULL)
-			valueAnchor.setText("");
+			valueHyperlink.setText("");
 		else if(operator == ModelConstants.OPERATOR_BETWEEN || operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-			valueAnchor.setText(EMPTY_VALUE + BETWEEN_VALUE_SEPARATOR + EMPTY_VALUE);
+			valueHyperlink.setText(EMPTY_VALUE + BETWEEN_VALUE_SEPARATOR + EMPTY_VALUE);
 	}
 
 	public void setFunction(int function){
 		if(this.function != function)
-			valueAnchor.setText(EMPTY_VALUE);
+			valueHyperlink.setText(EMPTY_VALUE);
 		this.function = function;
 	}
 
 	private void setupWidgets(){
 		horizontalPanel = new HorizontalPanel();;
 
-		valueAnchor = new Anchor(EMPTY_VALUE, "#");
-		horizontalPanel.add(valueAnchor);
+		valueHyperlink = new Hyperlink(EMPTY_VALUE,"");
+		horizontalPanel.add(valueHyperlink);
 
-		valueAnchor.addClickHandler(new ClickHandler(){
+		valueHyperlink.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				startEdit();
 			}
@@ -234,7 +233,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 			popup = new PopupPanel(true,false);
 			popup.setWidget(menuBar);
-			popup.setPopupPosition(valueAnchor.getAbsoluteLeft(), valueAnchor.getAbsoluteTop() - 50);
+			popup.setPopupPosition(valueHyperlink.getAbsoluteLeft(), valueHyperlink.getAbsoluteTop() - 50);
 			popup.show();
 		}
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
@@ -244,7 +243,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			MenuBar menuBar = new MenuBar(true);
 
 			int size = 0, maxSize = 0; String text;
-			List<OptionDef> options = questionDef.getOptions();
+			List options = questionDef.getOptions();
 
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
 				DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
@@ -288,21 +287,21 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 			popup = new PopupPanel(true,false);
 			popup.setWidget(scrollPanel);
-			popup.setPopupPosition(valueAnchor.getAbsoluteLeft(), valueAnchor.getAbsoluteTop() - height); //- height makes it fly upwards
+			popup.setPopupPosition(valueHyperlink.getAbsoluteLeft(), valueHyperlink.getAbsoluteTop() - height); //- height makes it fly upwards
 			popup.show();
 		}
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_IN_LIST || operator == ModelConstants.OPERATOR_NOT_IN_LIST) ){
 
-			String values = valueAnchor.getText();
+			String values = valueHyperlink.getText();
 			String[] vals = null;
 			if(!values.equals(EMPTY_VALUE))
 				vals = values.split(LIST_SEPARATOR);
 
 			int size = 0, maxSize = 0; String text;
 			VerticalPanel panel = new VerticalPanel();
-			List<OptionDef> options = questionDef.getOptions();
+			List options = questionDef.getOptions();
 
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
 				DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
@@ -347,7 +346,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			popup = new PopupPanel(true,false);
 			popup.addCloseHandler(this);
 			popup.setWidget(scrollPanel);
-			popup.setPopupPosition(valueAnchor.getAbsoluteLeft(), valueAnchor.getAbsoluteTop() - height);
+			popup.setPopupPosition(valueHyperlink.getAbsoluteLeft(), valueHyperlink.getAbsoluteTop() - height);
 			popup.show();
 		}
 		else{
@@ -378,7 +377,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 			setupTextListeners();
 
-			horizontalPanel.remove(valueAnchor);
+			horizontalPanel.remove(valueHyperlink);
 
 			if(chkQuestionValue.getValue() == true)
 				horizontalPanel.add(sgstField);
@@ -387,8 +386,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 			horizontalPanel.add(chkQuestionValue);
 
-			if(!valueAnchor.getText().equals(EMPTY_VALUE) && (prevQuestionDef == questionDef || prevQuestionDef == null))
-				txtValue1.setText(valueAnchor.getText());
+			if(!valueHyperlink.getText().equals(EMPTY_VALUE) && (prevQuestionDef == questionDef || prevQuestionDef == null))
+				txtValue1.setText(valueHyperlink.getText());
 
 			if(!chkQuestionValue.getValue() == true)
 				addNumericKeyboardListener();
@@ -482,14 +481,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				operator == ModelConstants.OPERATOR_NOT_BETWEEN) ? (BETWEEN_VALUE_SEPARATOR + val2 ): "");
 
 		if(updateValue)
-			valueAnchor.setText(val);
+			valueHyperlink.setText(val);
 
 		horizontalPanel.remove(txtValue1);
 		horizontalPanel.remove(txtValue2);
 		horizontalPanel.remove(lblAnd);
 		horizontalPanel.remove(chkQuestionValue);
 		horizontalPanel.remove(sgstField);
-		horizontalPanel.add(valueAnchor);
+		horizontalPanel.add(valueHyperlink);
 	}
 
 	public void onItemSelected(Object sender, Object item) {
@@ -498,9 +497,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
-				valueAnchor.setText(((OptionDef)item).getText());
+				valueHyperlink.setText(((OptionDef)item).getText());
 			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
-				valueAnchor.setText((String)item);
+				valueHyperlink.setText((String)item);
 		}
 	}
 
@@ -508,7 +507,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 	}
 
-	public void onClose(CloseEvent<PopupPanel> event){
+	public void onClose(CloseEvent event){
 		String value = "";
 		VerticalPanel panel = (VerticalPanel)popup.getWidget();
 		int count = panel.getWidgetCount();
@@ -522,13 +521,13 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		if(value.length() == 0)
 			value = EMPTY_VALUE;
-		valueAnchor.setText(value);
+		valueHyperlink.setText(value);
 	}
 
 	public String getValue(){
 		valueQtnDef = null;
 
-		String val = valueAnchor.getText();
+		String val = valueHyperlink.getText();
 		if(val.equals(EMPTY_VALUE))
 			return null;
 		else if(val == null || val.trim().length() == 0)
@@ -648,7 +647,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else
 			sValue = EMPTY_VALUE;
 
-		valueAnchor.setText(sValue);
+		valueHyperlink.setText(sValue);
 	}
 
 	public void setFormDef(FormDef formDef){
@@ -678,8 +677,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		sgstField = new SuggestBox(oracle,txtValue1);
 		//selectFirstQuestion();
 
-		sgstField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstField.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				stopEdit(true);
 			}
 		});

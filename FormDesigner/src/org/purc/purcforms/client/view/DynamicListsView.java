@@ -154,33 +154,28 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param questionDef the question.
 	 */
 	public void setQuestionDef(QuestionDef questionDef){
-		
-
-		optionList = null;
-		dynamicOptionDef = null;
-		parentQuestionDef = null;
+		if(questionDef == null || questionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+			setEnabled(false);
+			return;
+		}
 
 		setEnabled(true);
 		clear();
 
-		if(questionDef == null){			
-			lblValuesFor.setText(LocaleText.get("valuesFor"));
-		}
-		
-		if(questionDef != null){
-			if(questionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
-				setEnabled(false);
-				return;
-			}
-			
-			if(questionDef.getParent() instanceof PageDef)
-				formDef = ((PageDef)questionDef.getParent()).getParent();
-			else
-				formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();
+		parentQuestionDef = null;
+		optionList = null;
+		dynamicOptionDef = null;
 
+		if(questionDef.getParent() instanceof PageDef)
+			formDef = ((PageDef)questionDef.getParent()).getParent();
+		else
+			formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();
+
+		if(questionDef != null)
 			lblValuesFor.setText(LocaleText.get("valuesFor") + questionDef.getDisplayText() + "  "+LocaleText.get("whenAnswerFor"));
-		}
-		
+		else
+			lblValuesFor.setText(LocaleText.get("valuesFor"));
+
 		this.questionDef = questionDef;
 		fieldWidget.setDynamicQuestionDef(questionDef);
 		fieldWidget.setFormDef(formDef);
@@ -308,7 +303,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 				return;
 			}
 
-			List<OptionDef> options = parentQuestionDef.getOptions();
+			List options = parentQuestionDef.getOptions();
 			for(int i=0; i<options.size(); i++){
 				OptionDef optionDef = (OptionDef)options.get(i);
 				lbOption.addItem(optionDef.getText(),String.valueOf(optionDef.getId()));	
@@ -729,7 +724,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param optionDef the option to move.
 	 */
 	public void moveOptionUp(OptionDef optionDef){
-		List<OptionDef> optns = optionList;
+		List optns = optionList;
 		int index = optns.indexOf(optionDef);
 
 		optns.remove(optionDef);
@@ -768,7 +763,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param optionDef the option to move.
 	 */
 	public void moveOptionDown(OptionDef optionDef){
-		List<OptionDef> optns = optionList;
+		List optns = optionList;
 		int index = optns.indexOf(optionDef);	
 
 		optns.remove(optionDef);
@@ -821,7 +816,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param index the index to start from in the option list.
 	 * @return the option.
 	 */
-	private OptionDef getNextSavedOption(List<OptionDef> options, int index){
+	private OptionDef getNextSavedOption(List options, int index){
 		for(int i=index; i<options.size(); i++){
 			OptionDef optionDef = (OptionDef)options.get(i);
 			if(optionDef.getControlNode() != null)

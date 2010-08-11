@@ -16,10 +16,10 @@ import org.purc.purcforms.client.widget.skiprule.GroupHyperlink;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -44,10 +44,10 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	private VerticalPanel verticalPanel = new VerticalPanel();
 
 	/** Widget for adding new conditions. */
-	private Anchor addConditionLink = new Anchor(LocaleText.get("clickToAddNewCondition"), "#");
+	private Hyperlink addConditionLink = new Hyperlink(LocaleText.get("clickToAddNewCondition"),"");
 
 	/** Widget for grouping conditions. Has all,any, none, and not all. */
-	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL, "#");
+	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"");
 
 	/** The form definition object that this skip rule belongs to. */
 	private FormDef formDef;
@@ -108,8 +108,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		actionPanel.add(chkMakeRequired);
 		actionPanel.setSpacing(5);
 
-		Anchor click4OtherQuestionsAnchor = new Anchor(LocaleText.get("clickForOtherQuestions"), "#");
-		click4OtherQuestionsAnchor.addClickHandler(new ClickHandler(){
+		Hyperlink hyperlink = new Hyperlink(LocaleText.get("clickForOtherQuestions"),"");
+		hyperlink.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				showOtherQuestions();
 			}
@@ -119,7 +119,7 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		horzPanel.setSpacing(10);
 		horzPanel.add(lblAction);
 		horzPanel.add(lblAnd);
-		horzPanel.add(click4OtherQuestionsAnchor);
+		horzPanel.add(hyperlink);
 
 		verticalPanel.add(horzPanel);
 		verticalPanel.add(actionPanel);
@@ -302,10 +302,10 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	public void setQuestionDef(QuestionDef questionDef){
 		clearConditions();
 
-		if(questionDef != null){
-			formDef = questionDef.getParentFormDef();
+		formDef = questionDef.getParentFormDef();
+
+		if(questionDef != null)
 			lblAction.setText(LocaleText.get("forQuestion") + questionDef.getDisplayText());
-		}
 		else
 			lblAction.setText(LocaleText.get("forQuestion"));
 
@@ -316,8 +316,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			groupHyperlink.setCondionsOperator(skipRule.getConditionsOperator());
 			setAction(skipRule.getAction());
 			verticalPanel.remove(addConditionLink);
-			Vector<Condition> conditions = skipRule.getConditions();
-			Vector<Condition> lostConditions = new Vector<Condition>();
+			Vector conditions = skipRule.getConditions();
+			Vector lostConditions = new Vector();
 			for(int i=0; i<conditions.size(); i++){
 				ConditionWidget conditionWidget = new ConditionWidget(formDef,this,true,questionDef);
 				if(conditionWidget.setCondition((Condition)conditions.elementAt(i)))

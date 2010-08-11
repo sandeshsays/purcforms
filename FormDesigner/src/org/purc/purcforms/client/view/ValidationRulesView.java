@@ -15,9 +15,9 @@ import org.purc.purcforms.client.widget.skiprule.GroupHyperlink;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -42,10 +42,10 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	private VerticalPanel verticalPanel = new VerticalPanel();
 	
 	/** Widget for adding new conditions. */
-	private Anchor addConditionLink = new Anchor(LocaleText.get("clickToAddNewCondition"), "#");
+	private Hyperlink addConditionLink = new Hyperlink(LocaleText.get("clickToAddNewCondition"),"");
 	
 	/** Widget for grouping conditions. Has all,any, none, and not all. */
-	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL, "#");
+	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"");
 	
 	/** The form definition object that this validation rule belongs to. */
 	private FormDef formDef;
@@ -204,20 +204,20 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	 * @param questionDef the question definition object.
 	 */
 	public void setQuestionDef(QuestionDef questionDef){
+		clearConditions();
 		
-		clearConditions();		
-		if(questionDef != null){
-			formDef = questionDef.getParentFormDef();
-			lblAction.setText(LocaleText.get("question")+":  " + questionDef.getDisplayText() + "  "+LocaleText.get("isValidWhen"));
-		}
-		else
-			lblAction.setText(LocaleText.get("question")+": ");
+		formDef = questionDef.getParentFormDef();
 		
 		/*if(questionDef.getParent() instanceof PageDef)
 			formDef = ((PageDef)questionDef.getParent()).getParent();
 		else
-			formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();*/		
-
+			formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();*/
+		
+		if(questionDef != null)
+			lblAction.setText(LocaleText.get("question")+":  " + questionDef.getDisplayText() + "  "+LocaleText.get("isValidWhen"));
+		else
+			lblAction.setText(LocaleText.get("question")+": ");
+		
 		this.questionDef = questionDef;
 		
 		validationRule = formDef.getValidationRule(questionDef);
@@ -225,8 +225,8 @@ public class ValidationRulesView extends Composite implements IConditionControll
 			groupHyperlink.setCondionsOperator(validationRule.getConditionsOperator());
 			txtErrorMessage.setText(validationRule.getErrorMessage());
 			verticalPanel.remove(addConditionLink);
-			Vector<Condition> conditions = validationRule.getConditions();
-			Vector<Condition> lostConditions = new Vector<Condition>();
+			Vector conditions = validationRule.getConditions();
+			Vector lostConditions = new Vector();
 			for(int i=0; i<conditions.size(); i++){
 				ConditionWidget conditionWidget = new ConditionWidget(formDef,this,false,questionDef);
 				if(conditionWidget.setCondition((Condition)conditions.elementAt(i)))

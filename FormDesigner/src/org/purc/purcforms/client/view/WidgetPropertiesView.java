@@ -36,7 +36,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -60,6 +59,12 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 
 	/** The currently selected widget whose properties we are displaying. */
 	private DesignWidgetWrapper widget;
+
+	/** The previously selected widget whose properties we had displayed before the current. */
+	private DesignWidgetWrapper prevWidget;
+
+	/** The binding for the previous widget. */
+	private String prevBinding;
 
 	/** Widget for setting the text property. */
 	private TextBox txtText = new TextBox();
@@ -405,16 +410,19 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			public void onFocus(FocusEvent event){
 				txtBinding.selectAll();
 			}
+			public void onLostFocus(Widget sender){
+				updateBinding(prevWidget,prevBinding);
+			}
 		});
 
-		sgstBinding.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstBinding.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				updateBinding();
 			}
 		});
 
-		sgstChildBinding.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstChildBinding.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				updateChildBinding();
 			}
 		});
@@ -507,8 +515,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_FORE_COLOR, txtForeColor.getText());
 			}
 		});
-		sgstForeColor.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstForeColor.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				if(widget != null)
 					widget.setForeColor(txtForeColor.getText());
 				else
@@ -525,8 +533,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BACKGROUND_COLOR, txtBackgroundColor.getText());
 			}
 		});
-		sgstBackgroundColor.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstBackgroundColor.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				if(widget != null)			
 					widget.setBackgroundColor(txtBackgroundColor.getText());
 				else if(viewWidget != null)
@@ -545,8 +553,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_COLOR, txtBorderColor.getText());
 			}
 		});
-		sgstBorderColor.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstBorderColor.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				if(widget != null)
 					widget.setBorderColor(txtBorderColor.getText());
 				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
@@ -867,7 +875,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	public void onWidgetSelected(Widget widget, boolean multipleSel) {
 
 		if(widget instanceof DesignWidgetWrapper){
-			sgstBinding.getText().trim();
+			prevWidget = this.widget;
+			prevBinding = sgstBinding.getText().trim();
 			this.widget = (DesignWidgetWrapper)widget;
 			viewWidget = null;
 			
@@ -876,6 +885,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		}
 		else{
 			viewWidget = (DesignGroupView)widget;
+			prevWidget = this.widget;
 			this.widget = null;
 		}
 
@@ -1099,9 +1109,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			txtChildBinding.setEnabled(true);
 		}
 		else{
-			List<OptionDef> options  = questionDef.getOptions();
+			List options  = questionDef.getOptions();
 			if(options != null){
-				FormUtil.loadOptions(options, oracle);
+				FormUtil.loadOptions(options,oracle);
 				txtChildBinding.setEnabled(true);
 			}
 		}
