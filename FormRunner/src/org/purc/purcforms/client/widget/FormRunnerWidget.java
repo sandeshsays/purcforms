@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.purc.purcforms.client.controller.FormRunnerController;
@@ -132,7 +133,7 @@ public class FormRunnerWidget extends Composite{
 	public void loadForm(int formId, String xformXml, String modelXml,String layoutXml, String javaScriptSource){
 		FormDef formDef = XformParser.fromXform2FormDef(xformXml,modelXml);
 		formDef.setId(formId);
-		view.loadForm(formDef, layoutXml,javaScriptSource, null,false);
+		view.loadForm(formDef, layoutXml,javaScriptSource, new ArrayList<RuntimeWidgetWrapper>(),false);
 	}
 	
 	public void clear(){
