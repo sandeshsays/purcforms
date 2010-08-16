@@ -815,8 +815,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.get(i);
 			
+			//TODO Why should we not show a widget, atleast on the design surface?
 			if(!questionDef.isVisible() || (questionDef.isRequired() && (questionDef.isLocked() || !questionDef.isEnabled())) )
-				continue;
+				; //continue;
 			
 			int type = questionDef.getDataType();
 			if(type == QuestionDef.QTN_TYPE_REPEAT && questionDef.getRepeatQtnsDef().getQuestions() == null)
