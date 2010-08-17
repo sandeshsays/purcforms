@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.widget;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -515,7 +516,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			panel.add(label);
 
 			((TextBox)widget).setText(displayValue);
-			
+
 			//Used only once on form loading.
 			questionDef.getDataNode().removeAttribute("displayValue");
 		}
@@ -850,6 +851,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef.getAnswer() == null || questionDef.getAnswer().trim().length() == 0)
 					questionDef.setAnswer(defaultValue);
 			}
+			else if("endtime".equals(questionDef.getBinding())) //Add time when form filling ended.
+				questionDef.setAnswer(FormUtil.getDateTimeSubmitFormat().format(new Date()));
 		}
 		else if(widget instanceof RuntimeGroupWidget)
 			((RuntimeGroupWidget)widget).saveValue(formDef);
