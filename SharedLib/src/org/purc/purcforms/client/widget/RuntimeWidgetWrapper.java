@@ -851,7 +851,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef.getAnswer() == null || questionDef.getAnswer().trim().length() == 0)
 					questionDef.setAnswer(defaultValue);
 			}
-			else if("endtime".equals(questionDef.getBinding())) //Add time when form filling ended.
+			else if("endtime".equalsIgnoreCase(questionDef.getBinding())) //Add time when form filling ended.
 				questionDef.setAnswer(FormUtil.getDateTimeSubmitFormat().format(new Date()));
 		}
 		else if(widget instanceof RuntimeGroupWidget)
