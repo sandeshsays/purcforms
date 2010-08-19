@@ -1212,7 +1212,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<Label>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<Label>> entry = iterator.next();
-			this.labelMap.put(entry.getKey(), entry.getValue());
+			
+			List<Label> labels = this.labelMap.get(entry.getKey());
+			if(labels == null)
+				this.labelMap.put(entry.getKey(), entry.getValue());
+			else
+				labels.addAll(entry.getValue());
 		}
 	}
 
@@ -1220,7 +1225,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<RuntimeWidgetWrapper>>> iterator = calcWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<RuntimeWidgetWrapper>> entry = iterator.next();
-			this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			
+			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
+			if(widgets == null)
+				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
 		}
 	}
 
@@ -1228,7 +1238,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,RuntimeWidgetWrapper>> iterator = filtDynOptWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,RuntimeWidgetWrapper> entry = iterator.next();
-			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue());
+			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue()); //TODO Can it affect more than one.
 		}
 	}
 
@@ -1270,7 +1280,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<CheckBox>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<CheckBox>> entry = iterator.next();
-			this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+			
+			List<CheckBox> checkboxes = this.checkBoxGroupMap.get(entry.getKey());
+			if(checkboxes == null)
+				this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+			else
+				checkboxes.addAll(entry.getValue());
 		}
 	}
 
