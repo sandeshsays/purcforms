@@ -1071,7 +1071,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof DateTimeWidget)
 			((DateTimeWidget)widget).setFocus(true);
 		else if(widget instanceof RuntimeGroupWidget)
-			((RuntimeGroupWidget)widget).setFocus();
+			return ((RuntimeGroupWidget)widget).setFocus();
 		else
 			return false;
 		return true;

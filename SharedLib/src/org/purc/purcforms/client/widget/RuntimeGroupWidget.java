@@ -1062,8 +1062,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				for(int col = 0; col < table.getCellCount(row)-1; col++){
 					RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)table.getWidget(row, col);
 					if(widget.isFocusable()){
-						widget.setFocus();
-						return true;
+						if(widget.setFocus())
+							return true;
 					}
 				}
 			}
@@ -1072,8 +1072,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				if(widget.isFocusable()){
-					widget.setFocus();
-					return true;
+					if(widget.setFocus())
+						return true;
 				}
 			}
 		}

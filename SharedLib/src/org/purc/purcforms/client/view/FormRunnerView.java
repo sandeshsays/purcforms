@@ -189,7 +189,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private List<RuntimeWidgetWrapper> externalSourceWidgets;
 	private int externalSourceWidgetIndex = 0;
 
-
+	private boolean loaded = false;
+	
 
 	/**
 	 * Constructs an instance of the form runner.
@@ -243,8 +244,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 		}
 
+		loaded = false;
+		
 		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
 		isValid(true);
+		
+		loaded = true;
+		
 		moveToFirstWidget();
 
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
@@ -1012,7 +1018,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 		selectedPanel = (AbsolutePanel)tabs.getWidget(selectedTabIndex);
-		moveToFirstWidget();
+		
+		if(loaded)
+			moveToFirstWidget();
 	}
 
 	/**
