@@ -1021,13 +1021,13 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 	}
 
-	public boolean isValid(){
+	public boolean isValid(boolean fireValueChanged){
 		firstInvalidWidget = null;
 
 		if(isRepeated){
 			for(int row = 0; row < table.getRowCount(); row++){
 				for(int col = 0; col < table.getCellCount(row)-1; col++){
-					boolean valid = ((RuntimeWidgetWrapper)table.getWidget(row, col)).isValid();
+					boolean valid = ((RuntimeWidgetWrapper)table.getWidget(row, col)).isValid(fireValueChanged);
 					if(!valid){
 						firstInvalidWidget = (RuntimeWidgetWrapper)table.getWidget(row, col);
 						return false;
@@ -1040,11 +1040,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			boolean valid = true;
 			for(int index=0; index<selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
-				if(!widget.isValid()){
+				if(!widget.isValid(fireValueChanged)){
 					valid = false;
 					if(firstInvalidWidget == null && widget.isFocusable())
 						firstInvalidWidget = widget.getInvalidWidget();
 				}
+				
+				if(fireValueChanged && widget.getQuestionDef() != null)
+					editListener.onValueChanged(widget);
 			}
 			return valid;
 		}

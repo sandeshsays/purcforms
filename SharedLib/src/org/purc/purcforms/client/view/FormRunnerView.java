@@ -190,7 +190,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private int externalSourceWidgetIndex = 0;
 
 	private boolean loaded = false;
-	
+
 
 	/**
 	 * Constructs an instance of the form runner.
@@ -245,12 +245,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 
 		loaded = false;
-		
+
 		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
 		isValid(true);
-		
+
 		loaded = true;
-		
+
 		moveToFirstWidget();
 
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
@@ -355,7 +355,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			addNewTab(node.getAttribute("Text"));
 			if(firstPageText == null)
 				firstPageText = node.getAttribute("Text");
-			
+
 			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this));
 
 			setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
@@ -377,7 +377,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(tabs.getWidgetCount() > 0)
 			tabs.selectTab(0);
-		
+
 		if(tabs.getWidgetCount() == 1 && "Page1".equalsIgnoreCase(firstPageText))
 			tabs.getTabBar().setVisible(false);
 		else
@@ -719,7 +719,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(loadWidget)
 			wrapper.loadQuestion();
-		
+
 		wrapper.setExternalSourceDisplayValue();
 
 		WidgetEx.loadLabelProperties(node,wrapper);
@@ -896,7 +896,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		boolean valid = true;
 		for(int index=0; index<panel.getWidgetCount(); index++){
 			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)panel.getWidget(index);
-			if(!widget.isValid()){
+			if(!widget.isValid(fireValueChanged)){
 				valid = false;
 				if(firstInvalidWidget == null && widget.isFocusable())
 					firstInvalidWidget = widget.getInvalidWidget();
@@ -999,7 +999,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				}
 
 				widget.setAnswer(answer);
-				widget.isValid(); //TODO May need to fire change event instead
+				widget.isValid(false); //TODO May need to fire change event instead
 				onValueChanged(widget);
 			}
 		}
@@ -1008,7 +1008,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
 		if(list != null /*&& questionDef.isRequired()*/){
 			for(CheckBox checkBox : list)
-				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid();
+				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid(false);
 		}
 	}
 
@@ -1018,7 +1018,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 		selectedPanel = (AbsolutePanel)tabs.getWidget(selectedTabIndex);
-		
+
 		if(loaded)
 			moveToFirstWidget();
 	}
@@ -1212,7 +1212,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<Label>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<Label>> entry = iterator.next();
-			
+
 			List<Label> labels = this.labelMap.get(entry.getKey());
 			if(labels == null)
 				this.labelMap.put(entry.getKey(), entry.getValue());
@@ -1225,7 +1225,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<RuntimeWidgetWrapper>>> iterator = calcWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<RuntimeWidgetWrapper>> entry = iterator.next();
-			
+
 			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
 			if(widgets == null)
 				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
@@ -1280,7 +1280,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<CheckBox>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<CheckBox>> entry = iterator.next();
-			
+
 			List<CheckBox> checkboxes = this.checkBoxGroupMap.get(entry.getKey());
 			if(checkboxes == null)
 				this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
@@ -1554,7 +1554,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 
 		for(RuntimeWidgetWrapper wgt : widgets)
-			wgt.isValid();
+			wgt.isValid(false);
 	}
 
 	/**
@@ -1783,7 +1783,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 				public void onError(Request request, Throwable exception){
 					FormUtil.displayException(exception);
-					
+
 					if(filterValue == null)
 						fillNextExternalSourceWidget();
 					else
@@ -1793,7 +1793,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		catch(RequestException ex){
 			FormUtil.displayException(ex);
-			
+
 			if(filterValue == null)
 				fillNextExternalSourceWidget();
 			else

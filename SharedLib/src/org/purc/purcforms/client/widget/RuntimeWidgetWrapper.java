@@ -217,7 +217,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	
 	private void onListBoxChange(int index){
 		questionDef.setAnswer(((ListBox)widget).getValue(index));
-		isValid();
+		isValid(false);
 		editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 	}
 
@@ -240,7 +240,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				questionDef.setAnswer(null);
 				setText(null);
 			}
-			isValid();
+			isValid(false);
 			editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 		}
 		else
@@ -268,7 +268,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					//questionDef.setAnswer(((TextBox)widget).getText());
 					if(questionDef != null){
 						questionDef.setAnswer(getTextBoxAnswer());
-						isValid();
+						isValid(false);
 						editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 					}
 
@@ -296,7 +296,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef != null && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)){
 					questionDef.setAnswer(getTextBoxAnswer());
 
-					isValid();
+					isValid(false);
 
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
@@ -356,7 +356,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				//questionDef.setAnswer(((TextBox)widget).getText());
 				if(questionDef != null){
 					questionDef.setAnswer(getTextBoxAnswer());
-					isValid();
+					isValid(false);
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
 
@@ -370,7 +370,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef != null && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)){
 					questionDef.setAnswer(getTextBoxAnswer());
 
-					isValid();
+					isValid(false);
 
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
@@ -932,7 +932,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					}
 					questionDef.setAnswer(answer);
 				}
-				isValid();
+				isValid(false);
 				editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 			}
 		});
@@ -959,12 +959,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 
 	//These taken from question data.
-	public boolean isValid(){
+	public boolean isValid(boolean fireValueChanged){
 		if(widget instanceof Label || widget instanceof Button || questionDef == null || 
 				(widget instanceof CheckBox && childWidgets == null)){
 
 			if(widget instanceof RuntimeGroupWidget)
-				return ((RuntimeGroupWidget)widget).isValid();
+				return ((RuntimeGroupWidget)widget).isValid(fireValueChanged);
 
 			return true;
 		}
@@ -980,7 +980,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
 			boolean valid = false;
 			if((widget instanceof RuntimeGroupWidget))
-				valid = ((RuntimeGroupWidget)widget).isValid();
+				valid = ((RuntimeGroupWidget)widget).isValid(fireValueChanged);
 			if(!valid)
 				return false;
 		}
