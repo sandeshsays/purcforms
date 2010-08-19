@@ -181,9 +181,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof ListBox){
 			((ListBox)widget).addChangeHandler(new ChangeHandler(){
 				public void onChange(ChangeEvent event){
-					questionDef.setAnswer(((ListBox)widget).getValue(((ListBox)widget).getSelectedIndex()));
-					isValid();
-					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
+					onListBoxChange(((ListBox)widget).getSelectedIndex());
 				}
 			});
 
@@ -194,11 +192,33 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
 					else if(keyCode == KeyCodes.KEY_LEFT)
 						editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
+					else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
+						//This is put such that we can detect list box changes immediately on moving the
+						//up and down arrow keys contrary to the browser's default implementation which 
+						//would fire the change event only when one moves focus away from the listbox.
+						//This is sometimes the desired behavior but not always.
+						ListBox listBox = (ListBox)widget;
+						int index = listBox.getSelectedIndex();
+						if(keyCode == KeyCodes.KEY_UP){
+							if(index > 0)
+								onListBoxChange(index - 1);
+						}
+						else if(keyCode == KeyCodes.KEY_DOWN){
+							if(index < listBox.getItemCount() - 1)
+								onListBoxChange(index + 1);
+						}
+					}
 				}//TODO Do we really wanna alter the behaviour of the arrow keys for list boxes?
 			});
 		}
 
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.MOUSEEVENTS | Event.ONCONTEXTMENU | Event.KEYEVENTS);
+	}
+	
+	private void onListBoxChange(int index){
+		questionDef.setAnswer(((ListBox)widget).getValue(index));
+		isValid();
+		editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 	}
 
 	public void addSuggestBoxChangeEvent(){
