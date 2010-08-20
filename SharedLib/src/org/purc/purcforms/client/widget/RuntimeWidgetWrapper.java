@@ -28,7 +28,9 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -192,7 +194,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
 					else if(keyCode == KeyCodes.KEY_LEFT)
 						editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
-					else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
+					/*else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
 						//This is put such that we can detect list box changes immediately on moving the
 						//up and down arrow keys contrary to the browser's default implementation which 
 						//would fire the change event only when one moves focus away from the listbox.
@@ -207,6 +209,18 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 							if(index < listBox.getItemCount() - 1)
 								onListBoxChange(index + 1);
 						}
+					}*/
+					else{
+						DeferredCommand.addCommand(new Command() {
+							public void execute() {
+								//This makes the listbox fire change events immediately such that keyboard selection
+								//either using up and down arrow keys or typing the first character of a
+								//select option does the same as a mouse click without having to wait for the user
+								//to tab away.
+								((ListBox)widget).setFocus(false);
+								((ListBox)widget).setFocus(true);
+							}
+						});	
 					}
 				}//TODO Do we really wanna alter the behaviour of the arrow keys for list boxes?
 			});
