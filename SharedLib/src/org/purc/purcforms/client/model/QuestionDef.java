@@ -800,14 +800,14 @@ public class QuestionDef implements Serializable{
 
 		//Put after options because it depends on the firstOptionNode
 		if(hintNode != null){
-			if(helpText.trim().length() > 0)
+			if(helpText != null && helpText.trim().length() > 0)
 				XmlUtil.setTextNodeValue(hintNode,helpText);
 			else{
 				controlNode.removeChild(hintNode);
 				hintNode = null;
 			}
 		}
-		else if(hintNode == null && helpText.trim().length() > 0)
+		else if(hintNode == null && helpText != null && helpText.trim().length() > 0)
 			UiElementBuilder.addHelpTextNode(this, doc, controlNode, firstOptionNode);
 
 		if(withData)
