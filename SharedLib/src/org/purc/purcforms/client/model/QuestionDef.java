@@ -1448,7 +1448,7 @@ public class QuestionDef implements Serializable{
 			parentLangNode.appendChild(node);
 		}
 
-		if(hintNode != null){
+		if(hintNode != null && helpText != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath + "/" + FormUtil.getNodeName(hintNode));
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, helpText);

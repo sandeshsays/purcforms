@@ -823,6 +823,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			if(type == QuestionDef.QTN_TYPE_REPEAT && questionDef.getRepeatQtnsDef().getQuestions() == null)
 				continue;
 			
+			//Provide a way of the user turning off some widgets not to be displayed.
+			if(!questionDef.isVisible() && (questionDef.getDefaultValue() == null || questionDef.getDefaultValue().trim().length() == 0))
+					continue;
+			
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE)){
 				widgetWrapper = addNewLabel(questionDef.getText(),false);
 				widgetWrapper.setBinding(questionDef.getBinding());
