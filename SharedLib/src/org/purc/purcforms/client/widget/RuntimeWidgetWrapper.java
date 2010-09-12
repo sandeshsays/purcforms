@@ -18,6 +18,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -228,7 +230,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.MOUSEEVENTS | Event.ONCONTEXTMENU | Event.KEYEVENTS);
 	}
-	
+
 	private void onListBoxChange(int index){
 		questionDef.setAnswer(((ListBox)widget).getValue(index));
 		isValid(false);
@@ -273,6 +275,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					}
 				});
 			}
+
+			((TextBox)widget).addFocusHandler(new FocusHandler(){
+				public void onFocus(FocusEvent event){
+					((TextBox)widget).selectAll();
+				}
+			});
 
 			addSuggestBoxChangeEvent();
 		}
