@@ -36,6 +36,8 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -275,13 +277,19 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					}
 				});
 			}
-
+			
+			((TextBox)widget).addClickHandler(new ClickHandler(){
+				public void onClick(ClickEvent event){
+					((TextBox)widget).selectAll();
+				}
+			});
+			
 			((TextBox)widget).addFocusHandler(new FocusHandler(){
 				public void onFocus(FocusEvent event){
 					((TextBox)widget).selectAll();
 				}
 			});
-
+	
 			addSuggestBoxChangeEvent();
 		}
 		else{
