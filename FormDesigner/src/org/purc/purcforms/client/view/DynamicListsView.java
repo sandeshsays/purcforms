@@ -183,7 +183,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		QuestionDef parentQuestionDef = formDef.getDynamicOptionsParent(questionDef.getId());
 		if(parentQuestionDef != null)
 			fieldWidget.selectQuestion(parentQuestionDef);
-		
+
 		if(Context.isStructureReadOnly()){
 			lbOption.setEnabled(false);
 			fieldWidget.setEnabled(false);
@@ -249,6 +249,10 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 
 		if(!enabled)
 			clear();
+	}
+
+	public FormDef getFormDef(){
+		return formDef;
 	}
 
 
@@ -365,7 +369,8 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 			return;
 		}
 
-		formDef.setDynamicOptionDef(parentQuestionDef.getId(), dynamicOptionDef);
+		if(questionDef != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
+			formDef.setDynamicOptionDef(parentQuestionDef.getId(), dynamicOptionDef);
 	}
 
 

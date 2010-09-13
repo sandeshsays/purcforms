@@ -437,7 +437,7 @@ public class FormDef implements Serializable{
 		String sid = dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 		if(sid == null || sid.trim().length() == 0 || FormUtil.isNumeric(sid))
 			dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID,String.valueOf(id));
-		
+
 		//Put it after id attr such that it can be overwritten by ODK which uses non numeric id as a form key.
 		if(formKey != null && formKey.trim().length() > 0)
 			dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY, formKey);
@@ -488,7 +488,31 @@ public class FormDef implements Serializable{
 				if(questionDef == null)
 					continue;
 
-				dynamicOptionDef.updateDoc(this,questionDef);
+
+				//Delete the dynamic option def xforms xml stuff which got changed to other types.
+				QuestionDef childQuestionDef = getQuestion(dynamicOptionDef.getQuestionId());
+				if(childQuestionDef != null &&
+						childQuestionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+
+					dynamicOptions.remove(entry.getKey());
+
+					Element node = childQuestionDef.getFirstOptionNode();
+					if(node != null){
+						if(childQuestionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+								childQuestionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
+							node.getParentNode().removeChild(node);
+						else
+							node.getParentNode().getParentNode().removeChild(node.getParentNode());
+						
+						childQuestionDef.setFirstOptionNode(null);
+					}
+
+					node = dynamicOptionDef.getDataNode();
+					if(node != null)
+						node.getParentNode().getParentNode().removeChild(node.getParentNode());
+				}
+				else
+					dynamicOptionDef.updateDoc(this,questionDef);
 			}
 		}
 
@@ -729,7 +753,7 @@ public class FormDef implements Serializable{
 	 */
 	public void setModelNode(Element modelNode) {
 		this.modelNode = modelNode;
-		
+
 		if(modelNode != null){
 			String prefix = modelNode.getPrefix();
 			if(prefix != null && prefix.trim().length() > 0)
@@ -999,24 +1023,24 @@ public class FormDef implements Serializable{
 	public boolean moveQuestion2Page(QuestionDef qtn, int pageNo, FormDef formDef){
 		if(pages.size() < pageNo)
 			pages.add(new PageDef(LocaleText.get("page") + pageNo, pageNo, formDef));
-		
+
 		for(int i=0; i<pages.size(); i++){
 			PageDef page = (PageDef)pages.elementAt(i);
 			if(page.contains(qtn)){
 				if(i == pageNo-1)
 					return true; //Makes no sense to move question from and back to the same page.
-							
+
 				PageDef pageDef = (PageDef)pages.elementAt(pageNo-1);
 				Element node = qtn.getControlNode();
 				if(node != null && pageDef.getGroupNode() != null && !node.getParentNode().equals(pageDef.getGroupNode()))
 					return true;
-				
+
 				page.getQuestions().removeElement(qtn);
 				pageDef.addQuestion(qtn);
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -1200,6 +1224,7 @@ public class FormDef implements Serializable{
 		return null;
 	}
 
+
 	/**
 	 * Removes a dynamic selection list relationship referenced by a given question.
 	 * 
@@ -1308,7 +1333,7 @@ public class FormDef implements Serializable{
 
 		return count;
 	}
-	
+
 	/**
 	 * Gets the question at a given position in the first page.
 	 * 
@@ -1318,7 +1343,7 @@ public class FormDef implements Serializable{
 	/*public QuestionDef getQuestionAt(int index){
 		if(pages == null)
 			return null;
-		
+
 		return  getPageAt(0).getQuestionAt(index);
 	}*/
 

@@ -1077,6 +1077,13 @@ public class QuestionDef implements Serializable{
 						dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
 						dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
 						isMultiMedia(dataType))){
+			
+			if(firstOptionNode != null){
+				firstOptionNode.getParentNode().removeChild(firstOptionNode);
+				firstOptionNode = null;
+				xml = controlNode.toString();
+			}
+			
 			xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
 			modified = true;
 		}
