@@ -508,7 +508,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			parentWrapper.addChildWidget(wrapper);
 
 
-		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
+		/*value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
 		if(value != null && value.trim().length() > 0){
 			wrapper.setValueField(value);
 
@@ -519,6 +519,26 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 							||wrapper.getQuestionDef().getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)){
 				externalSourceWidgets.add(wrapper);
 				loadWidget = false;
+			}
+		}*/
+		
+		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
+		if(value != null && value.trim().length() > 0){
+			wrapper.setValueField(value);
+
+			if(externalSourceWidgets != null && wrapper.getExternalSource() != null && wrapper.getDisplayField() != null
+					&& (wrapper.getWrappedWidget() instanceof TextBox || wrapper.getWrappedWidget() instanceof ListBox)
+					&& questionDef != null){
+
+				if(!(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE
+						||questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)){
+					questionDef.setDataType(QuestionDef.QTN_TYPE_LIST_EXCLUSIVE);
+				}
+
+				externalSourceWidgets.add(wrapper);
+				loadWidget = false;
+
+				wrapper.addSuggestBoxChangeEvent();
 			}
 		}
 
