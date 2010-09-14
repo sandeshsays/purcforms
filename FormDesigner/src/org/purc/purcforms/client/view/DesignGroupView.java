@@ -208,7 +208,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * Adds the selected widgets to a group box.
 	 */
 	protected void groupWidgets(){
-		
+
 		//We now allow nested group boxes
 		/*for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
 			if(((DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i)).getWrappedWidget() instanceof DesignGroupWidget)
@@ -1080,10 +1080,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				widget instanceof TextArea || widget instanceof Hyperlink || 
 				widget instanceof CheckBox || widget instanceof RadioButton ||
 				widget instanceof DateTimeWidget || widget instanceof Button){
-			
+
 			wrapper.setFontFamily(FormUtil.getDefaultFontFamily());
 			wrapper.setFontSize(FormUtil.getDefaultFontSize());
-			
+
 			if(widget instanceof DateTimeWidget){
 				((DateTimeWidget)widget).setFontFamily(FormUtil.getDefaultFontFamily());
 				((DateTimeWidget)widget).setFontSize(FormUtil.getDefaultFontSize());
@@ -1500,9 +1500,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		switch (DOM.eventGetType(event)) {
 		case Event.ONMOUSEDOWN:  
-			
+
 			FormDesignerUtil.enableContextMenu(getElement());
-			
+
 			mouseMoved = false;
 			x = event.getClientX();
 			y = event.getClientY();
@@ -1513,7 +1513,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				handleStopLabelEditing(false);
 			}
 
-			if( (event.getButton() & Event.BUTTON_RIGHT) != 0){
+			if((event.getButton() & Event.BUTTON_RIGHT) != 0){
 				updatePopup();
 
 				int ypos = event.getClientY();
@@ -1833,13 +1833,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return;
 
 		DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(0);
-		
+
 		QuestionDef questionDef = widget.getQuestionDef();
 		if(questionDef == null)
 			return;
-		
+
 		int type = questionDef.getDataType();
-		
+
 		if(!(widget.getWrappedWidget() instanceof ListBox || 
 				(widget.getWrappedWidget() instanceof TextBox && (type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)) ))
 			return;
@@ -1852,7 +1852,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
 			widget.setLayoutNode(null);
 		}
-		
+
 		selectedDragController.clearSelection();
 
 		if(widget.getWrappedWidget() instanceof ListBox){

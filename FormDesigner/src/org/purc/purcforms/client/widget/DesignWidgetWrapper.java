@@ -147,8 +147,13 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 					xpos = event.getClientX() - 170;
 
 				widgetSelectionListener.onWidgetSelected(this,true);
-				popup.setPopupPosition(xpos, ypos);
-				popup.show();
+				
+				//DesignGroupWidget uses the design surface widget popup.
+				//Without this, you will get two popups on right clicking in group widgets
+				if(!(widget instanceof DesignGroupWidget)){
+					popup.setPopupPosition(xpos, ypos);
+					popup.show();
+				}
 
 				if(widget instanceof TextBox)
 					((TextBox)widget).setFocus(false);
@@ -260,7 +265,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 				text = ((Button)widget).getText();
 			else
 				text = getText();
-			
+
 			/*if(!"100%".equals(width)){
 				com.google.gwt.dom.client.Element html = Document.get().getElementById("labelEdit");
 				html.getStyle().setProperty("fontSize", fontSize);
@@ -272,7 +277,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 				DOM.setStyleAttribute(html, "visibility","hidden");
 				DOM.setStyleAttribute(html, "height","auto");
 				DOM.setStyleAttribute(html, "width","auto");*/
-				/*DOM.setStyleAttribute(txtEdit.getElement(), "width", html.getClientWidth()+1+"px");
+			/*DOM.setStyleAttribute(txtEdit.getElement(), "width", html.getClientWidth()+1+"px");
 				System.out.println(html.getClientWidth());
 				System.out.println(html.getInnerHTML());
 			}*/
@@ -388,7 +393,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public void setText(String text){
 		if(widget instanceof TabBar && text != null && text.trim().length() > 0)
 			setTabText(text);
-			/*//((TabBar)widget).setTabHTML(((TabBar)widget).getSelectedTab(), URL.encode(text));
+		/*//((TabBar)widget).setTabHTML(((TabBar)widget).getSelectedTab(), URL.encode(text));
 			((TabBar)widget).setTabHTML(((TabBar)widget).getSelectedTab(), "<span style='white-space:nowrap'>" + text + "</span>");*/
 		else
 			super.setText(text);
@@ -601,7 +606,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			node.setAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD, value);
 		else
 			node.removeAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
-		
+
 		value = getFilterField();
 		if(value != null && value.trim().length() > 0)
 			node.setAttribute(WidgetEx.WIDGET_PROPERTY_FILTERFIELD, value);
@@ -920,81 +925,81 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler) {
 		return addDomHandler(handler, MouseWheelEvent.getType());
 	}
-	
+
 	/*public void setForeColor(String color){
 		super.setForeColor(color);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("color", color);
 	}
-	
-	
+
+
 	public void setFontWeight(String fontWeight){
 		super.setFontWeight(fontWeight);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("fontWeight", fontWeight);
 	}
 
 	public void setFontStyle(String fontStyle){
 		super.setFontStyle(fontStyle);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("fontStyle", fontStyle);
 	}
 
 	public void setFontSize(String fontSize){
 		super.setFontSize(fontSize);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("fontSize", fontSize);
 	}
-	
+
 	public void setFontFamily(String fontFamily){
 		super.setFontFamily(fontFamily);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("fontFamily", fontFamily);
 	}
-	
+
 	public void setTextDecoration(String textDecoration){
 		super.setTextDecoration(textDecoration);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("textDecoration", textDecoration);
 	}
-	
+
 	public void setTextAlign(String textAlign){
 		super.setTextAlign(textAlign);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("textAlign", textAlign);
 	}
-	
+
 	public void setBackgroundColor(String backgroundColor){
 		super.setBackgroundColor(backgroundColor);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("backgroundColor", backgroundColor);
 	}
-	
+
 	public void setBorderStyle(String borderStyle){
 		super.setBorderStyle(borderStyle);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("borderStyle", borderStyle);
 	}
-	
+
 	public void setBorderWidth(String borderWidth){
 		super.setBorderWidth(borderWidth);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("borderWidth", borderWidth);
 	}
-	
+
 	public void setBorderColor(String borderColor){
 		super.setBorderColor(borderColor);
-		
+
 		if(widget instanceof TabBar)
 			setTabStyle("borderColor", borderColor);
 	}*/
