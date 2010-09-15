@@ -31,7 +31,6 @@ public class PurcFormBuilder {
 		xformNode.appendChild(node);
 		purcFormNode.appendChild(xformNode);
 
-
 		String xml = formDef.getLayoutXml();
 		if(xml != null && xml.trim().length() > 0){
 			node = (Element)XmlUtil.getDocument(xml).getDocumentElement().cloneNode(true);
@@ -48,7 +47,8 @@ public class PurcFormBuilder {
 			purcFormNode.appendChild(javaScriptNode);
 		}
 		
-		purcFormNode.appendChild(getLanguageNode(doc,localeText));
+		if(localeText != null)
+			purcFormNode.appendChild(getLanguageNode(doc,localeText));
 
 		return XmlUtil.fromDoc2String(doc);
 	}

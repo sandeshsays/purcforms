@@ -798,19 +798,19 @@ public class WidgetEx extends Composite{
 		return FormUtil.convertDimensionToInt(getTop());
 	}
 	
-	public void setWidthInt(int width){
+	public void setWidthInt(long width){
 		setWidth(width+PurcConstants.UNITS);
 	}
 
-	public void setHeightInt(int height){
+	public void setHeightInt(long height){
 		setHeight(height+PurcConstants.UNITS);
 	}
 
-	public void setLeftInt(int left){
+	public void setLeftInt(long left){
 		setLeft(left+PurcConstants.UNITS);
 	}
 
-	public void setTopInt(int top){
+	public void setTopInt(long top){
 		setTop(top+PurcConstants.UNITS);
 	}
 	

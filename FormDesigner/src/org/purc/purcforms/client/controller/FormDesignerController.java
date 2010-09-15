@@ -403,7 +403,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					centerPanel.setXformsSource(xml,formSaveListener == null && isOfflineMode());
 					centerPanel.buildLayoutXml();
 					//formDef.setLayout(centerPanel.getLayoutXml());
-
+					
 					centerPanel.saveLanguageText(false);
 					setLocaleText(formDef.getId(),Context.getLocale().getKey(), centerPanel.getLanguageXml());
 
@@ -411,7 +411,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 					if(!isOfflineMode() && formSaveListener == null)
 						saveForm(xml,centerPanel.getLayoutXml(),PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())),centerPanel.getJavaScriptSource());
-
+					
 					boolean saveLocaleText = false;
 					if(formSaveListener != null)
 						saveLocaleText = formSaveListener.onSaveForm(formDef.getId(), xml, centerPanel.getLayoutXml(), centerPanel.getJavaScriptSource());

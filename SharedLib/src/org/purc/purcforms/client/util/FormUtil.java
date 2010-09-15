@@ -163,7 +163,7 @@ public class FormUtil {
 					if(allowDecimalPoints)
 						Double.parseDouble(((TextBox) event.getSource()).getText().trim());
 					else
-						Integer.parseInt(((TextBox) event.getSource()).getText().trim());
+						Long.parseLong(((TextBox) event.getSource()).getText().trim());
 				}
 				catch(Exception ex){
 					((TextBox) event.getSource()).setText(null);
@@ -916,7 +916,7 @@ public class FormUtil {
 
 	public static boolean isNumeric(String value){
 		try{
-			Integer.parseInt(value);
+			Long.parseLong(value);
 			return true;
 		}
 		catch(Exception ex){}
