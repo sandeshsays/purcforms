@@ -549,12 +549,15 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		//Check if there is any selection.
 		if(item != null){
+			
+			int selectedIndex = item.getParentItem().getChildIndex(item);
+			
 			Object userObj = item.getUserObject();
 			if(userObj instanceof QuestionDef){
 				int id = ++nextQuestionId;
 				QuestionDef questionDef = new QuestionDef(id,LocaleText.get("question")+id,QuestionDef.QTN_TYPE_TEXT,"question"+id,item.getParentItem().getUserObject());
 				item = addImageItem(item.getParentItem(), questionDef.getText(), images.lookup(),questionDef,questionDef.getHelpText());
-				addFormDefItem(questionDef,item.getParentItem());
+				addFormDefItem(questionDef, item.getParentItem()); //?????
 				tree.setSelectedItem(item);
 			}
 			else if(userObj instanceof OptionDef){
@@ -573,6 +576,12 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			}
 			else if(userObj instanceof FormDef)
 				addNewForm();
+			
+			//Move the newly added item just immediately below the item which was previously selected.
+			int addedIndex = item.getParentItem().getChildIndex(item);
+			int count = addedIndex - selectedIndex - 1;
+			for(int index = 0; index < count; index++)
+				moveItemUp();
 		}
 		else
 			addNewForm();
@@ -776,13 +785,13 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(inReadOnlyMode())
 			return;
 
-		TreeItem item = tree.getSelectedItem();
+		TreeItem selectedItem = tree.getSelectedItem();
 
 		//Check if there is any selection.
-		if(item == null)
+		if(selectedItem == null)
 			return;
 
-		TreeItem parent = item.getParentItem();
+		TreeItem parent = selectedItem.getParentItem();
 
 		//We don't move root node (which has no parent, that is the form itself, since we design one form at a time)
 		if(parent == null)
@@ -793,29 +802,35 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(count == 1)
 			return;
 
-		int index = parent.getChildIndex(item);
-		if(index == 0)
+		//Get the index of the item to be moved.
+		int selectedIndex = parent.getChildIndex(selectedItem);
+		if(selectedIndex == 0)
 			return; //Can't move any further upwards.
 
 		//move the item in the form object model.
-		moveFormItemUp(item,parent);
+		moveFormItemUp(selectedItem,parent);
 
 		TreeItem currentItem; // = parent.getChild(index - 1);
 		List list = new ArrayList();
 
-		item.remove();
+		//First of all remove the item (to be moved) from the tree.
+		selectedItem.remove();
 
-		while(parent.getChildCount() >= index){
-			currentItem = parent.getChild(index-1);
+		//Remove all items below the one to be moved, while storing them in a new list for latter adding.
+		while(parent.getChildCount() >= selectedIndex){
+			currentItem = parent.getChild(selectedIndex-1);
 			list.add(currentItem);
 			currentItem.remove();
 		}
 
-		parent.addItem(item);
+		//Now add the item that is to be moved, back to the tree.
+		parent.addItem(selectedItem);
+		
+		//Add the items which were below the move item. (They were stored in a temporary list)
 		for(int i=0; i<list.size(); i++)
 			parent.addItem((TreeItem)list.get(i));
 
-		tree.setSelectedItem(item);
+		tree.setSelectedItem(selectedItem);
 	}
 
 	private void moveFormItemUp(TreeItem item,TreeItem parent){
