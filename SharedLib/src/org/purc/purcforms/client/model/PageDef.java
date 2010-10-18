@@ -191,6 +191,25 @@ public class PageDef implements Serializable{
 		questions.addElement(qtn);
 		qtn.setParent(this);
 	}
+	
+	/**
+	 * Adds a question to the page after a given question.
+	 * 
+	 * @param qtn the question to add.
+	 * @param refQuestion the question after which to add the new question.
+	 */
+	public void addQuestion(QuestionDef qtn, QuestionDef refQuestion){
+		if(questions == null)
+			questions = new Vector();
+		
+		int index = questions.indexOf(refQuestion);
+		if(index >= 0)
+			questions.add(index+1, qtn);
+		else
+			questions.addElement(qtn); //TODO Why could we fail to find the ref question?
+		
+		qtn.setParent(this);
+	}
 
 
 	/**
