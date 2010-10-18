@@ -18,6 +18,8 @@ import org.purc.purcforms.client.view.PaletteView;
 import org.purc.purcforms.client.view.WidgetPropertiesView;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedStackPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -43,19 +45,19 @@ public class LeftPanel extends Composite {
 
 	/** The GWT stack panel which serves as the main or root widget. */
 	private DecoratedStackPanel stackPanel = new DecoratedStackPanel();
-	
+
 	/** Listener to form item selection events. */
 	private IFormSelectionListener formSelectionListener;
-	
+
 	/** Widgets which displays the list of forms in a tree view. */
 	private FormsTreeView formsTreeView;
-	
+
 	/** Widget which displays properties for the selected widget on the design surface. */
 	private WidgetPropertiesView widgetPropertiesView;
-	
+
 	/** The palette widget from which one can drag and drop widgets onto the design surface. */
 	private PaletteView paletteView;
-	
+
 
 	/**
 	 * Constructs a new left panel object.
@@ -117,7 +119,7 @@ public class LeftPanel extends Composite {
 	public void refresh(FormDef formDef){
 		formsTreeView.refreshForm(formDef);
 	}
-	
+
 	/**
 	 * Gets the list of forms which are loaded.
 	 * 
@@ -126,7 +128,7 @@ public class LeftPanel extends Composite {
 	public List<FormDef> getForms(){
 		return formsTreeView.getForms();
 	}
-	
+
 	/**
 	 * Loads a list of forms and selects one of them.
 	 * 
@@ -175,7 +177,7 @@ public class LeftPanel extends Composite {
 	public void addNewChildItem(){
 		formsTreeView.addNewChildItem();
 	}
-	
+
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#addNewQuestion()
 	 */
@@ -215,7 +217,20 @@ public class LeftPanel extends Composite {
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#pasteItem()
 	 */
 	public void pasteItem(){
-		formsTreeView.pasteItem();
+		FormUtil.dlg.setText(LocaleText.get("loading"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				try{
+					formsTreeView.pasteItem();
+					FormUtil.dlg.hide();
+				}
+				catch(Exception ex){
+					FormUtil.displayException(ex);
+				}	
+			}
+		});
 	}
 
 	/**
@@ -277,7 +292,7 @@ public class LeftPanel extends Composite {
 	public boolean isValidForm(){
 		return formsTreeView.isValidForm();
 	}
-	
+
 	/**
 	 * Gets the listener to form action events.
 	 * 
@@ -286,7 +301,7 @@ public class LeftPanel extends Composite {
 	public IFormActionListener getFormActionListener(){
 		return formsTreeView;
 	}
-	
+
 	/**
 	 * Sets the default locale.
 	 * 
@@ -295,8 +310,8 @@ public class LeftPanel extends Composite {
 	public void setDefaultLocale(Locale locale){
 		Context.setDefaultLocale(locale);
 	}
-	
-	
+
+
 	public void setWidgetPropertyChangeListener(WidgetPropertyChangeListener widgetPropertyChangeListener){
 		widgetPropertiesView.setWidgetPropertyChangeListener(widgetPropertyChangeListener);
 	}
