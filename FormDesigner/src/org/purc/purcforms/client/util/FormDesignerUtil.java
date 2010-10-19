@@ -26,7 +26,7 @@ public class FormDesignerUtil {
 
 	/** The form designer title. */
 	private static String title = "PurcForms FormDesigner";
-	
+
 
 	/**
 	 * Creates an HTML fragment that places an image & caption together, for use
@@ -67,8 +67,8 @@ public class FormDesignerUtil {
 	public static native void disableContextMenu(Element elem) /*-{
 	    elem.oncontextmenu=function() {  return false};
 	}-*/; 
-	
-	
+
+
 	/**
 	 * Enabled the browsers default context menu for the specified element.
 	 *
@@ -77,8 +77,8 @@ public class FormDesignerUtil {
 	public static native void enableContextMenu(Element elem) /*-{
 	    elem.oncontextmenu=function() {  return true};
 	}-*/; 
-	
-	
+
+
 
 	/**
 	 * Puts a widget at a given position.
@@ -90,7 +90,7 @@ public class FormDesignerUtil {
 	public static void setWidgetPosition(Widget w, String left, String top) {
 		FormUtil.setWidgetPosition(w, left, top);
 	}
-	
+
 	/**
 	 * Loads a list of questions into a MultiWordSuggestOracle for a given reference question.
 	 * 
@@ -107,26 +107,26 @@ public class FormDesignerUtil {
 
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
-			
+
 			if(!dynamicOptions && refQuestion != null && refQuestion.getDataType() != questionDef.getDataType() && sameTypesOnly)
 				continue;
-			
+
 			if(dynamicOptions && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC))
 				continue;
-			
+
 			if(dynamicOptions && refQuestion == questionDef)
 				continue;
-			
+
 			if(!dynamicOptions && refQuestion == questionDef)
 				continue;
-			
+
 			if(questionDef == parentQuestionDef)
 				continue;
-			
+
 			//oracle.add(includeBinding ? questionDef.getDisplayText() + " - "+ questionDef.getBinding() : questionDef.getDisplayText());	
 			oracle.add(questionDef.getDisplayText());
-					
+
 			//TODO Allowed for now since repeat questions will have ids which cant be equal to
 			//those of parents. But test this to ensure it does not bring in bugs.
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
@@ -169,7 +169,7 @@ public class FormDesignerUtil {
 	public static native void stopRubber(Event event,Element elem) /*-{
 		   elem.style.visibility = 'hidden';
     }-*/;
-	
+
 
 	/**
 	 * Moves the rubber band on the mouse move event.
@@ -181,8 +181,8 @@ public class FormDesignerUtil {
 		     elem.style.width = event.x - elem.style.left;
 		     elem.style.height = event.y - elem.style.top;
 	}-*/;
-	
-	
+
+
 	/**
 	 * Gets the title of the form designer.
 	 * 
@@ -191,7 +191,7 @@ public class FormDesignerUtil {
 	public static String getTitle(){
 		return title;
 	}
-	
+
 	/**
 	 * Sets the title of the form designer.
 	 */
@@ -213,7 +213,7 @@ public class FormDesignerUtil {
 			return false;
 		return event.getCtrlKey();
 	}
-	
+
 	/**
 	 * Converts a string into a valid XML token (tag name)
 	 * 
@@ -223,4 +223,42 @@ public class FormDesignerUtil {
 	public static String getXmlTagName(String s) {
 		return FormUtil.getXmlTagName(s);
 	}
+
+	/**
+	 * Creates a default binding of a question with a given id and at a given position.
+	 * 
+	 * @param id the question id.
+	 * @param pos the question position which is 1 based.
+	 * @return the question binding.
+	 */
+	public static String getQtnBinding(int id, int pos){
+		String binding = getCustomQuestionBinding(id, pos);
+		if(binding == null)
+			binding = "question" + pos;
+		
+		return binding;
+	}
+
+	/**
+	 * Creates a default binding of a question option with a given id and at a given position.
+	 * 
+	 * @param id the question option id.
+	 * @param pos the question option position which is 1 based.
+	 * @return the question option binding.
+	 */
+	public static String getOptnBinding(int id, int pos){
+		String binding = getCustomOptionBinding(id, pos);
+		if(binding == null)
+			binding = "option" + pos;
+		
+		return binding;
+	}
+
+	private static native String getCustomQuestionBinding(int id, int pos) /*-{
+		return $wnd.getQuestionBinding(id, pos);
+	}-*/;
+
+	private static native String getCustomOptionBinding(int id, int pos) /*-{
+		return $wnd.getOptionBinding(id, pos);
+	}-*/;
 }
