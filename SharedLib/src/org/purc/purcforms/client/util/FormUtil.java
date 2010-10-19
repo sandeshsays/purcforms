@@ -73,6 +73,7 @@ public class FormUtil {
 	private static String fileSaveUrlSuffix;
 	private static String gpsTypeName;
 	private static String saveFormat;
+	private static boolean combineFormOnSave = true;
 	
 	public static String JAVAROSA = "javarosa";
 	
@@ -437,6 +438,13 @@ public class FormUtil {
 			XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE = "jr:constraintMsg";
 			XformConstants.DATA_TYPE_BINARY = "binary";
 		}
+		
+		s = getDivValue("combineFormOnSave");
+		if(s != null && s.trim().length() > 0){
+			if("0".equals(s) || "false".equals(s))
+				combineFormOnSave = false;
+		}
+		
 	}
 
 	public static String getDivValue(String id){
@@ -629,6 +637,10 @@ public class FormUtil {
 
 	public static boolean showSubmitSuccessMsg(){
 		return showSubmitSuccessMsg;
+	}
+	
+	public static boolean combineFormOnSave(){
+		return combineFormOnSave;
 	}
 
 	/**
