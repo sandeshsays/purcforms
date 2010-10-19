@@ -60,4 +60,8 @@ public class CompositeTreeItem extends TreeItem {
 		else
 			getWidget().removeStyleName("gwt-CompositeTreeItem-selected");
 	}
+	
+	public void addSelectionStyle(){
+		getWidget().addStyleName("gwt-CompositeTreeItem-selected");
+	}
 }
