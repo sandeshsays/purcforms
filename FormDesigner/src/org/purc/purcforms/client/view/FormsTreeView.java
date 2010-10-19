@@ -472,6 +472,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				tree.setSelectedItem(parent);
 			else
 				tree.setSelectedItem(parent.getChild(index));
+			
+			//After deleting, the currently selected item is not highlighted and so this line fixes that problem.
+			tree.setSelectedItem(tree.getSelectedItem());
 		}
 		else{ //Must be the form root
 			index = getRootItemIndex(item);
