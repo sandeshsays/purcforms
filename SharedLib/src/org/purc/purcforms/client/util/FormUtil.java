@@ -998,4 +998,21 @@ public class FormUtil {
 		// return token
 		return token;
 	}
+	
+	
+	public static String addParameter(String url, String name, String value){
+		if(value != null && value.trim().length() > 0){
+			if(url.indexOf('?') < 0)
+				url += "?";
+			else
+				url += "&";
+			
+			url += name + "=" + value;
+		}
+		return url;
+	}
+	
+	public static String appendRandomParameter(String url){
+		return addParameter(url, "purcFormsRandomParameter", new java.util.Date().getTime() + "");
+	}
 }

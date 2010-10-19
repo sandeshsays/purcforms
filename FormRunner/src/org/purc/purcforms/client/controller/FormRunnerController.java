@@ -57,6 +57,7 @@ public class FormRunnerController implements SubmitListener{
 				url += FormUtil.getEntityFormDefDownloadUrlSuffix();
 				url += FormUtil.getFormIdName()+"="+formId;
 				url += "&" + FormUtil.getEntityIdName() + "="+entityId;
+				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,URL.encode(url));
 
@@ -152,6 +153,7 @@ public class FormRunnerController implements SubmitListener{
 				//"http://127.0.0.1:8080/openmrs/module/xforms/xformDataUpload.form"
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getFormDataUploadUrlSuffix();
+				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,URL.encode(url));
 
