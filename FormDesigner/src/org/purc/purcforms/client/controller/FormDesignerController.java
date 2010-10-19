@@ -101,7 +101,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 	/** The object that is being refreshed. */
 	private Object refreshObject;
-	
+
 	private boolean saveAsMode = false;
 
 
@@ -351,7 +351,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	private void saveTheForm() {
 		final boolean localSaveAsMode = saveAsMode;
 		saveAsMode = false;
-		
+
 		final FormDef obj = leftPanel.getSelectedForm();
 		if(obj.isReadOnly())
 			;//return; //TODO I think we should allow saving of form text and layout
@@ -403,7 +403,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					centerPanel.setXformsSource(xml,formSaveListener == null && isOfflineMode());
 					centerPanel.buildLayoutXml();
 					//formDef.setLayout(centerPanel.getLayoutXml());
-					
+
 					centerPanel.saveLanguageText(false);
 					setLocaleText(formDef.getId(),Context.getLocale().getKey(), centerPanel.getLanguageXml());
 
@@ -411,7 +411,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 					if(!isOfflineMode() && formSaveListener == null)
 						saveForm(xml,centerPanel.getLayoutXml(),PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())),centerPanel.getJavaScriptSource());
-					
+
 					boolean saveLocaleText = false;
 					if(formSaveListener != null)
 						saveLocaleText = formSaveListener.onSaveForm(formDef.getId(), xml, centerPanel.getLayoutXml(), centerPanel.getJavaScriptSource());
@@ -423,7 +423,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					if(saveLocaleText)
 						saveTheLanguageText(false,false);
 					//saveLanguageText(false); Commented out because we may be called during change locale where caller needs to have us complete everything before he can do his stuff, and hence no more differed or delayed executions.
-				
+
 					if(localSaveAsMode)
 						saveAs();
 				}
@@ -466,8 +466,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			});
 		}
 		else*/
-			//saveAs();
-		
+		//saveAs();
+
 		saveAsMode = true;
 		saveForm();
 	}
@@ -790,14 +790,17 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 		try{
 			String xml = xformXml;
-			if(layoutXml != null && layoutXml.trim().length() > 0)
-				xml += PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR + layoutXml;
 
-			if(languageXml != null && languageXml.trim().length() > 0)
-				xml += PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR + languageXml;
+			if(FormUtil.combineFormOnSave()){
+				if(layoutXml != null && layoutXml.trim().length() > 0)
+					xml += PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR + layoutXml;
 
-			if(javaScriptSrc != null && javaScriptSrc.trim().length() > 0)
-				xml += PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR + javaScriptSrc;
+				if(languageXml != null && languageXml.trim().length() > 0)
+					xml += PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR + languageXml;
+
+				if(javaScriptSrc != null && javaScriptSrc.trim().length() > 0)
+					xml += PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR + javaScriptSrc;
+			}
 
 			builder.sendRequest(xml, new RequestCallback(){
 				public void onResponseReceived(Request request, Response response){
