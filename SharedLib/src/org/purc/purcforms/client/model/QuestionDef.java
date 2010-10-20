@@ -540,14 +540,22 @@ public class QuestionDef implements Serializable{
 	}
 
 	public void addOption(OptionDef optionDef){
-		addOption(optionDef,true);
+		addOption(optionDef, null, true);
+	}
+	
+	public void addOption(OptionDef optionDef, OptionDef refOptionDef){
+		addOption(optionDef, refOptionDef, true);
 	}
 
-	public void addOption(OptionDef optionDef, boolean setAsParent){
+	public void addOption(OptionDef optionDef, OptionDef refOptionDef, boolean setAsParent){
 		if(options == null || !(options instanceof ArrayList))
 			options = new ArrayList();
-		((List)options).add(optionDef);
-
+		
+		if(refOptionDef == null)
+			((List)options).add(optionDef);
+		else
+			((List)options).add(((List)options).indexOf(refOptionDef) + 1, optionDef);
+		
 		if(setAsParent)
 			optionDef.setParent(this);
 	}

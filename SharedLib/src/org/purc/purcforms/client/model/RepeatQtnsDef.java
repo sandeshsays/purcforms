@@ -68,11 +68,18 @@ public class RepeatQtnsDef implements Serializable {
 	}
 
 	public void addQuestion(QuestionDef qtn){
+		addQuestion(qtn, null);
+	}
+	
+	public void addQuestion(QuestionDef qtn, QuestionDef refQtn){
 		if(questions == null)
 			questions = new Vector();
 		
 		//qtn.setId((byte)(questions.size()+1)); id should be set somewhere else
-		questions.addElement(qtn);
+		if(refQtn == null)
+			questions.addElement(qtn);
+		else
+			questions.add(questions.indexOf(refQtn) + 1, qtn);
 	}
 	
 	public void removeQuestion(QuestionDef qtnDef, FormDef formDef){

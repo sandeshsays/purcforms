@@ -223,6 +223,10 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	}
 
 
+	private TreeItem addImageItem(TreeItem root, String title,ImageResource imageProto, Object userObj,String helpText) {
+		return addImageItem(null, root, title, imageProto, userObj, helpText);
+	}
+	
 	/**
 	 * A helper method to simplify adding tree items that have attached images.
 	 * {@link #addImageItem(TreeItem, String) code}
@@ -230,12 +234,16 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	 * @param root the tree item to which the new item will be added.
 	 * @param title the text associated with this item.
 	 */
-	private TreeItem addImageItem(TreeItem root, String title,ImageResource imageProto, Object userObj,String helpText) {
+	private TreeItem addImageItem(TreeItem inserAfterItem, TreeItem root, String title,ImageResource imageProto, Object userObj,String helpText) {
 		TreeItem item = new CompositeTreeItem(new TreeItemWidget(imageProto, title,popup,this));
 		item.setUserObject(userObj);
 		item.setTitle(helpText);
-		if(root != null)
-			root.addItem(item);
+		if(root != null){
+			if(inserAfterItem != null)
+				root.insertItem(item, inserAfterItem);
+			else
+				root.addItem(item);
+		}
 		else
 			tree.addItem(item);
 		return item;
@@ -308,7 +316,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		if(formDef.getPages() != null){
 			for(int currentPageNo =0; currentPageNo<formDef.getPages().size(); currentPageNo++){
-				TreeItem pageRoot = loadPage((PageDef)formDef.getPages().elementAt(currentPageNo),formRoot);
+				TreeItem pageRoot = loadPage((PageDef)formDef.getPages().elementAt(currentPageNo), null, formRoot);
 
 				//We expand only the first page.
 				if(currentPageNo == 0)
@@ -394,21 +402,21 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		}
 	}
 
-	private TreeItem loadPage(PageDef pageDef,TreeItem formRoot){
-		TreeItem pageRoot = addImageItem(formRoot, pageDef.getName(), images.drafts(),pageDef,null);
+	private TreeItem loadPage(PageDef pageDef, TreeItem insertAfterItem, TreeItem formRoot){
+		TreeItem pageRoot = addImageItem(insertAfterItem, formRoot, pageDef.getName(), images.drafts(),pageDef,null);
 		loadQuestions(pageDef.getQuestions(),pageRoot);
 		return pageRoot;
 	}
 
-	private void loadQuestions(Vector questions,TreeItem root){
+	private void loadQuestions(Vector questions, TreeItem root){
 		if(questions != null){
 			for(int currentQtnNo=0; currentQtnNo<questions.size(); currentQtnNo++)
-				loadQuestion((QuestionDef)questions.elementAt(currentQtnNo),root);
+				loadQuestion((QuestionDef)questions.elementAt(currentQtnNo), null, root);
 		}
 	}
 
-	private TreeItem loadQuestion(QuestionDef questionDef,TreeItem root){
-		TreeItem questionRoot = addImageItem(root, questionDef.getDisplayText(), images.lookup(),questionDef,questionDef.getHelpText());
+	private TreeItem loadQuestion(QuestionDef questionDef, TreeItem insertAfterItem, TreeItem root){
+		TreeItem questionRoot = addImageItem(insertAfterItem, root, questionDef.getDisplayText(), images.lookup(),questionDef,questionDef.getHelpText());
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
@@ -553,40 +561,40 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		//Check if there is any selection.
 		if(item != null){
 
-			int selectedIndex = item.getParentItem().getChildIndex(item);
+			//int selectedIndex = item.getParentItem().getChildIndex(item);
 
 			Object userObj = item.getUserObject();
 			if(userObj instanceof QuestionDef){
 				int id = ++nextQuestionId;
 				String binding = FormDesignerUtil.getQtnBinding(id, getNextQuestionPos());
 				QuestionDef questionDef = new QuestionDef(id,LocaleText.get("question")+getNextQuestionPos(),QuestionDef.QTN_TYPE_TEXT, binding,item.getParentItem().getUserObject());
-				item = addImageItem(item.getParentItem(), questionDef.getText(), images.lookup(),questionDef,questionDef.getHelpText());
-				addFormDefItem(questionDef, item.getParentItem()); //?????
+				item = addImageItem(item, item.getParentItem(), questionDef.getText(), images.lookup(),questionDef,questionDef.getHelpText());
+				addFormDefItem(questionDef, userObj, item.getParentItem()); //?????
 				tree.setSelectedItem(item);
 			}
 			else if(userObj instanceof OptionDef){
 				int id = ++nextOptionId;
 				String binding = FormDesignerUtil.getOptnBinding(id, getNextOptionPos(item.getParentItem().getUserObject()));
 				OptionDef optionDef = new OptionDef(id,LocaleText.get("option")+getNextOptionPos(item.getParentItem().getUserObject()), binding,(QuestionDef)item.getParentItem().getUserObject());
-				item = addImageItem(item.getParentItem(), optionDef.getText(), images.markRead(),optionDef,null);
-				addFormDefItem(optionDef,item.getParentItem());
+				item = addImageItem(item, item.getParentItem(), optionDef.getText(), images.markRead(),optionDef,null);
+				addFormDefItem(optionDef, userObj, item.getParentItem());
 				tree.setSelectedItem(item);	
 			}
 			else if(userObj instanceof PageDef){
 				int id = ++nextPageId;
 				PageDef pageDef = new PageDef(LocaleText.get("page")+id,id,null,(FormDef)item.getParentItem().getUserObject());
-				item = addImageItem(item.getParentItem(), pageDef.getName(), images.drafts(),pageDef,null);
-				addFormDefItem(pageDef,item.getParentItem());
+				item = addImageItem(item, item.getParentItem(), pageDef.getName(), images.drafts(),pageDef,null);
+				addFormDefItem(pageDef, userObj, item.getParentItem());
 				tree.setSelectedItem(item);
 			}
 			else if(userObj instanceof FormDef)
 				addNewForm();
 
 			//Move the newly added item just immediately below the item which was previously selected.
-			int addedIndex = item.getParentItem().getChildIndex(item);
+			/*int addedIndex = item.getParentItem().getChildIndex(item);
 			int count = addedIndex - selectedIndex - 1;
 			for(int index = 0; index < count; index++)
-				moveItemUp(); //????
+				moveItemUp(); */
 		}
 		else
 			addNewForm();
@@ -687,19 +695,22 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		parentItem.setState(true);
 	}
 
-
-	private void addFormDefItem(Object obj,TreeItem parentItem){
+	private void addFormDefItem(Object obj, TreeItem parentItem){
+		addFormDefItem(obj, null, parentItem);
+	}
+	
+	private void addFormDefItem(Object obj, Object refObj, TreeItem parentItem){
 		Object parentUserObj = parentItem.getUserObject();
 		if(parentUserObj instanceof QuestionDef){
 			if(obj instanceof OptionDef)
-				((QuestionDef)parentUserObj).addOption((OptionDef)obj);
+				((QuestionDef)parentUserObj).addOption((OptionDef)obj, (OptionDef)refObj);
 			else
-				((QuestionDef)parentUserObj).getRepeatQtnsDef().addQuestion((QuestionDef)obj);
+				((QuestionDef)parentUserObj).getRepeatQtnsDef().addQuestion((QuestionDef)obj, (QuestionDef)refObj);
 		}
 		else if(parentUserObj instanceof PageDef)
-			((PageDef)parentUserObj).addQuestion((QuestionDef)obj);
+			((PageDef)parentUserObj).addQuestion((QuestionDef)obj, (QuestionDef)refObj);
 		else if(parentUserObj instanceof FormDef)
-			((FormDef)parentUserObj).addPage((PageDef)obj);
+			((FormDef)parentUserObj).addPage((PageDef)obj, (PageDef)refObj);
 
 	}
 
@@ -1022,19 +1033,16 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(item == null)
 			return;
 
-		//if(item.getParentItem() == null)
-		//	return;
-
-		int selectedIndex = -1;
+		/*int selectedIndex = -1;
 		if(item.getParentItem() != null)
 			selectedIndex = item.getParentItem().getChildIndex(item);
 		
-		boolean moveItems = false;
+		boolean moveItems = false;*/
 
 		Object userObj = item.getUserObject();
 
 		if(clipboardItem instanceof QuestionDef){
-			//Questions can be pasted only as kids of pages or repeat questions.
+			//Questions can be pasted only as kids of pages or repeat questions, or just next to each other.
 			if(! ( (userObj instanceof PageDef) || 
 					(userObj instanceof QuestionDef /*&& 
 							((QuestionDef)userObj).getDataType() == QuestionDef.QTN_TYPE_REPEAT)*/ ))){
@@ -1046,7 +1054,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			questionDef.setId(item.getChildCount()+1);
 
-			item = loadQuestion(questionDef, ((userObj instanceof QuestionDef && ((QuestionDef)userObj).getDataType() != QuestionDef.QTN_TYPE_REPEAT)) ? item.getParentItem() : item);
+			boolean pasteNextToQuestion = (userObj instanceof QuestionDef && ((QuestionDef)userObj).getDataType() != QuestionDef.QTN_TYPE_REPEAT);
+			
+			item = loadQuestion(questionDef, (pasteNextToQuestion ? item : null), (pasteNextToQuestion ? item.getParentItem() : item));
 
 			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
@@ -1058,15 +1068,15 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			if(userObj instanceof PageDef)
 				((PageDef)userObj).addQuestion(questionDef);
-			else if(userObj instanceof QuestionDef && ((QuestionDef)userObj).getDataType() != QuestionDef.QTN_TYPE_REPEAT){
-				((PageDef)((QuestionDef)userObj).getParent()).addQuestion(questionDef);
-				moveItems = true;
+			else if(pasteNextToQuestion){
+				((PageDef)((QuestionDef)userObj).getParent()).addQuestion(questionDef, (QuestionDef)userObj);
+				//moveItems = true;
 			}
 			else
 				((QuestionDef)userObj).getRepeatQtnsDef().addQuestion(questionDef);
 		}
 		else if(clipboardItem instanceof PageDef){		
-			//Pages can be pasted only as kids of forms.
+			//Pages can be pasted only as kids of forms, or just next to each other.
 			if(!(userObj instanceof FormDef || userObj instanceof PageDef))
 				return;
 
@@ -1075,7 +1085,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			pageDef.setPageNo(item.getChildCount()+1);
 
-			item = loadPage(pageDef, (userObj instanceof PageDef) ? item.getParentItem() : item);
+			boolean insertAfterPage = (userObj instanceof PageDef);
+			
+			item = loadPage(pageDef, (insertAfterPage ? item : null), (insertAfterPage ? item.getParentItem() : item));
 
 			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
@@ -1084,13 +1096,13 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			if(userObj instanceof FormDef)
 				((FormDef)userObj).addPage(pageDef);
 			else{
-				((PageDef)userObj).getParent().addPage(pageDef);
-				moveItems = true;
+				((PageDef)userObj).getParent().addPage(pageDef, (PageDef)userObj);
+				//moveItems = true;
 			}
 
 		}
 		else if(clipboardItem instanceof OptionDef){
-			//Question options can be pasted only as kids of single and multi select questions.
+			//Question options can be pasted only as kids of single and multi select questions, or just next to each other.
 			if(!( (userObj instanceof QuestionDef 
 					&& (((QuestionDef)userObj).getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 							((QuestionDef)userObj).getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)) ||
@@ -1101,7 +1113,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			OptionDef optionDef = new OptionDef((OptionDef)clipboardItem, userObj instanceof QuestionDef ? (QuestionDef)userObj : ((OptionDef)userObj).getParent());
 			optionDef.setId(item.getChildCount()+1);
 
-			item = addImageItem((userObj instanceof OptionDef) ? item.getParentItem() : item, optionDef.getText(), images.markRead(),optionDef,null);
+			item = addImageItem((userObj instanceof OptionDef) ? item : null, (userObj instanceof OptionDef) ? item.getParentItem() : item, optionDef.getText(), images.markRead(),optionDef,null);
 
 			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
@@ -1110,18 +1122,18 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			if(userObj instanceof QuestionDef)
 				((QuestionDef)userObj).addOption(optionDef);
 			else{
-				((OptionDef)userObj).getParent().addOption(optionDef);
-				moveItems = true;
+				((OptionDef)userObj).getParent().addOption(optionDef, (OptionDef)userObj);
+				//moveItems = true;
 			}
 		}
 
 		//Move the newly added item just immediately below the item which was previously selected.
-		if(moveItems){
+		/*if(moveItems){
 			int addedIndex = item.getParentItem().getChildIndex(item);
 			int count = addedIndex - selectedIndex - 1;
 			for(int index = 0; index < count; index++)
 				moveItemUp();
-		}
+		}*/
 	}
 
 	/**

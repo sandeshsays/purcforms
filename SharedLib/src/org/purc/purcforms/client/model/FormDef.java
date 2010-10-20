@@ -165,17 +165,25 @@ public class FormDef implements Serializable{
 		setDescriptionTemplate((descTemplate == null) ? ModelConstants.EMPTY_STRING : descTemplate);
 		setCalculations(calculations);
 	}
+	
+	public void addPage(PageDef pageDef){
+		addPage(pageDef, null);
+	}
 
 	/**
 	 * Adds a new page to the form.
 	 * 
 	 * @param pageDef the page to add.
 	 */
-	public void addPage(PageDef pageDef){
+	public void addPage(PageDef pageDef, PageDef refPageDef){
 		if(pages == null)
 			pages = new Vector();
 
-		pages.add(pageDef);
+		if(refPageDef == null)
+			pages.add(pageDef);
+		else
+			pages.add(pages.indexOf(refPageDef) + 1, pageDef);
+		
 		pageDef.setParent(this);
 	}
 

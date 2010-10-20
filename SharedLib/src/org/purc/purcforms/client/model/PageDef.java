@@ -179,16 +179,24 @@ public class PageDef implements Serializable{
 		return (QuestionDef)questions.elementAt(index);
 	}
 
+	public void addQuestion(QuestionDef qtn){
+		addQuestion(qtn, null);
+	}
 
 	/**
 	 * Adds a question to the page.
 	 * 
 	 * @param qtn the question to add.
 	 */
-	public void addQuestion(QuestionDef qtn){
+	public void addQuestion(QuestionDef qtn, QuestionDef refQtn){
 		if(questions == null)
 			questions = new Vector();
-		questions.addElement(qtn);
+		
+		if(refQtn == null)
+			questions.addElement(qtn);
+		else
+			questions.add(questions.indexOf(refQtn) + 1, qtn);
+		
 		qtn.setParent(this);
 	}
 
