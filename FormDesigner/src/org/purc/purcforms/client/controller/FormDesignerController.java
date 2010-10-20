@@ -967,6 +967,13 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public void moveDown(){
 		leftPanel.getFormActionListener().moveUp();
 	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#rebuildBindings()
+	 */
+	public void rebuildBindings(){
+		leftPanel.getFormActionListener().rebuildBindings();
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#moveToParent()

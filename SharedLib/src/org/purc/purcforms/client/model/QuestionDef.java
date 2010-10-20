@@ -81,7 +81,7 @@ public class QuestionDef implements Serializable{
 	/** The text indentifier of the question. This is used by the users of the questionaire 
 	 * but in code we use the dynamically generated numeric id for speed. 
 	 */
-	private String variableName = ModelConstants.EMPTY_STRING;
+	private String binding = ModelConstants.EMPTY_STRING;
 
 	/** The allowed set of values (OptionDef) for an answer of the question. 
 	 * This also holds repeat sets of questions (RepeatQtnsDef) for the QTN_TYPE_REPEAT.
@@ -195,7 +195,7 @@ public class QuestionDef implements Serializable{
 		setEnabled(questionDef.isEnabled());
 		setLocked(questionDef.isLocked());
 		setRequired(questionDef.isRequired());
-		setVariableName(questionDef.getBinding());
+		setBinding(questionDef.getBinding());
 
 		if(getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			copyQuestionOptions(questionDef.getOptions());
@@ -208,7 +208,7 @@ public class QuestionDef implements Serializable{
 		setId(id);
 		setText(text);
 		setDataType(type);
-		setVariableName(variableName);
+		setBinding(variableName);
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class QuestionDef implements Serializable{
 		setEnabled(enabled);
 		setLocked(locked);
 		setRequired(mandatory);		
-		setVariableName(variableName);
+		setBinding(variableName);
 		setOptions(options);
 	}
 
@@ -404,13 +404,13 @@ public class QuestionDef implements Serializable{
 	}
 
 	public String getBinding() {
-		return variableName;
+		return binding;
 	}
 
-	public void setVariableName(String variableName) {
-		boolean changed = this.variableName != variableName;
+	public void setBinding(String variableName) {
+		boolean changed = this.binding != variableName;
 
-		this.variableName = variableName;
+		this.binding = variableName;
 
 		if(changed){
 			for(int index = 0; index < changeListeners.size(); index++)
@@ -708,14 +708,14 @@ public class QuestionDef implements Serializable{
 		}
 
 		if(node != null){
-			String binding = variableName;
+			String binding = this.binding;
 			if(!binding.startsWith("/"+ formDef.getBinding()+"/") && appendParentBinding){
 				//if(!binding.contains("/"+ formDef.getVariableName()+"/"))
 				if(!binding.startsWith(formDef.getBinding()+"/"))
 					binding = "/"+ formDef.getBinding()+"/" + binding;
 				else{
-					variableName = "/" + variableName; //correct user binding syntax error
-					binding = variableName;
+					this.binding = "/" + this.binding; //correct user binding syntax error
+					binding = this.binding;
 				}
 			}
 
@@ -793,7 +793,7 @@ public class QuestionDef implements Serializable{
 			getRepeatQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
 
 			if(controlNode != null)
-				((Element)controlNode.getParentNode()).setAttribute(XformConstants.ATTRIBUTE_NAME_ID, variableName);
+				((Element)controlNode.getParentNode()).setAttribute(XformConstants.ATTRIBUTE_NAME_ID, binding);
 
 			if(!withData && dataNode != null){
 				//Remove all repeating data kids
@@ -874,7 +874,7 @@ public class QuestionDef implements Serializable{
 		}
 
 		if(value != null && value.trim().length() > 0){
-			if(variableName.contains("@"))
+			if(binding.contains("@"))
 				updateAttributeValue(formNode,value);
 			else if(dataNode != null){
 				if(isBinaryType()){
@@ -895,7 +895,7 @@ public class QuestionDef implements Serializable{
 		else{
 			//TODO Check to see that this does not remove child model node of repeats
 			if(dataNode != null && dataType != QuestionDef.QTN_TYPE_REPEAT){
-				if(variableName.contains("@"))
+				if(binding.contains("@"))
 					updateAttributeValue(formNode,"");
 				else{
 					NodeList childNodes = dataNode.getChildNodes();
@@ -917,7 +917,7 @@ public class QuestionDef implements Serializable{
 	}
 
 	private void updateAttributeValue(Element formNode, String value){
-		String xpath = variableName;		
+		String xpath = binding;		
 		Element elem = formNode; //(Element)formNode.getParentNode();
 
 		if(dataType != QuestionDef.QTN_TYPE_REPEAT){
@@ -928,7 +928,7 @@ public class QuestionDef implements Serializable{
 				xpath = xpath.substring(0,pos-1);
 			}
 			else if(pos == 0){
-				attributeName = variableName.substring(1,variableName.length());
+				attributeName = binding.substring(1,binding.length());
 				if(value != null && value.trim().length() > 0) //we are not allowing empty strings for now.
 					formNode.setAttribute(attributeName, value);
 				return;
@@ -951,24 +951,24 @@ public class QuestionDef implements Serializable{
 	}
 
 	private void updateDataNode(Document doc, FormDef formDef, String orgFormVarName){
-		if(variableName.contains("@"))
+		if(binding.contains("@"))
 			return;
 
 		String name = dataNode.getNodeName();
-		if(name.equals(variableName)){ //equalsIgnoreCase was bug because our xpath lib is case sensitive
+		if(name.equals(binding)){ //equalsIgnoreCase was bug because our xpath lib is case sensitive
 			if(dataType != QuestionDef.QTN_TYPE_REPEAT)
 				return;
 			if(dataType == QuestionDef.QTN_TYPE_REPEAT && formDef.getBinding().equals(dataNode.getParentNode().getNodeName()))
 				return;
 		}
 
-		if(variableName.contains("/") && name.equals(variableName.substring(variableName.lastIndexOf("/")+1)) && dataNode.getParentNode().getNodeName().equals(variableName.substring(0,variableName.indexOf("/"))))
+		if(binding.contains("/") && name.equals(binding.substring(binding.lastIndexOf("/")+1)) && dataNode.getParentNode().getNodeName().equals(binding.substring(0,binding.indexOf("/"))))
 			return;
 
 
 		String xml = dataNode.toString();
-		if(!variableName.contains("/")){
-			xml = xml.replace(name, variableName);
+		if(!binding.contains("/")){
+			xml = xml.replace(name, binding);
 			Element node = XformUtil.getNode(xml);
 			node = (Element)controlNode.getOwnerDocument().importNode(node, true);
 			Element parent = (Element)dataNode.getParentNode();
@@ -981,7 +981,7 @@ public class QuestionDef implements Serializable{
 			dataNode = node;
 		}
 		else{
-			String newName = variableName.substring(variableName.lastIndexOf("/")+1);
+			String newName = binding.substring(binding.lastIndexOf("/")+1);
 			if(!name.equals(newName)){
 				xml = xml.replace(name, newName);
 				Element node = XformUtil.getNode(xml);
@@ -991,16 +991,16 @@ public class QuestionDef implements Serializable{
 				dataNode = node;
 			}
 
-			String parentName = variableName.substring(0,variableName.indexOf("/"));
+			String parentName = binding.substring(0,binding.indexOf("/"));
 			if(parentName.trim().length() == 0)
 				return;
 			
 			String parentNodeName = dataNode.getParentNode().getNodeName();
 			if(!parentName.equals(parentNodeName)){ //equalsIgnoreCase was bug because our xpath lib is case sensitive
-				if(variableName.equals(parentName+"/"+parentNodeName+"/"+name))
+				if(binding.equals(parentName+"/"+parentNodeName+"/"+name))
 					return;
 				
-				if(variableName.endsWith("/"+parentNodeName+"/"+name))
+				if(binding.endsWith("/"+parentNodeName+"/"+name))
 					return; //Some bindings have nested paths which expose some bug here.
 
 				Element parentNode = doc.createElement(parentName);
@@ -1018,7 +1018,7 @@ public class QuestionDef implements Serializable{
 			}
 		}
 
-		String id = variableName;
+		String id = binding;
 		if(id.contains("/"))
 			id = id.substring(id.lastIndexOf('/')+1);
 
@@ -1041,7 +1041,7 @@ public class QuestionDef implements Serializable{
 		if(dataType == QuestionDef.QTN_TYPE_REPEAT)
 			getRepeatQtnsDef().updateDataNodes(dataNode);
 
-		formDef.updateRuleConditionValue(orgFormVarName+"/"+name, formDef.getBinding()+"/"+variableName);
+		formDef.updateRuleConditionValue(orgFormVarName+"/"+name, formDef.getBinding()+"/"+binding);
 	}
 
 
@@ -1331,7 +1331,7 @@ public class QuestionDef implements Serializable{
 				//ones with the old values.
 				if(oldCount == count){
 					OptionDef optnDef = questionDef.getOptionAt(index);
-					optionDef.setVariableName(optnDef.getVariableName());
+					optionDef.setBinding(optnDef.getVariableName());
 					optionDef.setText(optnDef.getText());
 				}
 				

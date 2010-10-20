@@ -536,11 +536,11 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				txtBinding.setText(name);
 			}
 			else if(propertiesObj instanceof QuestionDef && ((QuestionDef)propertiesObj).getBinding().equals(orgTextDefBinding) /*startsWith("question")*/){
-				((QuestionDef)propertiesObj).setVariableName(name);
+				((QuestionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
 			else if(propertiesObj instanceof OptionDef && ((OptionDef)propertiesObj).getVariableName().equals(orgTextDefBinding) /*.startsWith("option")*/){
-				((OptionDef)propertiesObj).setVariableName(name);
+				((OptionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
 		}
@@ -668,9 +668,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		if(propertiesObj instanceof QuestionDef)
-			((QuestionDef)propertiesObj).setVariableName(txtBinding.getText());
+			((QuestionDef)propertiesObj).setBinding(txtBinding.getText());
 		else if(propertiesObj instanceof OptionDef)
-			((OptionDef)propertiesObj).setVariableName(txtBinding.getText());
+			((OptionDef)propertiesObj).setBinding(txtBinding.getText());
 		else if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setVariableName(txtBinding.getText());
 		else if(propertiesObj instanceof PageDef){

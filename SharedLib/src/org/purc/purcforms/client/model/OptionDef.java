@@ -56,7 +56,7 @@ public class OptionDef implements Serializable {
 		 this(parent);
 		 setId(optionDef.getId());
 		 setText(optionDef.getText());
-		 setVariableName(optionDef.getVariableName());
+		 setBinding(optionDef.getVariableName());
 		 //setParent(parent /*optionDef.getParent()*/);
 	}
 	
@@ -70,7 +70,7 @@ public class OptionDef implements Serializable {
 		this(parent);
 		setId(id);
 		setText(text);
-		setVariableName(variableName);
+		setBinding(variableName);
 	}
 	
 	public int getId() {
@@ -93,7 +93,7 @@ public class OptionDef implements Serializable {
 		return variableName;
 	}
 	
-	public void setVariableName(String variableName) {
+	public void setBinding(String variableName) {
 		this.variableName = variableName;
 	}
 

@@ -74,6 +74,7 @@ public class FormUtil {
 	private static String gpsTypeName;
 	private static String saveFormat;
 	private static boolean combineFormOnSave = true;
+	private static boolean rebuildBindings = false;
 	
 	public static String JAVAROSA = "javarosa";
 	
@@ -445,6 +446,12 @@ public class FormUtil {
 				combineFormOnSave = false;
 		}
 		
+		s = getDivValue("rebuildBindings");
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				rebuildBindings = true;
+		}
+		
 	}
 
 	public static String getDivValue(String id){
@@ -641,6 +648,10 @@ public class FormUtil {
 	
 	public static boolean combineFormOnSave(){
 		return combineFormOnSave;
+	}
+	
+	public static boolean rebuildBindings(){
+		return rebuildBindings;
 	}
 
 	/**

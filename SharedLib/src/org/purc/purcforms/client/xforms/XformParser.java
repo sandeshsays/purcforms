@@ -570,7 +570,7 @@ public class XformParser {
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE) != null && child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE).equals(XformConstants.XPATH_VALUE_FALSE))
 			qtn.setVisible(false);
 
-		qtn.setVariableName(((ref != null) ? ref : bind));
+		qtn.setBinding(((ref != null) ? ref : bind));
 		formDef.addQuestion(qtn);
 
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT) != null)
@@ -695,7 +695,7 @@ public class XformParser {
 		QuestionDef qtn = new QuestionDef(null);
 		qtn.setBindNode(child);
 		qtn.setId(getNextQuestionId());
-		qtn.setVariableName(XformParserUtil.getQuestionVariableName(child,formDef));
+		qtn.setBinding(XformParserUtil.getQuestionVariableName(child,formDef));
 		XformParserUtil.setQuestionType(qtn,child.getAttribute(XformConstants.ATTRIBUTE_NAME_TYPE),child);
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED) != null && child.getAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED).equals(XformConstants.XPATH_VALUE_TRUE)){
 			if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_ACTION) == null)
