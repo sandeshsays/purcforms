@@ -1738,4 +1738,8 @@ public class FormsTreeView extends com.extjs.gxt.ui.client.widget.Composite impl
 		
 		return AbstractImagePrototype.create(imageResource);
 	}
+	
+	public void rebuildBindings(){
+		
+	}
 }

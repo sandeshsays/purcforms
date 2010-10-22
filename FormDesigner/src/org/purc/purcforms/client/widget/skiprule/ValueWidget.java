@@ -544,7 +544,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 			OptionDef optionDef = questionDef.getOptionWithText(val);
 			if(optionDef != null)
-				val = optionDef.getVariableName();
+				val = optionDef.getBinding();
 			else
 				val = null;
 		}
@@ -553,7 +553,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			if(dynamicOptionDef != null){
 				OptionDef optionDef = dynamicOptionDef.getOptionWithText(val);
 				if(optionDef != null)
-					val = optionDef.getVariableName();
+					val = optionDef.getBinding();
 			}
 		}
 		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
@@ -567,7 +567,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 					if(optionDef != null){
 						if(val.length() > 0)
 							val += LIST_SEPARATOR;
-						val += optionDef.getVariableName();
+						val += optionDef.getBinding();
 					}
 				}
 			}

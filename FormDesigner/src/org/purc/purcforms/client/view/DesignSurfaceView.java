@@ -968,7 +968,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			DesignWidgetWrapper wrapper = addNewWidget(new CheckBox(optionDef.getText()),false);
 			wrapper.setFontFamily(FormUtil.getDefaultFontFamily());
 			wrapper.setFontSize(FormUtil.getDefaultFontSize());
-			wrapper.setBinding(optionDef.getVariableName());
+			wrapper.setBinding(optionDef.getBinding());
 			wrapper.setParentBinding(questionDef.getBinding());
 			wrapper.setText(optionDef.getText());
 			wrapper.setTitle(optionDef.getText());

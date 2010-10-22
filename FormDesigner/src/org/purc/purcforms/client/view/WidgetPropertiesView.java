@@ -750,7 +750,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 				return;
 			}
 
-			widget.setBinding(optionDef.getVariableName());
+			widget.setBinding(optionDef.getBinding());
 
 			if(((widget.getWrappedWidget() instanceof RadioButton) && ((RadioButton)widget.getWrappedWidget()).getText().equals("RadioButton")) ||
 					((widget.getWrappedWidget() instanceof CheckBox) && ((CheckBox)widget.getWrappedWidget()).getText().equals("CheckBox"))){

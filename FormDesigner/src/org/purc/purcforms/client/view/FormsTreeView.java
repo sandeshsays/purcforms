@@ -1270,7 +1270,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		for(int index = 0; index < count; index++){
 			TreeItem child = parent.getChild(index);
 			OptionDef optionDef = (OptionDef)child.getUserObject();
-			String variableName = optionDef.getVariableName();
+			String variableName = optionDef.getBinding();
 			if(bindings.containsKey(variableName)){
 				tree.setSelectedItem(child);
 				tree.ensureSelectedItemVisible();

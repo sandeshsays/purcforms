@@ -5,6 +5,7 @@ import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
+import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 
 import com.google.gwt.user.client.ui.Composite;
@@ -201,6 +202,8 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 
 		if(condition.getValue() == null)
 			return null;
+		else
+			condition.setBindingChangeListener(questionDef);
 
 		return condition;
 	}

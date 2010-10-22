@@ -1800,7 +1800,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			DesignWidgetWrapper wrapper = addNewWidget(new RadioButtonWidget(optionDef.getText()),false);
 			wrapper.setFontFamily(FormUtil.getDefaultFontFamily());
 			wrapper.setFontSize(FormUtil.getDefaultFontSize());
-			wrapper.setBinding(optionDef.getVariableName());
+			wrapper.setBinding(optionDef.getBinding());
 			wrapper.setParentBinding(questionDef.getBinding());
 			wrapper.setText(optionDef.getText());
 			wrapper.setTitle(optionDef.getText());

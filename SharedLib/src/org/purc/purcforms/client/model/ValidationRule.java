@@ -140,6 +140,7 @@ public class ValidationRule implements Serializable{
 		for(int i=0; i<conditions.size(); i++){
 			Condition cond = (Condition)conditions.elementAt(i);
 			if(cond.getId() == condition.getId()){
+				//cond.removeBindingChangeListeners(); //TODO This is buggy.
 				conditions.remove(i);
 				conditions.add(condition);
 				break;
@@ -148,6 +149,7 @@ public class ValidationRule implements Serializable{
 	}
 	
 	public void removeCondition(Condition condition){
+		condition.removeBindingChangeListeners();
 		conditions.remove(condition);
 	}
 	

@@ -539,7 +539,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				((QuestionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
-			else if(propertiesObj instanceof OptionDef && ((OptionDef)propertiesObj).getVariableName().equals(orgTextDefBinding) /*.startsWith("option")*/){
+			else if(propertiesObj instanceof OptionDef && ((OptionDef)propertiesObj).getBinding().equals(orgTextDefBinding) /*.startsWith("option")*/){
 				((OptionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
@@ -919,7 +919,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		btnCalculation.setEnabled(false);
 
 		txtText.setText(optionDef.getText());
-		txtBinding.setText(optionDef.getVariableName());
+		txtBinding.setText(optionDef.getBinding());
 		//skipRulesView.updateSkipRule();
 	}
 

@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
+import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
 
@@ -151,6 +152,8 @@ public class ConstraintParser {
 			//This is just for the designer
 			if(value.startsWith(formDef.getBinding() + "/"))
 				condition.setValueQtnDef(formDef.getQuestion(value.substring(value.indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(questionDef);
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_NULL)
 				return null; //no operator set hence making the condition invalid
