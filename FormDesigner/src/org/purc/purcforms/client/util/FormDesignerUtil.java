@@ -196,7 +196,7 @@ public class FormDesignerUtil {
 	 * Sets the title of the form designer.
 	 */
 	public static void setDesignerTitle(){
-		String s = FormUtil.getDivValue("title");
+		String s = FormUtil.getDivValue("title", true);
 		if(s != null && s.trim().length() > 0)
 			title = s;
 		Window.setTitle(title);
@@ -261,4 +261,15 @@ public class FormDesignerUtil {
 	private static native String getCustomOptionBinding(int id, int pos) /*-{
 		return $wnd.getOptionBinding(id, pos);
 	}-*/;
+	
+	public static boolean inReadOnlyMode(){
+		boolean readOnly = false;
+		String s = FormUtil.getDivValue("readOnly", false);
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				readOnly = true;
+		}
+		
+		return readOnly;
+	}
 }

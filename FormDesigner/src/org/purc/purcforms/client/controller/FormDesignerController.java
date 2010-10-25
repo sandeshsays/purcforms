@@ -206,7 +206,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	}
 
 	/**
-	 * @see org.purc.purcforms.client.controller.IFormActionListener#showAboutInfo()
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#onOpen()
 	 */
 	public void openForm() {
 		//if(isOfflineMode()){
@@ -227,7 +227,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 				if(formDef != null)
 					refreshFormDeffered();
 				else
-					openFormDeffered(isOfflineMode() ? ModelConstants.NULL_ID : formId,false);
+					openFormDeffered(isOfflineMode() ? ModelConstants.NULL_ID : formId, FormDesignerUtil.inReadOnlyMode());
 			}
 			else{
 				OpenFileDialog dlg = new OpenFileDialog(this,FormUtil.getFileOpenUrl());
@@ -644,6 +644,9 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 		if(!centerPanel.allowsRefresh() || refreshObject instanceof FormsTreeView ||
 				Context.getCurrentMode() == Context.MODE_XFORMS_SOURCE){ //TODO This controller should not know about LeftPanel implementation details.
 
+			if(leftPanel.getSelectedForm().isReadOnly())
+				return;
+			
 			if(formId != null){
 				FormUtil.dlg.setText(LocaleText.get("refreshingForm"));
 				FormUtil.dlg.center();
@@ -751,7 +754,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							centerPanel.setLayoutXml(layoutXml,false);
 							centerPanel.setJavaScriptSource(javaScriptSrc);
 
-							openFormDeffered(formId,false);
+							openFormDeffered(formId, FormDesignerUtil.inReadOnlyMode());
 
 							//FormUtil.dlg.hide(); //openFormDeffered above will close it
 						}

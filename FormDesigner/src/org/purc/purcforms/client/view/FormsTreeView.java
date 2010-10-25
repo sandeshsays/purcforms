@@ -184,46 +184,54 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		popup = new PopupPanel(true,true);
 
 		MenuBar menuBar = new MenuBar(true);
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("addNew")),true, new Command(){
-			public void execute() {popup.hide(); addNewItem();}});
 
-		menuBar.addSeparator();		  
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("addNewChild")),true, new Command(){
-			public void execute() {popup.hide(); addNewChildItem();}});
+		boolean readOnly = FormDesignerUtil.inReadOnlyMode();
 
-		menuBar.addSeparator();		  
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true,new Command(){
-			public void execute() {popup.hide(); deleteSelectedItem();}});
+		if(!readOnly){
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("addNew")),true, new Command(){
+				public void execute() {popup.hide(); addNewItem();}});
 
-		menuBar.addSeparator();		  
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.moveup(),LocaleText.get("moveUp")),true, new Command(){
-			public void execute() {popup.hide(); moveItemUp();}});
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("addNewChild")),true, new Command(){
+				public void execute() {popup.hide(); addNewChildItem();}});
 
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.movedown(),LocaleText.get("moveDown")),true, new Command(){
-			public void execute() {popup.hide(); moveItemDown();}});
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true,new Command(){
+				public void execute() {popup.hide(); deleteSelectedItem();}});
 
-		menuBar.addSeparator();		  
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true,new Command(){
-			public void execute() {popup.hide(); cutItem();}});
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.moveup(),LocaleText.get("moveUp")),true, new Command(){
+				public void execute() {popup.hide(); moveItemUp();}});
 
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.copy(),LocaleText.get("copy")),true,new Command(){
-			public void execute() {popup.hide(); copyItem();}});
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.movedown(),LocaleText.get("moveDown")),true, new Command(){
+				public void execute() {popup.hide(); moveItemDown();}});
 
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.paste(),LocaleText.get("paste")),true,new Command(){
-			public void execute() {popup.hide(); pasteItem();}});
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true,new Command(){
+				public void execute() {popup.hide(); cutItem();}});
 
-		menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.copy(),LocaleText.get("copy")),true,new Command(){
+				public void execute() {popup.hide(); copyItem();}});
+
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.paste(),LocaleText.get("paste")),true,new Command(){
+				public void execute() {popup.hide(); pasteItem();}});
+
+			menuBar.addSeparator();	
+		}
+		
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.save(),LocaleText.get("save")),true,new Command(){
 			public void execute() {popup.hide(); saveItem();}});
 
-		menuBar.addSeparator();		  
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.refresh(),LocaleText.get("refresh")),true,new Command(){
-			public void execute() {popup.hide(); refreshItem();}});
+		if(!readOnly){
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.refresh(),LocaleText.get("refresh")),true,new Command(){
+				public void execute() {popup.hide(); refreshItem();}});
 
-		if(FormUtil.rebuildBindings()){
-			menuBar.addSeparator();	
-			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.templates(),LocaleText.get("rebuildBindings")),true,new Command(){
-				public void execute() {popup.hide(); rebuildBindings();}});
+			if(FormUtil.rebuildBindings()){
+				menuBar.addSeparator();	
+				menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.templates(),LocaleText.get("rebuildBindings")),true,new Command(){
+					public void execute() {popup.hide(); rebuildBindings();}});
+			}
 		}
 
 		popup.setWidget(menuBar);
@@ -1404,7 +1412,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				try{
 					for(int index = 0; index < formDef.getPageCount(); index++)
 						rebuildPageBindings(index + 1, formDef.getPageAt(index));
-					
+
 					TreeItem item = tree.getSelectedItem();
 					if(item != null)
 						fireFormItemSelected(item.getUserObject());
