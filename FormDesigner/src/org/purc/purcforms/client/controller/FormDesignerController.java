@@ -387,12 +387,16 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							xml = XformBuilder.fromFormDef2Xform(formDef);
 					}
 					else{
-						formDef.updateDoc(false);
+						if(FormUtil.isJavaRosaSaveFormat() && !formDef.getDoc().getDocumentElement().getNodeName().contains("html"))
+							xml = XhtmlBuilder.fromFormDef2Xhtml(formDef);
+						else{
+							formDef.updateDoc(false);
 
-						if(FormUtil.isJavaRosaSaveFormat())
-							ItextBuilder.build(formDef);
-
-						xml = XmlUtil.fromDoc2String(formDef.getDoc());
+							if(FormUtil.isJavaRosaSaveFormat())
+								ItextBuilder.build(formDef);
+							
+							xml = XmlUtil.fromDoc2String(formDef.getDoc());
+						}
 					}
 
 					xml = XformUtil.normalizeNameSpace(formDef.getDoc(), xml);
@@ -967,7 +971,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public void moveDown(){
 		leftPanel.getFormActionListener().moveUp();
 	}
-	
+
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#rebuildBindings()
 	 */
