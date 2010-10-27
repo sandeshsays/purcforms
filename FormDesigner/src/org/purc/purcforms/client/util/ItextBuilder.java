@@ -50,6 +50,32 @@ public class ItextBuilder {
 		for(Locale locale : locales)
 			build(formDef, locale.getKey(), itextNode);
 	}
+	
+	
+	public static void build(FormDef formDef, Locale locale){
+
+		Element modelNode = XmlUtil.getNode(formDef.getDoc().getDocumentElement(),"model");
+		assert(modelNode != null); //we must have a model in an xform.
+
+		Element itextNode = XmlUtil.getNode(modelNode,"itext");
+		if(itextNode == null)
+			return; //TODO Need to create it.
+		
+		NodeList nodes = itextNode.getElementsByTagName("translation");
+		if(nodes == null || nodes.getLength() == 0)
+			return; //TODO Need to create it.
+
+		//Map of each locale key and map of its id and itext translations.
+		for(int index = 0; index < nodes.getLength(); index++){
+			Element translationNode = (Element)nodes.item(index);
+			String lang = translationNode.getAttribute("lang");
+			if(locale.getKey().equals(lang)){
+				itextNode.removeChild(translationNode);
+				build(formDef, locale.getKey(), itextNode);
+				break;
+			}
+		}
+	}
 
 
 	private static void build(FormDef formDef, String localeKey, Element itextNode){
