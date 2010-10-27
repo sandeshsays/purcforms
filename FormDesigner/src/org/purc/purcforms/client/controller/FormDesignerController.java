@@ -225,7 +225,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			if(xml != null && xml.trim().length() > 0){
 				FormDef formDef = leftPanel.getSelectedForm();
 				if(formDef != null)
-					refreshFormDeffered();
+					refreshFormDeffered(true);
 				else
 					openFormDeffered(isOfflineMode() ? ModelConstants.NULL_ID : formId, FormDesignerUtil.inReadOnlyMode());
 			}
@@ -670,7 +670,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 				});
 			}
 			else
-				refreshFormDeffered();
+				refreshFormDeffered(false);
 		}
 		else{
 			centerPanel.refresh();
@@ -917,7 +917,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					}
 
 					centerPanel.setXformsSource(xml,false);
-					refreshFormDeffered();
+					refreshFormDeffered(false);
 				}
 
 				public void onError(Request request, Throwable exception){
@@ -933,7 +933,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	/**
 	 * Refreshes the selected from in a deferred command.
 	 */
-	private void refreshFormDeffered(){
+	private void refreshFormDeffered(final boolean overwrite){
 		FormUtil.dlg.setText(LocaleText.get("refreshingForm"));
 		FormUtil.dlg.center();
 
@@ -946,10 +946,11 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 						FormDef oldFormDef = centerPanel.getFormDef();
 
-						//If we are in offline mode, we completely overwrite the form 
+						//If we are in offline mode, or the overwrite flag is set to false,
+						//we completely overwrite the form 
 						//with the contents of the xforms source tab, as a way of someone manually
 						//changing the xform.
-						if(!isOfflineMode())
+						if(!isOfflineMode() && !overwrite)
 							formDef.refresh(oldFormDef);
 
 						formDef.updateDoc(false);
