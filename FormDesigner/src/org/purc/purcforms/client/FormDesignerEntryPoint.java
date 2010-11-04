@@ -30,10 +30,10 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 	 * This is the GWT entry point method.
 	 */
 	public void onModuleLoad() {
-		
+
 		FormUtil.dlg.setText(LocaleText.get("loading"));
 		FormUtil.dlg.center();
-		
+
 		publishJS();
 
 		DeferredCommand.addCommand(new Command() {
@@ -43,7 +43,7 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 		});		
 	}
 
-	
+
 	/**
 	 * Sets up the form designer.
 	 */
@@ -65,7 +65,7 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 				Context.setAllowBindEdit(false);
 
 			FormUtil.retrieveUserDivParameters();
-			
+
 			Context.setOfflineModeStatus();
 
 			// Get rid of scrollbars, and clear out the window's built-in margin,
@@ -82,20 +82,20 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			RootPanel.getBodyElement().getStyle().setProperty("display", "");
 
 			loadLocales();
-			
+
 			designer = new FormDesignerWidget(true,true,true);
-			
+
 			// Finally, add the designer widget to the RootPanel, so that it will be displayed.
 			rootPanel.add(designer);
-			
+
 			updateTabs();
-			
+
 			//If a form id has been specified in the html host page, load the form
 			//with that id in the designer.
 			s = FormUtil.getFormId();
 			if(s != null)
-				designer.loadForm(Integer.parseInt(s));
-			
+				designer.loadForm(getFormId(s));
+
 
 			// Call the window resized handler to get the initial sizes setup. Doing
 			// this in a deferred command causes it to occur after all widgets' sizes
@@ -103,13 +103,13 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			DeferredCommand.addCommand(new Command() {
 				public void execute() {
 					designer.onWindowResized(Window.getClientWidth(), Window.getClientHeight());
-					
+
 					String id = FormUtil.getFormId();
 					if(id == null || id.equals("-1"))
 						FormUtil.dlg.hide();
 				}
 			});
-			
+
 			// Hook the window resize event, so that we can adjust the UI.
 			Window.addResizeHandler(this);
 		}
@@ -117,65 +117,74 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			FormUtil.displayException(ex);
 		}
 	}
-	
+
+	private Integer getFormId(String sId){
+		try{
+			return Integer.parseInt(sId);
+		}
+		catch(Exception ex){
+			return 1;
+		}
+	}
+
 	private void updateTabs(){
 		String s = FormUtil.getDivValue("showXformsSourceTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeXformSourceTab();
-		
+
 		s = FormUtil.getDivValue("showLayoutXmlTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeLayoutXmlTab();
-		
+
 		s = FormUtil.getDivValue("showLanguageTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeLanguageTab();
-		
+
 		s = FormUtil.getDivValue("showModelXmlTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeModelXmlTab();
-		
+
 		s = FormUtil.getDivValue("showJavaScriptTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeJavaScriptTab();
 	}
-	
+
 	public void onResize(ResizeEvent event){
 		designer.onWindowResized(event.getWidth(), event.getHeight());
 	}
-	
+
 	// Set up the JS-callable signature as a global JS function.
 	private native void publishJS() /*-{
    		$wnd.authenticationCallback = @org.purc.purcforms.client.controller.FormDesignerController::authenticationCallback(Z);
    		$wnd.submitForm = @org.purc.purcforms.client.view.FormRunnerView::submitForm();
 	}-*/;
-	
-	
+
+
 	/**
 	 * Loads a list of locales supported by the form designer.
 	 */
 	private void loadLocales(){
 		String localesList = FormUtil.getDivValue("localeList");
-		
+
 		if(localesList == null || localesList.trim().length() == 0)
 			return;
-		
+
 		String[] tokens = localesList.split(",");
 		if(tokens == null || tokens.length == 0)
 			return;
-		
+
 		List<Locale> locales = new ArrayList<Locale>();
-		
+
 		for(String token: tokens){
 			int index = token.indexOf(':');
-			
+
 			//Should at least have one character for key or name
 			if(index < 1 || index == token.length() - 1)
 				continue;
-			
+
 			locales.add(new Locale(token.substring(0,index).trim(),token.substring(index+1).trim()));
 		}
-		
+
 		Context.setLocales(locales);
 	}
 }

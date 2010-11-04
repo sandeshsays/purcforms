@@ -701,7 +701,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getFormDefDownloadUrlSuffix();
-				url += FormUtil.getFormIdName()+"="+formId;
+				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,URL.encode(url));
@@ -787,7 +787,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	 * 
 	 * @param frmId the form id.
 	 */
-	public void loadForm(int frmId){
+	public void loadForm(Integer frmId){
 		this.formId = frmId;
 
 		if(isOfflineMode())
@@ -801,7 +801,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public void saveForm(String xformXml, String layoutXml, String languageXml, String javaScriptSrc){
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getFormDefUploadUrlSuffix();
-		url += FormUtil.getFormIdName() + "=" + this.formId;
+		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 		url = FormUtil.appendRandomParameter(url);
 
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,URL.encode(url));
@@ -853,7 +853,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public void saveLocaleText(String languageXml){
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getFormDefUploadUrlSuffix();
-		url += FormUtil.getFormIdName()+"="+this.formId;
+		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 		url += "&localeXml=true";
 		url = FormUtil.appendRandomParameter(url);
 
@@ -894,7 +894,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	private void refreshForm(){
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getFormDefRefreshUrlSuffix();
-		url += FormUtil.getFormIdName() + "=" + this.formId;
+		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 		url = FormUtil.appendRandomParameter(url);
 
 		//url += "&uname=Guyzb&pw=daniel123";

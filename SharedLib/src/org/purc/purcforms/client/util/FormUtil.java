@@ -527,10 +527,32 @@ public class FormUtil {
 		for(String parameter : parameters){
 			String nameValueArray[] = parameter.split("=");
 			if(nameValueArray == null || nameValueArray.length != 2){
-				break;
+				continue; //Can this happen anyway?
 			}
 			
 			setParameterValue(nameValueArray[0], nameValueArray[1]);
+		}
+		
+		//Form Id value is set last when we are sure of the formIdName.
+		setFormId(parameters);
+	}
+	
+	/**
+	 * Sets the formId value from an array of url parameters.
+	 * 
+	 * @param parameters is the url parameter array.
+	 */
+	private static void setFormId(String[] parameters){
+		for(String parameter : parameters){
+			String nameValueArray[] = parameter.split("=");
+			if(nameValueArray == null || nameValueArray.length != 2){
+				continue; //Can this happen anyway?
+			}
+			
+			if(nameValueArray[0].equalsIgnoreCase(formIdName)){
+				formId = nameValueArray[1];
+				break;
+			}
 		}
 	}
 	
