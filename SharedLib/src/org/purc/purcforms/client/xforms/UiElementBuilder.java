@@ -47,14 +47,22 @@ public class UiElementBuilder {
 		qtn.setDataNode(dataNode);
 
 		Element bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
-		String id = XformBuilderUtil.getBindIdFromVariableName(qtn.getBinding(),false);
-		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id);
-
 		String nodeset = qtn.getBinding();
-		if(!nodeset.startsWith("/"))
-			nodeset = "/" + nodeset;
-		if(!nodeset.startsWith("/" + formDef.getBinding() + "/"))
-			nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
+		String id = qtn.getBinding();
+		if(!(id.contains("/") && qtn.getBindNode() != null)){
+			id = XformBuilderUtil.getBindIdFromVariableName(qtn.getBinding(),false);
+			
+			if(!nodeset.startsWith("/"))
+				nodeset = "/" + nodeset;
+			if(!nodeset.startsWith("/" + formDef.getBinding() + "/"))
+				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
+		}
+		else{
+			id = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
+			nodeset = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET);
+		}
+		
+		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id);
 		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NODESET, nodeset);
 
 		if(qtn.getDataType() != QuestionDef.QTN_TYPE_REPEAT)
@@ -75,7 +83,7 @@ public class UiElementBuilder {
 			bindAttributeName = XformConstants.ATTRIBUTE_NAME_BIND;
 		}	
 
-		Element uiNode =  getXformUIElement(doc,qtn,bindAttributeName,false);
+		Element uiNode =  getXformUIElement(doc,qtn,bindAttributeName,false, id);
 		if(groupNode != null) //Some forms may not be in groups
 			groupNode.appendChild(uiNode);
 		else
@@ -140,7 +148,7 @@ public class UiElementBuilder {
 		parentDataNode.appendChild(dataNode);
 		qtnDef.setDataNode(dataNode);
 
-		Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_REF,true);
+		Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_REF,true, null);
 		inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(qtnDef.getDataType(),inputNode));
 		if(qtnDef.isRequired())
 			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED, XformConstants.XPATH_VALUE_TRUE);
@@ -185,7 +193,7 @@ public class UiElementBuilder {
 	 * @param isRepeatKid set to true if this question is a child of another repeat question type.
 	 * @return the xforms ui node.
 	 */
-	private static Element getXformUIElement(Document doc, QuestionDef qtnDef, String bindAttributeName, boolean isRepeatKid){
+	private static Element getXformUIElement(Document doc, QuestionDef qtnDef, String bindAttributeName, boolean isRepeatKid, String id){
 
 		String name = XformConstants.NODE_NAME_INPUT;
 
@@ -199,7 +207,9 @@ public class UiElementBuilder {
 		else if(type == QuestionDef.QTN_TYPE_IMAGE || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_VIDEO)
 			name = XformConstants.NODE_NAME_UPLOAD;
 
-		String id = XformBuilderUtil.getBindIdFromVariableName(qtnDef.getBinding(), isRepeatKid);
+		if(id == null)
+			id = XformBuilderUtil.getBindIdFromVariableName(qtnDef.getBinding(), isRepeatKid);
+		
 		Element node = doc.createElement(name);
 		if(type != QuestionDef.QTN_TYPE_REPEAT)
 			node.setAttribute(bindAttributeName, id);
