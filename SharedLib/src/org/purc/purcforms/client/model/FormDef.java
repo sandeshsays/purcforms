@@ -428,6 +428,12 @@ public class FormDef implements Serializable{
 	 * @param withData set to true if you want question answers to also be saved as part of the xform.
 	 */
 	public void updateDoc(boolean withData){
+		
+		//JR prefix may not have been set and we try set the jr:constraintMessage during
+		//validation rule update, which will throw exceptions.
+		if(FormUtil.isJavaRosaSaveFormat())
+			doc.getDocumentElement().setAttribute("xmlns:jr", "http://openrosa.org/javarosa");
+		
 		dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NAME, name);
 
 		//TODO Check that this comment out does not introduce bugs
