@@ -136,6 +136,11 @@ public class UiElementBuilder {
 	 */
 	private static void createQuestion(QuestionDef qtnDef, Element parentControlNode, Element parentDataNode, Document doc){
 		String name = qtnDef.getBinding();
+		
+		//TODO Doesnt this introduce a bug?
+		int pos = qtnDef.getBinding().lastIndexOf('/');
+		if(pos > 0)
+			name = qtnDef.getBinding().substring(pos + 1);
 
 		//TODO Should do this for all invalid characters in node names.
 		name = name.replace("/", "");
