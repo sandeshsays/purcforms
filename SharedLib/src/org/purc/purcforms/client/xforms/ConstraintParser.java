@@ -10,6 +10,7 @@ import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Element;
 
@@ -73,8 +74,13 @@ public class ConstraintParser {
 		Element node = questionDef.getBindNode();
 		if(node == null)
 			validationRule.setErrorMessage("");
-		else
-			validationRule.setErrorMessage(node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE));
+		else{
+			String message = node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE);
+			if(message == null) //could have been loaded in a format opposite to the one we are using. 
+				message = node.getAttribute(FormUtil.isJavaRosaSaveFormat() ? "message" : "jr:constraintMsg");
+			
+			validationRule.setErrorMessage(message);
+		}
 
 		// If the validation rule has no conditions, then its as good as no rule at all.
 		if(validationRule.getConditions() == null || validationRule.getConditions().size() == 0)
