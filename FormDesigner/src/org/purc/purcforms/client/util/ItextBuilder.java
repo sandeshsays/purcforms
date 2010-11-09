@@ -93,7 +93,13 @@ public class ItextBuilder {
 			String value = ((Element)node).getAttribute("value");
 			String id = xpathIdMap.get(xpath); /*((Element)node).getAttribute("id");*/ 
 			if(id == null){
-				id = FormDesignerUtil.getXmlTagName(value);
+				
+				if(!addItextAttribute && xpath.endsWith("]/form[@name]")) //if not first time.	
+					id = xpathIdMap.get("html/head/title");
+				
+				if(id == null)
+					id = FormDesignerUtil.getXmlTagName(value);
+				
 				xpathIdMap.put(xpath, id);
 			}
 

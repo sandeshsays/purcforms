@@ -1381,6 +1381,13 @@ public class FormDef implements Serializable{
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, FormUtil.getNodePath(dataNode)+"[@name]");
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
 			rootNode.appendChild(node);
+			
+			if(FormUtil.isJavaRosaSaveFormat()){
+				node = doc.createElement(XformConstants.NODE_NAME_TEXT);
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, "html/head/title");
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
+				rootNode.appendChild(node);
+			}
 
 			if(pages != null){
 				for(int index = 0; index < pages.size(); index++)

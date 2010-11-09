@@ -259,7 +259,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 						Document doc = ItextParser.parse(xml); /*XmlUtil.getDocument(xml);*/
 						FormDef formDef = XformParser.fromXform2FormDef(doc, xml, languageText);
 						formDef.setReadOnly(tempReadonly);
-						if(languageText != null && languageText.size() > 0){
+						if(formDef.getId() != 1 && languageText != null && languageText.size() > 0){
 							languageText.put(formDef.getId(), languageText.get(1)); //The itext parser uses a hardcoded form id of 1
 							languageText.remove(1);
 						}
