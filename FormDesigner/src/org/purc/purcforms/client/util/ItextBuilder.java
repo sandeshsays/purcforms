@@ -46,124 +46,104 @@ public class ItextBuilder {
 
 		itextNode = formDef.getDoc().createElement("itext");
 		modelNode.appendChild(itextNode);
+
+
+		HashMap<String,String> xpathIdMap = new HashMap<String,String>();
+		HashMap<String,String> languageText = Context.getLanguageText().get(formDef.getId());
+		Element languageNode = null;
 		
-		for(Locale locale : locales)
-			build(formDef, locale.getKey(), itextNode);
-	}
-	
-	
-	public static void build(FormDef formDef, Locale locale){
+		//These itext will all have the same value text as per the current locale text in the formdef
+		//Element languageNode = formDef.getLanguageNode();
+		for(Locale locale : locales){
+			String xml = null;
 
-		Element modelNode = XmlUtil.getNode(formDef.getDoc().getDocumentElement(),"model");
-		assert(modelNode != null); //we must have a model in an xform.
-
-		Element itextNode = XmlUtil.getNode(modelNode,"itext");
-		if(itextNode == null)
-			return; //TODO Need to create it.
-		
-		NodeList nodes = itextNode.getElementsByTagName("translation");
-		if(nodes == null || nodes.getLength() == 0)
-			return; //TODO Need to create it.
-
-		//Map of each locale key and map of its id and itext translations.
-		for(int index = 0; index < nodes.getLength(); index++){
-			Element translationNode = (Element)nodes.item(index);
-			String lang = translationNode.getAttribute("lang");
-			if(locale.getKey().equals(lang)){
-				itextNode.removeChild(translationNode);
-				build(formDef, locale.getKey(), itextNode);
-				break;
+			if(languageText != null){
+				xml = languageText.get(locale.getKey());
+				if(xml == null)
+					xml = languageText.get(Context.getLocale().getKey());
+				
+				languageNode = (Element)XmlUtil.getDocument(xml).getElementsByTagName("xform").item(0);
 			}
+			else{
+				if(languageNode == null)
+					languageNode = formDef.getLanguageNode();
+			}
+
+			build(formDef.getDoc(), languageNode, locale.getKey(), itextNode, locale.getKey().equals(locales.get(0).getKey()), xpathIdMap);
 		}
 	}
 
 
-	private static void build(FormDef formDef, String localeKey, Element itextNode){
-		Element translationNode = formDef.getDoc().createElement("translation");
+	private static void build(Document doc, Element languageNode, String localeKey, Element itextNode, boolean addItextAttribute, HashMap<String,String> xpathIdMap){
+		Element translationNode = doc.createElement("translation");
 		translationNode.setAttribute("lang", localeKey);
 		itextNode.appendChild(translationNode);
 
 		//Map for detecting duplicates in itext. eg if id yes=Yes , we should not have information more than once.
 		HashMap<String,String> duplicatesMap = new HashMap<String, String>();
 
-		Element rootNode = formDef.getLanguageNode();
-		NodeList nodes = rootNode.getChildNodes();
+		NodeList nodes = languageNode.getChildNodes();
 		for(int index = 0; index < nodes.getLength(); index++){
 			Node node = nodes.item(index);
 			if(node.getNodeType() != Node.ELEMENT_NODE)
 				continue;
 
+			String xpath = ((Element)node).getAttribute("xpath");
+
 			String value = ((Element)node).getAttribute("value");
-			String id = /*((Element)node).getAttribute("id");*/ FormDesignerUtil.getXmlTagName(value);
+			String id = xpathIdMap.get(xpath); /*((Element)node).getAttribute("id");*/ 
+			if(id == null){
+				id = FormDesignerUtil.getXmlTagName(value);
+				xpathIdMap.put(xpath, id);
+			}
 
 			if(id == null || id.trim().length() == 0)
 				continue;
 
-			/*textNode.setAttribute("id", id);
+			if(addItextAttribute){
+				Vector result = new XPathExpression(doc, xpath).getResult();
+				if(result != null && result.size() > 0){
+					Element targetNode = (Element)result.get(0);
 
-			Element valueNode = doc.createElement("value");
-			textNode.appendChild(valueNode);
+					int pos = xpath.lastIndexOf('@');
+					if(pos > 0 && xpath.indexOf('=',pos) < 0 && xpath.endsWith("[@name]")){
 
-			valueNode.appendChild(doc.createTextNode(value));*/
-
-			String xpath = ((Element)node).getAttribute("xpath");
-			Vector result = new XPathExpression(formDef.getDoc(), xpath).getResult();
-			if(result != null && result.size() > 0){
-				Element targetNode = (Element)result.get(0);
-
-				int pos = xpath.lastIndexOf('@');
-				if(pos > 0 && xpath.indexOf('=',pos) < 0){
-					//String attributeName = xpath.substring(pos + 1, xpath.indexOf(']',pos));
-					//targetNode.setAttribute(attributeName, value);
-
-					//xpath = FormUtil.getNodePath(formDef.getPageAt(0).getGroupNode());
-
-					NodeList titles = formDef.getDoc().getElementsByTagName("h:title");
-					if(titles == null || titles.getLength() == 0)
-						titles = formDef.getDoc().getElementsByTagName("title");
-					if(titles != null && titles.getLength() > 0){
-						xpath = FormUtil.getNodePath(titles.item(0));
-						((Element)titles.item(0)).setAttribute("ref", "jr:itext('" + id + "')");
+						NodeList titles = doc.getElementsByTagName("h:title");
+						if(titles == null || titles.getLength() == 0)
+							titles = doc.getElementsByTagName("title");
+						if(titles != null && titles.getLength() > 0){
+							xpath = FormUtil.getNodePath(titles.item(0));
+							((Element)titles.item(0)).setAttribute("ref", "jr:itext('" + id + "')");
+						}
+						else
+							continue;
 					}
-					else
+					else{
+						targetNode.setAttribute("ref", "jr:itext('" + id + "')");
+
+						//remove text.
+						removeAllChildNodes(targetNode);
+					}
+
+					if(result.size() > 1){
+						Window.alert(id + " is not uniquely indentified by xpath: " + xpath + " result count: " + result.size());
+						return;
+					}
+
+					assert(result.size() == 1); //each xpath expression should point to not more than one node.
+
+					if(id == null || id.trim().length() == 0)
 						continue;
+
+					//Skip the steps below if we have already processed this itext id.
+					if(duplicatesMap.containsKey(id))
+						continue;
+					else
+						duplicatesMap.put(id, id);
 				}
-				else{
-					targetNode.setAttribute("ref", "jr:itext('" + id + "')");
-
-					//remove text.
-					removeAllChildNodes(targetNode);
-				}
-
-				if(result.size() > 1){
-					Window.alert(id + " is not uniquely indentified by xpath: " + xpath + " result count: " + result.size());
-					return;
-				}
-				
-				assert(result.size() == 1); //each xpath expression should point to not more than one node.
-
-				/*ItextModel itextModel = new ItextModel();
-				itextModel.set("xpath", xpath);
-				itextModel.set("id", id);
-				itextModel.set(localeKey, value);
-				list.add(itextModel);*/
-
-				if(id == null || id.trim().length() == 0)
-					continue;
-
-				//Skip the steps below if we have already processed this itext id.
-				if(duplicatesMap.containsKey(id))
-					continue;
-				else
-					duplicatesMap.put(id, id);
-
-				addTextNode(formDef.getDoc(), translationNode, xpath,id, value, localeKey, ((Element)node).getAttribute(ATTRIBUTE_NAME_UNIQUE_ID)); //getKey()??????
 			}
-			else if(index == 0){
-				//NodeList titles = doc.getElementsByTagName("title");
-				//if(titles != null && titles.getLength() > 0)
-				//	addTextNode(doc,translationNode, list,FormUtil.getNodePath(titles.item(0)),id,value,locale.getKey());
-			}
+
+			addTextNode(doc, translationNode, xpath,id, value, localeKey, ((Element)node).getAttribute(ATTRIBUTE_NAME_UNIQUE_ID)); //getKey()??????
 		}
 	}
 

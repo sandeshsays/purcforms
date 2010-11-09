@@ -615,7 +615,7 @@ public class XformParser {
 			catch(Exception ex){/*We may have non numeric ids like for odk. We just ignore them.*/}
 		}
 
-		if(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_NAME) != null)
+		if(!FormUtil.isJavaRosaSaveFormat() && dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_NAME) != null)
 			formDef.setName(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_NAME));
 
 		if(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY) != null)
