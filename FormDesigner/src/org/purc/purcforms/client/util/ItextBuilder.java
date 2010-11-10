@@ -51,22 +51,28 @@ public class ItextBuilder {
 		HashMap<String,String> xpathIdMap = new HashMap<String,String>();
 		HashMap<String,String> languageText = Context.getLanguageText().get(formDef.getId());
 		Element languageNode = null;
-		
+
 		//These itext will all have the same value text as per the current locale text in the formdef
 		//Element languageNode = formDef.getLanguageNode();
 		for(Locale locale : locales){
 			String xml = null;
 
-			if(languageText != null){
-				xml = languageText.get(locale.getKey());
-				if(xml == null)
-					xml = languageText.get(Context.getLocale().getKey());
-				
-				languageNode = (Element)XmlUtil.getDocument(xml).getElementsByTagName("xform").item(0);
-			}
+			//For current locale, we use the FormDef text instead of stored locale text because
+			//form items could have been newly modified in the properties view.
+			if(locale.getKey().equals(Context.getLocale().getKey()))
+				languageNode = formDef.getLanguageNode();
 			else{
-				if(languageNode == null)
-					languageNode = formDef.getLanguageNode();
+				if(languageText != null){
+					xml = languageText.get(locale.getKey());
+					if(xml == null)
+						xml = languageText.get(Context.getLocale().getKey());
+
+					languageNode = (Element)XmlUtil.getDocument(xml).getElementsByTagName("xform").item(0);
+				}
+				else{
+					if(languageNode == null)
+						languageNode = formDef.getLanguageNode();
+				}
 			}
 
 			build(formDef.getDoc(), languageNode, locale.getKey(), itextNode, locale.getKey().equals(locales.get(0).getKey()), xpathIdMap);
@@ -93,13 +99,13 @@ public class ItextBuilder {
 			String value = ((Element)node).getAttribute("value");
 			String id = xpathIdMap.get(xpath); /*((Element)node).getAttribute("id");*/ 
 			if(id == null){
-				
+
 				if(!addItextAttribute && xpath.endsWith("]/form[@name]")) //if not first time.	
 					id = xpathIdMap.get("html/head/title");
-				
+
 				if(id == null)
 					id = FormDesignerUtil.getXmlTagName(value);
-				
+
 				xpathIdMap.put(xpath, id);
 			}
 
@@ -137,17 +143,17 @@ public class ItextBuilder {
 					}
 
 					assert(result.size() == 1); //each xpath expression should point to not more than one node.
-
-					if(id == null || id.trim().length() == 0)
-						continue;
-
-					//Skip the steps below if we have already processed this itext id.
-					if(duplicatesMap.containsKey(id))
-						continue;
-					else
-						duplicatesMap.put(id, id);
 				}
 			}
+			
+			if(id == null || id.trim().length() == 0)
+				continue;
+			
+			//Skip the steps below if we have already processed this itext id.
+			if(duplicatesMap.containsKey(id))
+				continue;
+			else
+				duplicatesMap.put(id, id);
 
 			addTextNode(doc, translationNode, xpath,id, value, localeKey, ((Element)node).getAttribute(ATTRIBUTE_NAME_UNIQUE_ID)); //getKey()??????
 		}

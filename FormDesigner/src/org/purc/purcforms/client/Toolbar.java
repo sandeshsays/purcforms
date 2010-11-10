@@ -145,6 +145,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		
 		btnNewForm.setTitle(LocaleText.get("newForm"));
 		btnSaveForm.setTitle(LocaleText.get("save"));
+		btnOpenForm.setTitle(LocaleText.get("open"));
 		
 		btnAddNewItem.setTitle(LocaleText.get("addNew"));
 		btnAddNewChildItem.setTitle(LocaleText.get("addNewChild"));

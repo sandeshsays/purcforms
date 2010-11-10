@@ -383,7 +383,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 				}
 			});*/
 			
-			return;
+			if(!FormUtil.isJavaRosaSaveFormat())
+				return;
 		}
 
 		FormUtil.dlg.setText(LocaleText.get("savingForm"));
