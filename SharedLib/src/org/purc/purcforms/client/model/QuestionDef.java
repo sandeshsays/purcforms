@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -176,6 +177,9 @@ public class QuestionDef implements Serializable{
 	 * just another question as for repeat question kids. 
 	 */
 	private Object parent;
+	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
 
 
 	/** This constructor is used mainly during deserialization. */
@@ -196,6 +200,7 @@ public class QuestionDef implements Serializable{
 		setLocked(questionDef.isLocked());
 		setRequired(questionDef.isRequired());
 		setBinding(questionDef.getBinding());
+		this.xpathExpression = questionDef.xpathExpression;
 
 		if(getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			copyQuestionOptions(questionDef.getOptions());
@@ -1431,7 +1436,7 @@ public class QuestionDef implements Serializable{
 	 * @param parentXformNode the parent xforms node for this question.
 	 * @param parentLangNode the parent language node we are building onto.
 	 */
-	public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode){
+	public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode, Map<String, String> changedXpaths){
 		if(controlNode == null)
 			return;
 
@@ -1458,26 +1463,44 @@ public class QuestionDef implements Serializable{
 
 		if(labelNode != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
-			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath + "/" + FormUtil.getNodeName(labelNode));
+			String newXpath = xpath + "/" + FormUtil.getNodeName(labelNode);
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, newXpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !newXpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, newXpath);
+			}
+			this.xpathExpression = newXpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, text);
 			parentLangNode.appendChild(node);
 		}
 
 		if(hintNode != null && helpText != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
-			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath + "/" + FormUtil.getNodeName(hintNode));
+			String newXpath = xpath + "/" + FormUtil.getNodeName(hintNode);
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, newXpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !newXpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, newXpath);
+			}
+			this.xpathExpression = newXpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, helpText);
 			parentLangNode.appendChild(node);
 		}
 
 		if(dataType == QuestionDef.QTN_TYPE_REPEAT)
-			getRepeatQtnsDef().buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode);
+			getRepeatQtnsDef().buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode, changedXpaths);
 
 		if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
 			if(options != null){
 				List optionsList = (List)options;
 				for(int index = 0; index < optionsList.size(); index++)
-					((OptionDef)optionsList.get(index)).buildLanguageNodes(xpath, doc, parentLangNode);
+					((OptionDef)optionsList.get(index)).buildLanguageNodes(xpath, doc, parentLangNode, changedXpaths);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package org.purc.purcforms.client.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.purc.purcforms.client.util.FormUtil;
@@ -40,6 +41,10 @@ public class ValidationRule implements Serializable{
 	/** The form to which the validation rule belongs. */
 	private FormDef formDef;
 	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
+	
+	
 	/** Constructs a rule object ready to be initialized. */
 	public ValidationRule(FormDef formDef){
 		this.formDef = formDef;
@@ -57,6 +62,7 @@ public class ValidationRule implements Serializable{
 		setConditionsOperator(validationRule.getConditionsOperator());
 		copyConditions(validationRule.getConditions());
 		setFormDef(new FormDef(validationRule.getFormDef(),false));
+		this.xpathExpression = validationRule.xpathExpression;
 	}
 	
 	/** Construct a Rule object from parameters. 
@@ -234,7 +240,7 @@ public class ValidationRule implements Serializable{
 	 * @param formDef the definition object to which this rule belongs.
 	 * @param parentNode the parent node for the locale xpath expressions document.
 	 */
-	public void buildLanguageNodes(FormDef formDef, Element parentNode){
+	public void buildLanguageNodes(FormDef formDef, Element parentNode, Map<String, String> changedXpaths){
 		QuestionDef questionDef = formDef.getQuestion(questionId);
 		if(questionDef == null || questionDef.getBindNode() == null)
 			return;
@@ -244,6 +250,14 @@ public class ValidationRule implements Serializable{
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_ID+"='"+ questionDef.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID)+"']";
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE+"]";
 		node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+		
+		//Store the old xpath expression for localization processing which identifies us by the previous value.
+		if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+			changedXpaths.put(this.xpathExpression, xpath);
+		}
+		this.xpathExpression = xpath;
+		
 		node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, errorMessage);
 		parentNode.appendChild(node);
 	}

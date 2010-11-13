@@ -243,7 +243,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	 * @param id the form identifier.
 	 * @param readonly set to true to load the form in read only mode.
 	 */
-	public void openFormDeffered(int id, boolean readonly) {
+	public void openFormDeffered(final int id, boolean readonly) {
 		final int tempFormId = id;
 		final boolean tempReadonly = readonly;
 
@@ -256,14 +256,13 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					String xml = centerPanel.getXformsSource().trim();
 					if(xml.length() > 0){
 						HashMap<Integer,HashMap<String,String>> languageText = Context.getLanguageText();
-						Document doc = ItextParser.parse(xml); /*XmlUtil.getDocument(xml);*/
+						Document doc = ItextParser.parse(xml, id); /*XmlUtil.getDocument(xml);*/
 						FormDef formDef = XformParser.fromXform2FormDef(doc, xml, languageText);
 						formDef.setReadOnly(tempReadonly);
-						if(formDef.getId() != 1 && languageText != null && languageText.size() > 0){
+						/*if(formDef.getId() != 1 && languageText != null && languageText.size() > 0){
 							languageText.put(formDef.getId(), languageText.get(1)); //The itext parser uses a hardcoded form id of 1
 							languageText.remove(1);
-						}
-						
+						}*/
 
 						if(tempFormId != ModelConstants.NULL_ID)
 							formDef.setId(tempFormId);
@@ -382,7 +381,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					}
 				}
 			});*/
-			
+
 			if(!FormUtil.isJavaRosaSaveFormat())
 				return;
 		}
@@ -831,16 +830,16 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 				public void onResponseReceived(Request request, Response response){
 
 					FormUtil.dlg.hide();
-					
+
 					int statusCode = response.getStatusCode();
-					
+
 					if(statusCode != Response.SC_OK){
-						
+
 						if(statusCode == Response.SC_NOT_IMPLEMENTED)
 							Window.alert(LocaleText.get("notImplementedMessage"));
 						else
 							FormUtil.displayReponseError(response);
-						
+
 						return;
 					}
 
@@ -949,7 +948,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 				try{
 					String xml = centerPanel.getXformsSource();
 					if(xml != null && xml.trim().length() > 0){
-						Document doc = ItextParser.parse(xml); /*XmlUtil.getDocument(xml);*/
+						Document doc = ItextParser.parse(xml, centerPanel.getFormDef().getId()); /*XmlUtil.getDocument(xml);*/
 						FormDef formDef = XformParser.fromXform2FormDef(doc, xml,Context.getLanguageText());
 						//FormDef formDef = XformParser.fromXform2FormDef(xml);
 
@@ -1115,9 +1114,18 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 						List<FormDef> newForms = new ArrayList<FormDef>();
 						for(FormDef form : forms){
 							xml = getFormLocaleText(form.getId(),Context.getLocale().getKey());
+
+							//If empty, use that of the default locale.
+							if(xml == null && !Context.getLocale().getKey().equals(Context.getDefaultLocale().getKey()))
+								xml = getFormLocaleText(form.getId(), Context.getDefaultLocale().getKey());
+
 							if(xml != null){
 								String xform = FormUtil.formatXml(LanguageUtil.translate(form.getDoc(), xml, true));
 								FormDef newFormDef = XformParser.fromXform2FormDef(xform);
+
+								//TODO Temporary fix for loosing xpath expressions when one changes back to the default language.
+								newFormDef.getLanguageNode(new HashMap<String, String>());
+
 								newFormDef.setXformXml(xform);
 								newFormDef.setLayoutXml(FormUtil.formatXml(LanguageUtil.translate(form.getLayoutXml(), xml, false)));
 								newFormDef.setLanguageXml(xml);
@@ -1228,8 +1236,10 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 				FormUtil.dlg.hide();
 			}
-			else
-				saveLocaleText(PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())));
+			else{
+				if(!FormUtil.isJavaRosaSaveFormat())
+					saveLocaleText(PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())));
+			}
 		}
 		catch(Exception ex){
 			FormUtil.displayException(ex);

@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.model;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Vector;
 
 import com.google.gwt.xml.client.Document;
@@ -237,11 +238,11 @@ public class RepeatQtnsDef implements Serializable {
 		return maxRows;
 	}
 	
-	public void buildLanguageNodes(String parentXpath,com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode){
+	public void buildLanguageNodes(String parentXpath,com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode, Map<String, String> changedXpaths){
 		if(questions == null)
 			return;
 
 		for(int i=0; i<questions.size(); i++)
-			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode);
+			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode, changedXpaths);
 	}
 }

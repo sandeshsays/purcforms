@@ -2,6 +2,7 @@ package org.purc.purcforms.client.view;
 
 import java.util.Vector;
 
+import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.controller.IConditionController;
 import org.purc.purcforms.client.locale.LocaleText;
@@ -286,6 +287,10 @@ public class ValidationRulesView extends Composite implements IConditionControll
 		this.groupHyperlink.setEnabled(enabled);
 		
 		txtErrorMessage.setEnabled(enabled);
+		
+		//One should be able to localize validation error messages.
+		if(Context.inLocalizationMode())
+			txtErrorMessage.setEnabled(true);
 		
 		if(!enabled)
 			clearConditions();

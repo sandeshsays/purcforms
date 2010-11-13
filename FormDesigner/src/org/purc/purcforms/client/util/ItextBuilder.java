@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.Locale;
+import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
 import org.purc.purcforms.client.xpath.XPathExpression;
 
@@ -32,7 +33,7 @@ public class ItextBuilder {
 	 * @param formDef
 	 */
 	public static void build(FormDef formDef){
-
+		
 		Element modelNode = XmlUtil.getNode(formDef.getDoc().getDocumentElement(),"model");
 		assert(modelNode != null); //we must have a model in an xform.
 
@@ -52,37 +53,45 @@ public class ItextBuilder {
 		HashMap<String,String> languageText = Context.getLanguageText().get(formDef.getId());
 		Element languageNode = null;
 
+		HashMap<String, String> changedXpaths = new HashMap<String, String>();
+		
+		//For current locale, we use the FormDef text instead of stored locale text because
+		//form items could have been newly modified in the properties view.
+		Element curLocaleLangNode = languageNode = formDef.getLanguageNode(changedXpaths);
+		
 		//These itext will all have the same value text as per the current locale text in the formdef
 		//Element languageNode = formDef.getLanguageNode();
 		for(Locale locale : locales){
 			String xml = null;
-
-			//For current locale, we use the FormDef text instead of stored locale text because
-			//form items could have been newly modified in the properties view.
+			
 			if(locale.getKey().equals(Context.getLocale().getKey()))
-				languageNode = formDef.getLanguageNode();
+				languageNode = curLocaleLangNode;
 			else{
 				if(languageText != null){
 					xml = languageText.get(locale.getKey());
 					if(xml == null)
-						xml = languageText.get(Context.getLocale().getKey());
+						xml = languageText.get(Context.getDefaultLocale().getKey());
 
 					languageNode = (Element)XmlUtil.getDocument(xml).getElementsByTagName("xform").item(0);
 				}
 				else{
 					if(languageNode == null)
-						languageNode = formDef.getLanguageNode();
+						languageNode = formDef.getLanguageNode(changedXpaths);
 				}
 			}
 
-			build(formDef.getDoc(), languageNode, locale.getKey(), itextNode, locale.getKey().equals(locales.get(0).getKey()), xpathIdMap);
+			build(formDef.getDoc(), languageNode, locale, itextNode, locale.getKey().equals(locales.get(0).getKey()), xpathIdMap, changedXpaths);
+			
+			if(languageText != null && changedXpaths.size() > 0 && !locale.getKey().equals(Context.getLocale().getKey()))
+				languageText.put(locale.getKey(), XmlUtil.fromDoc2String(languageNode.getOwnerDocument()));
 		}
 	}
 
 
-	private static void build(Document doc, Element languageNode, String localeKey, Element itextNode, boolean addItextAttribute, HashMap<String,String> xpathIdMap){
+	private static void build(Document doc, Element languageNode, Locale locale, Element itextNode, boolean addItextAttribute, HashMap<String,String> xpathIdMap, HashMap<String, String> changedXpaths){
 		Element translationNode = doc.createElement("translation");
-		translationNode.setAttribute("lang", localeKey);
+		translationNode.setAttribute("lang", locale.getKey());
+		translationNode.setAttribute("lang-name", locale.getName());
 		itextNode.appendChild(translationNode);
 
 		//Map for detecting duplicates in itext. eg if id yes=Yes , we should not have information more than once.
@@ -100,8 +109,17 @@ public class ItextBuilder {
 			String id = xpathIdMap.get(xpath); /*((Element)node).getAttribute("id");*/ 
 			if(id == null){
 
-				if(!addItextAttribute && xpath.endsWith("]/form[@name]")) //if not first time.	
+				if(!addItextAttribute && xpath.endsWith("[@name]")) //if not first time.	
 					id = xpathIdMap.get("html/head/title");
+				
+				//If not first time
+				if(!addItextAttribute){
+					if(changedXpaths.containsKey(xpath)){
+						xpath = changedXpaths.get(xpath);
+						id = xpathIdMap.get(xpath);
+						((Element)node).setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+					}
+				}
 
 				if(id == null)
 					id = FormDesignerUtil.getXmlTagName(value);
@@ -112,6 +130,7 @@ public class ItextBuilder {
 			if(id == null || id.trim().length() == 0)
 				continue;
 
+			//If first time
 			if(addItextAttribute){
 				Vector result = new XPathExpression(doc, xpath).getResult();
 				if(result != null && result.size() > 0){
@@ -155,7 +174,7 @@ public class ItextBuilder {
 			else
 				duplicatesMap.put(id, id);
 
-			addTextNode(doc, translationNode, xpath,id, value, localeKey, ((Element)node).getAttribute(ATTRIBUTE_NAME_UNIQUE_ID)); //getKey()??????
+			addTextNode(doc, translationNode, xpath,id, value, locale.getKey(), ((Element)node).getAttribute(ATTRIBUTE_NAME_UNIQUE_ID)); //getKey()??????
 		}
 	}
 

@@ -77,6 +77,7 @@ public class XformConstants {
 
 	public static final String NODE_NAME_TEXT = "text";
 	public static final String ATTRIBUTE_NAME_XPATH = "xpath";
+	public static final String ATTRIBUTE_NAME_PREV_XPATH = "prev_xpath";
 	public static final String ATTRIBUTE_NAME_VALUE = "value";
 
 	public static final String ATTRIBUTE_NAME_ID = "id";

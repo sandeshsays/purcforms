@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -90,6 +91,9 @@ public class FormDef implements Serializable{
 
 	/** The language xml for this form. */
 	private String languageXml;
+	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
 
 	/** 
 	 * Flag to determine if we can change the form structure.
@@ -124,6 +128,7 @@ public class FormDef implements Serializable{
 		setId(formDef.getId());
 		setName(formDef.getName());
 		setFormKey(formDef.getFormKey());
+		this.xpathExpression = formDef.xpathExpression;
 
 		//I just don't think we need this in addition to the id
 		setVariableName(formDef.getBinding());
@@ -366,6 +371,14 @@ public class FormDef implements Serializable{
 
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public String getXpathExpression() {
+		return xpathExpression;
+	}
+
+	public void setXpathExpression(String xpathExpression) {
+		this.xpathExpression = xpathExpression;
 	}
 
 	/**
@@ -1369,7 +1382,7 @@ public class FormDef implements Serializable{
 			getValidationRuleAt(index).updateConditionValue(origValue, newValue);
 	}
 
-	public Element getLanguageNode() {
+	public Element getLanguageNode(Map<String, String> changedXpaths) {
 		com.google.gwt.xml.client.Document doc = XMLParser.createDocument();
 		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
 		Element rootNode = doc.createElement("xform");
@@ -1378,7 +1391,16 @@ public class FormDef implements Serializable{
 
 		if(dataNode != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
-			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, FormUtil.getNodePath(dataNode)+"[@name]");
+			String xpath = FormUtil.getNodePath(dataNode)+"[@name]";
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, xpath);
+			}
+			this.xpathExpression = xpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
 			rootNode.appendChild(node);
 			
@@ -1391,18 +1413,18 @@ public class FormDef implements Serializable{
 
 			if(pages != null){
 				for(int index = 0; index < pages.size(); index++)
-					((PageDef)pages.elementAt(index)).buildLanguageNodes(doc, rootNode);
+					((PageDef)pages.elementAt(index)).buildLanguageNodes(doc, rootNode, changedXpaths);
 			}
 
 			if(validationRules != null){
 				for(int index = 0; index < validationRules.size(); index++)
-					((ValidationRule)validationRules.elementAt(index)).buildLanguageNodes(this, rootNode);
+					((ValidationRule)validationRules.elementAt(index)).buildLanguageNodes(this, rootNode, changedXpaths);
 			}
 
 			if(dynamicOptions != null){
 				Iterator<Entry<Integer,DynamicOptionDef>> iterator = dynamicOptions.entrySet().iterator();
 				while(iterator.hasNext())
-					iterator.next().getValue().buildLanguageNodes(this, rootNode);
+					iterator.next().getValue().buildLanguageNodes(this, rootNode, changedXpaths);
 			}
 		}
 

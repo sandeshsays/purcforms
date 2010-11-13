@@ -3,6 +3,7 @@ package org.purc.purcforms.client.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.purc.purcforms.client.listener.BindingChangeListener;
 import org.purc.purcforms.client.util.FormUtil;
@@ -49,6 +50,9 @@ public class OptionDef implements Serializable {
 	
 	private List<BindingChangeListener> bindingChangeListeners;
 	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
+	
 	
 	/** Constructs the answer option definition object where
 	 * initialization parameters are not supplied. */
@@ -62,6 +66,7 @@ public class OptionDef implements Serializable {
 		 setId(optionDef.getId());
 		 setText(optionDef.getText());
 		 setBinding(optionDef.getBinding());
+		 this.xpathExpression = optionDef.xpathExpression;
 		 //setParent(parent /*optionDef.getParent()*/);
 	}
 	
@@ -189,7 +194,7 @@ public class OptionDef implements Serializable {
      * @param doc the locale document.
      * @param parentNode
      */
-    public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentNode){
+    public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentNode, Map<String, String> changedXpaths){
     	if(labelNode != null && controlNode != null){
     		String xpath = parentXpath + "/" + FormUtil.getNodeName(controlNode);
     		
@@ -206,6 +211,14 @@ public class OptionDef implements Serializable {
 			
     		Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(!xpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, xpath);
+			}
+			this.xpathExpression = xpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, text);
 			parentNode.appendChild(node);
 		}
