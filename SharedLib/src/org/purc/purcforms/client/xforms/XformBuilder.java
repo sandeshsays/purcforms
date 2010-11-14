@@ -87,6 +87,9 @@ public class XformBuilder {
 		instanceNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, formDef.getBinding());
 		modelNode.appendChild(instanceNode);
 		formDef.setModelNode(modelNode);
+		
+		XformUtil.copyModelId(formDef.getDoc(), modelNode);
+		XformUtil.copyInstanceId(formDef.getDoc(), instanceNode);
 
 		//Create the form data node and add it to the instance node.
 		Element formNode =  doc.createElement(formDef.getBinding());

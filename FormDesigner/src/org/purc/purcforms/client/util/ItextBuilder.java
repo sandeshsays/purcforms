@@ -33,7 +33,7 @@ public class ItextBuilder {
 	 * @param formDef
 	 */
 	public static void build(FormDef formDef){
-		
+
 		Element modelNode = XmlUtil.getNode(formDef.getDoc().getDocumentElement(),"model");
 		assert(modelNode != null); //we must have a model in an xform.
 
@@ -54,16 +54,16 @@ public class ItextBuilder {
 		Element languageNode = null;
 
 		HashMap<String, String> changedXpaths = new HashMap<String, String>();
-		
+
 		//For current locale, we use the FormDef text instead of stored locale text because
 		//form items could have been newly modified in the properties view.
 		Element curLocaleLangNode = languageNode = formDef.getLanguageNode(changedXpaths);
-		
+
 		//These itext will all have the same value text as per the current locale text in the formdef
 		//Element languageNode = formDef.getLanguageNode();
 		for(Locale locale : locales){
 			String xml = null;
-			
+
 			if(locale.getKey().equals(Context.getLocale().getKey()))
 				languageNode = curLocaleLangNode;
 			else{
@@ -81,7 +81,7 @@ public class ItextBuilder {
 			}
 
 			build(formDef.getDoc(), languageNode, locale, itextNode, locale.getKey().equals(locales.get(0).getKey()), xpathIdMap, changedXpaths);
-			
+
 			if(languageText != null && changedXpaths.size() > 0 && !locale.getKey().equals(Context.getLocale().getKey()))
 				languageText.put(locale.getKey(), XmlUtil.fromDoc2String(languageNode.getOwnerDocument()));
 		}
@@ -111,7 +111,7 @@ public class ItextBuilder {
 
 				if(!addItextAttribute && xpath.endsWith("[@name]")) //if not first time.	
 					id = xpathIdMap.get("html/head/title");
-				
+
 				//If not first time
 				if(!addItextAttribute){
 					if(changedXpaths.containsKey(xpath)){
@@ -119,12 +119,17 @@ public class ItextBuilder {
 						id = xpathIdMap.get(xpath);
 						((Element)node).setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
 					}
+					else{
+						//Possibly item deleted.
+						continue;
+					}
 				}
+				else{
+					if(id == null)
+						id = FormDesignerUtil.getXmlTagName(value);
 
-				if(id == null)
-					id = FormDesignerUtil.getXmlTagName(value);
-
-				xpathIdMap.put(xpath, id);
+					xpathIdMap.put(xpath, id);
+				}
 			}
 
 			if(id == null || id.trim().length() == 0)
@@ -150,10 +155,16 @@ public class ItextBuilder {
 							continue;
 					}
 					else{
-						targetNode.setAttribute("ref", "jr:itext('" + id + "')");
+						String val = "jr:itext('" + id + "')";
 
-						//remove text.
-						removeAllChildNodes(targetNode);
+						if(ItextParser.isBindNode(targetNode))
+							targetNode.setAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE, val);
+						else{
+							targetNode.setAttribute("ref", val);
+
+							//remove text.
+							removeAllChildNodes(targetNode);
+						}
 					}
 
 					if(result.size() > 1){
@@ -164,10 +175,10 @@ public class ItextBuilder {
 					assert(result.size() == 1); //each xpath expression should point to not more than one node.
 				}
 			}
-			
+
 			if(id == null || id.trim().length() == 0)
 				continue;
-			
+
 			//Skip the steps below if we have already processed this itext id.
 			if(duplicatesMap.containsKey(id))
 				continue;

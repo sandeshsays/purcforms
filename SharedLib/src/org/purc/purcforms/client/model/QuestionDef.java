@@ -179,7 +179,9 @@ public class QuestionDef implements Serializable{
 	private Object parent;
 	
 	/** The xpath expression pointing to the corresponding node in the xforms document. */
-	private String xpathExpression;
+	private String xpathExpressionLabel;
+	private String xpathExpressionHint;
+	
 
 
 	/** This constructor is used mainly during deserialization. */
@@ -200,7 +202,8 @@ public class QuestionDef implements Serializable{
 		setLocked(questionDef.isLocked());
 		setRequired(questionDef.isRequired());
 		setBinding(questionDef.getBinding());
-		this.xpathExpression = questionDef.xpathExpression;
+		this.xpathExpressionLabel = questionDef.xpathExpressionLabel;
+		this.xpathExpressionHint = questionDef.xpathExpressionHint;
 
 		if(getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			copyQuestionOptions(questionDef.getOptions());
@@ -1467,11 +1470,11 @@ public class QuestionDef implements Serializable{
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, newXpath);
 			
 			//Store the old xpath expression for localization processing which identifies us by the previous value.
-			if(this.xpathExpression != null && !newXpath.equalsIgnoreCase(this.xpathExpression)){
-				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
-				changedXpaths.put(this.xpathExpression, newXpath);
+			if(this.xpathExpressionLabel != null && !newXpath.equalsIgnoreCase(this.xpathExpressionLabel)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpressionLabel);
+				changedXpaths.put(this.xpathExpressionLabel, newXpath);
 			}
-			this.xpathExpression = newXpath;
+			this.xpathExpressionLabel = newXpath;
 			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, text);
 			parentLangNode.appendChild(node);
@@ -1483,11 +1486,11 @@ public class QuestionDef implements Serializable{
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, newXpath);
 			
 			//Store the old xpath expression for localization processing which identifies us by the previous value.
-			if(this.xpathExpression != null && !newXpath.equalsIgnoreCase(this.xpathExpression)){
-				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
-				changedXpaths.put(this.xpathExpression, newXpath);
+			if(this.xpathExpressionHint != null && !newXpath.equalsIgnoreCase(this.xpathExpressionHint)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpressionHint);
+				changedXpaths.put(this.xpathExpressionHint, newXpath);
 			}
-			this.xpathExpression = newXpath;
+			this.xpathExpressionHint = newXpath;
 			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, helpText);
 			parentLangNode.appendChild(node);

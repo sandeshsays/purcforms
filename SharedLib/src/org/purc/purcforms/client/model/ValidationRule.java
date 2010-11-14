@@ -247,6 +247,10 @@ public class ValidationRule implements Serializable{
 		
 		Element node = formDef.getDoc().createElement(XformConstants.NODE_NAME_TEXT);
 		String xpath = FormUtil.getNodePath(questionDef.getBindNode());
+		
+		if(FormUtil.isJavaRosaSaveFormat() && xpath.startsWith("model[@id='"))
+			xpath = "html/head/" + xpath;
+		
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_ID+"='"+ questionDef.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID)+"']";
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE+"]";
 		node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);

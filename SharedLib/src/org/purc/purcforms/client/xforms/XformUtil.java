@@ -305,4 +305,27 @@ public class XformUtil {
 
 		return null;
 	}
+	
+	public static void copyInstanceId(Document srcDoc, Element dstNode){
+		if(srcDoc == null)
+			return;
+		
+		copyIdAttribute(getInstanceNode(srcDoc), dstNode);
+	}
+	
+	public static void copyModelId(Document srcDoc, Element dstNode){
+		if(srcDoc == null || dstNode == null)
+			return;
+		
+		copyIdAttribute(getModelNode(srcDoc.getDocumentElement()), dstNode);
+	}
+	
+	public static void copyIdAttribute(Element srcNode, Element dstNode){
+		if(srcNode == null || srcNode == null)
+			return;
+		
+		String id = srcNode.getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
+		if(id != null && id.trim().length() > 0)
+			dstNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id);
+	}
 }

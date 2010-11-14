@@ -259,10 +259,10 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 						Document doc = ItextParser.parse(xml, id); /*XmlUtil.getDocument(xml);*/
 						FormDef formDef = XformParser.fromXform2FormDef(doc, xml, languageText);
 						formDef.setReadOnly(tempReadonly);
-						/*if(formDef.getId() != 1 && languageText != null && languageText.size() > 0){
-							languageText.put(formDef.getId(), languageText.get(1)); //The itext parser uses a hardcoded form id of 1
-							languageText.remove(1);
-						}*/
+						if(formDef.getId() != -1 && languageText != null && languageText.size() > 0 && isOfflineMode()){
+							languageText.put(formDef.getId(), languageText.get(-1)); 
+							languageText.remove(-1);
+						}
 
 						if(tempFormId != ModelConstants.NULL_ID)
 							formDef.setId(tempFormId);
@@ -369,6 +369,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 		if(!leftPanel.isValidForm())
 			return;
 
+		centerPanel.commitChanges();
+		
 		if(Context.inLocalizationMode()){
 			saveLanguageText(formSaveListener == null && isOfflineMode());
 
@@ -392,7 +394,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 		DeferredCommand.addCommand(new Command(){
 			public void execute() {
 				try{
-					centerPanel.commitChanges();
+					//Moved up because we need to commit validation message changes during localization.
+					//centerPanel.commitChanges();
 
 					//TODO Need to preserve user's model and any others.
 					String xml = null;

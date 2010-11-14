@@ -213,7 +213,7 @@ public class OptionDef implements Serializable {
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
 			
 			//Store the old xpath expression for localization processing which identifies us by the previous value.
-			if(!xpath.equalsIgnoreCase(this.xpathExpression)){
+			if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
 				changedXpaths.put(this.xpathExpression, xpath);
 			}

@@ -1392,6 +1392,10 @@ public class FormDef implements Serializable{
 		if(dataNode != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 			String xpath = FormUtil.getNodePath(dataNode)+"[@name]";
+			
+			if(FormUtil.isJavaRosaSaveFormat() && xpath.startsWith("model[@id='"))
+				xpath = "html/head/" + xpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
 			
 			//Store the old xpath expression for localization processing which identifies us by the previous value.

@@ -27,9 +27,9 @@ public class LanguageUtil {
 
 	public static final String NODE_NAME_XFORM = "xform";
 	public static final String NODE_NAME_FORM = "Form";
-	
+
 	public static final String NODE_NAME_LANGUAGE_TEXT = "LanguageText";
-	
+
 
 	/**
 	 * Translates xforms or layout text into a locale or language as in the locale xml.
@@ -80,10 +80,10 @@ public class LanguageUtil {
 			String value = ((Element)node).getAttribute(XformConstants.ATTRIBUTE_NAME_VALUE);
 			if(xpath == null || value == null)
 				continue;
-			
+
 			Vector result = new XPathExpression(doc, xpath).getResult();
 			if(result != null){
-				
+
 				//TODO We need to uniquely identify nodes and so each xpath should
 				//point to no more than one node.
 				if(result.size() > 1){
@@ -92,12 +92,16 @@ public class LanguageUtil {
 				}
 				else if(result.size() == 0)
 					;//Window.alert(result.size()+"..........."+xpath+"............"+value);
-				
+
 				for(int item = 0; item < result.size(); item++){
 					Element targetNode = (Element)result.get(item);
 					int pos = xpath.lastIndexOf('@');
 					if(pos > 0 && xpath.indexOf('=',pos) < 0){
 						String attributeName = xpath.substring(pos + 1, xpath.indexOf(']',pos));
+						
+						if(!FormUtil.isJavaRosaSaveFormat() && attributeName.equalsIgnoreCase("jr:constraintMsg"))
+							attributeName = "message";
+						
 						targetNode.setAttribute(attributeName, value);
 					}
 					else
@@ -128,7 +132,7 @@ public class LanguageUtil {
 
 			Vector result = new XPathExpression(doc, xpath).getResult();
 			if(result != null && result.size() > 0){
-				
+
 				//TODO We need to uniquely identify nodes and so each xpath should
 				//point to no more than one node.
 				if(result.size() > 1){
@@ -137,7 +141,7 @@ public class LanguageUtil {
 				}
 				else if(result.size() == 0)
 					Window.alert(result.size()+"..........."+xpath+"............"+value);
-				
+
 				Element targetNode = (Element)result.get(0);
 				int pos = xpath.lastIndexOf('@');
 				if(pos > 0 && xpath.indexOf('=',pos) < 0){
@@ -203,7 +207,7 @@ public class LanguageUtil {
 
 		return doc.toString();
 	}
-	
+
 	/**
 	 * Extracts text for a given node name from a document.
 	 * 
@@ -224,12 +228,12 @@ public class LanguageUtil {
 
 		return null;
 	}
-	
-	
+
+
 	public static void loadLanguageText(Integer formId, String xml, HashMap<Integer,HashMap<String,String>> languageText){
 		if(xml == null || xml.trim().length() == 0)
 			return;
-		
+
 		NodeList nodes = XmlUtil.getDocument(xml).getDocumentElement().getElementsByTagName(NODE_NAME_LANGUAGE_TEXT);
 		if(nodes != null)
 			XformParser.loadLanguageText(formId, nodes, languageText);
