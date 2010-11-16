@@ -407,8 +407,14 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							xml = XformBuilder.fromFormDef2Xform(formDef);
 					}
 					else{
-						if(FormUtil.isJavaRosaSaveFormat() && !formDef.getDoc().getDocumentElement().getNodeName().contains("html"))
+						if(FormUtil.isJavaRosaSaveFormat() && !formDef.getDoc().getDocumentElement().getNodeName().contains("html")){
 							xml = XhtmlBuilder.fromFormDef2Xhtml(formDef);
+							
+							//TODO Due to a bug when converting a form to JR format, lets workaround it by reopening the form.
+							centerPanel.setXformsSource(xml, false);
+							openForm();
+							return;
+						}
 						else{
 							formDef.updateDoc(false);
 

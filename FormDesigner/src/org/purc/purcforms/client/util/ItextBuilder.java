@@ -157,13 +157,16 @@ public class ItextBuilder {
 					else{
 						String val = "jr:itext('" + id + "')";
 
-						if(ItextParser.isBindNode(targetNode))
+						//TODO Commented out because JR does not yet support itext for constraint messages.
+						/*if(ItextParser.isBindNode(targetNode))
 							targetNode.setAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE, val);
-						else{
+						else*/{
 							targetNode.setAttribute("ref", val);
-
+							
+							//TODO For now JR does not support localization of the form title.
 							//remove text.
-							removeAllChildNodes(targetNode);
+							if(!targetNode.getNodeName().equalsIgnoreCase("h:title"))
+								removeAllChildNodes(targetNode);
 						}
 					}
 
