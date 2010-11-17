@@ -120,8 +120,7 @@ public class ValidationRulesView extends Composite implements IConditionControll
 			ConditionWidget conditionWidget = new ConditionWidget(formDef,this,false,questionDef);
 			conditionWidget.setQuestionDef(questionDef);
 			verticalPanel.add(conditionWidget);
-			verticalPanel.add(addConditionLink);
-			
+			verticalPanel.add(addConditionLink);			
 			txtErrorMessage.setFocus(true);
 			
 			/*String text = txtErrorMessage.getText();

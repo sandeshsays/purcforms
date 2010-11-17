@@ -12,7 +12,6 @@ body, html {
   border: 1px solid #BBBBBB;
   padding: 3px;
 }
-
 .formDesigner-AboutText {
   width: 24em;
   font-size: 80%;
@@ -101,7 +100,6 @@ body, html {
 .purcforms-label-editor {
   filter: alpha(opacity = 100);
 }
-
 .rubberBand {
    position: absolute;
    visibility: hidden;
@@ -114,4 +112,7 @@ body, html {
   user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
+}
+.validation-description-label {
+	background-color: #8C8C8C;
 }
