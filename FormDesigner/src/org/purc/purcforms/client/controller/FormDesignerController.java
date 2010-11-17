@@ -365,12 +365,12 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			Window.alert(LocaleText.get("selectSaveItem"));
 			return;
 		}
-
+		
 		if(!leftPanel.isValidForm())
 			return;
 
 		centerPanel.commitChanges();
-		
+
 		if(Context.inLocalizationMode()){
 			saveLanguageText(formSaveListener == null && isOfflineMode());
 
@@ -390,12 +390,14 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 		FormUtil.dlg.setText(LocaleText.get("savingForm"));
 		FormUtil.dlg.center();
-
+		
 		DeferredCommand.addCommand(new Command(){
 			public void execute() {
 				try{
 					//Moved up because we need to commit validation message changes during localization.
 					//centerPanel.commitChanges();
+
+					boolean refreshForm = false;
 
 					//TODO Need to preserve user's model and any others.
 					String xml = null;
@@ -409,11 +411,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					else{
 						if(FormUtil.isJavaRosaSaveFormat() && !formDef.getDoc().getDocumentElement().getNodeName().contains("html")){
 							xml = XhtmlBuilder.fromFormDef2Xhtml(formDef);
-							
-							//TODO Due to a bug when converting a form to JR format, lets workaround it by reopening the form.
-							centerPanel.setXformsSource(xml, false);
-							openForm();
-							return;
+							refreshForm = true;
 						}
 						else{
 							formDef.updateDoc(false);
@@ -456,6 +454,12 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 					if(localSaveAsMode)
 						saveAs();
+
+
+					//TODO Due to a bug when converting a form to JR format, lets workaround it by reopening the form.
+					if(refreshForm){
+						openForm();
+					}
 				}
 				catch(Exception ex){
 					FormUtil.displayException(ex);

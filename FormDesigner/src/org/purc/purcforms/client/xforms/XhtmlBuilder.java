@@ -4,6 +4,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.util.ItextBuilder;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
@@ -87,12 +88,12 @@ public class XhtmlBuilder {
 
 		if(FormUtil.isJavaRosaSaveFormat())
 			ItextBuilder.build(formDef);
-
+		
 		Element modelNode = formDef.getModelNode();
 		if(modelNode != null && prevDoc != null){
 			String prefix = modelNode.getPrefix();
 			String ns = prevDoc.getDocumentElement().getNamespaceURI();
-			if(ns != null)
+			if(ns != null && ns.trim().length() > 0)
 				doc.getDocumentElement().setAttribute("xmlns:" + prefix, ns);
 		}
 

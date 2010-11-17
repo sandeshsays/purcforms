@@ -48,7 +48,6 @@ public class ItextBuilder {
 		itextNode = formDef.getDoc().createElement("itext");
 		modelNode.appendChild(itextNode);
 
-
 		HashMap<String,String> xpathIdMap = new HashMap<String,String>();
 		HashMap<String,String> languageText = Context.getLanguageText().get(formDef.getId());
 		Element languageNode = null;
@@ -63,7 +62,6 @@ public class ItextBuilder {
 		//Element languageNode = formDef.getLanguageNode();
 		for(Locale locale : locales){
 			String xml = null;
-
 			if(locale.getKey().equals(Context.getLocale().getKey()))
 				languageNode = curLocaleLangNode;
 			else{
@@ -72,7 +70,15 @@ public class ItextBuilder {
 					if(xml == null)
 						xml = languageText.get(Context.getDefaultLocale().getKey());
 
-					languageNode = (Element)XmlUtil.getDocument(xml).getElementsByTagName("xform").item(0);
+					if(xml == null)
+						languageNode = curLocaleLangNode;
+					else{
+						NodeList nodes = XmlUtil.getDocument(xml).getElementsByTagName("xform");
+						if(nodes == null || nodes.getLength() == 0)
+							languageNode = curLocaleLangNode;
+						else
+							languageNode = (Element)nodes.item(0);
+					}
 				}
 				else{
 					if(languageNode == null)
@@ -162,7 +168,7 @@ public class ItextBuilder {
 							targetNode.setAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE, val);
 						else*/{
 							targetNode.setAttribute("ref", val);
-							
+
 							//TODO For now JR does not support localization of the form title.
 							//remove text.
 							if(!targetNode.getNodeName().equalsIgnoreCase("h:title"))
