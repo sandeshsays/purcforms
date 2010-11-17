@@ -218,7 +218,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			menuBar.addSeparator();	
 		}
-		
+
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.save(),LocaleText.get("save")),true,new Command(){
 			public void execute() {popup.hide(); saveItem();}});
 
@@ -1387,13 +1387,20 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	}
 
 	private int getNextQuestionPos(Object parentObj){
-		if(parentObj instanceof QuestionDef){
-			QuestionDef parentQuestionDef = (QuestionDef)parentObj;
-			if(parentQuestionDef != null && parentQuestionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-				return parentQuestionDef.getRepeatQtnsDef().getQuestionsCount() + 1;
+		//TODO Not all users want to be forced to change repeat bindings,
+		//especially those just trying out the form designer. So left to
+		//only those who rebuild bindings.
+		if(FormUtil.rebuildBindings()){
+			if(parentObj instanceof QuestionDef){
+				QuestionDef parentQuestionDef = (QuestionDef)parentObj;
+				if(parentQuestionDef != null && parentQuestionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+					return parentQuestionDef.getRepeatQtnsDef().getQuestionsCount() + 1;
+			}
+			
+			return formDef.getQuestionCount() + 1;
 		}
 
-		return formDef.getQuestionCount() + 1;
+		return nextQuestionId;
 	}
 
 	private int getNextOptionPos(Object questionDef){		
