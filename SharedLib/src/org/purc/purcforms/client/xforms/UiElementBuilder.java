@@ -28,32 +28,18 @@ public class UiElementBuilder {
 
 	}
 	
-	
-	/**
-	 * Converts a question definition object to xforms.
-	 * 
-	 * @param qtn the question definition object.
-	 * @param doc the xforms document.
-	 * @param xformsNode the root node of the xforms document.
-	 * @param formDef the form definition object to which the question belongs.
-	 * @param formNode the xforms instance data node.
-	 * @param modelNode the xforms model node.
-	 * @param groupNode the xforms group node to which the question belongs.
-	 */
-	public static void fromQuestionDef2Xform(QuestionDef qtn, Document doc, Element xformsNode, FormDef formDef, Element formNode, Element modelNode,Element groupNode){
-		Element dataNode =  XformBuilderUtil.fromVariableName2Node(doc,qtn.getBinding(),formDef,formNode);
-		if(qtn.getDefaultValue() != null && qtn.getDefaultValue().trim().length() > 0)
-			dataNode.appendChild(doc.createTextNode(qtn.getDefaultValue()));
-		qtn.setDataNode(dataNode);
-
-		Element bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
+	private static String setBindNodeProperties(Element bindNode, QuestionDef qtn, String parentBinding, FormDef formDef){
 		String nodeset = qtn.getBinding();
 		String id = qtn.getBinding();
 		if(!(id.contains("/") && qtn.getBindNode() != null)){
 			id = XformBuilderUtil.getBindIdFromVariableName(qtn.getBinding(),false);
 			
+			if(parentBinding != null && !qtn.getBinding().contains("/"))
+				nodeset = "/" + formDef.getBinding() + "/" + parentBinding + "/" + qtn.getBinding();
+			
 			if(!nodeset.startsWith("/"))
 				nodeset = "/" + nodeset;
+			
 			if(!nodeset.startsWith("/" + formDef.getBinding() + "/"))
 				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
 		}
@@ -75,6 +61,30 @@ public class UiElementBuilder {
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_LOCKED, XformConstants.XPATH_VALUE_TRUE);
 		if(!qtn.isVisible())
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE, XformConstants.XPATH_VALUE_FALSE);
+		
+		return id;
+	}
+	
+	
+	/**
+	 * Converts a question definition object to xforms.
+	 * 
+	 * @param qtn the question definition object.
+	 * @param doc the xforms document.
+	 * @param xformsNode the root node of the xforms document.
+	 * @param formDef the form definition object to which the question belongs.
+	 * @param formNode the xforms instance data node.
+	 * @param modelNode the xforms model node.
+	 * @param groupNode the xforms group node to which the question belongs.
+	 */
+	public static void fromQuestionDef2Xform(QuestionDef qtn, Document doc, Element xformsNode, FormDef formDef, Element formNode, Element modelNode,Element groupNode){
+		Element dataNode =  XformBuilderUtil.fromVariableName2Node(doc,qtn.getBinding(),formDef,formNode);
+		if(qtn.getDefaultValue() != null && qtn.getDefaultValue().trim().length() > 0)
+			dataNode.appendChild(doc.createTextNode(qtn.getDefaultValue()));
+		qtn.setDataNode(dataNode);
+
+		Element bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
+		String id = setBindNodeProperties(bindNode, qtn, null, formDef);
 
 		String bindAttributeName = XformConstants.ATTRIBUTE_NAME_REF;
 		if(!groupNode.getNodeName().equals(XformConstants.NODE_NAME_REPEAT)){
@@ -121,7 +131,7 @@ public class UiElementBuilder {
 
 			RepeatQtnsDef rptQtns = qtn.getRepeatQtnsDef();
 			for(int j=0; j<rptQtns.size(); j++)
-				createQuestion(rptQtns.getQuestionAt(j),repeatNode,dataNode,doc);
+				createQuestion(qtn, rptQtns.getQuestionAt(j), repeatNode, dataNode, modelNode, formDef, doc);
 		}
 	}
 
@@ -129,12 +139,14 @@ public class UiElementBuilder {
 	/**
 	 * Creates an xforms ui node for a child question of a parent repeat question type.
 	 * 
+	 * @param parentQtn is the parent question.
 	 * @param qtnDef the child question definition object.
 	 * @param parentControlNode the ui node of the parent repeat question.
 	 * @param parentDataNode the data node of the parent repeat question.
+	 * @param modelNode the model node
 	 * @param doc the xforms document.
 	 */
-	private static void createQuestion(QuestionDef qtnDef, Element parentControlNode, Element parentDataNode, Document doc){
+	private static void createQuestion(QuestionDef parentQtn, QuestionDef qtnDef, Element parentControlNode, Element parentDataNode, Element modelNode, FormDef formDef, Document doc){
 		String name = qtnDef.getBinding();
 		
 		//TODO Doesnt this introduce a bug?
@@ -153,7 +165,21 @@ public class UiElementBuilder {
 		parentDataNode.appendChild(dataNode);
 		qtnDef.setDataNode(dataNode);
 
-		Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_REF,true, null);
+		
+		//.....................
+		Element bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
+		modelNode.appendChild(bindNode);
+		String id = setBindNodeProperties(bindNode, qtnDef, parentQtn.getBinding(), formDef);
+		
+		Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_BIND, true, id);
+		
+		parentControlNode.appendChild(inputNode);
+		qtnDef.setControlNode(inputNode);
+		qtnDef.setBindNode(bindNode);
+		//..........................
+		
+		/*Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_REF,true, null);
+		
 		inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(qtnDef.getDataType(),inputNode));
 		if(qtnDef.isRequired())
 			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED, XformConstants.XPATH_VALUE_TRUE);
@@ -166,7 +192,7 @@ public class UiElementBuilder {
 
 		parentControlNode.appendChild(inputNode);
 		qtnDef.setControlNode(inputNode);
-		qtnDef.setBindNode(inputNode);
+		qtnDef.setBindNode(inputNode); */
 
 		Element labelNode =  doc.createElement(XformConstants.NODE_NAME_LABEL);
 		labelNode.appendChild(doc.createTextNode(qtnDef.getText()));

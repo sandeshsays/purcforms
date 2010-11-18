@@ -698,7 +698,7 @@ public class QuestionDef implements Serializable{
 		return (OptionDef)options.get(index);
 	}
 
-	public boolean updateDoc(Document doc, Element xformsNode, FormDef formDef, Element formNode, Element modelNode,Element groupNode,boolean appendParentBinding, boolean withData, String orgFormVarName){
+	public boolean updateDoc(Document doc, Element xformsNode, FormDef formDef, Element formNode, Element modelNode,Element groupNode,boolean appendParentBinding, boolean withData, String orgFormVarName, String parentBinding){
 		boolean isNew = controlNode == null;
 		if(controlNode == null) //Must be new question.
 			UiElementBuilder.fromQuestionDef2Xform(this,doc,xformsNode,formDef,formNode,modelNode,groupNode);
@@ -719,8 +719,12 @@ public class QuestionDef implements Serializable{
 			String binding = this.binding;
 			if(!binding.startsWith("/"+ formDef.getBinding()+"/") && appendParentBinding){
 				//if(!binding.contains("/"+ formDef.getVariableName()+"/"))
-				if(!binding.startsWith(formDef.getBinding()+"/"))
-					binding = "/"+ formDef.getBinding()+"/" + binding;
+				if(!binding.startsWith(formDef.getBinding()+"/")){
+					if(parentBinding != null && !binding.contains("/"))
+						binding = "/"+ formDef.getBinding()+"/" + parentBinding + "/" + binding;
+					else
+						binding = "/"+ formDef.getBinding()+"/" + binding;
+				}
 				else{
 					this.binding = "/" + this.binding; //correct user binding syntax error
 					binding = this.binding;

@@ -4,7 +4,6 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.util.ItextBuilder;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;

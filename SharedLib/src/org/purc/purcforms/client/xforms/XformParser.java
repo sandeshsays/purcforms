@@ -828,11 +828,22 @@ public class XformParser {
 				qtn.setId(getNextQuestionId());
 				rptQtnDef.addRepeatQtnsDef(qtn);
 
+				//We do not want the bind node to be removed from the document as we remove the question
+				Element bindNode = qtn.getBindNode();
+				qtn.setBindNode(null);
+				
 				//This should be before the data and control nodes are set because it removed them.
 				formDef.removeQuestion(qtn);
 
-				qtn.setBindNode(child);
+				//TODO repeat kind bind node is no longer the control node.
+				//qtn.setBindNode(child);
+				qtn.setBindNode(bindNode);
 				qtn.setControlNode(child);
+				
+				//Repeat bindings should not include parent portions
+				//TODO The portion after the && is a real hack and should go away.
+				if(qtn.getBinding().startsWith(varName + "/") && qtn.getBinding().indexOf('/') == qtn.getBinding().lastIndexOf('/'))
+					qtn.setBinding(qtn.getBinding().substring(varName.length() + 1));
 
 				//Remove repeat question constraint if any
 				XformParserUtil.replaceConstraintQtn(constraints,qtn);

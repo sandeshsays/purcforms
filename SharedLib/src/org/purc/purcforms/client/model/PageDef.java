@@ -632,7 +632,7 @@ public class PageDef implements Serializable{
 				if(!allQuestionsNew && questionDef.getDataNode() == null)
 					newQuestions.add(questionDef);
 
-				if(questionDef.updateDoc(doc,xformsNode,formDef,formNode,modelNode,(groupNode == null) ? xformsNode : groupNode,true,withData, orgFormVarName)){
+				if(questionDef.updateDoc(doc,xformsNode,formDef,formNode,modelNode,(groupNode == null) ? xformsNode : groupNode,true,withData, orgFormVarName, null)){
 					//for(int k=0; k<i; k++)
 					//moveQuestionUp(questionDef);
 				}

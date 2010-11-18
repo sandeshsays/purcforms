@@ -153,7 +153,7 @@ public class RepeatQtnsDef implements Serializable {
 		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
-			questionDef.updateDoc(doc,xformsNode,formDef,qtnDef.getDataNode(),modelNode,qtnDef.getControlNode(),false,withData,orgFormVarName);
+			questionDef.updateDoc(doc,xformsNode,formDef,qtnDef.getDataNode(),modelNode,qtnDef.getControlNode(), true /*false*/ ,withData,orgFormVarName, qtnDef.getBinding());
 		}
 	}
 	
