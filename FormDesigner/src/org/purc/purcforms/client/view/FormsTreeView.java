@@ -1411,6 +1411,19 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(formDef == null)
 			return;
 
+		//If we do not first save the form when the user has added new questions,
+		//we get a problems where data nodes are not created for the new questions
+		//and some of the new questions get lost.
+		saveItem();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				rebuildTheBindings();
+			}
+		});
+	}
+	
+	private void rebuildTheBindings(){
 		FormUtil.dlg.setText(LocaleText.get("loading"));
 		FormUtil.dlg.center();
 
