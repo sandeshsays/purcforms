@@ -172,6 +172,9 @@ public class FieldWidget extends Composite{
 	}
 
 	private boolean selectFirstQuestion(Vector questions){
+		if(questions == null)
+			return false;
+		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
 
