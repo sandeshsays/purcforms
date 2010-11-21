@@ -34,6 +34,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -1128,8 +1129,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof RuntimeGroupWidget)
 			((RuntimeGroupWidget)widget).clearValue();
 
-		if(questionDef != null)
+		if(questionDef != null){
 			questionDef.setAnswer(null);
+			
+			if(panel.getWidgetCount() == 2)
+				panel.remove(1);
+		}
 	}
 
 	/**
