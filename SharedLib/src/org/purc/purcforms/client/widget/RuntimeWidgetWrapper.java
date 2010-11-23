@@ -1132,6 +1132,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(questionDef != null){
 			questionDef.setAnswer(null);
 			
+			//Clear value for external source widgets.
 			if(panel.getWidgetCount() == 2)
 				panel.remove(1);
 		}

@@ -1342,9 +1342,10 @@ public class QuestionDef implements Serializable{
 				//then we preserve the old option text and binding by replacing new
 				//ones with the old values.
 				if(oldCount == count){
-					OptionDef optnDef = questionDef.getOptionAt(index);
+					//Commented out because its really buggy. When provider id changes, it adds duplicate and with same old id.
+					/*OptionDef optnDef = questionDef.getOptionAt(index);
 					optionDef.setBinding(optnDef.getBinding());
-					optionDef.setText(optnDef.getText());
+					optionDef.setText(optnDef.getText());*/
 				}
 				
 				orderedOptns.add(optionDef);

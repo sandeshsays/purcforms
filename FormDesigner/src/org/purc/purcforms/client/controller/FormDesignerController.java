@@ -967,8 +967,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 						FormDef oldFormDef = centerPanel.getFormDef();
 
-						//If we are in offline mode, or the overwrite flag is set to false,
-						//we completely overwrite the form 
+						//If we are in offline mode, or the overwrite flag is set to true,
+						//we completely overwrite the form. eg when they click the open toolbar icon.
 						//with the contents of the xforms source tab, as a way of someone manually
 						//changing the xform.
 						if(!isOfflineMode() && !overwrite)
