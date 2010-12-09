@@ -446,12 +446,6 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					//completes, just in case we had to refresh the form.
 					DeferredCommand.addCommand(new Command(){																
 						public void execute() {
-							
-							String xml = centerPanel.getXformsSource();
-							xml = centerPanel.getLayoutXml();
-							xml = centerPanel.getJavaScriptSource();
-							xml = PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId()));
-
 							if(!isOfflineMode() && formSaveListener == null)
 								saveForm(centerPanel.getXformsSource(), centerPanel.getLayoutXml(), PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())), centerPanel.getJavaScriptSource());
 
