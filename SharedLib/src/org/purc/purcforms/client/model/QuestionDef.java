@@ -710,9 +710,20 @@ public class QuestionDef implements Serializable{
 
 		Element node = bindNode;
 		if(node == null){
-			//We are using a ref instead of bind
+			/*//We are using a ref instead of bind
 			node = controlNode;
-			appendParentBinding = false;
+			appendParentBinding = false;*/
+			
+			node = doc.createElement(XformConstants.NODE_NAME_BIND);
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, this.binding);
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_NODESET, binding); //Will ensure that nodeset gets set below.
+			
+			if(FormUtil.isJavaRosaSaveFormat())
+				insertBeforeLastChild(formDef.getModelNode(), node); //Insert before itext
+			else
+				formDef.getModelNode().appendChild(node);
+			
+			bindNode = node;
 		}
 
 		if(node != null){
@@ -1538,6 +1549,17 @@ public class QuestionDef implements Serializable{
 		if(pos1 > -1 && pos2 > -1 && (pos2 > pos1))
 			displayText = displayText.replace(displayText.substring(pos1,pos2+2),"");
 		return displayText;
+	}
+	
+	private void insertBeforeLastChild(Element parent, Element node){
+		NodeList nodes = parent.getChildNodes();
+		for(int index = nodes.getLength() - 1; index >= 0; index--){
+			Node child = nodes.item(index);
+			if(child.getNodeType() == Node.ELEMENT_NODE){
+				parent.insertBefore(node, child);
+				return;
+			}
+		}
 	}
 }
 
