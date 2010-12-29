@@ -1050,7 +1050,7 @@ public class FormUtil {
 		else{
 			// dispatch for IE
 			var evt = document.createEventObject();
-			element.fireEvent('onchange',evt)
+			element.fireEvent('onchange'); //element.fireEvent('onchange',evt)
 		}
     }-*/;
 
