@@ -53,10 +53,6 @@ public class AdvancedValidationRulesView extends Composite implements SelectionH
 	/*text box for add an expression*/
 	private TextArea expressionEditor = new TextArea();
 	
-	/* Undo button*/
-	private Button undoBtn = new Button(LocaleText.get("undo"));
-	/* paste button*/
-	private Button pasteBtn = new Button(LocaleText.get("paste"));
 	/* ok button*/
 	private Button okBtn = new Button(LocaleText.get("ok"));
 	/* cancel button*/
@@ -100,37 +96,27 @@ public class AdvancedValidationRulesView extends Composite implements SelectionH
 		horizontalPanel.setWidth("100%");
 		verticalPanel.add(horizontalPanel);
 		
-		undoBtn.addClickHandler(this);
-		pasteBtn.addClickHandler(this);
-		
 		FlexTable buttonTable = new FlexTable();
-		buttonTable.setWidget(0, 1,undoBtn);
-		buttonTable.setWidget(0,2,pasteBtn);
 		ScrollPanel spanel = new ScrollPanel(addTree(tree));
 		spanel.setSize("100%", "150px");
-		//spanel.setSize("100%", "100%");
-		buttonTable.setWidget(1,0,spanel);
-		buttonTable.setWidget(1,1,expressionElements);
+		buttonTable.setWidget(0,0,spanel);
+		buttonTable.setWidget(0,1,expressionElements);
 		descriptionLabel.setStyleName("validation-description-label");
-		buttonTable.setWidget(1,2,descriptionLabel);
+		buttonTable.setWidget(0,2,descriptionLabel);
 		
 		okBtn.addClickHandler(this);
 		cancelBtn.addClickHandler(this);
 		helpBtn.addClickHandler(this);
-		buttonTable.setWidget(2,1,okBtn);
-		buttonTable.setWidget(2, 2, helpBtn);
+		buttonTable.setWidget(1,1,okBtn);
+		buttonTable.setWidget(1, 2, helpBtn);
 		expressionElements.setWidth("100%");
 		
 		FormUtil.maximizeWidget(buttonTable);
 		verticalPanel.add(buttonTable);
+		
 		FlexCellFormatter cellFormatter = buttonTable.getFlexCellFormatter();
-		cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
-		cellFormatter.setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_LEFT);
-		cellFormatter.setHorizontalAlignment(1, 2, HasHorizontalAlignment.ALIGN_LEFT);
-		cellFormatter.setVerticalAlignment(1, 2, HasVerticalAlignment.ALIGN_TOP);
-		cellFormatter.setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_RIGHT);
-		cellFormatter.setStyleName(1, 2,"validation-description-label");
-		cellFormatter.setStyleName(1, 0,"validation-description-label");
+		cellFormatter.setStyleName(0, 2,"validation-description-label");
+		cellFormatter.setHorizontalAlignment(1,1,HasHorizontalAlignment.ALIGN_RIGHT);
 		cellFormatter.setWidth(0,0,"40%");
 		cellFormatter.setWidth(0,1,"30%");
 		
@@ -153,12 +139,6 @@ public class AdvancedValidationRulesView extends Composite implements SelectionH
 		initWidget(verticalPanel);
 		
 	}
-	public void undoAction(){
-		expressionEditor.setText("");
-	}
-	public void pasteAction(){
-		expressionEditor.setText("=($value (fieldz) < $sum ($value (fieldx), $value (fieldy)) ");
-		}
 	public void okAction(){
 		descriptionLabel.setText(expressionEditor.getText());
 		}
@@ -185,13 +165,13 @@ public class AdvancedValidationRulesView extends Composite implements SelectionH
 	}
 	
 	public void updateValidationRule(){
+		if(formDef == null){
+			validationRule = null;
+			return;
+		}
 		System.out.println(expressionEditor.getText());
 	}
-		
-	
-	
-	
-	
+			
 	@Override
 	public void addBracket() {
 		// TODO Auto-generated method stub
@@ -224,11 +204,7 @@ public class AdvancedValidationRulesView extends Composite implements SelectionH
 	@Override
 	public void onClick(ClickEvent event) {
 		Object sender = event.getSource();
-		if(sender == undoBtn){
-			undoAction();
-		}else if(sender == pasteBtn){
-			pasteAction();
-		}else if(sender == okBtn){
+		if(sender == okBtn){
 			okAction();
 		}else if(sender == cancelBtn){
 			cancelAction();

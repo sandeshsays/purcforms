@@ -115,4 +115,16 @@ public class ModelConstants implements Serializable{
 	
 	/** Rule action to make a question optional */
 	public static final int ACTION_MAKE_OPTIONAL = 1 << 6;
+	
+	/* added by victor
+	 * added more constants*/
+
+	/** Operator Plus */
+	public static final int OPERATOR_PLUS = 19;
+	/** Operator Minus */
+	public static final int OPERATOR_MINUS = 20;
+	/** Operator Divide*/
+	public static final int OPERATOR_DIVIDE = 21;
+	/** Operator Product */
+	public static final int OPERATOR_PRODUCT = 22;
 }
