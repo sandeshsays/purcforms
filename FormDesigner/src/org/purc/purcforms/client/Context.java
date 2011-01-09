@@ -41,10 +41,10 @@ public class Context {
 	public static final byte MODE_XFORMS_SOURCE = 4;
 	
 	/** The default locale key. */
-	private static Locale defaultLocale = new Locale("en","English");
+	private static Locale defaultLocale; //= new Locale("en","English");
 	
 	/** The current locale. */
-	private static Locale locale = defaultLocale;
+	private static Locale locale; // = defaultLocale;
 	
 	/** A list of supported locales. */
 	private static List<Locale> locales = new ArrayList<Locale>();
@@ -76,7 +76,6 @@ public class Context {
 	 * key and text, where locale key is the value map key and text is the value map value.
 	 */
 	private static HashMap<Integer,HashMap<String,String>> languageText = new HashMap<Integer,HashMap<String,String>>();
-
 	
 	/**
 	 * Sets the default locale.
@@ -103,6 +102,7 @@ public class Context {
 	 */
 	public static void setLocale(Locale locale){
 		Context.locale = locale;
+		FormUtil.localeKey = locale.getKey();
 	}
 	
 	/**

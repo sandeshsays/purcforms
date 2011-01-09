@@ -319,6 +319,9 @@ public class QuestionDef implements Serializable{
 
 	public void setAnswer(String answer) {
 		//if(defaultValue != null && defaultValue.trim().length() > 0)
+		if(answer != null && answer.trim().length() > 0 && getDataType() == QuestionDef.QTN_TYPE_DECIMAL)
+			answer = answer.replace(FormUtil.getDecimalSeparator(), FormUtil.SAVE_DECIMAL_SEPARATOR);
+		
 		this.answer = answer;
 	}
 

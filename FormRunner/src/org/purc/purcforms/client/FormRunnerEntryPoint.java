@@ -56,6 +56,8 @@ public class FormRunnerEntryPoint implements EntryPoint{
 			FormUtil.setupUncaughtExceptionHandler();	
 
 			FormUtil.retrieveUserDivParameters();
+			
+			FormUtil.loadDecimalSeparators();
 
 			formRunner = new FormRunnerWidget(images);
 			

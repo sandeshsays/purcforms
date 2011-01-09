@@ -34,7 +34,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -518,6 +517,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						defaultValue = questionDef.getDefaultValueDisplay();
 					else if(defaultValue.trim().length() > 0 && questionDef.isDate())
 						defaultValue = fromSubmit2DisplayDate(defaultValue);
+					
+					if(defaultValue != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL)
+						defaultValue = defaultValue.replace(FormUtil.SAVE_DECIMAL_SEPARATOR, FormUtil.getDecimalSeparator());
 
 					((TextBoxBase)widget).setText(defaultValue);
 

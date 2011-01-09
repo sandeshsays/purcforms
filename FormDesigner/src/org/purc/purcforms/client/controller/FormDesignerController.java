@@ -1142,6 +1142,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							if(xml == null && !Context.getLocale().getKey().equals(Context.getDefaultLocale().getKey()))
 								xml = getFormLocaleText(form.getId(), Context.getDefaultLocale().getKey());
 
+							//TODO Layout xml could be missing and we may need to put in one from the default locale.
+							
 							if(xml != null){
 								String xform = FormUtil.formatXml(LanguageUtil.translate(form.getDoc(), xml, true));
 								FormDef newFormDef = XformParser.fromXform2FormDef(xform);
@@ -1151,6 +1153,9 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 								newFormDef.setXformXml(xform);
 								newFormDef.setLayoutXml(FormUtil.formatXml(LanguageUtil.translate(form.getLayoutXml(), xml, false)));
+								if(newFormDef.getLayoutXml() == null)
+									newFormDef.setLayoutXml(form.getLayoutXml());
+								
 								newFormDef.setLanguageXml(xml);
 								newForms.add(newFormDef);
 

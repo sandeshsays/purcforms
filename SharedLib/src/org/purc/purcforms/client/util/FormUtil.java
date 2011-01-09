@@ -22,6 +22,7 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
@@ -43,30 +44,32 @@ import com.google.gwt.xml.client.Element;
  *
  */
 public class FormUtil {
+
+	public static final String SAVE_DECIMAL_SEPARATOR = ".";
 	
 	/** Parameter for the form id. e.g formId, surveyId, questionaireId, etc. */
 	private static final String PARAM_NAME_FORM_ID_NAME = "formIdName";
-	
+
 	/** 
 	 * Parameter for the format in which two save the form. 
 	 * For now we only have the default value "purcforms" or "javarosa"
 	 */
 	private static final String PARAM_NAME_SAVE_FORMAT = "saveFormat";
-	
+
 	/** 
 	 * Flag to tell whether to combine the xform with widget layout and JavaScript 
 	 * as one text document, when saving the form. 
 	 * Possible values are "1" or "true" for YES and "0" or "false" for NO
 	 */
 	private static final String PARAM_NAME_COMBINE_FORM_ON_SAVE = "combineFormOnSave";
-	
+
 	/**
 	 * Flag to tell whether we allow automatic rebuilding of form bindings.
 	 * e.g setting the bindings to q1, q2, q3, etc according to the order of the questions.
 	 * Possible values are "1" or "true" for YES and "0" or "false" for NO
 	 */
 	private static final String PARAM_NAME_REBUILD_BINDINGS = "rebuildBindings";
-	
+
 	/**
 	 * Flag to tell whether the form structure can change or not.
 	 * When the form structure cannot change, no new questions can be added and the existing
@@ -74,7 +77,7 @@ public class FormUtil {
 	 * Possible values are "1" or "true" for YES and "0" or "false" for NO
 	 */
 	private static final String PARAM_NAME_READONLY = "readOnly";
-	
+
 
 	/** The date time format used in the xforms model xml. */
 	private static DateTimeFormat dateTimeSubmitFormat;
@@ -109,9 +112,12 @@ public class FormUtil {
 	private static boolean combineFormOnSave = true;
 	private static boolean rebuildBindings = false;
 	private static boolean readOnlyMode = false;;
-	
+
 	public static String JAVAROSA = "javarosa";
 	
+	private static NumberFormat cachedDecimalFormat;
+	
+	public static String localeKey;
 
 	/** 
 	 * The url to navigate to when one closes the form designer by selecting
@@ -151,6 +157,8 @@ public class FormUtil {
 	 * Flag determining whether to display the form submitted successfully message or not.
 	 */
 	private static boolean showSubmitSuccessMsg = false;
+	
+	private static HashMap<String, String> decimalSeparators = new HashMap<String, String>();
 
 	/** The dialog used to show all progress messages. */
 	public static ProgressDialog dlg = new ProgressDialog();
@@ -179,7 +187,8 @@ public class FormUtil {
 						&& (keyCode != (char) KeyCodes.KEY_UP) && (keyCode != (char) KeyCodes.KEY_RIGHT)
 						&& (keyCode != (char) KeyCodes.KEY_DOWN)) {
 
-					if(keyCode == '.' && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains("."))
+					String decimalSepChar = getDecimalSeparator();
+					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
 						return;
 
 					String text = ((TextBox) event.getSource()).getText().trim();
@@ -196,8 +205,10 @@ public class FormUtil {
 		textBox.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				try{
-					if(allowDecimalPoints)
-						Double.parseDouble(((TextBox) event.getSource()).getText().trim());
+					if(allowDecimalPoints) {;
+						String answer = ((TextBox) event.getSource()).getText().trim();
+						Double.parseDouble(answer.replace(FormUtil.getDecimalSeparator(), FormUtil.SAVE_DECIMAL_SEPARATOR));
+					}
 					else
 						Long.parseLong(((TextBox) event.getSource()).getText().trim());
 				}
@@ -222,7 +233,8 @@ public class FormUtil {
 						&& (keyCode != (char) KeyCodes.KEY_UP) && (keyCode != (char) KeyCodes.KEY_RIGHT)
 						&& (keyCode != (char) KeyCodes.KEY_DOWN)) {
 
-					if(keyCode == '.' && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains("."))
+					String decimalSepChar = getDecimalSeparator();
+					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
 						return;
 
 					String text = ((TextBox) event.getSource()).getText().trim();
@@ -375,7 +387,7 @@ public class FormUtil {
 			}
 		});
 	}
-	
+
 	/**
 	 * Gets the parameters passed in the host html file as divs (preferably hidden divs).
 	 * For now this is the way of passing parameters to the form designer and runtime widget.
@@ -392,6 +404,7 @@ public class FormUtil {
 		fileOpenUrlSuffix = getDivValue("fileOpenUrlSuffix");
 		fileSaveUrlSuffix = getDivValue("fileSaveUrlSuffix");
 		closeUrl = getDivValue("closeUrl");
+		localeKey = getDivValue("localeKey");
 
 		if(multimediaUrlSuffix == null || multimediaUrlSuffix.trim().length() == 0)
 			multimediaUrlSuffix = "multimedia";
@@ -452,49 +465,49 @@ public class FormUtil {
 		/*s = getDivValue("showLanguageTab");
 		if("1".equals(s) || "true".equals(s))
 			showLanguageTab = true;*/
-		
+
 		gpsTypeName = getDivValue("gpsTypeName");
 		if(gpsTypeName == null || gpsTypeName.trim().length() == 0)
 			gpsTypeName = XformConstants.DATA_TYPE_TEXT;
-		
+
 		s = getDivValue("formKeyAttributeName");
 		if(s != null && s.trim().length() > 0)
 			XformConstants.ATTRIBUTE_NAME_FORM_KEY = s;
-		
+
 		s = getDivValue("constraintMessageAttributeName");
 		if(s != null && s.trim().length() > 0)
 			XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE = s;
-		
+
 		saveFormat = getDivValue(PARAM_NAME_SAVE_FORMAT);
-		
+
 		if(JAVAROSA.equalsIgnoreCase(saveFormat)){
 			gpsTypeName = "geopoint";
 			XformConstants.ATTRIBUTE_NAME_FORM_KEY = "id";
 			XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE = "jr:constraintMsg";
 			XformConstants.DATA_TYPE_BINARY = "binary";
 		}
-		
+
 		s = getDivValue(PARAM_NAME_COMBINE_FORM_ON_SAVE);
 		if(s != null && s.trim().length() > 0){
 			if("0".equals(s) || "false".equals(s))
 				combineFormOnSave = false;
 		}
-		
+
 		s = getDivValue(PARAM_NAME_REBUILD_BINDINGS);
 		if(s != null && s.trim().length() > 0){
 			if("1".equals(s) || "true".equals(s))
 				rebuildBindings = true;
 		}
-		
+
 		s = FormUtil.getDivValue(PARAM_NAME_READONLY, false);
 		if(s != null && s.trim().length() > 0){
 			if("1".equals(s) || "true".equals(s))
 				readOnlyMode = true;
 		}
-		
+
 		retrieveUrlParameters();
 	}
-	
+
 	/**
 	 * Converts a string to a boolean.
 	 * 
@@ -504,7 +517,7 @@ public class FormUtil {
 	private static boolean fromString2Boolean(String value){
 		return "1".equals(value) || "true".equals(value);
 	}
-	
+
 	/**
 	 * Extracts customization parameters from the current url.
 	 * If any of these parameters has been set via a div in the html host file,
@@ -515,28 +528,28 @@ public class FormUtil {
 		if(queryString == null){
 			return;
 		}
-		
+
 		//remove the starting ? characher.
 		queryString = queryString.substring(1); 
-		
+
 		String[] parameters = queryString.split("&");
 		if(parameters == null){
 			return;
 		}
-		
+
 		for(String parameter : parameters){
 			String nameValueArray[] = parameter.split("=");
 			if(nameValueArray == null || nameValueArray.length != 2){
 				continue; //Can this happen anyway?
 			}
-			
+
 			setParameterValue(nameValueArray[0], nameValueArray[1]);
 		}
-		
+
 		//Form Id value is set last when we are sure of the formIdName.
 		setFormId(parameters);
 	}
-	
+
 	/**
 	 * Sets the formId value from an array of url parameters.
 	 * 
@@ -548,14 +561,14 @@ public class FormUtil {
 			if(nameValueArray == null || nameValueArray.length != 2){
 				continue; //Can this happen anyway?
 			}
-			
+
 			if(nameValueArray[0].equalsIgnoreCase(formIdName)){
 				formId = nameValueArray[1];
 				break;
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets the value of a customization parameter.
 	 * 
@@ -564,19 +577,19 @@ public class FormUtil {
 	 */
 	private static void setParameterValue(String name, String value){
 		//TODO Need to set more parameters. I started with only the urgently needed ones.
-		
+
 		if(PARAM_NAME_READONLY.equalsIgnoreCase(name))
 			readOnlyMode = fromString2Boolean(value);
-		
+
 		if(PARAM_NAME_REBUILD_BINDINGS.equalsIgnoreCase(name))
 			rebuildBindings = fromString2Boolean(value);
-		
+
 		if(PARAM_NAME_COMBINE_FORM_ON_SAVE.equalsIgnoreCase(name))
 			combineFormOnSave = fromString2Boolean(value);
-		
+
 		if(PARAM_NAME_FORM_ID_NAME.equalsIgnoreCase(name))
 			formIdName = value;
-		
+
 		if(PARAM_NAME_SAVE_FORMAT.equalsIgnoreCase(name))
 			saveFormat = value;
 	}
@@ -584,7 +597,7 @@ public class FormUtil {
 	public static String getDivValue(String id){
 		return getDivValue(id, true);
 	}
-	
+
 	public static String getDivValue(String id, boolean remove){
 		//RootPanel p = RootPanel.get(id);
 
@@ -594,10 +607,10 @@ public class FormUtil {
 			if(nodes != null && nodes.getLength() > 0){
 				Node node = nodes.getItem(0);
 				String s = node.getNodeValue();
-				
+
 				if(remove)
 					p.removeChild(node);
-				
+
 				return s;
 			}
 		}
@@ -716,15 +729,15 @@ public class FormUtil {
 	/*public static boolean getShowLanguageTab(){
 		return showLanguageTab;
 	}*/
-	
+
 	public static String getGpsTypeName(){
 		return gpsTypeName;
 	}
-	
+
 	public static String getSaveFormat(){
 		return saveFormat;
 	}
-	
+
 	public static boolean isJavaRosaSaveFormat(){
 		return JAVAROSA.equalsIgnoreCase(saveFormat);
 	}
@@ -779,15 +792,15 @@ public class FormUtil {
 	public static boolean showSubmitSuccessMsg(){
 		return showSubmitSuccessMsg;
 	}
-	
+
 	public static boolean combineFormOnSave(){
 		return combineFormOnSave;
 	}
-	
+
 	public static boolean rebuildBindings(){
 		return rebuildBindings;
 	}
-	
+
 	public static boolean isReadOnlyMode(){
 		return readOnlyMode;
 	}
@@ -872,23 +885,23 @@ public class FormUtil {
 		if(node.getNodeType() == Node.ELEMENT_NODE){
 			com.google.gwt.xml.client.Node parent = node.getParentNode();
 			while(parent != null && !(parent instanceof Document)){
-				
+
 				String value = ((Element)parent).getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 				if(value != null)
 					value = "[@id='" + value + "']";
-				
+
 				if(value == null){
 					value = ((Element)parent).getAttribute(XformConstants.ATTRIBUTE_NAME_BIND);
 					if(value != null)
 						value = "[@bind='" + value + "']";
 				}
-				
+
 				if(value == null){
 					value = ((Element)parent).getAttribute(XformConstants.ATTRIBUTE_NAME_REF);
 					if(value != null)
 						value = "[@ref='" + value + "']";
 				}
-				
+
 				path = removePrefix(parent.getNodeName()) + (value == null ? "" : value) + "/" + path;
 				parent = parent.getParentNode();
 			}
@@ -1084,7 +1097,7 @@ public class FormUtil {
 
 		return false;
 	}
-	
+
 	/**
 	 * Converts a string into a valid XML token (tag name)
 	 * 
@@ -1094,18 +1107,18 @@ public class FormUtil {
 	public static String getXmlTagName(String s) {
 		// Converts a string into a valid XML token (tag name)
 		// No spaces, start with a letter or underscore, not 'xml*'
-		
+
 		// if len(s) < 1, return '_blank'
 		if (s == null || s.length() < 1)
 			return "_blank";
-		
+
 		// xml tokens must start with a letter
 		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
-		
+
 		// after the leading letter, xml tokens may have
 		// digits, period, or hyphen
 		String nameChars = letters + "0123456789.-";
-		
+
 		// special characters that should be replaced with valid text
 		// all other invalid characters will be removed
 		HashMap<String, String> swapChars = new HashMap<String, String>();
@@ -1120,12 +1133,12 @@ public class FormUtil {
 		swapChars.put("=", "eq");
 		swapChars.put("/", "slash");
 		swapChars.put("\\\\", "backslash");
-		
+
 		s = s.replace("'", "");
-		
+
 		// start by cleaning whitespace and converting to lowercase
 		s = s.replaceAll("^\\s+", "").replaceAll("\\s+$", "").replaceAll("\\s+", "_").toLowerCase();
-		
+
 		// swap characters
 		Set<Entry<String, String>> swaps = swapChars.entrySet();
 		for (Entry<String, String> entry : swaps) {
@@ -1134,7 +1147,7 @@ public class FormUtil {
 			else
 				s = s.replaceAll(String.valueOf(entry.getKey()), "");
 		}
-		
+
 		// ensure that invalid characters and consecutive underscores are
 		// removed
 		String token = "";
@@ -1147,33 +1160,61 @@ public class FormUtil {
 				}
 			}
 		}
-		
+
 		// remove extraneous underscores before returning token
 		token = token.replaceAll("_+", "_");
 		token = token.replaceAll("_+$", "");
-		
+
 		// make sure token starts with valid letter
 		if (letters.indexOf(token.charAt(0)) == -1 || token.startsWith("xml"))
 			token = "_" + token;
-		
+
 		// return token
 		return token;
 	}
-	
-	
+
+
 	public static String addParameter(String url, String name, String value){
 		if(value != null && value.trim().length() > 0){
 			if(url.indexOf('?') < 0)
 				url += "?";
 			else
 				url += "&";
-			
+
 			url += name + "=" + value;
 		}
 		return url;
 	}
-	
+
 	public static String appendRandomParameter(String url){
 		return addParameter(url, "purcFormsRandomParameter", new java.util.Date().getTime() + "");
+	}
+	 
+	public static String getDecimalSeparator(){
+		String s = decimalSeparators.get(localeKey);
+		if(s == null || s.trim().length() == 0)
+			s = ".";
+		return s;
+	}
+	
+	public static void loadDecimalSeparators(){
+		String decimalSeparatorList = FormUtil.getDivValue("decimalSeparators");
+
+		if(decimalSeparatorList == null || decimalSeparatorList.trim().length() == 0)
+			return;
+
+		String[] tokens = decimalSeparatorList.split(";");
+		if(tokens == null || tokens.length == 0)
+			return;
+
+		for(String token: tokens){
+			int index = token.indexOf(':');
+
+			//Should at least have one character for key or separator
+			if(index < 1 || index == token.length() - 1)
+				continue;
+
+			decimalSeparators.put(token.substring(0,index).trim(), token.substring(index+1).trim());
+		}
 	}
 }

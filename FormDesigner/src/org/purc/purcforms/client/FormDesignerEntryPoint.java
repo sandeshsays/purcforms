@@ -82,6 +82,7 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			RootPanel.getBodyElement().getStyle().setProperty("display", "");
 
 			loadLocales();
+			FormUtil.loadDecimalSeparators();
 
 			designer = new FormDesignerWidget(true,true,true);
 
@@ -185,6 +186,10 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			locales.add(new Locale(token.substring(0,index).trim(),token.substring(index+1).trim()));
 		}
 
+		//Set the first locale as the default one.
+		Context.setDefaultLocale(locales.get(0));
+		Context.setLocale(Context.getDefaultLocale());
+		
 		Context.setLocales(locales);
 	}
 }
