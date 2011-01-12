@@ -755,6 +755,20 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					}
 				});
 			}
+			else if(binding.equals("nextPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						nextPage();
+					}
+				});
+			}
+			else if(binding.equals("prevPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						prevPage();
+					}
+				});
+			}
 		}
 
 		if(wrapper.isEditable() && questionDef != null)
@@ -815,6 +829,18 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		//data submission or display the login dialog box.
 		if(formDef != null)
 			FormUtil.isAuthenticated();
+	}
+	
+	public void nextPage(){
+		int index = tabs.getTabBar().getSelectedTab() + 1;
+		if(index < tabs.getTabBar().getTabCount())
+			tabs.selectTab(index);
+	}
+	
+	public void prevPage(){
+		int index = tabs.getTabBar().getSelectedTab() - 1;
+		if(index >= 0)
+			tabs.selectTab(index);
 	}
 
 

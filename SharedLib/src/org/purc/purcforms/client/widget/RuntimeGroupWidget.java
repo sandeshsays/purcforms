@@ -577,7 +577,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			//wrapper.setParentBinding(parentBinding);
 
 			if(binding.equals("addnew")||binding.equals("remove") || binding.equals("submit") ||
-					binding.equals("browse")||binding.equals("clear")||binding.equals("cancel")||binding.equals("search")){
+					binding.equals("browse")||binding.equals("clear")||binding.equals("cancel") ||
+					binding.equals("search") || binding.equals("nextPage")||binding.equals("prevPage")){
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						execute((Widget)event.getSource());
@@ -641,6 +642,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).onSubmit();
 		else if(binding.equalsIgnoreCase("cancel"))
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).onCancel();
+		else if(binding.equalsIgnoreCase("nextPage"))
+			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).nextPage();
+		else if(binding.equalsIgnoreCase("prevPage"))
+			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).prevPage();
 		else if(repeatQtnsDef != null){
 			if(binding.equalsIgnoreCase("addnew")){
 				RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)getParent().getParent();
