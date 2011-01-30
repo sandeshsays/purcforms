@@ -46,7 +46,7 @@ public class Condition implements Serializable, BindingChangeListener {
 
 	/** The unique identifier of a condition. */
 	private int id = ModelConstants.NULL_ID;
-	
+
 	private OptionDef bindingChangeSrc;
 
 	/** Creates a new condition object. */
@@ -151,36 +151,41 @@ public class Condition implements Serializable, BindingChangeListener {
 				}
 			}
 
-			switch(qn.getDataType()){
-			case QuestionDef.QTN_TYPE_TEXT:
-				ret = isTextTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_REPEAT:
-			case QuestionDef.QTN_TYPE_NUMERIC:
-				ret = isNumericTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_DATE:
-				ret = isDateTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_DATE_TIME:
-				ret = isDateTimeTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_DECIMAL:
-				ret = isDecimalTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE:
-			case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC:
-				ret = isListExclusiveTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_LIST_MULTIPLE:
-				ret = isListMultipleTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_TIME:
-				ret = isTimeTrue(qn,validation);
-				break;
-			case QuestionDef.QTN_TYPE_BOOLEAN:
-				ret = isTextTrue(qn,validation);
-				break;
+			if(function == ModelConstants.FUNCTION_VALUE){
+				switch(qn.getDataType()){
+				case QuestionDef.QTN_TYPE_TEXT:
+					ret = isTextTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_REPEAT:
+				case QuestionDef.QTN_TYPE_NUMERIC:
+					ret = isNumericTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_DATE:
+					ret = isDateTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_DATE_TIME:
+					ret = isDateTimeTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_DECIMAL:
+					ret = isDecimalTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE:
+				case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC:
+					ret = isListExclusiveTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_LIST_MULTIPLE:
+					ret = isListMultipleTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_TIME:
+					ret = isTimeTrue(qn,validation);
+					break;
+				case QuestionDef.QTN_TYPE_BOOLEAN:
+					ret = isTextTrue(qn,validation);
+					break;
+				}
+			}
+			else{
+				return isLengthTrue(qn);
 			}
 		}
 		catch(Exception ex){
@@ -190,6 +195,40 @@ public class Condition implements Serializable, BindingChangeListener {
 		value = tempValue;
 
 		return ret;
+	}
+
+	private boolean isLengthTrue(QuestionDef qtn){
+		String answer = qtn.getAnswer();
+
+		if(answer == null || answer.trim().length() == 0)
+			return true;
+
+		long len1 = 0, len2 = 0, len = 0;
+		if(value != null && value.trim().length() > 0)
+			len1 = Long.parseLong(value);
+		if(secondValue != null && secondValue.trim().length() > 0)
+			len2 = Long.parseLong(secondValue);
+
+		len = answer.trim().length();
+
+		if(operator == ModelConstants.OPERATOR_EQUAL)
+			return len == len1;
+		else if(operator == ModelConstants.OPERATOR_NOT_EQUAL)
+			return len != len1;
+		else if(operator == ModelConstants.OPERATOR_LESS)
+			return len < len1;
+		else if(operator == ModelConstants.OPERATOR_LESS_EQUAL)
+			return len <= len1;
+		else if(operator == ModelConstants.OPERATOR_GREATER)
+			return len > len1;
+			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+				return len >= len1;
+				else if(operator == ModelConstants.OPERATOR_BETWEEN)
+					return len > len1 && len < len2;
+					else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+						return !(len > len1 && len < len2);
+
+		return false;
 	}
 
 	/**
@@ -230,12 +269,12 @@ public class Condition implements Serializable, BindingChangeListener {
 				return answer < longValue || longValue == answer;
 			else if(operator == ModelConstants.OPERATOR_GREATER)
 				return answer > longValue;
-			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-				return answer > longValue || longValue == answer;
-			else if(operator == ModelConstants.OPERATOR_BETWEEN)
-				return answer > longValue && longValue < secondLongValue;
-			else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-				return !(answer > longValue && longValue < secondLongValue);
+				else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+					return answer > longValue || longValue == answer;
+					else if(operator == ModelConstants.OPERATOR_BETWEEN)
+						return answer > longValue && longValue < secondLongValue;
+						else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+							return !(answer > longValue && longValue < secondLongValue);
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
@@ -255,62 +294,31 @@ public class Condition implements Serializable, BindingChangeListener {
 	private boolean isTextTrue(QuestionDef qtn, boolean validation){
 		String answer = qtn.getAnswer();
 
-		if(function == ModelConstants.FUNCTION_VALUE){
-			if(answer == null || answer.trim().length() == 0){
-				if(validation && operator == ModelConstants.OPERATOR_IS_NOT_NULL)
-					return false;
-				else if(validation || operator == ModelConstants.OPERATOR_NOT_EQUAL ||
-						operator == ModelConstants.OPERATOR_NOT_START_WITH ||
-						operator == ModelConstants.OPERATOR_NOT_CONTAIN)
-					return true;
-
-				return operator == ModelConstants.OPERATOR_IS_NULL;
-			}
-			else if(operator == ModelConstants.OPERATOR_IS_NOT_NULL)
+		if(answer == null || answer.trim().length() == 0){
+			if(validation && operator == ModelConstants.OPERATOR_IS_NOT_NULL)
+				return false;
+			else if(validation || operator == ModelConstants.OPERATOR_NOT_EQUAL ||
+					operator == ModelConstants.OPERATOR_NOT_START_WITH ||
+					operator == ModelConstants.OPERATOR_NOT_CONTAIN)
 				return true;
 
-			if(operator == ModelConstants.OPERATOR_EQUAL)
-				return value.equals(qtn.getAnswer());
-			else if(operator == ModelConstants.OPERATOR_NOT_EQUAL)
-				return !value.equals(qtn.getAnswer());
-			else if(operator == ModelConstants.OPERATOR_STARTS_WITH)
-				return answer.startsWith(value);
-			else if(operator == ModelConstants.OPERATOR_NOT_START_WITH)
-				return !answer.startsWith(value);
-			else if(operator == ModelConstants.OPERATOR_CONTAINS)
-				return answer.contains(value);
-			else if(operator == ModelConstants.OPERATOR_NOT_CONTAIN)
-				return !answer.contains(value);
+			return operator == ModelConstants.OPERATOR_IS_NULL;
 		}
-		else{
-			if(answer == null || answer.trim().length() == 0)
-				return true;
+		else if(operator == ModelConstants.OPERATOR_IS_NOT_NULL)
+			return true;
 
-			long len1 = 0, len2 = 0, len = 0;
-			if(value != null && value.trim().length() > 0)
-				len1 = Long.parseLong(value);
-			if(secondValue != null && secondValue.trim().length() > 0)
-				len2 = Long.parseLong(secondValue);
-
-			len = answer.trim().length();
-
-			if(operator == ModelConstants.OPERATOR_EQUAL)
-				return len == len1;
-			else if(operator == ModelConstants.OPERATOR_NOT_EQUAL)
-				return len != len1;
-			else if(operator == ModelConstants.OPERATOR_LESS)
-				return len < len1;
-			else if(operator == ModelConstants.OPERATOR_LESS_EQUAL)
-				return len <= len1;
-			else if(operator == ModelConstants.OPERATOR_GREATER)
-				return len > len1;
-				else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-					return len >= len1;
-					else if(operator == ModelConstants.OPERATOR_BETWEEN)
-						return len > len1 && len < len2;
-						else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-							return !(len > len1 && len < len2);
-		}
+		if(operator == ModelConstants.OPERATOR_EQUAL)
+			return value.equals(qtn.getAnswer());
+		else if(operator == ModelConstants.OPERATOR_NOT_EQUAL)
+			return !value.equals(qtn.getAnswer());
+		else if(operator == ModelConstants.OPERATOR_STARTS_WITH)
+			return answer.startsWith(value);
+		else if(operator == ModelConstants.OPERATOR_NOT_START_WITH)
+			return !answer.startsWith(value);
+		else if(operator == ModelConstants.OPERATOR_CONTAINS)
+			return answer.contains(value);
+		else if(operator == ModelConstants.OPERATOR_NOT_CONTAIN)
+			return !answer.contains(value);
 
 		return false;
 	}
@@ -533,12 +541,12 @@ public class Condition implements Serializable, BindingChangeListener {
 				return answer < doubleValue || doubleValue == answer;
 			else if(operator == ModelConstants.OPERATOR_GREATER)
 				return answer > doubleValue;
-			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-				return answer > doubleValue || doubleValue == answer;
-			else if(operator == ModelConstants.OPERATOR_BETWEEN)
-				return answer > doubleValue && doubleValue < secondDoubleValue;
-			else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-				return !(answer > doubleValue && doubleValue < secondDoubleValue);
+				else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+					return answer > doubleValue || doubleValue == answer;
+					else if(operator == ModelConstants.OPERATOR_BETWEEN)
+						return answer > doubleValue && doubleValue < secondDoubleValue;
+						else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+							return !(answer > doubleValue && doubleValue < secondDoubleValue);
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
@@ -617,16 +625,16 @@ public class Condition implements Serializable, BindingChangeListener {
 
 		return null;
 	}
-	
+
 	public void onBindingChanged(Object sender, String oldValue, String newValue){
 		assert(value != null);
 		assert(oldValue != null);
 		assert(newValue != null);
-		
+
 		if(value.equalsIgnoreCase(oldValue))
 			value = newValue;
 	}
-	
+
 	public void setBindingChangeListener(QuestionDef questionDef){
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
@@ -636,7 +644,7 @@ public class Condition implements Serializable, BindingChangeListener {
 				bindingChangeSrc.addBindingChangeListener(this);
 		}
 	}
-	
+
 	public void removeBindingChangeListeners(){
 		if(bindingChangeSrc != null)
 			bindingChangeSrc.removeBindingChangeListener(this);
