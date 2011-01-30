@@ -997,12 +997,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				int type = widget.getQuestionDef().getDataType();
 				String answer = calcExpression;
 
-				if(calcExpression != null && calculation.getCalculateExpression().trim().indexOf(' ') > 0){
+				if(calcExpression != null /*&& calculation.getCalculateExpression().trim().indexOf(' ') > 0*/){
 					if(type == QuestionDef.QTN_TYPE_NUMERIC){
 						try{
 							answer = ""+FormUtil.evaluateIntExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -1010,7 +1010,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -1018,7 +1018,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
 					}
@@ -1660,6 +1660,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				qtnBinding = qtnBinding.substring(formBinding.length());
 
 				QuestionDef questionDef = formDef.getQuestion(qtnBinding);
+				if(questionDef == null){
+					qtnBinding = FormUtil.getBinding(qtnBinding);
+					questionDef = formDef.getQuestion(qtnBinding);
+				}
+				
 				if(questionDef != null){
 					List<QuestionDef> qtns = calcQtnMappings.get(questionDef);
 					if(qtns == null){
@@ -1721,6 +1726,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			qtnBinding = qtnBinding.substring(formBinding.length());
 
 			QuestionDef qtnDef = formDef.getQuestion(qtnBinding);
+			if(qtnDef == null){
+				qtnBinding = FormUtil.getBinding(qtnBinding);
+				qtnDef = formDef.getQuestion(qtnBinding);
+			}
 			if(qtnDef == null)
 				return "";
 
@@ -1742,6 +1751,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 
 	private String getCalcExpressionAnswer(int type, QuestionDef questionDef, String calcExpression){
+		type = questionDef.getDataType();
 		String answer = questionDef.getAnswer();
 		if(answer == null || answer.trim().length() == 0){
 			if(type == QuestionDef.QTN_TYPE_NUMERIC || type == QuestionDef.QTN_TYPE_DECIMAL)
@@ -1752,8 +1762,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			else
 				answer = calcExpression.trim().indexOf(' ') > 0 ? "''" : "";
 		}
+		else if(type == QuestionDef.QTN_TYPE_DATE_TIME){
+			answer = FormUtil.getJavaScriptDateTimeFormat().format(FormUtil.getDateTimeSubmitFormat().parse(answer));
+		}
 
-		type = questionDef.getDataType();
+		
 		if(type ==  QuestionDef.QTN_TYPE_NUMERIC || type ==  QuestionDef.QTN_TYPE_DECIMAL)
 			return answer;
 		else if(answer != null && answer.trim().length() > 0 && calcExpression.trim().indexOf(' ') > 0 && !answer.equals("''"))

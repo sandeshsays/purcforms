@@ -1284,7 +1284,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	}
 
 	public boolean isEditable(){
-		return (widget instanceof TextBox || widget instanceof TextArea || widget instanceof ListBox || widget instanceof CheckBox);
+		return (widget instanceof TextBox || widget instanceof TextArea || widget instanceof ListBox || 
+				widget instanceof CheckBox || widget instanceof DateTimeWidget || widget instanceof TimeWidget);
 	}
 
 	public void setId(String id){

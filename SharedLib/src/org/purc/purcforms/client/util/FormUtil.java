@@ -96,6 +96,9 @@ public class FormUtil {
 
 	/** The time format used for display purposes. */
 	private static DateTimeFormat timeDisplayFormat;
+	
+	/** The date and time format used when passing string dates to JavaScript. */
+	private static DateTimeFormat javaScriptDateFormat;
 
 	private static String formDefDownloadUrlSuffix;
 	private static String formDefUploadUrlSuffix;
@@ -443,6 +446,8 @@ public class FormUtil {
 		format = getDivValue("dateSubmitFormat");
 		if(format != null && format.trim().length() > 0)
 			setDateSubmitFormat(format);
+		
+		javaScriptDateFormat = DateTimeFormat.getFormat("MMM dd, yyyy hh:mm:ss a");
 
 		defaultFontFamily = getDivValue("defaultFontFamily");
 		if(defaultFontFamily == null || defaultFontFamily.trim().length() == 0)
@@ -664,6 +669,10 @@ public class FormUtil {
 
 	public static DateTimeFormat getDateSubmitFormat(){
 		return dateSubmitFormat;
+	}
+	
+	public static DateTimeFormat getJavaScriptDateTimeFormat(){
+		return javaScriptDateFormat;
 	}
 
 	public static String getFormDefDownloadUrlSuffix(){
@@ -1216,5 +1225,76 @@ public class FormUtil {
 
 			decimalSeparators.put(token.substring(0,index).trim(), token.substring(index+1).trim());
 		}
+	}
+	
+	
+	public static String getBinding(String s) {
+
+		if (s == null || s.length() < 1)
+			return "";
+		
+		int pos = s.indexOf(')');
+		if(pos > 0)
+			s = s.substring(0, pos);
+
+		// xml tokens must start with a letter
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+
+		// after the leading letter, xml tokens may have
+		// digits, period, or hyphen
+		String nameChars = letters + "0123456789.-";
+
+		// special characters that should be replaced with valid text
+		// all other invalid characters will be removed
+		HashMap<String, String> swapChars = new HashMap<String, String>();
+		swapChars.put("!", "");
+		swapChars.put("#", "");
+		swapChars.put("\\*", "");
+		swapChars.put("'", "");
+		swapChars.put("\"", "");
+		swapChars.put("%", "");
+		swapChars.put("<", "");
+		swapChars.put(">", "");
+		swapChars.put("=", "");
+		swapChars.put("/", "");
+		swapChars.put("\\\\", "");
+
+		s = s.replace("'", "");
+
+		// start by cleaning whitespace and converting to lowercase
+		s = s.replaceAll("^\\s+", "").replaceAll("\\s+$", "").replaceAll("\\s+", "").toLowerCase();
+
+		// swap characters
+		Set<Entry<String, String>> swaps = swapChars.entrySet();
+		for (Entry<String, String> entry : swaps) {
+			if (entry.getValue() != null)
+				s = s.replaceAll(entry.getKey(), entry.getValue());
+			else
+				s = s.replaceAll(String.valueOf(entry.getKey()), "");
+		}
+
+		// ensure that invalid characters and consecutive underscores are
+		// removed
+		String token = "";
+		boolean underscoreFlag = false;
+		for (int i = 0; i < s.length(); i++) {
+			if (nameChars.indexOf(s.charAt(i)) != -1) {
+				if (s.charAt(i) != '_' || !underscoreFlag) {
+					token += s.charAt(i);
+					underscoreFlag = (s.charAt(i) == '_');
+				}
+			}
+		}
+
+		// remove extraneous underscores before returning token
+		token = token.replaceAll("_+", "");
+		token = token.replaceAll("_+$", "");
+
+		// make sure token starts with valid letter
+		if (letters.indexOf(token.charAt(0)) == -1 || token.startsWith("xml"))
+			token = "" + token;
+
+		// return token
+		return token.trim();
 	}
 }
