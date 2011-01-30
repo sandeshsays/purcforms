@@ -997,7 +997,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				int type = widget.getQuestionDef().getDataType();
 				String answer = calcExpression;
 
-				if(calculation.getCalculateExpression().trim().indexOf(' ') > 0){
+				if(calcExpression != null && calculation.getCalculateExpression().trim().indexOf(' ') > 0){
 					if(type == QuestionDef.QTN_TYPE_NUMERIC){
 						try{
 							answer = ""+FormUtil.evaluateIntExpression(calcExpression);
@@ -1704,6 +1704,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 	private String replaceCalcExpression(String calcExpression, QuestionDef questionDef){
 
+		boolean allEmpty = true;
+		
 		String expression = calcExpression;
 
 		String qtnBinding, formBinding = "/" + formDef.getBinding() + "/";
@@ -1724,13 +1726,19 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 			expression = expression.replace(formBinding+qtnBinding, getCalcExpressionAnswer(questionDef.getDataType(),qtnDef,calcExpression));
 
+			if(qtnDef.getAnswer() != null && qtnDef.getAnswer().trim().length() > 0)
+				allEmpty = false;
+				
 			if(pos2 > -1)
 				pos = expression.indexOf(formBinding);
 			else
 				break;
 		}
 
-		return expression;
+		if(allEmpty)
+			return null;
+		else
+			return expression;
 	}
 
 	private String getCalcExpressionAnswer(int type, QuestionDef questionDef, String calcExpression){
