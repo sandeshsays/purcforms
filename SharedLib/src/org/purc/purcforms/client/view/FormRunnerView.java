@@ -1024,6 +1024,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					}
 				}
 
+				if(answer != null && "NaN".equalsIgnoreCase(answer))
+					answer = null;
+				
 				widget.setAnswer(answer);
 				widget.isValid(false); //TODO May need to fire change event instead
 				onValueChanged(widget);
@@ -1661,7 +1664,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 				QuestionDef questionDef = formDef.getQuestion(qtnBinding);
 				if(questionDef == null){
-					qtnBinding = FormUtil.getBinding(qtnBinding);
+					qtnBinding = FormUtil.getBinding(qtnBinding);   
 					questionDef = formDef.getQuestion(qtnBinding);
 				}
 				

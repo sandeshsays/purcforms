@@ -1238,7 +1238,7 @@ public class FormUtil {
 			s = s.substring(0, pos);
 
 		// xml tokens must start with a letter
-		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_";
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_/";
 
 		// after the leading letter, xml tokens may have
 		// digits, period, or hyphen
@@ -1256,7 +1256,7 @@ public class FormUtil {
 		swapChars.put("<", "");
 		swapChars.put(">", "");
 		swapChars.put("=", "");
-		swapChars.put("/", "");
+		//swapChars.put("/", "");
 		swapChars.put("\\\\", "");
 
 		s = s.replace("'", "");
@@ -1287,7 +1287,7 @@ public class FormUtil {
 		}
 
 		// remove extraneous underscores before returning token
-		token = token.replaceAll("_+", "");
+		token = token.replaceAll("_+", "_");
 		token = token.replaceAll("_+$", "");
 
 		// make sure token starts with valid letter
