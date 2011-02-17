@@ -12,7 +12,11 @@ public class DeleteWidgetCmd implements ICommand {
 		return "Delete Widget";
 	}
 	
-	public void execute(){
+	public void undo(){
+		
+	}
+	
+	public void redo(){
 		
 	}
 }

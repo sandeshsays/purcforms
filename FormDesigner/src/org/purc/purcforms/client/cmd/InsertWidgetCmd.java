@@ -2,7 +2,7 @@ package org.purc.purcforms.client.cmd;
 
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
-public class InsertWidgetCmd {
+public class InsertWidgetCmd  implements ICommand {
 
 	private DesignWidgetWrapper widget;
 	
@@ -11,7 +11,11 @@ public class InsertWidgetCmd {
 		return "Insert Widget";
 	}
 	
-	public void execute(){
+	public void undo(){
+		
+	}
+	
+	public void redo(){
 		
 	}
 }
