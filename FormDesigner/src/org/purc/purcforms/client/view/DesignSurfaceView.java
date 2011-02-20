@@ -81,9 +81,6 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	/** The layout xml document object. */
 	Document doc;
 
-	/** The height offset when the form designer is used as a widget embedded in a GWT application. */
-	private int embeddedHeightOffset = 0;
-
 	
 	public DesignSurfaceView(){
 		super(null);
@@ -1288,16 +1285,6 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			if(!bindings.containsKey(questionDef.getBinding()))
 				newQuestions.add(questionDef);
 		}
-	}
-
-	/**
-	 * Sets the height offset to be used when the form designer is used as widget embedded
-	 * in a GWT application.
-	 * 
-	 * @param offset the height offset in pixels.
-	 */
-	public void setEmbeddedHeightOffset(int offset){
-		embeddedHeightOffset = offset;
 	}
 
 	/**

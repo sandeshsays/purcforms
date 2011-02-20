@@ -893,7 +893,6 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 * @param offset the offset pixels.
 	 */
 	public void setEmbeddedHeightOffset(int offset){
-		designSurfaceView.setEmbeddedHeightOffset(offset);
 		previewView.setEmbeddedHeightOffset(offset);
 	}
 
