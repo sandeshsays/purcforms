@@ -123,6 +123,12 @@ public class XformBuilder {
 				ConstraintBuilder.fromValidationRule2Xform((ValidationRule)rules.elementAt(i),formDef);
 		}
 		
+		/*
+		 * Build constraints from the advanced validation
+		 * added by charles 		
+		 */
+		AdvancedValidationBuilder.fromAdvancedValidationRule2Xform(formDef);
+		
 		//Build calculates for calculations
 		for(int index = 0; index < formDef.getCalculationCount(); index++){
 			Calculation calculation = formDef.getCalculationAt(index);

@@ -3,7 +3,15 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/gwt-datepicker-r29.jar"/>
-	<classpathentry kind="lib" path="lib/gwt-user.jar"/>
-	<classpathentry kind="lib" path="lib/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse/plugins/com.google.gwt.eclipse.sdkbundle.2.0.3_2.0.3.v201002191036/gwt-2.0.3/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/eclipse/plugins/com.google.gwt.eclipse.sdkbundle.2.0.3_2.0.3.v201002191036/gwt-2.0.3/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/eclipse/plugins/com.google.gwt.eclipse.sdkbundle.2.0.3_2.0.3.v201002191036/gwt-2.0.3/gwt-dev.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/D:/eclipse/plugins/com.google.gwt.eclipse.sdkbundle.2.0.3_2.0.3.v201002191036/gwt-2.0.3/doc/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

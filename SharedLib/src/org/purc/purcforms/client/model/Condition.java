@@ -50,6 +50,11 @@ public class Condition implements Serializable{
 
 	/** The unique identifier of a condition. */
 	private int id = ModelConstants.NULL_ID;
+	
+	/**
+	 * the function definition 
+	 */
+	private FunctionDef functionDef;
 
 	/** Creates a new condition object. */
 	public Condition(){

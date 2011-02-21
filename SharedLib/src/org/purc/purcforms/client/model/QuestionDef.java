@@ -87,6 +87,11 @@ public class QuestionDef implements Serializable{
 	 * but in code we use the dynamically generated numeric id for speed. 
 	 */
 	private String variableName = ModelConstants.EMPTY_STRING;
+	
+	/**
+	 * the advanced validation expression that will be assigned to the question
+	 */
+	private AdvancedValidationRule advancedValidationRule = null;
 
 	/** The allowed set of values (OptionDef) for an answer of the question. 
 	 * This also holds repeat sets of questions (RepeatQtnsDef) for the QTN_TYPE_REPEAT.
@@ -1498,5 +1503,23 @@ public class QuestionDef implements Serializable{
 			displayText = displayText.replace(displayText.substring(pos1,pos2+2),"");
 		return displayText;
 	}
+
+	/**
+	 * gets the advanced validation rule for the question
+	 * @return the advancedValidationRule
+	 */
+	public AdvancedValidationRule getAdvancedValidationRule() {
+		return advancedValidationRule;
+	}
+
+	/**
+	 * sets the advanced validation rule for the question
+	 * @param advancedValidationRule the advancedValidationRule to set
+	 */
+	public void setAdvancedValidationRule(
+			AdvancedValidationRule advancedValidationRule) {
+		this.advancedValidationRule = advancedValidationRule;
+	}
+
 }
 
