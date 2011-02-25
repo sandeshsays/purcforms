@@ -7,6 +7,8 @@ import java.util.List;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.cmd.CommandList;
+import org.purc.purcforms.client.cmd.DeleteWidgetCmd;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.FormDesignerDropController;
@@ -71,10 +73,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	/** The popup panel for the widget context menu. */
 	protected PopupPanel widgetPopup;
 
-	/** The cursor position x cordinate. */
+	/** The cursor position x coordinate. */
 	protected int x;
 
-	/** The cursor position y cordinate. */
+	/** The cursor position y coordinate. */
 	protected int y;
 
 	protected int clipboardLeftMostPos;
@@ -166,6 +168,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Some widgets like check boxes and buttons may not have sizes set yet
 		//and so when in edit mode, they fire onmousedown events.
 		if(widget != null && widget == editWidget)
+			return;
+		
+		//Right clicking on a widget when we have more than one item selected should not turn off selection.
+		if(multipleSel && selectedDragController.getSelectedWidgetCount() > 1)
 			return;
 
 		if(widget == null)
@@ -354,8 +360,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(!Window.confirm(LocaleText.get("deleteWidgetPrompt")))
 			return true;
 
+		CommandList commands = new CommandList();
+		
 		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+			
+			commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+			
 			if(widget.getLayoutNode() != null)
 				widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
 			tryUnregisterDropController(widget);
@@ -363,8 +374,16 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		selectedDragController.clearSelection();
+		
+		Context.getCommandHistory().add(commands);
 
 		return false;
+	}
+	
+	public void deleteWidget(DesignWidgetWrapper widget){
+		//Added only for support of undo redo. So should be refactored.
+		selectedPanel.remove(widget);
+		selectedDragController.clearSelection();
 	}
 
 	public void copyItem() {
@@ -1074,7 +1093,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	protected DesignWidgetWrapper addNewWidget(Widget widget, boolean select){
 		stopLabelEdit(false);
 
-		DesignWidgetWrapper wrapper = new DesignWidgetWrapper(widget,widgetPopup,currentWidgetSelectionListener);
+		DesignWidgetWrapper wrapper = new DesignWidgetWrapper(widget, widgetPopup, currentWidgetSelectionListener);
 
 		if(widget instanceof Label || widget instanceof TextBox || widget instanceof ListBox ||
 				widget instanceof TextArea || widget instanceof Hyperlink || 
@@ -1104,7 +1123,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			//widgetSelectionListener.onWidgetSelected(wrapper);
 			onWidgetSelected(wrapper,false);
 		}
+		
 		return wrapper;
+	}
+	
+	public void insertWidget(DesignWidgetWrapper widget){
+		stopLabelEdit(false);
+		selectedPanel.add(widget);
+		selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
 	}
 
 	/**
@@ -1184,7 +1210,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		TextBoxWidget tb = new TextBoxWidget();
 		DOM.setStyleAttribute(tb.getElement(), "height","25"+PurcConstants.UNITS);
 		DOM.setStyleAttribute(tb.getElement(), "width","200"+PurcConstants.UNITS);
-		return addNewWidget(tb,select);
+		return addNewWidget(tb, select);
 	}
 
 	/**
