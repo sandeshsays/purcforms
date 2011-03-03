@@ -5,21 +5,22 @@ import java.util.Date;
 import org.purc.purcforms.client.util.FormUtil;
 import org.zenika.widget.client.util.DateUtil;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.SourcesTableEvents;
 import com.google.gwt.user.client.ui.TableListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
 
 
 /**
@@ -157,61 +158,48 @@ public class PopupCalendarEx extends PopupPanel {
 
 		Label previousYear = new Label("«");
 		FormUtil.setElementFontSizeAndFamily(previousYear.getElement());
-		
-		previousYear.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
+		previousYear.addClickListener(new ClickListener() {
+			public void onClick(Widget sender) {
 				leave = false;
 				PopupCalendarEx.this.changeMonth(-12);
-				
 			}
 		});
 		monthLine.setWidget(0, 0, previousYear);
 		Label previousMonth = new Label("‹");
 		FormUtil.setElementFontSizeAndFamily(previousMonth.getElement());
-		previousMonth.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
+		previousMonth.addClickListener(new ClickListener() {
+			public void onClick(com.google.gwt.user.client.ui.Widget sender) {
 				leave = false;
 				PopupCalendarEx.this.changeMonth(-1);
-				
-			};});
-		
+			};
+		});
 		monthLine.setWidget(0, 1, previousMonth);
 		monthCellFormatter.setWidth(0, 2, "60%");
 		currentMonth = new Label();
 		FormUtil.setElementFontSizeAndFamily(currentMonth.getElement());
-		currentMonth.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
+		currentMonth.addClickListener(new ClickListener() {
+			public void onClick(Widget sender) {
 				leave = false;
-				
-			}});
+			}
+		});
 		monthLine.setWidget(0, 2, currentMonth);
 		Label nextMonth = new Label("›");
 		FormUtil.setElementFontSizeAndFamily(nextMonth.getElement());
-		nextMonth.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
+		nextMonth.addClickListener(new ClickListener() {
+			public void onClick(com.google.gwt.user.client.ui.Widget sender) {
 				leave = false;
 				PopupCalendarEx.this.changeMonth(1);
-				
-			};});
-		
+			};
+		});
 		monthLine.setWidget(0, 3, nextMonth);
 		Label nextYear = new Label("»");
 		FormUtil.setElementFontSizeAndFamily(nextYear.getElement());
-		nextYear.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
+		nextYear.addClickListener(new ClickListener() {
+			public void onClick(Widget sender) {
 				leave = false;
 				PopupCalendarEx.this.changeMonth(12);
-				
-			}});
+			}
+		});
 		monthLine.setWidget(0, 4, nextYear);
 		panel.add(monthLine);
 	}
@@ -343,6 +331,7 @@ public class PopupCalendarEx extends PopupPanel {
 	private Date getDaysGridOrigin(Date displayedMonth) {
 		int currentYear = displayedMonth.getYear();
 		int currentMonth = displayedMonth.getMonth();
+		CellFormatter cfJours = daysGrid.getCellFormatter();
 		Date monthFirstDay = new Date(currentYear, currentMonth, 1);
 		int indice = DateUtil.getWeekDayIndex(monthFirstDay);
 		Date origineTableau;

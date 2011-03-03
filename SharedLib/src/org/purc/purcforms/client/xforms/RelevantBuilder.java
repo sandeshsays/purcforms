@@ -36,16 +36,16 @@ public class RelevantBuilder {
 	 */
 	public static void fromSkipRule2Xform(SkipRule rule, FormDef formDef){
 		String relevant = "";
-		Vector<Condition> conditions  = rule.getConditions();
+		Vector conditions  = rule.getConditions();
 		for(int i=0; i<conditions.size(); i++){
 			if(relevant.length() > 0)
 				relevant += XformBuilderUtil.getConditionsOperatorText(rule.getConditionsOperator());
 			relevant += fromSkipCondition2Xform((Condition)conditions.elementAt(i),formDef,rule.getAction());
 		}
 
-		Vector<Integer> actionTargets =  rule.getActionTargets();
+		Vector actionTargets =  rule.getActionTargets();
 		for(int i=0; i<actionTargets.size(); i++){
-			int id = actionTargets.elementAt(i).intValue();
+			int id = ((Integer)actionTargets.elementAt(i)).intValue();
 			QuestionDef questionDef = formDef.getQuestion(id);
 			if(questionDef == null)
 				continue;

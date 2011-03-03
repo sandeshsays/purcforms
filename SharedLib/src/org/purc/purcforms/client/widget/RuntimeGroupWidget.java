@@ -508,7 +508,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			parentWrapper.addChildWidget(wrapper);
 
 
-		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
+		/*value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
 		if(value != null && value.trim().length() > 0){
 			wrapper.setValueField(value);
 
@@ -519,6 +519,26 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 							||wrapper.getQuestionDef().getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)){
 				externalSourceWidgets.add(wrapper);
 				loadWidget = false;
+			}
+		}*/
+		
+		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
+		if(value != null && value.trim().length() > 0){
+			wrapper.setValueField(value);
+
+			if(externalSourceWidgets != null && wrapper.getExternalSource() != null && wrapper.getDisplayField() != null
+					&& (wrapper.getWrappedWidget() instanceof TextBox || wrapper.getWrappedWidget() instanceof ListBox)
+					&& questionDef != null){
+
+				if(!(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE
+						||questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)){
+					questionDef.setDataType(QuestionDef.QTN_TYPE_LIST_EXCLUSIVE);
+				}
+
+				externalSourceWidgets.add(wrapper);
+				loadWidget = false;
+
+				wrapper.addSuggestBoxChangeEvent();
 			}
 		}
 
@@ -557,7 +577,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			//wrapper.setParentBinding(parentBinding);
 
 			if(binding.equals("addnew")||binding.equals("remove") || binding.equals("submit") ||
-					binding.equals("browse")||binding.equals("clear")||binding.equals("cancel")||binding.equals("search")){
+					binding.equals("browse")||binding.equals("clear")||binding.equals("cancel") ||
+					binding.equals("search") || binding.equals("nextPage")||binding.equals("prevPage")){
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						execute((Widget)event.getSource());
@@ -621,6 +642,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).onSubmit();
 		else if(binding.equalsIgnoreCase("cancel"))
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).onCancel();
+		else if(binding.equalsIgnoreCase("nextPage"))
+			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).nextPage();
+		else if(binding.equalsIgnoreCase("prevPage"))
+			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).prevPage();
 		else if(repeatQtnsDef != null){
 			if(binding.equalsIgnoreCase("addnew")){
 				RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)getParent().getParent();
@@ -1021,13 +1046,13 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 	}
 
-	public boolean isValid(){
+	public boolean isValid(boolean fireValueChanged){
 		firstInvalidWidget = null;
 
 		if(isRepeated){
 			for(int row = 0; row < table.getRowCount(); row++){
 				for(int col = 0; col < table.getCellCount(row)-1; col++){
-					boolean valid = ((RuntimeWidgetWrapper)table.getWidget(row, col)).isValid();
+					boolean valid = ((RuntimeWidgetWrapper)table.getWidget(row, col)).isValid(fireValueChanged);
 					if(!valid){
 						firstInvalidWidget = (RuntimeWidgetWrapper)table.getWidget(row, col);
 						return false;
@@ -1040,11 +1065,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			boolean valid = true;
 			for(int index=0; index<selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
-				if(!widget.isValid()){
+				if(!widget.isValid(fireValueChanged)){
 					valid = false;
 					if(firstInvalidWidget == null && widget.isFocusable())
 						firstInvalidWidget = widget.getInvalidWidget();
 				}
+				
+				if(fireValueChanged && widget.getQuestionDef() != null)
+					editListener.onValueChanged(widget);
 			}
 			return valid;
 		}
@@ -1062,8 +1090,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				for(int col = 0; col < table.getCellCount(row)-1; col++){
 					RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)table.getWidget(row, col);
 					if(widget.isFocusable()){
-						widget.setFocus();
-						return true;
+						if(widget.setFocus())
+							return true;
 					}
 				}
 			}
@@ -1072,8 +1100,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				if(widget.isFocusable()){
-					widget.setFocus();
-					return true;
+					if(widget.setFocus())
+						return true;
 				}
 			}
 		}

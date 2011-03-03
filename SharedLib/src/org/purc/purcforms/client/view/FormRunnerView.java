@@ -189,6 +189,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private List<RuntimeWidgetWrapper> externalSourceWidgets;
 	private int externalSourceWidgetIndex = 0;
 
+	private boolean loaded = false;
 
 
 	/**
@@ -243,8 +244,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 		}
 
+		loaded = false;
+
 		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
 		isValid(true);
+
+		loaded = true;
+
 		moveToFirstWidget();
 
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
@@ -337,6 +343,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		initValidationWidgetsMap(parentValidationWidgetQtns);
 
+		String firstPageText = null;
 		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml);
 		Element root = doc.getDocumentElement();
 		NodeList pages = root.getChildNodes();
@@ -346,6 +353,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			Element node = (Element)pages.item(i);
 
 			addNewTab(node.getAttribute("Text"));
+			if(firstPageText == null)
+				firstPageText = node.getAttribute("Text");
+
 			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this));
 
 			setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
@@ -367,6 +377,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(tabs.getWidgetCount() > 0)
 			tabs.selectTab(0);
+
+		if(tabs.getWidgetCount() == 1 && "Page1".equalsIgnoreCase(firstPageText))
+			tabs.getTabBar().setVisible(false);
+		else
+			tabs.getTabBar().setVisible(true);
 	}
 
 
@@ -704,7 +719,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(loadWidget)
 			wrapper.loadQuestion();
-		
+
 		wrapper.setExternalSourceDisplayValue();
 
 		WidgetEx.loadLabelProperties(node,wrapper);
@@ -737,6 +752,20 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						onSearch(null,(Widget)event.getSource());
+					}
+				});
+			}
+			else if(binding.equals("nextPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						nextPage();
+					}
+				});
+			}
+			else if(binding.equals("prevPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						prevPage();
 					}
 				});
 			}
@@ -800,6 +829,18 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		//data submission or display the login dialog box.
 		if(formDef != null)
 			FormUtil.isAuthenticated();
+	}
+	
+	public void nextPage(){
+		int index = tabs.getTabBar().getSelectedTab() + 1;
+		if(index < tabs.getTabBar().getTabCount())
+			tabs.selectTab(index);
+	}
+	
+	public void prevPage(){
+		int index = tabs.getTabBar().getSelectedTab() - 1;
+		if(index >= 0)
+			tabs.selectTab(index);
 	}
 
 
@@ -881,7 +922,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		boolean valid = true;
 		for(int index=0; index<panel.getWidgetCount(); index++){
 			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)panel.getWidget(index);
-			if(!widget.isValid()){
+			if(!widget.isValid(fireValueChanged)){
 				valid = false;
 				if(firstInvalidWidget == null && widget.isFocusable())
 					firstInvalidWidget = widget.getInvalidWidget();
@@ -956,12 +997,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				int type = widget.getQuestionDef().getDataType();
 				String answer = calcExpression;
 
-				if(calculation.getCalculateExpression().trim().indexOf(' ') > 0){
+				if(calcExpression != null /*&& calculation.getCalculateExpression().trim().indexOf(' ') > 0*/){
 					if(type == QuestionDef.QTN_TYPE_NUMERIC){
 						try{
 							answer = ""+FormUtil.evaluateIntExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -969,7 +1010,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -977,14 +1018,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
 					}
 				}
 
+				if(answer != null && "NaN".equalsIgnoreCase(answer))
+					answer = null;
+				
 				widget.setAnswer(answer);
-				widget.isValid(); //TODO May need to fire change event instead
+				widget.isValid(false); //TODO May need to fire change event instead
 				onValueChanged(widget);
 			}
 		}
@@ -993,7 +1037,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
 		if(list != null /*&& questionDef.isRequired()*/){
 			for(CheckBox checkBox : list)
-				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid();
+				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid(false);
 		}
 	}
 
@@ -1003,7 +1047,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 		selectedPanel = (AbsolutePanel)tabs.getWidget(selectedTabIndex);
-		moveToFirstWidget();
+
+		if(loaded)
+			moveToFirstWidget();
 	}
 
 	/**
@@ -1079,7 +1125,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * Checks all skip logic and does the appropriate action for the affected widgets.
 	 */
 	protected void fireSkipRules(){		
-		Vector<SkipRule> rules = formDef.getSkipRules();
+		Vector rules = formDef.getSkipRules();
 		if(rules != null){
 			for(int i=0; i<rules.size(); i++){
 				SkipRule rule = (SkipRule)rules.elementAt(i);
@@ -1089,10 +1135,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 
 	protected void doCalculations(){		
-		Vector<Calculation> calculations = formDef.getCalculations();
+		Vector calculations = formDef.getCalculations();
 		if(calculations != null){
 			for(int i=0; i<calculations.size(); i++){
-				
+				Calculation calculation = (Calculation)calculations.elementAt(i);
+				//rule.fire(formDef);
 			}
 		}
 	}
@@ -1179,7 +1226,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		for(byte i=0; i<formDef.getPages().size(); i++){
 			PageDef pageDef = (PageDef)formDef.getPages().elementAt(i);
-			for(byte j=0; j<pageDef.getQuestions().size(); j++)
+			for(byte j=0; j<pageDef.getQuestionCount(); j++)
 				updateDynamicOptions((QuestionDef)pageDef.getQuestions().elementAt(j));
 		}
 	}
@@ -1194,7 +1241,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<Label>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<Label>> entry = iterator.next();
-			this.labelMap.put(entry.getKey(), entry.getValue());
+
+			List<Label> labels = this.labelMap.get(entry.getKey());
+			if(labels == null)
+				this.labelMap.put(entry.getKey(), entry.getValue());
+			else
+				labels.addAll(entry.getValue());
 		}
 	}
 
@@ -1202,7 +1254,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<RuntimeWidgetWrapper>>> iterator = calcWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<RuntimeWidgetWrapper>> entry = iterator.next();
-			this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+
+			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
+			if(widgets == null)
+				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
 		}
 	}
 
@@ -1210,7 +1267,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,RuntimeWidgetWrapper>> iterator = filtDynOptWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,RuntimeWidgetWrapper> entry = iterator.next();
-			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue());
+			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue()); //TODO Can it affect more than one.
 		}
 	}
 
@@ -1252,7 +1309,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<CheckBox>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<CheckBox>> entry = iterator.next();
-			this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+
+			List<CheckBox> checkboxes = this.checkBoxGroupMap.get(entry.getKey());
+			if(checkboxes == null)
+				this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+			else
+				checkboxes.addAll(entry.getValue());
 		}
 	}
 
@@ -1388,7 +1450,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onOptionsChanged(QuestionDef, List)
 	 */
-	public void onOptionsChanged(QuestionDef sender, List<OptionDef> optionList){
+	public void onOptionsChanged(QuestionDef sender,List<OptionDef> optionList){
 
 	}
 
@@ -1397,7 +1459,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * 
 	 * @param authenticated true o
 	 */
-	public static void authenticationCallback(boolean authenticated) {	
+	private static void authenticationCallback(boolean authenticated) {	
 
 		if(authenticated){
 			loginDlg.hide();
@@ -1521,7 +1583,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 
 		for(RuntimeWidgetWrapper wgt : widgets)
-			wgt.isValid();
+			wgt.isValid(false);
 	}
 
 	/**
@@ -1601,6 +1663,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				qtnBinding = qtnBinding.substring(formBinding.length());
 
 				QuestionDef questionDef = formDef.getQuestion(qtnBinding);
+				if(questionDef == null){
+					qtnBinding = FormUtil.getBinding(qtnBinding);   
+					questionDef = formDef.getQuestion(qtnBinding);
+				}
+				
 				if(questionDef != null){
 					List<QuestionDef> qtns = calcQtnMappings.get(questionDef);
 					if(qtns == null){
@@ -1645,6 +1712,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 	private String replaceCalcExpression(String calcExpression, QuestionDef questionDef){
 
+		boolean allEmpty = true;
+		
 		String expression = calcExpression;
 
 		String qtnBinding, formBinding = "/" + formDef.getBinding() + "/";
@@ -1660,21 +1729,32 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			qtnBinding = qtnBinding.substring(formBinding.length());
 
 			QuestionDef qtnDef = formDef.getQuestion(qtnBinding);
+			if(qtnDef == null){
+				qtnBinding = FormUtil.getBinding(qtnBinding);
+				qtnDef = formDef.getQuestion(qtnBinding);
+			}
 			if(qtnDef == null)
 				return "";
 
 			expression = expression.replace(formBinding+qtnBinding, getCalcExpressionAnswer(questionDef.getDataType(),qtnDef,calcExpression));
 
+			if(qtnDef.getAnswer() != null && qtnDef.getAnswer().trim().length() > 0)
+				allEmpty = false;
+				
 			if(pos2 > -1)
 				pos = expression.indexOf(formBinding);
 			else
 				break;
 		}
 
-		return expression;
+		if(allEmpty)
+			return null;
+		else
+			return expression;
 	}
 
 	private String getCalcExpressionAnswer(int type, QuestionDef questionDef, String calcExpression){
+		type = questionDef.getDataType();
 		String answer = questionDef.getAnswer();
 		if(answer == null || answer.trim().length() == 0){
 			if(type == QuestionDef.QTN_TYPE_NUMERIC || type == QuestionDef.QTN_TYPE_DECIMAL)
@@ -1685,8 +1765,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			else
 				answer = calcExpression.trim().indexOf(' ') > 0 ? "''" : "";
 		}
+		else if(type == QuestionDef.QTN_TYPE_DATE_TIME){
+			answer = FormUtil.getJavaScriptDateTimeFormat().format(FormUtil.getDateTimeSubmitFormat().parse(answer));
+		}
 
-		type = questionDef.getDataType();
+		
 		if(type ==  QuestionDef.QTN_TYPE_NUMERIC || type ==  QuestionDef.QTN_TYPE_DECIMAL)
 			return answer;
 		else if(answer != null && answer.trim().length() > 0 && calcExpression.trim().indexOf(' ') > 0 && !answer.equals("''"))
@@ -1750,7 +1833,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 				public void onError(Request request, Throwable exception){
 					FormUtil.displayException(exception);
-					
+
 					if(filterValue == null)
 						fillNextExternalSourceWidget();
 					else
@@ -1760,7 +1843,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		catch(RequestException ex){
 			FormUtil.displayException(ex);
-			
+
 			if(filterValue == null)
 				fillNextExternalSourceWidget();
 			else

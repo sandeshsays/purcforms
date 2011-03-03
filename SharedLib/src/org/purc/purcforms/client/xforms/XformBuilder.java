@@ -87,6 +87,9 @@ public class XformBuilder {
 		instanceNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, formDef.getBinding());
 		modelNode.appendChild(instanceNode);
 		formDef.setModelNode(modelNode);
+		
+		XformUtil.copyModelId(formDef.getDoc(), modelNode);
+		XformUtil.copyInstanceId(formDef.getDoc(), instanceNode);
 
 		//Create the form data node and add it to the instance node.
 		Element formNode =  doc.createElement(formDef.getBinding());
@@ -110,10 +113,10 @@ public class XformBuilder {
 		}
 
 		//Build relevant s for the skip rules.
-		Vector<?> rules = formDef.getSkipRules();
+		Vector rules = formDef.getSkipRules();
 		if(rules != null){
 			for(int i=0; i<rules.size(); i++)
-				RelevantBuilder.fromSkipRule2Xform((SkipRule)rules.elementAt(i), formDef);
+				RelevantBuilder.fromSkipRule2Xform((SkipRule)rules.elementAt(i),formDef);
 		}
 
 		//Build constraints for the validation rules.
@@ -182,7 +185,7 @@ public class XformBuilder {
 		groupNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, pageDef.getPageNo()+"");
 		
 		//Check if we have any questions in this page.
-		Vector<QuestionDef> questions = pageDef.getQuestions();
+		Vector questions = pageDef.getQuestions();
 		if(questions == null)
 			return;
 

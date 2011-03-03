@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.widget;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -17,6 +18,8 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
@@ -27,7 +30,9 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -38,7 +43,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -70,6 +74,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 	/** The widget's validation rule. */
 	private ValidationRule validationRule;
+
+	private static int id = 0;
 
 	/**
 	 * Creates a copy of the widget.
@@ -179,9 +185,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof ListBox){
 			((ListBox)widget).addChangeHandler(new ChangeHandler(){
 				public void onChange(ChangeEvent event){
-					questionDef.setAnswer(((ListBox)widget).getValue(((ListBox)widget).getSelectedIndex()));
-					isValid();
-					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
+					onListBoxChange(((ListBox)widget).getSelectedIndex());
 				}
 			});
 
@@ -192,11 +196,45 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
 					else if(keyCode == KeyCodes.KEY_LEFT)
 						editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
+					/*else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
+						//This is put such that we can detect list box changes immediately on moving the
+						//up and down arrow keys contrary to the browser's default implementation which 
+						//would fire the change event only when one moves focus away from the listbox.
+						//This is sometimes the desired behavior but not always.
+						ListBox listBox = (ListBox)widget;
+						int index = listBox.getSelectedIndex();
+						if(keyCode == KeyCodes.KEY_UP){
+							if(index > 0)
+								onListBoxChange(index - 1);
+						}
+						else if(keyCode == KeyCodes.KEY_DOWN){
+							if(index < listBox.getItemCount() - 1)
+								onListBoxChange(index + 1);
+						}
+					}*/
+					else{
+						DeferredCommand.addCommand(new Command() {
+							public void execute() {
+								//This makes the listbox fire change events immediately such that keyboard selection
+								//either using up and down arrow keys or typing the first character of a
+								//select option does the same as a mouse click without having to wait for the user
+								//to tab away.
+								((ListBox)widget).setFocus(false);
+								((ListBox)widget).setFocus(true);
+							}
+						});	
+					}
 				}//TODO Do we really wanna alter the behaviour of the arrow keys for list boxes?
 			});
 		}
 
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.MOUSEEVENTS | Event.ONCONTEXTMENU | Event.KEYEVENTS);
+	}
+
+	private void onListBoxChange(int index){
+		questionDef.setAnswer(((ListBox)widget).getValue(index));
+		isValid(false);
+		editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 	}
 
 	public void addSuggestBoxChangeEvent(){
@@ -213,12 +251,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(questionDef != null){
 			OptionDef optionDef = questionDef.getOptionWithText(getTextBoxAnswer());
 			if(optionDef != null)
-				questionDef.setAnswer(optionDef.getVariableName());
+				questionDef.setAnswer(optionDef.getBinding());
 			else{
 				questionDef.setAnswer(null);
 				setText(null);
 			}
-			isValid();
+			isValid(false);
 			editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 		}
 		else
@@ -231,13 +269,25 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	private void setupTextBoxEventListeners(){
 		if(widget.getParent() instanceof SuggestBox){
 			if(widget.getParent() instanceof SuggestBox){
-				((SuggestBox)widget.getParent()).addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-					public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+				((SuggestBox)widget.getParent()).addSelectionHandler(new SelectionHandler(){
+					public void onSelection(SelectionEvent event){
 						onSuggestBoxChange();
 					}
 				});
 			}
-
+			
+			((TextBox)widget).addClickHandler(new ClickHandler(){
+				public void onClick(ClickEvent event){
+					((TextBox)widget).selectAll();
+				}
+			});
+			
+			((TextBox)widget).addFocusHandler(new FocusHandler(){
+				public void onFocus(FocusEvent event){
+					((TextBox)widget).selectAll();
+				}
+			});
+	
 			addSuggestBoxChangeEvent();
 		}
 		else{
@@ -246,7 +296,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					//questionDef.setAnswer(((TextBox)widget).getText());
 					if(questionDef != null){
 						questionDef.setAnswer(getTextBoxAnswer());
-						isValid();
+						isValid(false);
 						editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 					}
 
@@ -274,7 +324,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef != null && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)){
 					questionDef.setAnswer(getTextBoxAnswer());
 
-					isValid();
+					isValid(false);
 
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
@@ -334,7 +384,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				//questionDef.setAnswer(((TextBox)widget).getText());
 				if(questionDef != null){
 					questionDef.setAnswer(getTextBoxAnswer());
-					isValid();
+					isValid(false);
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
 
@@ -348,7 +398,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef != null && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)){
 					questionDef.setAnswer(getTextBoxAnswer());
 
-					isValid();
+					isValid(false);
 
 					editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 				}
@@ -387,7 +437,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if((type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC
 				|| type == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 				&& widget instanceof ListBox){
-			List<OptionDef> options  = questionDef.getOptions();
+			List options  = questionDef.getOptions();
 			int defaultValueIndex = 0;
 			ListBox listBox = (ListBox)widget;
 			listBox.clear(); //Could be called more than once.
@@ -396,8 +446,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			if(options != null){
 				for(int index = 0; index < options.size(); index++){
 					OptionDef optionDef = (OptionDef)options.get(index);
-					listBox.addItem(optionDef.getText(), optionDef.getVariableName());
-					if(optionDef.getVariableName().equalsIgnoreCase(defaultValue))
+					listBox.addItem(optionDef.getText(), optionDef.getBinding());
+					if(optionDef.getBinding().equalsIgnoreCase(defaultValue))
 						defaultValueIndex = index+1;
 				}
 			}
@@ -463,10 +513,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						((TextBox)widget).setText(optionDef.getText());
 				}
 				else{
-					if(defaultValue.trim().length() > 0 && questionDef.isDate() && QuestionDef.isDateFunction(defaultValue))
+					if(defaultValue.trim().length() > 0 && questionDef.isDate() && questionDef.isDateFunction(defaultValue))
 						defaultValue = questionDef.getDefaultValueDisplay();
 					else if(defaultValue.trim().length() > 0 && questionDef.isDate())
 						defaultValue = fromSubmit2DisplayDate(defaultValue);
+					
+					if(defaultValue != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL)
+						defaultValue = defaultValue.replace(FormUtil.SAVE_DECIMAL_SEPARATOR, FormUtil.getDecimalSeparator());
 
 					((TextBoxBase)widget).setText(defaultValue);
 
@@ -514,7 +567,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			panel.add(label);
 
 			((TextBox)widget).setText(displayValue);
-			
+
 			//Used only once on form loading.
 			questionDef.getDataNode().removeAttribute("displayValue");
 		}
@@ -529,14 +582,14 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if((type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC
 				|| type == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 				&& widget instanceof ListBox){
-			List<OptionDef> options  = questionDef.getOptions();
+			List options  = questionDef.getOptions();
 			int defaultValueIndex = 0;
 			ListBox listBox = (ListBox)widget;
 
 			if(options != null){
 				for(int index = 0; index < options.size(); index++){
 					OptionDef optionDef = (OptionDef)options.get(index);
-					if(optionDef.getVariableName().equalsIgnoreCase(answer))
+					if(optionDef.getBinding().equalsIgnoreCase(answer))
 						defaultValueIndex = index+1;
 				}
 			}
@@ -571,7 +624,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						((TextBox)widget).setText(optionDef.getText());
 				}
 				else{
-					if(answer.trim().length() > 0 && questionDef.isDate() && QuestionDef.isDateFunction(answer))
+					if(answer.trim().length() > 0 && questionDef.isDate() && questionDef.isDateFunction(answer))
 						answer = questionDef.getDefaultValueDisplay();
 					else if(answer.trim().length() > 0 && questionDef.isDate())
 						answer = fromSubmit2DisplayDate(answer);
@@ -746,7 +799,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(widget instanceof TextBox && questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 			OptionDef optionDef = questionDef.getOptionWithText(((TextBox)widget).getText());
 			if(optionDef != null)
-				questionDef.setAnswer(optionDef.getVariableName());
+				questionDef.setAnswer(optionDef.getBinding());
 			else
 				questionDef.setAnswer(null);
 
@@ -849,6 +902,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(questionDef.getAnswer() == null || questionDef.getAnswer().trim().length() == 0)
 					questionDef.setAnswer(defaultValue);
 			}
+			else if("endtime".equalsIgnoreCase(questionDef.getBinding())) //Add time when form filling ended.
+				questionDef.setAnswer(FormUtil.getDateTimeSubmitFormat().format(new Date()));
 		}
 		else if(widget instanceof RuntimeGroupWidget)
 			((RuntimeGroupWidget)widget).saveValue(formDef);
@@ -908,7 +963,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					}
 					questionDef.setAnswer(answer);
 				}
-				isValid();
+				isValid(false);
 				editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
 			}
 		});
@@ -935,12 +990,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 
 	//These taken from question data.
-	public boolean isValid(){
+	public boolean isValid(boolean fireValueChanged){
 		if(widget instanceof Label || widget instanceof Button || questionDef == null || 
 				(widget instanceof CheckBox && childWidgets == null)){
 
 			if(widget instanceof RuntimeGroupWidget)
-				return ((RuntimeGroupWidget)widget).isValid();
+				return ((RuntimeGroupWidget)widget).isValid(fireValueChanged);
 
 			return true;
 		}
@@ -956,7 +1011,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
 			boolean valid = false;
 			if((widget instanceof RuntimeGroupWidget))
-				valid = ((RuntimeGroupWidget)widget).isValid();
+				valid = ((RuntimeGroupWidget)widget).isValid(fireValueChanged);
 			if(!valid)
 				return false;
 		}
@@ -1047,7 +1102,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof DateTimeWidget)
 			((DateTimeWidget)widget).setFocus(true);
 		else if(widget instanceof RuntimeGroupWidget)
-			((RuntimeGroupWidget)widget).setFocus();
+			return ((RuntimeGroupWidget)widget).setFocus();
 		else
 			return false;
 		return true;
@@ -1076,8 +1131,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof RuntimeGroupWidget)
 			((RuntimeGroupWidget)widget).clearValue();
 
-		if(questionDef != null)
+		if(questionDef != null){
 			questionDef.setAnswer(null);
+			
+			//Clear value for external source widgets.
+			if(panel.getWidgetCount() == 2)
+				panel.remove(1);
+		}
 	}
 
 	/**
@@ -1224,7 +1284,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	}
 
 	public boolean isEditable(){
-		return (widget instanceof TextBox || widget instanceof TextArea || widget instanceof ListBox || widget instanceof CheckBox);
+		return (widget instanceof TextBox || widget instanceof TextArea || widget instanceof ListBox || 
+				widget instanceof CheckBox || widget instanceof DateTimeWidget || widget instanceof TimeWidget);
 	}
 
 	public void setId(String id){

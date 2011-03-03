@@ -14,14 +14,9 @@ import com.google.gwt.xml.client.Element;
  */
 public class Predicate  implements Serializable 
 {
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = -3214921069193850338L;
-	
-	Vector<Object> resultSet;
+	Vector resultSet;
 
-	Predicate(Vector<Object> inNodeSet, String predicateExpr)
+	Predicate(Vector inNodeSet, String predicateExpr)
 	{
 		int nodeIndex = -1;
 
@@ -29,7 +24,7 @@ public class Predicate  implements Serializable
 			resultSet = inNodeSet;
 			return;
 		} else //we need to parse predicateExpr
-			resultSet = new Vector<Object>();
+			resultSet = new Vector();
 		//check if this predicate is just a logical condition or a complete XPath query.
 		//for now we support only logical conditions
 		/*If it is a complete XPath expression
@@ -65,21 +60,21 @@ public class Predicate  implements Serializable
 				if(resultSet2.contains(obj))
 					resultSet.add(obj);
 			}*/
-			Vector<Object>[] resultSets = new Vector[tokens.length];
+			Vector[] resultSets = new Vector[tokens.length];
 			
 			for(int index = 0; index < tokens.length; index++){
-				resultSets[index] = new Vector<Object>();
+				resultSets[index] = new Vector();
 				fillResultSet(resultSets[index], tokens[index], inNodeSet);
 			}
 			
-			Vector<?> resultSet1 = resultSets[0];
+			Vector resultSet1 = resultSets[0];
 			for(int index = 0; index < resultSet1.size(); index++){
 				Object obj = resultSet1.get(index);
 				
 				boolean allFound = true;
 				
 				for(int i = 1; i < tokens.length; i++){
-					Vector<?> curResultSet = resultSets[i];
+					Vector curResultSet = resultSets[i];
 					if(!curResultSet.contains(obj)){
 						allFound = false;
 						break;
@@ -96,7 +91,7 @@ public class Predicate  implements Serializable
 		//here we should start parsing the predicateExpr
 	}//constructor
 	
-	private void fillResultSet(Vector<Object> resultSet, String predicateExpr, Vector<Object> inNodeSet){
+	private void fillResultSet(Vector resultSet, String predicateExpr, Vector inNodeSet){
 		String operation = null;
 		int index = -1;
 
@@ -111,7 +106,7 @@ public class Predicate  implements Serializable
 
 			//Added by me on 11/05/2009 to cater for attributes without criteria values. eg [@name]
 			if(predicateExpr.indexOf("@") != -1){
-				for(Enumeration<Object> e = inNodeSet.elements(); e.hasMoreElements(); ) {
+				for(Enumeration e = inNodeSet.elements(); e.hasMoreElements(); ) {
 					Object obj = e.nextElement();
 
 					String val = ((Element)obj).getAttribute(predicateExpr.substring(1,predicateExpr.length()));
@@ -126,7 +121,7 @@ public class Predicate  implements Serializable
 		Member member1 = new Member(new String(predicateExpr.toCharArray(), 0, index));
 		Member member2 = new Member(new String(predicateExpr.toCharArray(), index+1, predicateExpr.length()-index-1));
 
-		for(Enumeration<Object> e = inNodeSet.elements(); e.hasMoreElements(); ) {
+		for(Enumeration e = inNodeSet.elements(); e.hasMoreElements(); ) {
 			Object obj = e.nextElement();
 
 			if(operation.equals("="))
@@ -138,7 +133,6 @@ public class Predicate  implements Serializable
 					else if(operation.equals("<"))
 						if(member1.eval(obj).compareTo(member2.eval(obj))>0)
 							continue;
-			
 			resultSet.addElement(obj);					
 		}		
 	}
@@ -175,7 +169,7 @@ public class Predicate  implements Serializable
 		}
 	}
 
-	public Vector<Object> getResult()
+	public Vector getResult()
 	{
 		return resultSet;
 	}//getResult

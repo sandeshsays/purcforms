@@ -3,6 +3,7 @@ package org.purc.purcforms.client.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.purc.purcforms.client.locale.LocaleText;
@@ -24,13 +25,8 @@ import com.google.gwt.xml.client.Node;
  */
 public class PageDef implements Serializable{
 
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = 4007522678698953121L;
-
 	/** A list of questions on a page. */
-	private Vector<QuestionDef> questions;
+	private Vector questions;
 
 	/** The page number. */
 	private int pageNo = ModelConstants.NULL_ID;
@@ -46,6 +42,9 @@ public class PageDef implements Serializable{
 
 	/** The form definition to which this page belongs. */
 	private FormDef parent;
+	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
 
 
 	/**
@@ -68,6 +67,7 @@ public class PageDef implements Serializable{
 		setPageNo(pageDef.getPageNo());
 		setName(pageDef.getName());
 		copyQuestions(pageDef.getQuestions());
+		this.xpathExpression = pageDef.xpathExpression;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class PageDef implements Serializable{
 	 * @param questions a list of questions in the page.
 	 * @param parent the form to which the page belongs.
 	 */
-	public PageDef(String name, int pageNo,Vector<QuestionDef> questions,FormDef parent) {
+	public PageDef(String name, int pageNo,Vector questions,FormDef parent) {
 		this(parent);
 		setName(name);
 		setPageNo(pageNo);
@@ -115,7 +115,7 @@ public class PageDef implements Serializable{
 		this.name = name;
 	}
 
-	public Vector<QuestionDef> getQuestions() {
+	public Vector getQuestions() {
 		return questions;
 	}
 
@@ -155,7 +155,7 @@ public class PageDef implements Serializable{
 		this.groupNode = groupNode;
 	}
 
-	public void setQuestions(Vector<QuestionDef> questions) {
+	public void setQuestions(Vector questions) {
 		this.questions = questions;
 	}
 
@@ -184,19 +184,26 @@ public class PageDef implements Serializable{
 		return (QuestionDef)questions.elementAt(index);
 	}
 
+	public void addQuestion(QuestionDef qtn){
+		addQuestion(qtn, null);
+	}
 
 	/**
 	 * Adds a question to the page.
 	 * 
 	 * @param qtn the question to add.
 	 */
-	public void addQuestion(QuestionDef qtn){
+	public void addQuestion(QuestionDef qtn, QuestionDef refQtn){
 		if(questions == null)
-			questions = new Vector<QuestionDef>();
-		questions.addElement(qtn);
+			questions = new Vector();
+		
+		if(refQtn == null)
+			questions.addElement(qtn);
+		else
+			questions.add(questions.indexOf(refQtn) + 1, qtn);
+		
 		qtn.setParent(this);
 	}
-
 
 	/**
 	 * Gets a question with a given variable name.
@@ -294,9 +301,9 @@ public class PageDef implements Serializable{
 	 * 
 	 * @param questions the list of questions to copy.
 	 */
-	private void copyQuestions(Vector<QuestionDef> questions){
+	private void copyQuestions(Vector questions){
 		if(questions != null){
-			this.questions = new Vector<QuestionDef>();
+			this.questions = new Vector();
 			for(int i=0; i<questions.size(); i++)
 				this.questions.addElement(new QuestionDef((QuestionDef)questions.elementAt(i),this));
 		}
@@ -322,9 +329,11 @@ public class PageDef implements Serializable{
 		if(qtnDef.getBinding().indexOf('/') == qtnDef.getBinding().lastIndexOf('/')){
 			if(qtnDef.getDataNode() != null && qtnDef.getDataNode().getParentNode() != null)
 				qtnDef.getDataNode().getParentNode().removeChild(qtnDef.getDataNode());
-			if(qtnDef.getBindNode() != null && qtnDef.getBindNode().getParentNode() != null)
-				qtnDef.getBindNode().getParentNode().removeChild(qtnDef.getBindNode());
 		}
+		
+		//for bindings we are safe to delete regardless of the level of nesting.
+		if(qtnDef.getBindNode() != null && qtnDef.getBindNode().getParentNode() != null)
+			qtnDef.getBindNode().getParentNode().removeChild(qtnDef.getBindNode());
 
 		if(formDef != null){
 			formDef.removeQtnFromRules(qtnDef);
@@ -377,7 +386,7 @@ public class PageDef implements Serializable{
 	 * @param questions the list of questions.
 	 * @param questionDef the question to move.
 	 */
-	public static void moveQuestionUp(Vector<QuestionDef> questions, QuestionDef questionDef){
+	public static void moveQuestionUp(Vector questions, QuestionDef questionDef){
 		int index = questions.indexOf(questionDef);
 
 		//Not relying on group node because some forms have no groups
@@ -403,7 +412,7 @@ public class PageDef implements Serializable{
 		if(questionDef.getBindNode() != null && questionDef.getBindNode().getParentNode() != null && currentQuestionDef.getBindNode() != null)
 			questionDef.getBindNode().getParentNode().removeChild(questionDef.getBindNode());
 
-		List<QuestionDef> list = new ArrayList<QuestionDef>();
+		List list = new ArrayList();
 		while(questions.size() >= index){
 			currentQuestionDef = (QuestionDef)questions.elementAt(index-1);
 			list.add(currentQuestionDef);
@@ -452,7 +461,7 @@ public class PageDef implements Serializable{
 	 * @param questions the list of questions.
 	 * @param questionDef the question to move.
 	 */
-	public static void moveQuestionDown(Vector<QuestionDef> questions, QuestionDef questionDef){
+	public static void moveQuestionDown(Vector questions, QuestionDef questionDef){
 		int index = questions.indexOf(questionDef);	
 
 		//Not relying on group node because some forms have no groups
@@ -477,7 +486,7 @@ public class PageDef implements Serializable{
 			questionDef.getBindNode().getParentNode().removeChild(questionDef.getBindNode());*/
 
 		QuestionDef currentItem; // = parent.getChild(index - 1);
-		List<QuestionDef> list = new ArrayList<QuestionDef>();
+		List list = new ArrayList();
 
 		while(questions.size() > 0 && questions.size() > index){
 			currentItem = (QuestionDef)questions.elementAt(index);
@@ -571,7 +580,7 @@ public class PageDef implements Serializable{
 	 * @param index the index to start from in the questions list.
 	 * @return the question.
 	 */
-	private static QuestionDef getNextSavedQuestion(List<QuestionDef> questions, int index){
+	private static QuestionDef getNextSavedQuestion(List questions, int index){
 		int size = questions.size();
 		for(int i=index; i<size; i++){
 			QuestionDef questionDef = (QuestionDef)questions.get(i);
@@ -618,14 +627,14 @@ public class PageDef implements Serializable{
 		if(groupNode != null)
 			groupNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, pageNo+"");
 
-		Vector<QuestionDef> newQuestions = new Vector<QuestionDef>();
+		Vector newQuestions = new Vector();
 		if(questions != null){
 			for(int i=0; i<questions.size(); i++){
 				QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
 				if(!allQuestionsNew && questionDef.getDataNode() == null)
 					newQuestions.add(questionDef);
 
-				if(questionDef.updateDoc(doc,xformsNode,formDef,formNode,modelNode,(groupNode == null) ? xformsNode : groupNode,true,withData, orgFormVarName)){
+				if(questionDef.updateDoc(doc,xformsNode,formDef,formNode,modelNode,(groupNode == null) ? xformsNode : groupNode,true,withData, orgFormVarName, null)){
 					//for(int k=0; k<i; k++)
 					//moveQuestionUp(questionDef);
 				}
@@ -660,7 +669,7 @@ public class PageDef implements Serializable{
 	 * @param index the position to start from.
 	 * @return the question.
 	 */
-	private QuestionDef getRefQuestion(Vector<QuestionDef> questions, Vector<QuestionDef> newQuestions, int index){
+	private QuestionDef getRefQuestion(Vector questions, Vector newQuestions, int index){
 		QuestionDef questionDef;
 		int i = index + 1;
 		while(i < questions.size()){
@@ -817,7 +826,7 @@ public class PageDef implements Serializable{
 	 * @param doc the language translation document.
 	 * @param parentLangNode the language parent node for the page language nodes.
 	 */
-	public void buildLanguageNodes(com.google.gwt.xml.client.Document doc, Element parentLangNode){
+	public void buildLanguageNodes(com.google.gwt.xml.client.Document doc, Element parentLangNode, Map<String, String> changedXpaths){
 		//if(labelNode == null || groupNode == null)
 		if(groupNode == null && questions != null && questions.size() > 0){
 			Element controlNode = ((QuestionDef)questions.elementAt(0)).getControlNode();
@@ -836,7 +845,16 @@ public class PageDef implements Serializable{
 				xpath += "[@" + XformConstants.ATTRIBUTE_NAME_ID + "='" + id + "']";
 
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
-			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH,  xpath + "/" + FormUtil.getNodeName(labelNode));
+			String newXpath = xpath + "/" + FormUtil.getNodeName(labelNode);
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH,  newXpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !newXpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, newXpath);
+			}
+			this.xpathExpression = newXpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
 			parentLangNode.appendChild(node);
 		}
@@ -845,7 +863,7 @@ public class PageDef implements Serializable{
 			return;
 
 		for(int i=0; i<questions.size(); i++)
-			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(xpath+"/",doc,groupNode,parentLangNode);
+			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(xpath+"/",doc,groupNode,parentLangNode, changedXpaths);
 	}
 
 

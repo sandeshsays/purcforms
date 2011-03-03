@@ -7,8 +7,10 @@ import java.util.Vector;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
+import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Element;
 
@@ -38,10 +40,10 @@ public class ConstraintParser {
 	 * @param constraints the map of constraint attribute values keyed by their 
 	 * 					  question definition objects.
 	 */
-	public static void addValidationRules(FormDef formDef, HashMap<QuestionDef, ?> constraints){
-		Vector<ValidationRule> rules = new Vector<ValidationRule>();
+	public static void addValidationRules(FormDef formDef, HashMap constraints){
+		Vector rules = new Vector();
 
-		Iterator<QuestionDef> keys = constraints.keySet().iterator();
+		Iterator keys = constraints.keySet().iterator();
 		//int id = 0;
 		while(keys.hasNext()){
 			QuestionDef qtn = (QuestionDef)keys.next();
@@ -72,8 +74,13 @@ public class ConstraintParser {
 		Element node = questionDef.getBindNode();
 		if(node == null)
 			validationRule.setErrorMessage("");
-		else
-			validationRule.setErrorMessage(node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE));
+		else{
+			String message = node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE);
+			if(message == null) //could have been loaded in a format opposite to the one we are using. 
+				message = node.getAttribute(FormUtil.isJavaRosaSaveFormat() ? "message" : "jr:constraintMsg");
+			
+			validationRule.setErrorMessage(message);
+		}
 
 		// If the validation rule has no conditions, then its as good as no rule at all.
 		if(validationRule.getConditions() == null || validationRule.getConditions().size() == 0)
@@ -90,9 +97,9 @@ public class ConstraintParser {
 	 * @param questionId the identifier of the question which is the target of the validation rule.
 	 * @return the conditions list.
 	 */
-	private static Vector<Condition> getValidationRuleConditions(FormDef formDef, String constraint, int questionId){
-		Vector<Condition> conditions = new Vector<Condition>();
-		Vector<?> list = XpathParser.getConditionsOperatorTokens(constraint);
+	private static Vector getValidationRuleConditions(FormDef formDef, String constraint, int questionId){
+		Vector conditions = new Vector();
+		Vector list = XpathParser.getConditionsOperatorTokens(constraint);
 
 		Condition condition  = new Condition();
 		for(int i=0; i<list.size(); i++){
@@ -151,6 +158,8 @@ public class ConstraintParser {
 			//This is just for the designer
 			if(value.startsWith(formDef.getBinding() + "/"))
 				condition.setValueQtnDef(formDef.getQuestion(value.substring(value.indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(questionDef);
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_NULL)
 				return null; //no operator set hence making the condition invalid

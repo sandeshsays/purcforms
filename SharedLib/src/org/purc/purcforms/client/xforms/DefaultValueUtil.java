@@ -38,10 +38,10 @@ public class DefaultValueUtil {
 	 * @param formDef the form definition object.
 	 * @param id2VarNameMap a map between questions ids and their binding or variableName.
 	 */
-	public static void setDefaultValues(Element dataNode,FormDef formDef,HashMap<String, ?> id2VarNameMap){
+	public static void setDefaultValues(Element dataNode,FormDef formDef,HashMap id2VarNameMap){
 		boolean valueSet = false;
 		String id, val;
-		Iterator<String> keys = id2VarNameMap.keySet().iterator();
+		Iterator keys = id2VarNameMap.keySet().iterator();
 		while(keys.hasNext()){
 			id = (String)keys.next();
 			String variableName = (String)id2VarNameMap.get(id);
@@ -109,9 +109,9 @@ public class DefaultValueUtil {
 		xpath = xpath.substring(0,pos-1);
 
 		XPathExpression xpls = new XPathExpression(dataNode, xpath);
-		Vector<?> result = xpls.getResult();
+		Vector result = xpls.getResult();
 
-		for (Enumeration<?> e = result.elements(); e.hasMoreElements();) {
+		for (Enumeration e = result.elements(); e.hasMoreElements();) {
 			Object obj = e.nextElement();
 			if (obj instanceof Element){
 				String value = ((Element) obj).getAttribute(attributeName);

@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
+import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
 
@@ -35,12 +36,12 @@ public class RelevantParser {
 	 * @param relevants the map of relevant attribute values keyed by their 
 	 * 					  question definition objects.
 	 */
-	public static void addSkipRules(FormDef formDef, HashMap<QuestionDef, String> relevants){
-		Vector<SkipRule> rules = new Vector<SkipRule>();
+	public static void addSkipRules(FormDef formDef, HashMap relevants){
+		Vector rules = new Vector();
 
 		HashMap<String,SkipRule> skipRulesMap = new HashMap<String,SkipRule>();
 
-		Iterator<QuestionDef> keys = relevants.keySet().iterator();
+		Iterator keys = relevants.keySet().iterator();
 		int id = 0;
 		while(keys.hasNext()){
 			QuestionDef qtn = (QuestionDef)keys.next();
@@ -86,7 +87,7 @@ public class RelevantParser {
 
 		//For now we only have one action target, much as the object model is
 		//flexible enough to support any number of them.
-		Vector<Integer> actionTargets = new Vector<Integer>();
+		Vector actionTargets = new Vector();
 		actionTargets.add(new Integer(questionId));
 		skipRule.setActionTargets(actionTargets);
 
@@ -105,10 +106,10 @@ public class RelevantParser {
 	 * @param action the skip rule target action.
 	 * @return the conditions list.
 	 */
-	private static Vector<Condition> getSkipRuleConditions(FormDef formDef, String relevant, int action){
-		Vector<Condition> conditions = new Vector<Condition>();
+	private static Vector getSkipRuleConditions(FormDef formDef, String relevant, int action){
+		Vector conditions = new Vector();
 
-		Vector<?> list = XpathParser.getConditionsOperatorTokens(relevant);
+		Vector list = XpathParser.getConditionsOperatorTokens(relevant);
 
 		Condition condition  = new Condition();
 		for(int i=0; i<list.size(); i++){
@@ -170,10 +171,12 @@ public class RelevantParser {
 		value = value.trim();
 		if(!(value.equals("null") || value.equals(""))){
 			condition.setValue(value);
-
+			
 			//This is just for the designer
 			if(value.startsWith(formDef.getBinding() + "/"))
 				condition.setValueQtnDef(formDef.getQuestion(value.substring(value.indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(questionDef);
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_NULL)
 				return null; //no operator set hence making the condition invalid
