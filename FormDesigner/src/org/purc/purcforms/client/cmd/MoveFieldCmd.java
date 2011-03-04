@@ -29,7 +29,7 @@ public class MoveFieldCmd implements ICommand {
 	}
 
 	public void undo(){	
-		view.selectItem(item);
+		view.setSelectedItem(item);
 		
 		if(moveUp)
 			view.moveItemDown(false);
@@ -38,7 +38,7 @@ public class MoveFieldCmd implements ICommand {
 	}
 
 	public void redo(){
-		view.selectItem(item);
+		view.setSelectedItem(item);
 		
 		if(moveUp)
 			view.moveItemUp(false);

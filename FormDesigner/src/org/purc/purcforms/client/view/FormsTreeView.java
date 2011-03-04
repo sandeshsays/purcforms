@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.Toolbar;
+import org.purc.purcforms.client.cmd.ChangedFieldCmd;
 import org.purc.purcforms.client.cmd.DeleteFieldCmd;
 import org.purc.purcforms.client.cmd.MoveFieldCmd;
 import org.purc.purcforms.client.controller.IFormActionListener;
@@ -272,13 +273,14 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	 * @see com.google.gwt.event.logical.shared.SelectionHandler#onSelection(SelectionEvent)
 	 */
 	public void onSelection(SelectionEvent<TreeItem> event){
-
+		selectItem(event.getSelectedItem(), true);
+	}
+	
+	private void selectItem(TreeItem item, boolean optimize){
 		scrollToLeft();
 
-		TreeItem item = event.getSelectedItem();
-
 		//Should not call this more than once for the same selected item.
-		if(item != this.item){
+		if(!optimize || item != this.item){
 			Context.setFormDef(FormDef.getFormDef(item.getUserObject()));
 			formDef = Context.getFormDef();
 
@@ -978,7 +980,12 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormChangeListener#onFormItemChanged(java.lang.Object)
 	 */
-	public Object onFormItemChanged(Object formItem) {
+	public Object onFormItemChanged(Object formItem, byte property, String oldValue, boolean changeComplete) {
+		
+		//Do it here and using this.item because we may return with if(item.getUserObject() != formItem)
+		if(changeComplete)
+			Context.getCommandHistory().add(new ChangedFieldCmd(this.item, property, oldValue, this));
+		
 		TreeItem item = tree.getSelectedItem();
 		if(item == null)
 			return formItem; //How can this happen?
@@ -986,6 +993,12 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(item.getUserObject() != formItem)
 			return formItem;
 
+		updateTreeItemText(formItem, item);
+		
+		return formItem;
+	}
+	
+	private void updateTreeItemText(Object formItem, TreeItem item){
 		if(formItem instanceof QuestionDef){
 			QuestionDef questionDef = (QuestionDef)formItem;
 			item.setWidget(new TreeItemWidget(images.lookup(), questionDef.getDisplayText(),popup,this));
@@ -1006,8 +1019,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		//After editing, the currently selected item is not highlighted and so this line fixes that problem.
 		((CompositeTreeItem)tree.getSelectedItem()).addSelectionStyle();
-
-		return formItem;
 	}
 
 	/**
@@ -1492,9 +1503,11 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		}
 	}
 	
-	public void selectItem(TreeItem item){
+	public void setSelectedItem(TreeItem item){
+		updateTreeItemText(item.getUserObject(), item);
 		tree.setSelectedItem(item);
 		tree.ensureSelectedItemVisible();
+		selectItem(item, false);
 	}
 	
 	public void addRootItem(TreeItem item){

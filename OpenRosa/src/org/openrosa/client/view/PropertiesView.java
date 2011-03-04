@@ -364,28 +364,28 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		chkVisible.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setVisible(chkVisible.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkEnabled.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setEnabled(chkEnabled.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkLocked.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setLocked(chkLocked.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkRequired.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setRequired(chkRequired.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
@@ -725,7 +725,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		else if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setName(txtText.getText());
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 
@@ -736,7 +736,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setFormKey(txtFormKey.getText());
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 
@@ -749,7 +749,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		else if(propertiesObj instanceof FormDef){
 			((FormDef)propertiesObj).setDescriptionTemplate(txtDescTemplate.getText());
-			propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+			propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 		}
 	}
 
@@ -787,7 +787,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 		}
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -798,7 +798,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		((IFormElement)propertiesObj).setHelpText(txtHelpText.getText());
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -829,7 +829,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		((QuestionDef)propertiesObj).setDefaultValue(txtDefaultValue.getText());
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -866,7 +866,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		
 		//cbDataType.setSelectedIndex(index);
 		setQuestionDataType((IFormElement)propertiesObj);
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 		if(deleteKids)
 			formChangeListener.onDeleteChildren(propertiesObj);
 		

@@ -17,7 +17,7 @@ public interface IFormChangeListener {
 	 * @param formItem the item which has been changed.
 	 * @return the new item in case the called has changed it.
 	 */
-	public Object onFormItemChanged(Object formItem);
+	public Object onFormItemChanged(Object formItem, byte property, String oldValue, boolean changeComplete);
 	
 	/**
 	 * Called when it is time to deleted the kids of a form item (QuestionDef,PageDef).

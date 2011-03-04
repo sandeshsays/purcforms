@@ -40,7 +40,7 @@ public class InsertFieldCmd implements ICommand {
 			view.addRootItem(item);
 		
 		view.addFormDefItem(item.getUserObject(), (inserAfterItem != null ? inserAfterItem.getUserObject() : null), parentItem);
-		view.selectItem(item);
+		view.setSelectedItem(item);
 		
 		//if(index == 0 && parentItem != null)
 		//	view.moveItemUp();
