@@ -857,4 +857,14 @@ public class WidgetEx extends Composite{
 		((TabBar)widget).setTabHTML(((TabBar)widget).getSelectedTab(), html.toString().replace("div", "span"));
 		//System.out.println(((TabBar)widget).getTabHTML(((TabBar)widget).getSelectedTab()));	
 	}
+	
+	/**
+	 * Checks if the selected widget should have a parent binding property.
+	 * 
+	 * @return true if yes, else false.
+	 */
+	public boolean hasParentBinding(){
+		return (widget instanceof RadioButton) || (widget instanceof CheckBox)
+		|| (widget instanceof Button);
+	}
 }

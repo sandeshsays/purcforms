@@ -925,6 +925,15 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public HandlerRegistration addMouseWheelHandler(MouseWheelHandler handler) {
 		return addDomHandler(handler, MouseWheelEvent.getType());
 	}
+	
+	public boolean supportsTabIndex(){
+		if(widget instanceof RadioButton || widget instanceof CheckBox || widget instanceof Button || 
+				widget instanceof ListBox || widget instanceof TextArea || widget instanceof DatePickerEx || 
+				widget instanceof DateTimeWidget || widget instanceof TextBox || widget instanceof DesignGroupWidget)
+			return true;
+		
+		return false;
+	}
 
 	/*public void setForeColor(String color){
 		super.setForeColor(color);

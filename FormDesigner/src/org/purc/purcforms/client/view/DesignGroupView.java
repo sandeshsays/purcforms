@@ -7,6 +7,7 @@ import java.util.List;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.cmd.ChangeWidgetCmd;
 import org.purc.purcforms.client.cmd.CommandList;
 import org.purc.purcforms.client.cmd.DeleteWidgetCmd;
 import org.purc.purcforms.client.cmd.InsertWidgetCmd;
@@ -1508,9 +1509,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			editWidget.stopEditMode();
 
+			String beforeChangeText = editWidget.getText();
+			
 			String text = txtEdit.getText();
 			if(text.trim().length() > 0)
 				editWidget.setText(text);
+			
+			Context.getCommandHistory().add(new ChangeWidgetCmd(editWidget, ChangeWidgetCmd.PROPERTY_TEXT, beforeChangeText, this));
 
 			//selectedPanel.remove(editWidget);
 			//selectedPanel.add(editWidget);
