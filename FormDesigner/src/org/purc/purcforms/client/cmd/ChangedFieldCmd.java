@@ -139,7 +139,7 @@ public class ChangedFieldCmd implements ICommand {
 	private void setBindingValue(Object field, String value){
 		if(field instanceof FormDef){
 			oldValue = ((FormDef)field).getBinding();
-			((FormDef)field).setVariableName(value);
+			((FormDef)field).setBinding(value);
 		}
 		else if(field instanceof QuestionDef){
 			oldValue = ((QuestionDef)field).getBinding();
@@ -266,7 +266,7 @@ public class ChangedFieldCmd implements ICommand {
 		String text = PropertiesView.getTextWithoutDecTemplate(currentText.trim());
 		String name = FormDesignerUtil.getXmlTagName(text);
 		if(propertiesObj instanceof FormDef && ((FormDef)propertiesObj).getBinding().equals(orgTextDefBinding)){
-			((FormDef)propertiesObj).setVariableName(name);
+			((FormDef)propertiesObj).setBinding(name);
 		}
 		else if(propertiesObj instanceof QuestionDef && ((QuestionDef)propertiesObj).getBinding().equals(orgTextDefBinding)){
 			((QuestionDef)propertiesObj).setBinding(name);

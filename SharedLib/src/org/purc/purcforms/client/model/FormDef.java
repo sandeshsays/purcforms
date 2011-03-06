@@ -131,7 +131,7 @@ public class FormDef implements Serializable{
 		this.xpathExpression = formDef.xpathExpression;
 
 		//I just don't think we need this in addition to the id
-		setVariableName(formDef.getBinding());
+		setBinding(formDef.getBinding());
 
 		setDescriptionTemplate(formDef.getDescriptionTemplate());
 		copyPages(formDef.getPages());
@@ -161,7 +161,7 @@ public class FormDef implements Serializable{
 		setFormKey(formKey);
 
 		//I just don't think we need this in addition to the id
-		setVariableName(variableName);
+		setBinding(variableName);
 
 		setPages(pages);
 		setSkipRules(skipRules);
@@ -281,8 +281,8 @@ public class FormDef implements Serializable{
 		return binding;
 	}
 
-	public void setVariableName(String variableName) {
-		this.binding = variableName;
+	public void setBinding(String binding) {
+		this.binding = binding;
 	}
 
 	public int getId() {

@@ -604,7 +604,7 @@ public class XformParser {
 			}
 		}
 
-		formDef.setVariableName(XmlUtil.getNodeName(dataNode));
+		formDef.setBinding(XmlUtil.getNodeName(dataNode));
 		if(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_DESCRIPTION_TEMPLATE) != null)
 			formDef.setDescriptionTemplate(dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_DESCRIPTION_TEMPLATE));
 
