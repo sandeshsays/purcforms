@@ -62,7 +62,7 @@ public class FormDesignerDragController extends AbstractDragController{
 		 * Initial location for absolute panel parents.
 		 */
 		Location initialDraggableParentLocation;
-		
+
 		int width;
 		int height;
 	}
@@ -187,6 +187,11 @@ public class FormDesignerDragController extends AbstractDragController{
 			if(dragDropListener instanceof DesignGroupView){
 
 				CommandList commands = new CommandList((DesignGroupView)dragDropListener);
+
+				if(!"move".equals(cursor)){
+					if(((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget)
+						cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getWrappedWidget().getElement(), "cursor");
+				}
 
 				if("move".equals(cursor)){
 					for (Widget widget : context.selectedWidgets) {

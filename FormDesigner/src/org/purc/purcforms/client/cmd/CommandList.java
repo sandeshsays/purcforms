@@ -20,6 +20,12 @@ public class CommandList implements ICommand {
 		this.view = view;
 	}
 	
+	//Added only for view.clearSelection() which the single command does not do.
+	public CommandList(DesignGroupView view, ICommand command){
+		this.view = view;
+		add(command);
+	}
+	
 	public String getName(){
 		return commands.get(0).getName() + (commands.size() > 1 ? "s" : "");
 	}

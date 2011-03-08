@@ -350,7 +350,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			panel.remove(0);
 			panel.add(widget);
 			if(!(widget instanceof TabBar))
-				restorePosition();
+				refreshPosition();
 			return true;
 		}
 		return false;
@@ -935,6 +935,11 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		return false;
 	}
 
+	public void refreshPosition(){
+		setTop(getTop());
+		setLeft(getLeft());
+	}
+	
 	/*public void setForeColor(String color){
 		super.setForeColor(color);
 

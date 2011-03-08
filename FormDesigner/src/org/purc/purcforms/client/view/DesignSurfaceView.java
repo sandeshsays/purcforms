@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.cmd.CommandList;
+import org.purc.purcforms.client.cmd.InsertTabCmd;
+import org.purc.purcforms.client.cmd.InsertWidgetCmd;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
@@ -81,7 +85,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	/** The layout xml document object. */
 	Document doc;
 
-	
+
 	public DesignSurfaceView(){
 		super(null);
 	}
@@ -104,7 +108,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.MOUSEEVENTS | Event.KEYEVENTS);
 
 		setupPopup();
-		
+
 		widgetPopup = new PopupPanel(true,true);
 		MenuBar menuBar = new MenuBar(true);
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true,new Command(){
@@ -126,10 +130,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addSeparator();
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("groupWidgets")),true,new Command(){
 			public void execute() {widgetPopup.hide(); groupWidgets();}});
-		
+
 		//menuBar.addSeparator();
 		//menuBar.addItem(lockWidgetsMenu);
-		
+
 		widgetPopup.setWidget(menuBar);
 
 		rubberBand.addStyleName("rubberBand");
@@ -185,7 +189,6 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		dragControllers.add(tabs.getWidgetCount()-1,selectedDragController);
 		panel.setHeight(sHeight);
-		String s = getHeight();
 
 		//This is needed for IE
 		DeferredCommand.addCommand(new Command() {
@@ -228,10 +231,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("datePicker")),true,new Command(){
 			public void execute() {popup.hide(); addNewDatePicker(true);}});
-		
+
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("dateTimeWidget")),true,new Command(){
 			public void execute() {popup.hide(); addNewDateTimeWidget(true);}});
-		
+
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("timeWidget")),true,new Command(){
 			public void execute() {popup.hide(); addNewTimeWidget(true);}});
 
@@ -281,10 +284,21 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		menuBar.addSeparator();	
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("newTab")),true, new Command(){
-			public void execute() {popup.hide(); addNewTab(null);}});
+			public void execute() {
+				popup.hide(); 
+				selectedTabIndex++;
+				DesignWidgetWrapper widget = addNewTab(null, selectedTabIndex);
+				Context.getCommandHistory().add(new InsertTabCmd(widget, selectedTabIndex, widget.getText(), widget.getLayoutNode(), (DesignSurfaceView)widget.getWidgetSelectionListener()));
+			}});
 
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteTab")),true, new Command(){
-			public void execute() {popup.hide(); deleteTab();}});
+			public void execute() {
+				popup.hide(); 
+				String name = pageWidgets.remove(selectedTabIndex).getText();
+				DesignWidgetWrapper widget = deleteTab();
+				if(widget != null)
+					Context.getCommandHistory().add(new InsertTabCmd(widget, selectedTabIndex, name, widget.getLayoutNode(), (DesignSurfaceView)widget.getWidgetSelectionListener()));
+			}});
 
 		//if(selectedDragController.isAnyWidgetSelected()){
 		cutCopySeparator = menuBar.addSeparator();
@@ -303,7 +317,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addSeparator();	
 		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("lockWidgets")),true, new Command(){
 			public void execute() {popup.hide(); lockWidgets();}});
-		
+
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectAll")),true, new Command(){
 			public void execute() {popup.hide(); selectAll();}});
 
@@ -318,16 +332,21 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		popup.setWidget(menuBar);
 	}
 
+	private DesignWidgetWrapper addNewTab(String name){
+		return addNewTab(name, selectedTabIndex);
+	}
+
 	/**
 	 * Adds a new tab with a given name and selects it.
 	 * 
 	 * @param name the tab name.
 	 */
-	private DesignWidgetWrapper addNewTab(String name){
+	public DesignWidgetWrapper addNewTab(String name, int index){
 		initPanel();
-		if(name == null)
+		//if(name == null)
 			name = LocaleText.get("page")+(tabs.getWidgetCount());
 
+		//tabs.insert(selectedPanel, name, index + 1);
 		tabs.add(selectedPanel, name);
 		selectedTabIndex = tabs.getWidgetCount() - 1;
 		tabs.selectTab(selectedTabIndex);
@@ -347,10 +366,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				setHeight(getHeight());
 			}
 		});
-		
+
 		return widget;
 	}
-	
+
 
 	/**
 	 * @see com.google.gwt.event.logical.shared.SelectionHandler#onSelection(SelectionEvent)
@@ -398,7 +417,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			Element node = doc.createElement("Page");
 			node.setAttribute(WidgetEx.WIDGET_PROPERTY_TEXT, DesignWidgetWrapper.getTabDisplayText(tabs.getTabBar().getTabHTML(i)));
 			//node.setAttribute("BackgroundColor", tabs.getTabBar().getTabHTML(i));
-			
+
 			pageWidgets.get(i).buildLabelProperties(node);
 
 			if(pageWidgets.get(i) != null)
@@ -515,7 +534,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			Element node = (Element)pages.item(i);
 			DesignWidgetWrapper widget = addNewTab(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
 			WidgetEx.loadLabelProperties(node, widget);
-			
+
 			((DesignGroupView)this).setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
 			((DesignGroupView)this).setHeight(node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEIGHT));
 			((DesignGroupView)this).setBackgroundColor(node.getAttribute(WidgetEx.WIDGET_PROPERTY_BACKGROUND_COLOR));
@@ -626,7 +645,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
 		if(value != null && value.trim().length() > 0)
 			wrapper.setValueField(value);
-		
+
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_FILTERFIELD);
 		if(value != null && value.trim().length() > 0)
 			wrapper.setFilterField(value);
@@ -642,7 +661,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_REPEATED);
 		if(value != null && value.trim().length() > 0)
 			wrapper.setRepeated(value.equals(WidgetEx.REPEATED_TRUE_VALUE));
-		
+
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_ID);
 		if(value != null && value.trim().length() > 0)
 			wrapper.setId(value);
@@ -681,7 +700,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		if(!"true".equals(node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEADER_LABEL))){
 			dragController.makeDraggable(wrapper);
-			
+
 			//Without this, widgets in this box cant use Ctrl + A in edit mode and also
 			//edited text is not automatically selected.
 			wrapper.removeStyleName("dragdrop-handle");
@@ -715,30 +734,39 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	/**
 	 * Deletes the selected page tab.
 	 */
-	private void deleteTab(){
+	private DesignWidgetWrapper deleteTab(){
 		if(tabs.getWidgetCount() == 1){
 			if(formDef != null)
 				formDef.setLayoutXml(null); //TODO Check if this does not bring bugs
 			Window.alert(LocaleText.get("cantDeleteAllTabs"));
-			return;
+			return null;
 		}
 
 		if(selectedPanel.getWidgetCount() > 0){
 			Window.alert(LocaleText.get("deleteAllTabWidgetsFirst"));
-			return;
+			return null;
 		}
 
 		if(!Window.confirm(LocaleText.get("deleteTabPrompt")))
-			return;
+			return null;
+
+		return deleteTab(selectedTabIndex);
+	}
+
+	public DesignWidgetWrapper deleteTab(int index){
+		selectedTabIndex = index;
 
 		FormDesignerDragController dragController = dragControllers.remove(selectedTabIndex);
 		PaletteView.unRegisterDropController(dragController.getFormDesignerDropController());
 
 		tabs.remove(selectedTabIndex);
-		pageWidgets.remove(selectedTabIndex);
+		DesignWidgetWrapper widget = pageWidgets.remove(selectedTabIndex);
 		if(selectedTabIndex > 0)
 			selectedTabIndex -= 1;
+
 		tabs.selectTab(selectedTabIndex);
+
+		return widget;
 	}
 
 	/**
@@ -759,7 +787,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				PageDef pageDef = (PageDef)pages.get(i);
 				addNewTab(pageDef.getName());
 				loadPage(pageDef);
-				
+
 				selectAll();
 				format();
 				clearSelection();
@@ -790,7 +818,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param questions the list of questions.
 	 */
 	private void loadQuestions(List<QuestionDef> questions){
-		loadQuestions(questions,20,0,tabs.getTabBar().getTabCount() == 1,false);
+		loadQuestions(questions,20,0,tabs.getTabBar().getTabCount() == 1,false, null);
 	}
 
 	/**
@@ -804,7 +832,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param submitCancelBtns set to true to add the submit and cancel buttons
 	 * @param select set to true to select all the created widgets.
 	 */
-	private void loadQuestions(List<QuestionDef> questions, int startY, int tabIndex, boolean submitCancelBtns, boolean select){
+	private void loadQuestions(List<QuestionDef> questions, int startY, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
 		int maxX = 0, max = 999999; //FormUtil.convertDimensionToInt(sHeight) - 0 + 150; //40; No longer adding submit button on every page
 		x = 20;
 		y = startY;
@@ -815,26 +843,29 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		DesignWidgetWrapper widgetWrapper = null;
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.get(i);
-			
+
 			//TODO Why should we not show a widget, atleast on the design surface?
 			if(!questionDef.isVisible() || (questionDef.isRequired() && (questionDef.isLocked() || !questionDef.isEnabled())) )
 				; //continue;
-			
+
 			int type = questionDef.getDataType();
 			if(type == QuestionDef.QTN_TYPE_REPEAT && questionDef.getRepeatQtnsDef().getQuestions() == null)
 				continue;
-			
+
 			//Provide a way of the user turning off some widgets not to be displayed.
 			if(!questionDef.isVisible() && (questionDef.getDefaultValue() == null || questionDef.getDefaultValue().trim().length() == 0))
-					continue;
-			
+				continue;
+
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE)){
 				widgetWrapper = addNewLabel(questionDef.getText(),false);
 				widgetWrapper.setBinding(questionDef.getBinding());
 				widgetWrapper.setTitle(questionDef.getText());
-				
+
 				if(select)
 					selectedDragController.selectWidget(widgetWrapper);
+
+				if(commands != null)
+					commands.add(new InsertWidgetCmd(widgetWrapper, widgetWrapper.getLayoutNode(), this));
 			}
 
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
@@ -885,14 +916,17 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 				widgetWrapper.setTitle(helpText);
 				widgetWrapper.setTabIndex(++tabIndex);
-				
+
 				if(select)
 					selectedDragController.selectWidget(widgetWrapper);
+
+				if(commands != null)
+					commands.add(new InsertWidgetCmd(widgetWrapper, widgetWrapper.getLayoutNode(), this));
 			}
 
 			if(x > maxX)
 				maxX = x;
-			
+
 			x = 20 + selectedPanel.getAbsoluteLeft();
 			y += 40;
 
@@ -933,9 +967,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		}
 
 		y += ((ScrollPanel)getParent()).getScrollPosition();
-		
+
 		setHeight(y+40+PurcConstants.UNITS);
-		
+
 		if(maxX < 900)
 			maxX = 900;
 		if(FormUtil.convertDimensionToInt(getWidth()) < maxX)
@@ -1148,8 +1182,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			}
 		});
 	}
-	
-	
+
+
 	/**
 	 * Checks if the design surface has any widgets.
 	 * 
@@ -1158,7 +1192,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	public boolean hasWidgets(){
 		return (tabs.getTabBar().getTabCount() > 0 && selectedPanel != null && selectedPanel.getWidgetCount() > 0);
 	}
-	
+
 
 	/**
 	 * Loads design surface widgets from layout xml of the current form.
@@ -1219,11 +1253,15 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 */
 	private void loadNewWidgets(){
 
+		CommandList commands = new CommandList(this);
+
+		clearSelection();
+
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String,String> bindings = new HashMap<String, String>();
 		for(int i=0; i<dragControllers.size(); i++){
 			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
-			fillBindings(panel,bindings);
+			fillBindings(panel, bindings);
 		}
 
 		//Load the new questions onto the design surface for all pages.
@@ -1242,11 +1280,14 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			//Load the new questions onto the design surface for the current page.
 			if(newQuestions.size() > 0){
-				loadQuestions(newQuestions,getLowestWidgetYPos() + 20,selectedPanel.getWidgetCount(),false, true);
+				loadQuestions(newQuestions,getLowestWidgetYPos() + 20,selectedPanel.getWidgetCount(),false, true, commands);
 				format();
 				clearSelection();
 			}
 		}
+
+		if(commands.size() > 0)
+			Context.getCommandHistory().add(commands);
 	}
 
 	/**
@@ -1399,5 +1440,18 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			return "";
 
 		return selectedPanel.getElement().getInnerHTML();
+	}
+
+	public void selectPanel(AbsolutePanel panel){
+		int index = tabs.getWidgetIndex(panel);
+		tabs.selectTab(index);
+
+		selectedDragController = dragControllers.elementAt(index);
+		selectedPanel = selectedDragController.getBoundaryPanel();
+	}
+
+	public void clearSelection(){
+		for(int i=0; i<dragControllers.size(); i++)
+			dragControllers.elementAt(i).clearSelection();
 	}
 }

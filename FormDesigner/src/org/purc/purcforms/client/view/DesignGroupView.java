@@ -10,6 +10,7 @@ import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.cmd.ChangeWidgetCmd;
 import org.purc.purcforms.client.cmd.CommandList;
 import org.purc.purcforms.client.cmd.DeleteWidgetCmd;
+import org.purc.purcforms.client.cmd.GroupWidgetsCmd;
 import org.purc.purcforms.client.cmd.InsertWidgetCmd;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
@@ -165,13 +166,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return widget;
 	}
 
+	public void onWidgetSelected(Widget widget, AbsolutePanel panel, boolean multipleSel){
+		selectPanel(panel);
+		this.onWidgetSelected(widget, multipleSel);
+	}
+	
 	public void onWidgetSelected(Widget widget, boolean multipleSel){
 
 		//Some widgets like check boxes and buttons may not have sizes set yet
 		//and so when in edit mode, they fire onmousedown events.
 		if(widget != null && widget == editWidget)
 			return;
-		
+
 		//Right clicking on a widget when we have more than one item selected should not turn off selection.
 		if(multipleSel && selectedDragController.getSelectedWidgetCount() > 1)
 			return;
@@ -209,7 +215,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 	protected void cutWidgets(){
-		copyWidgets(true);
+		copyWidgets(true, true, null);
 	}
 
 	/**
@@ -223,7 +229,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				return; //We do not allow nested group boxes
 		}*/
 
-		cutWidgets();
+		CommandList commands = new CommandList(this);
+
+		//cutWidgets();
+		copyWidgets(true, false, commands);
 
 		x = clipboardLeftMostPos + selectedPanel.getAbsoluteLeft() ;
 		y = clipboardTopMostPos + selectedPanel.getAbsoluteTop();
@@ -231,21 +240,27 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		DesignWidgetWrapper widget = addNewGroupBox(false);
 		DesignGroupView designGroupView = (DesignGroupView)widget.getWrappedWidget();
 		designGroupView.updateCursorPos(x+20, y+45);
-		designGroupView.pasteWidgets(true);
+		designGroupView.pasteWidgets(true, false);
 		selectedDragController.clearSelection();
 		designGroupView.clearSelection();
 		widget.setHeightInt(FormUtil.convertDimensionToInt(rubberBandHeight)+35);
 		widget.setWidth(rubberBandWidth);
 
 		selectedDragController.selectWidget(widget);
-		widgetSelectionListener.onWidgetSelected(((DesignGroupWidget)designGroupView).getHeaderLabel(),false);
+		widgetSelectionListener.onWidgetSelected(((DesignGroupWidget)designGroupView).getHeaderLabel(), false);
+
+		Context.getCommandHistory().add(new GroupWidgetsCmd(widget, widget.getLayoutNode(), commands, this));
 	}
 
 	protected void copyWidgets(boolean remove){
+		copyWidgets(remove, true, null);
+	}
+
+	protected void copyWidgets(boolean remove, boolean storeHistory, CommandList commandsParam){
 		Context.clipBoardWidgets.clear();
 
 		CommandList commands = new CommandList(this);
-		
+
 		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
 			widget.storePosition();
@@ -263,8 +278,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			}
 
 			if(remove){ //cut{
-				commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
-				
+
+				if(storeHistory)
+					commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+
+				if(commandsParam != null)
+					commandsParam.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+
 				tryUnregisterDropController(widget);
 				selectedPanel.remove(widget);
 			}
@@ -275,7 +295,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			Context.clipBoardWidgets.add(widget);
 		}
-		
+
 		if(commands.size() > 0)
 			Context.getCommandHistory().add(commands);
 	}
@@ -310,11 +330,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 	protected void pasteWidgets(boolean afterContextMenu){
+		pasteWidgets(afterContextMenu, true);
+	}
+
+	protected void pasteWidgets(boolean afterContextMenu, boolean storeHistory){
 		int xOffset = x - clipboardLeftMostPos;
 		int yOffset = y - clipboardTopMostPos;
 
 		selectedDragController.clearSelection();
-		
+
 		CommandList commands = new CommandList(this);
 
 		for(int i=0; i<Context.clipBoardWidgets.size(); i++){
@@ -361,13 +385,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			if(i == 0 && Context.clipBoardWidgets.size() == 1)
 				widgetSelectionListener.onWidgetSelected(widget,true);
-			
-			commands.add(new InsertWidgetCmd(widget, widget.getLayoutNode(), this));
+
+			if(storeHistory)
+				commands.add(new InsertWidgetCmd(widget, widget.getLayoutNode(), this));
 		}
 
 		if(Context.clipBoardWidgets.size() > 1)
 			widgetSelectionListener.onWidgetSelected(null,true);
-		
+
 		if(commands.size() > 0)
 			Context.getCommandHistory().add(commands);
 	}
@@ -377,12 +402,12 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return true;
 
 		CommandList commands = new CommandList(this);
-		
+
 		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
-			
+
 			commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
-			
+
 			if(widget.getLayoutNode() != null)
 				widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
 			tryUnregisterDropController(widget);
@@ -390,14 +415,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		selectedDragController.clearSelection();
-		
+
 		Context.getCommandHistory().add(commands);
 
 		return false;
 	}
-	
-	public void deleteWidget(DesignWidgetWrapper widget){
+
+	public void deleteWidget(DesignWidgetWrapper widget, AbsolutePanel panel){
 		//Added only for support of undo redo. So should be refactored.
+		selectPanel(panel);
 		selectedPanel.remove(widget);
 		selectedDragController.clearSelection();
 	}
@@ -1137,20 +1163,31 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			selectedDragController.clearSelection();
 			selectedDragController.toggleSelection(wrapper);
 			//widgetSelectionListener.onWidgetSelected(wrapper);
-			onWidgetSelected(wrapper,false);
+			onWidgetSelected(wrapper, false);
+
+			Context.getCommandHistory().add(new CommandList(this, new InsertWidgetCmd(wrapper, wrapper.getLayoutNode(), this)));
 		}
-		
+
 		return wrapper;
 	}
-	
-	public void insertWidget(DesignWidgetWrapper widget){
+
+	public void insertWidget(DesignWidgetWrapper widget, AbsolutePanel panel){	
+		selectPanel(panel);
 		stopLabelEdit(false);
 		selectedPanel.add(widget);
 		selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
 		selectedDragController.selectWidget(widget);
 	}
-	
-	public void selectWidget(DesignWidgetWrapper widget){
+
+	private void selectPanel(AbsolutePanel panel){
+		if(panel != selectedPanel){
+			if(this instanceof DesignSurfaceView)
+				((DesignSurfaceView)this).selectPanel(panel);
+		}
+	}
+
+	public void selectWidget(DesignWidgetWrapper widget, AbsolutePanel panel){
+		selectPanel(panel);
 		stopLabelEdit(false);
 		selectedDragController.selectWidget(widget);
 	}
@@ -1436,6 +1473,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			int w = retWidget.getLeftInt() + retWidget.getWidthInt();
 			if(width < w)
 				setWidth(width + (w-width)+10+PurcConstants.UNITS);
+
+			Context.getCommandHistory().add(new CommandList(this, new InsertWidgetCmd(retWidget, retWidget.getLayoutNode(), this)));
 		}
 
 		return retWidget;
@@ -1510,11 +1549,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			editWidget.stopEditMode();
 
 			String beforeChangeText = editWidget.getText();
-			
+
 			String text = txtEdit.getText();
 			if(text.trim().length() > 0)
 				editWidget.setText(text);
-			
+
 			Context.getCommandHistory().add(new ChangeWidgetCmd(editWidget, ChangeWidgetCmd.PROPERTY_TEXT, beforeChangeText, this));
 
 			//selectedPanel.remove(editWidget);

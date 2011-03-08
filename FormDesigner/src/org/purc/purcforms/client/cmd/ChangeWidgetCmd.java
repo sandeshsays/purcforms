@@ -4,6 +4,8 @@ import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
+
 
 /**
  * Command for changing property of a widget.
@@ -46,6 +48,7 @@ public class ChangeWidgetCmd implements ICommand {
 
 	protected DesignGroupView view;
 	protected DesignWidgetWrapper widget;
+	protected AbsolutePanel panel;
 	protected byte property;
 	protected String oldValue;
 
@@ -54,6 +57,7 @@ public class ChangeWidgetCmd implements ICommand {
 		this.view = view;
 		this.property = property;
 		this.oldValue = oldValue;
+		this.panel = view.getPanel();
 	}
 
 	public String getName(){
@@ -61,10 +65,12 @@ public class ChangeWidgetCmd implements ICommand {
 	}
 
 	public void undo(){	
+		view.clearSelection();
 		setProperyValue(oldValue);
 	}
 
 	public void redo(){
+		view.clearSelection();
 		setProperyValue(oldValue);
 	}
 
@@ -254,6 +260,6 @@ public class ChangeWidgetCmd implements ICommand {
 			break;
 		}
 
-		view.onWidgetSelected(widget, false);
+		view.onWidgetSelected(widget, panel, false);
 	}
 }

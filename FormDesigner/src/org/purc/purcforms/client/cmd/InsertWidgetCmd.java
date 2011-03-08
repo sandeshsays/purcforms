@@ -9,6 +9,7 @@ public class InsertWidgetCmd extends DeleteWidgetCmd {
 	
 	public InsertWidgetCmd(DesignWidgetWrapper widget, Node layoutNode, DesignGroupView view){
 		super(widget, layoutNode, view);
+		widget.refreshPosition();
 	}
 	
 	public String getName(){
@@ -16,11 +17,11 @@ public class InsertWidgetCmd extends DeleteWidgetCmd {
 	}
 	
 	public void undo(){
-		view.deleteWidget(widget);
+		view.deleteWidget(widget, panel);
 	}
 	
 	public void redo(){
-		view.insertWidget(widget);
+		view.insertWidget(widget, panel);
 		
 		if(widget.getLayoutNode() != null)
 			parentLayoutNode.appendChild(widget.getLayoutNode());

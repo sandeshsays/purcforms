@@ -7,6 +7,8 @@ import org.purc.purcforms.client.Context;
 import com.google.gwt.user.client.ui.PushButton;
 
 
+//TODO Refresh which results into a widget insert should be un doable. Refresh may also insert new tabs.
+//TODO Investigate the undo buffer size which could have a bug of not stopping the user where they expect to stop
 /**
  * The manager for undo and redo commands.
  * 
