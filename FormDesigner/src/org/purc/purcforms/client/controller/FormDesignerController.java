@@ -708,6 +708,9 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	}
 
 	public void refresh(Object sender) {
+		if(leftPanel.getSelectedForm() == null)
+			return;
+		
 		refreshObject = sender;
 
 		if(isOfflineMode())

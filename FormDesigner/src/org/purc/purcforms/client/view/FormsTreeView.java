@@ -794,8 +794,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			QuestionDef questionDef = new QuestionDef(id,LocaleText.get("question")+getNextQuestionPos(userObj),QuestionDef.QTN_TYPE_TEXT, binding,userObj);
 			item = addImageItem(item, questionDef.getText(), images.lookup(),questionDef,questionDef.getHelpText());
 			addFormDefItem(questionDef,item.getParentItem());
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
+			tree.setSelectedItem(item);
 		}
 		else if(userObj instanceof QuestionDef && 
 				( ((QuestionDef)userObj).getDataType() ==  QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
@@ -806,17 +806,17 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			OptionDef optionDef = new OptionDef(id,LocaleText.get("option")+getNextOptionPos(userObj), binding,(QuestionDef)userObj);
 			item = addImageItem(item, optionDef.getText(), images.markRead(),optionDef,null);
 			addFormDefItem(optionDef,item.getParentItem());
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
+			tree.setSelectedItem(item);
 		}
 		else if(userObj instanceof FormDef){
 			int id = ++nextPageId;
 			PageDef pageDef = new PageDef(LocaleText.get("page")+id,id,null,(FormDef)userObj);
 			item = addImageItem(item, pageDef.getName(), images.drafts(),pageDef,null);
 			addFormDefItem(pageDef,item.getParentItem());
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
-
+			tree.setSelectedItem(item);
+			
 			//Automatically add a new question
 			addNewChildItem(false);
 		}
@@ -1104,9 +1104,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			item = loadQuestion(questionDef, (pasteNextToQuestion ? item : null), (pasteNextToQuestion ? item.getParentItem() : item));
 
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
 			item.setState(true);
+			tree.setSelectedItem(item);
 
 			//Repeat question can only be child of a page but not another question.
 			//if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT && userObj instanceof QuestionDef)
@@ -1135,9 +1135,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			item = loadPage(pageDef, (insertAfterPage ? item : null), (insertAfterPage ? item.getParentItem() : item));
 
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
 			item.setState(true);
+			tree.setSelectedItem(item);
 
 			if(userObj instanceof FormDef)
 				((FormDef)userObj).addPage(pageDef);
@@ -1161,9 +1161,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			item = addImageItem((userObj instanceof OptionDef) ? item : null, (userObj instanceof OptionDef) ? item.getParentItem() : item, optionDef.getText(), images.markRead(),optionDef,null);
 
-			tree.setSelectedItem(item);
 			item.getParentItem().setState(true);
 			item.setState(true);
+			tree.setSelectedItem(item);
 
 			if(userObj instanceof QuestionDef)
 				((QuestionDef)userObj).addOption(optionDef);

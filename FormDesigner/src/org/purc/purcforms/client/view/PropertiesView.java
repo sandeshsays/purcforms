@@ -817,6 +817,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			deleteKids = true;
 		}
 
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
+			deleteKids = true;
+		
 		//cbDataType.setSelectedIndex(index);
 		String oldValue = String.valueOf(questionDef.getDataType());
 		setQuestionDataType(questionDef, dataType);
