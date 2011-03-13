@@ -1454,4 +1454,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		for(int i=0; i<dragControllers.size(); i++)
 			dragControllers.elementAt(i).clearSelection();
 	}
+	
+	public ScrollPanel getScrollPanel(){
+		return (ScrollPanel)getParent();
+	}
 }

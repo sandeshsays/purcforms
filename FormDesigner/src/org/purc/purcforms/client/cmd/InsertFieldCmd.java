@@ -32,7 +32,7 @@ public class InsertFieldCmd implements ICommand {
 		if(parentItem != null){
 			inserAfterItem = parentItem.getChild(index);
 			if(inserAfterItem != null)
-				parentItem.insertItem(item, inserAfterItem);
+				parentItem.insertItem(item, inserAfterItem); //(index + 1, item);
 			else
 				parentItem.addItem(item);	
 		}

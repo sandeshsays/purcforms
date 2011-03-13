@@ -22,12 +22,14 @@ import com.allen_sauer.gwt.dnd.client.drop.BoundaryDropController;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.allen_sauer.gwt.dnd.client.util.CoordinateLocation;
 import com.allen_sauer.gwt.dnd.client.util.DOMUtil;
+import com.allen_sauer.gwt.dnd.client.util.DragClientBundle;
 import com.allen_sauer.gwt.dnd.client.util.Location;
 import com.allen_sauer.gwt.dnd.client.util.WidgetArea;
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -66,6 +68,11 @@ public class FormDesignerDragController extends AbstractDragController{
 		int width;
 		int height;
 	}
+	
+	/**
+	   * TODO Decide if 100ms is a good number
+	   */
+	  private static final int CACHE_TIME_MILLIS = 100;
 
 	/**
 	 * CSS style name applied to movable panels.
@@ -95,6 +102,8 @@ public class FormDesignerDragController extends AbstractDragController{
 	private int dropTargetClientHeight;
 
 	private int dropTargetClientWidth;
+	
+	private long lastResetCacheTimeMillis;
 
 	private Widget movablePanel;
 
@@ -158,18 +167,23 @@ public class FormDesignerDragController extends AbstractDragController{
 	@Override
 	public void dragEnd() {
 
-		//if(Context.getLockWidgets())
-		//	return;
+		if(Window.getScrollLeft() != 0 || Window.getScrollTop() != 0)
+			Window.scrollTo(0, 0);
 
 		assert context.finalDropController == null == (context.vetoException != null);
 		if (context.vetoException != null) {
+			
+			context.dropController.onLeave(context);
+		    context.dropController = null;
+		    
 			if (!getBehaviorDragProxy())
 				restoreSelectedWidgetsLocation();
-		} else
+		} else{
 			context.dropController.onDrop(context);
 
 		context.dropController.onLeave(context);
 		context.dropController = null;
+		}
 
 		if (!getBehaviorDragProxy()) {
 			restoreSelectedWidgetsStyle();
@@ -223,9 +237,14 @@ public class FormDesignerDragController extends AbstractDragController{
 	}
 
 	public void dragMove() {
-
-		//if(Context.getLockWidgets())
-		//	return;
+		// may have changed due to scrollIntoView(), developer driven changes
+		// or manual user scrolling
+		long timeMillis = System.currentTimeMillis();
+		if (timeMillis - lastResetCacheTimeMillis >= CACHE_TIME_MILLIS) {
+			lastResetCacheTimeMillis = timeMillis;
+			resetCache();
+			calcBoundaryOffset();
+		}
 
 		int desiredLeft = context.desiredDraggableX - boundaryOffsetX;
 		int desiredTop = context.desiredDraggableY - boundaryOffsetY;
@@ -356,6 +375,8 @@ public class FormDesignerDragController extends AbstractDragController{
 		//	return;
 
 		super.dragStart();
+		
+		lastResetCacheTimeMillis = System.currentTimeMillis();
 
 		if(dragDropListener != null)
 			dragDropListener.onDragStart(context.draggable);
@@ -405,15 +426,14 @@ public class FormDesignerDragController extends AbstractDragController{
 			}
 			movablePanel = container;
 		}
+		
 		movablePanel.addStyleName(PRIVATE_CSS_MOVABLE_PANEL);
+		//movablePanel.addStyleName(DragClientBundle.INSTANCE.css().movablePanel());
 
 		// one time calculation of boundary panel location for efficiency during
 		// dragging
-		Location widgetLocation = new WidgetLocation(context.boundaryPanel, null);
-		boundaryOffsetX = widgetLocation.getLeft()
-		+ DOMUtil.getBorderLeft(context.boundaryPanel.getElement());
-		boundaryOffsetY = widgetLocation.getTop()
-		+ DOMUtil.getBorderTop(context.boundaryPanel.getElement());
+		
+		calcBoundaryOffset();
 
 		dropTargetClientWidth = DOMUtil.getClientWidth(context.boundaryPanel.getElement()); //TODO ?????????????????????????
 		dropTargetClientHeight = DOMUtil.getClientHeight(context.boundaryPanel.getElement()); //TODO ?????????????????????????
@@ -685,5 +705,13 @@ public class FormDesignerDragController extends AbstractDragController{
 	public boolean isWidgetSelected(Widget widget){
 		return context.selectedWidgets.contains(widget);
 
+	}
+
+	private void calcBoundaryOffset() {
+		Location widgetLocation = new WidgetLocation(context.boundaryPanel, null);
+		boundaryOffsetX = widgetLocation.getLeft()
+		+ DOMUtil.getBorderLeft(context.boundaryPanel.getElement());
+		boundaryOffsetY = widgetLocation.getTop()
+		+ DOMUtil.getBorderTop(context.boundaryPanel.getElement());
 	}
 }

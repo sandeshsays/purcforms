@@ -33,7 +33,7 @@ public class DeleteFieldCmd implements ICommand {
 		if(parentItem != null){
 			inserAfterItem = parentItem.getChild(index);
 			if(inserAfterItem != null)
-				parentItem.insertItem(item, inserAfterItem);
+				parentItem.insertItem(item, inserAfterItem); //parentItem.insertItem(index + 1, item);
 			else
 				parentItem.addItem(item);	
 		}

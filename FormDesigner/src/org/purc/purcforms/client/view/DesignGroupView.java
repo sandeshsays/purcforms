@@ -12,6 +12,8 @@ import org.purc.purcforms.client.cmd.CommandList;
 import org.purc.purcforms.client.cmd.DeleteWidgetCmd;
 import org.purc.purcforms.client.cmd.GroupWidgetsCmd;
 import org.purc.purcforms.client.cmd.InsertWidgetCmd;
+import org.purc.purcforms.client.cmd.MoveWidgetCmd;
+import org.purc.purcforms.client.cmd.ResizeWidgetCmd;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.FormDesignerDropController;
@@ -170,7 +172,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		selectPanel(panel);
 		this.onWidgetSelected(widget, multipleSel);
 	}
-	
+
 	public void onWidgetSelected(Widget widget, boolean multipleSel){
 
 		//Some widgets like check boxes and buttons may not have sizes set yet
@@ -601,11 +603,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
-		String left = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getLeft();
-		for(int index = 0; index < widgets.size(); index++)
-			((DesignWidgetWrapper)widgets.get(index)).setLeft(left);
+		int left = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getLeftInt();
+		for(int index = 0; index < widgets.size(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new MoveWidgetCmd(widget, widget.getLeftInt() - left, 0, this));
+			widget.setLeftInt(left);
+		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -625,14 +634,19 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
 		DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(widgets.size() - 1);
 		int total = widget.getElement().getScrollWidth() + FormUtil.convertDimensionToInt(widget.getLeft());
 		for(int index = 0; index < widgets.size(); index++){
 			widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new MoveWidgetCmd(widget, widget.getLeftInt() - (total - widget.getElement().getScrollWidth()), 0, this));
 			widget.setLeft((total - widget.getElement().getScrollWidth()+PurcConstants.UNITS));
 		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -651,11 +665,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			}
 			return false;
 		}
+		
+		CommandList commands = new CommandList(this);
 
 		//align according to the last selected item.
-		String top = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getTop();
-		for(int index = 0; index < widgets.size(); index++)
-			((DesignWidgetWrapper)widgets.get(index)).setTop(top);
+		int top = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getTopInt();
+		for(int index = 0; index < widgets.size(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new MoveWidgetCmd(widget, 0, widget.getTopInt() - top, this));
+			widget.setTopInt(top);
+		}
+		
+		Context.getCommandHistory().add(commands);
 
 		return true;
 	}
@@ -676,14 +697,19 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
 		DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(widgets.size() - 1);
 		int total = widget.getElement().getScrollHeight() + FormUtil.convertDimensionToInt(widget.getTop());
 		for(int index = 0; index < widgets.size(); index++){
 			widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new MoveWidgetCmd(widget, 0, widget.getTopInt() - (total - widget.getElement().getScrollHeight()), this));
 			widget.setTop((total - widget.getElement().getScrollHeight()+PurcConstants.UNITS));
 		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -703,11 +729,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
-		String height = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getHeight();
-		for(int index = 0; index < widgets.size(); index++)
-			((DesignWidgetWrapper)widgets.get(index)).setHeight(height);
+		int height = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getHeightInt();
+		for(int index = 0; index < widgets.size(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new ResizeWidgetCmd(widget, 0, 0, 0, widget.getHeightInt() - height, this));
+			widget.setHeightInt(height);
+		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -727,11 +760,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
-		String width = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getWidth();
-		for(int index = 0; index < widgets.size(); index++)
-			((DesignWidgetWrapper)widgets.get(index)).setWidth(width);
+		int width = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getWidthInt();
+		for(int index = 0; index < widgets.size(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new ResizeWidgetCmd(widget, 0, 0, widget.getWidthInt() - width, 0, this));
+			widget.setWidthInt(width);
+		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -751,14 +791,20 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return false;
 		}
 
+		CommandList commands = new CommandList(this);
+		
 		//align according to the last selected item.
-		String width = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getWidth();
-		String height = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getHeight();
+		int width = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getWidthInt();
+		int height = ((DesignWidgetWrapper)widgets.get(widgets.size() - 1)).getHeightInt();
 		for(int index = 0; index < widgets.size(); index++){
-			((DesignWidgetWrapper)widgets.get(index)).setWidth(width);
-			((DesignWidgetWrapper)widgets.get(index)).setHeight(height);
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
+			commands.add(new ResizeWidgetCmd(widget, 0, 0, widget.getWidthInt() - width, widget.getHeightInt() - height, this));
+			widget.setWidthInt(width);
+			widget.setHeightInt(height);
 		}
 
+		Context.getCommandHistory().add(commands);
+		
 		return true;
 	}
 
@@ -912,7 +958,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//	return;
 
 		//Prevent the browser from selecting text.
-		DOM.eventPreventDefault(event);
+		//DOM.eventPreventDefault(event); //Commented out to allow scroll selecting.
 
 		selectedPanel.add(rubberBand);
 
@@ -935,6 +981,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void moveRubberBand(Event event){
 		try
 		{
+			if(DOM.getCaptureElement() != getElement())
+				return;
+
 			int width = (event.getClientX()-selectedPanel.getAbsoluteLeft())-x;
 			int height = (event.getClientY()-selectedPanel.getAbsoluteTop())-y;
 
@@ -951,6 +1000,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			}
 			else
 				DOM.setStyleAttribute(rubberBand.getElement(), "height", (event.getClientY()-selectedPanel.getAbsoluteTop())-getRubberTop()+PurcConstants.UNITS);
+
 		}
 		catch(Exception ex){
 			//This exception is intentionally ignored as a rubber band is no big deal
@@ -1491,7 +1541,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		// Positioner is always constrained to the boundary panel
 		// Use 'true' to also constrain the draggable or drag proxy to the boundary panel
-		//dragController.setBehaviorConstrainedToBoundaryPanel(false);
+		//selectedDragController.setBehaviorConstrainedToBoundaryPanel(false);
+		selectedDragController.setBehaviorScrollIntoView(true);
 
 		// Allow multiple widgets to be selected at once using CTRL-click
 		selectedDragController.setBehaviorMultipleSelection(true);

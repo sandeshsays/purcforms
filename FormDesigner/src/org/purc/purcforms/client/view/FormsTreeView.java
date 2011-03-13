@@ -258,7 +258,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		item.setTitle(helpText);
 		if(root != null){
 			if(inserAfterItem != null)
-				root.insertItem(item, inserAfterItem);
+				root.insertItem(item, inserAfterItem); //root.insertItem(root.getChildIndex(inserAfterItem) + 1, item);
 			else
 				root.addItem(item);
 		}

@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="/SharedLib/lib/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/FormDesigner/lib/commons-io-1.1.jar"/>
 	<classpathentry kind="lib" path="/SharedLib/lib/gwt-datepicker-r29.jar"/>
-	<classpathentry kind="lib" path="/FormDesigner/lib/gwt-dnd-3.0.1.jar"/>
 	<classpathentry kind="lib" path="/SharedLib/lib/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="/FormDesigner/lib/gwt-dnd-3.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
