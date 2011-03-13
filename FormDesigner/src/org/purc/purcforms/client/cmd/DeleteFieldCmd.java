@@ -9,19 +9,15 @@ import com.google.gwt.user.client.ui.TreeItem;
  * @author danielkayiwa
  *
  */
-public class DeleteFieldCmd implements ICommand {
-
-	private FormsTreeView view;
-	private TreeItem item;
-	private TreeItem parentItem;
-	private int index;
-
+public class DeleteFieldCmd extends InsertFieldCmd {
 
 	public DeleteFieldCmd(TreeItem item, TreeItem parentItem, int index, FormsTreeView view){
 		this.item = item;
 		this.parentItem = parentItem;
-		this.view = view;
 		this.index = index;
+		this.view = view;
+		
+		storeUserObjectNode();
 	}
 
 	public String getName(){
@@ -29,6 +25,8 @@ public class DeleteFieldCmd implements ICommand {
 	}
 
 	public void undo(){
+		restoreUserObjectNode();
+		
 		TreeItem inserAfterItem = null;
 		if(parentItem != null){
 			inserAfterItem = parentItem.getChild(index);
@@ -36,11 +34,12 @@ public class DeleteFieldCmd implements ICommand {
 				parentItem.insertItem(item, inserAfterItem); //parentItem.insertItem(index + 1, item);
 			else
 				parentItem.addItem(item);	
+			
+			view.addFormDefItem(item.getUserObject(), (inserAfterItem != null ? inserAfterItem.getUserObject() : null), parentItem);
 		}
 		else
 			view.addRootItem(item);
 		
-		view.addFormDefItem(item.getUserObject(), (inserAfterItem != null ? inserAfterItem.getUserObject() : null), parentItem);
 		view.setSelectedItem(item);
 		
 		//if(index == 0 && parentItem != null)
@@ -53,7 +52,8 @@ public class DeleteFieldCmd implements ICommand {
 	}
 
 	public void redo(){
-		view.deleteItem(item, parentItem);
+		storeUserObjectNode();
+		view.deleteItem(item, parentItem, false);
 	}
 	
 	public boolean isWidgetCommand(){

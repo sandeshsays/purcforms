@@ -1163,19 +1163,23 @@ public class QuestionDef implements Serializable{
 		if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 				dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
 			if(options != null){
-				List optns = (List)options;
-				for(int i=0; i<optns.size(); i++){
-					OptionDef optionDef = (OptionDef)optns.get(i);
-					updateOptionNodeChildren(optionDef);
-					if(i == 0)
-						firstOptionNode = optionDef.getControlNode();
-				}
+				updateOptionNodeChildren();
 			}
 		}
 		else if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
 			list = controlNode.getElementsByTagName(XformConstants.NODE_NAME_ITEMSET_MINUS_PREFIX);
 			if(list.getLength() > 0)
 				firstOptionNode = (Element)list.item(0);
+		}
+	}
+	
+	private void updateOptionNodeChildren(){
+		List optns = (List)options;
+		for(int i=0; i<optns.size(); i++){
+			OptionDef optionDef = (OptionDef)optns.get(i);
+			updateOptionNodeChildren(optionDef);
+			if(i == 0)
+				firstOptionNode = optionDef.getControlNode();
 		}
 	}
 

@@ -50,6 +50,7 @@ public class ChangedFieldCmd implements ICommand {
 	private byte property;
 	private String oldValue;
 
+
 	public ChangedFieldCmd(TreeItem item, byte property, String oldValue, FormsTreeView view){
 		this.item = item;
 		this.view = view;
@@ -210,7 +211,8 @@ public class ChangedFieldCmd implements ICommand {
 	private void setTypeValue(Object field, String value){
 		if(field instanceof QuestionDef){
 			oldValue = String.valueOf(((QuestionDef)field).getDataType());
-			((QuestionDef)field).setDataType(Integer.parseInt(value));
+			QuestionDef questionDef = (QuestionDef)field;
+			questionDef.setDataType(Integer.parseInt(value));
 		}
 	}
 
@@ -257,7 +259,7 @@ public class ChangedFieldCmd implements ICommand {
 
 
 	private void setObjBinding(Object propertiesObj, String orgText, String currentText){
-		
+
 		if(orgText == null || (propertiesObj instanceof OptionDef))
 			return;
 
