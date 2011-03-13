@@ -1018,27 +1018,36 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(widgets == null)
 			return false;
 
+		CommandList commands = new CommandList(this);
+		
 		int pos;
 		for(int index = 0; index < widgets.size(); index++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)widgets.get(index);
-
+			
 			if(dirrection == MOVE_LEFT){
+				commands.add(new MoveWidgetCmd(widget, 1, 0, this));
 				pos = FormUtil.convertDimensionToInt(widget.getLeft());
 				widget.setLeft(pos-1+PurcConstants.UNITS);
 			}
 			else if(dirrection == MOVE_RIGHT){
+				commands.add(new MoveWidgetCmd(widget, -1, 0, this));
 				pos = FormUtil.convertDimensionToInt(widget.getLeft());
 				widget.setLeft(pos+1+PurcConstants.UNITS);
 			}
 			else if(dirrection == MOVE_UP){
+				commands.add(new MoveWidgetCmd(widget, 0, 1, this));
 				pos = FormUtil.convertDimensionToInt(widget.getTop());
 				widget.setTop(pos-1+PurcConstants.UNITS);		
 			}
 			else if(dirrection == MOVE_DOWN){
+				commands.add(new MoveWidgetCmd(widget, 0, -1, this));
 				pos = FormUtil.convertDimensionToInt(widget.getTop());
 				widget.setTop(pos+1+PurcConstants.UNITS);
 			}
 		}
+		
+		if(commands.size() > 0)
+			Context.getCommandHistory().add(commands);
 
 		return widgets.size() > 0;
 	}
@@ -1054,6 +1063,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(widgets == null)
 			return false;
 
+		CommandList commands = new CommandList(this);
+		
 		int resizedCount = 0;
 
 		int keycode = event.getKeyCode();
@@ -1064,18 +1075,29 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			resizedCount++;
 
-			if(keycode == KeyCodes.KEY_LEFT)
+			if(keycode == KeyCodes.KEY_LEFT){
+				commands.add(new ResizeWidgetCmd(widget, 0, 0, 1, 0, this));
 				widget.setWidthInt(widget.getWidthInt()-1);
-			else if(keycode == KeyCodes.KEY_RIGHT)
+			}
+			else if(keycode == KeyCodes.KEY_RIGHT){
+				commands.add(new ResizeWidgetCmd(widget, 0, 0, -1, 0, this));
 				widget.setWidthInt(widget.getWidthInt()+1);
-			else if(keycode == KeyCodes.KEY_UP)
+			}
+			else if(keycode == KeyCodes.KEY_UP){
+				commands.add(new ResizeWidgetCmd(widget, 0, 0, 0, 1, this));
 				widget.setHeightInt(widget.getHeightInt()-1);
-			else if(keycode == KeyCodes.KEY_DOWN)
+			}
+			else if(keycode == KeyCodes.KEY_DOWN){
+				commands.add(new ResizeWidgetCmd(widget, 0, 0, 0, -1, this));
 				widget.setHeightInt(widget.getHeightInt()+1);
+			}
 			else 
 				return false; //Shift press when not in combination with arrow keys is ignored.
 		}
 
+		if(commands.size() > 0)
+			Context.getCommandHistory().add(commands);
+		
 		return resizedCount > 0;
 	}
 

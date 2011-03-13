@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.PushButton;
  */
 public class CommandHistory {
 
-	private int undoBufferSize = 50;
+	private int undoBufferSize = 100;
 	
 	private Stack<ICommand> undoCmds = new Stack<ICommand>();
 	private Stack<ICommand> redoCmds = new Stack<ICommand>();

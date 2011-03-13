@@ -27,6 +27,7 @@ import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
 
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Command;
@@ -185,6 +186,12 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 					else if(mode == Context.MODE_QUESTION_PROPERTIES || mode == Context.MODE_XFORMS_SOURCE)
 						return formDesignerListener.handleKeyBoardEvent(event);
 				}
+				
+				/*int keyCode = event.getKeyCode();
+				if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
+					if(Window.getScrollLeft() != 0 || Window.getScrollTop() != 0)
+						Window.scrollTo(0, 0);
+				}*/
 
 				return true;
 			}
