@@ -44,6 +44,7 @@ public class CommandHistory {
 		selectUITab(command);
 		
 		command.undo();
+
 		redoCmds.push(command);
 				
 		btnUndo.setEnabled(canUndo());
@@ -58,10 +59,11 @@ public class CommandHistory {
 			return;
 		
 		ICommand command  = redoCmds.pop();
-		
+
 		selectUITab(command);
 		
 		command.redo();
+
 		undoCmds.push(command);
 		
 		btnRedo.setEnabled(canRedo());
@@ -116,9 +118,13 @@ public class CommandHistory {
 	}
 	
 	private void selectUITab(ICommand command){
-		if(command.isWidgetCommand())
+		if(command.isWidgetCommand()){
+			//Context.getLeftPanel().selectWidgetProperties();
 			Context.getCenterPanel().selectDesignSurface();
-		else
+		}
+		else{
+			Context.getLeftPanel().selectFormFields();
 			Context.getCenterPanel().selectPropertiesTab();
+		}
 	}
 }

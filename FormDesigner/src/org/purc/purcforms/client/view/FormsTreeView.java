@@ -557,7 +557,10 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(tree.getSelectedItem() == null){
 			Context.setFormDef(null);
 			formDef = null;
-			fireFormItemSelected(null);
+			
+			//Because of command history, we do not want design surface widgets to be cleared is
+			//why i have commented out the line below.
+			//fireFormItemSelected(null);
 
 			if(tree.getItemCount() == 0){
 				nextFormId = 0;

@@ -515,7 +515,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 */
 	public boolean setLayoutXml(String xml, FormDef formDef){
 		this.formDef = formDef;
-
+		
 		PaletteView.unRegisterAllDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
@@ -543,12 +543,12 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		}
 
 		this.doc = doc;
-
+		
 		if(tabs.getWidgetCount() > 0){
 			selectedTabIndex = 0;
 			tabs.selectTab(selectedTabIndex);
-		}
-
+		}		
+		
 		return true;
 	}
 
@@ -1169,7 +1169,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 							loading = true;
 							load();
 						}
-						else
+						else	
 							setLayout(formDef);
 					}
 
@@ -1181,8 +1181,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				}
 			}
 		});
+		
+		
 	}
-
 
 	/**
 	 * Checks if the design surface has any widgets.

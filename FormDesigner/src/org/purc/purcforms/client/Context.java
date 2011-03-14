@@ -81,6 +81,7 @@ public class Context {
 	private static CommandHistory commandHistory = new CommandHistory();
 	
 	private static CenterPanel centerPanel;
+	private static LeftPanel leftPanel;
 	
 	
 	/**
@@ -268,5 +269,13 @@ public class Context {
 	
 	public static CenterPanel getCenterPanel(){
 		return centerPanel;
+	}
+	
+	public static void setLeftPanel(LeftPanel leftPanel){
+		Context.leftPanel = leftPanel;
+	}
+	
+	public static LeftPanel getLeftPanel(){
+		return leftPanel;
 	}
 }

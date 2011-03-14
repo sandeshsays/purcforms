@@ -52,6 +52,10 @@ public class ChangeWidgetCmd implements ICommand {
 	protected byte property;
 	protected String oldValue;
 
+	protected ChangeWidgetCmd(){
+		
+	}
+	
 	public ChangeWidgetCmd(DesignWidgetWrapper widget, byte property, String oldValue, DesignGroupView view){
 		this.widget = widget;
 		this.view = view;
@@ -61,7 +65,7 @@ public class ChangeWidgetCmd implements ICommand {
 	}
 
 	public String getName(){
-		return "Change Field " + getFieldName() + " Property";
+		return "Change Widget " + getFieldName() + " Property";
 	}
 
 	public void undo(){	
@@ -78,7 +82,7 @@ public class ChangeWidgetCmd implements ICommand {
 		return true;
 	}
 
-	private String getFieldName(){
+	protected String getFieldName(){
 		switch(property){
 		case PROPERTY_TEXT:
 			return LocaleText.get("text");

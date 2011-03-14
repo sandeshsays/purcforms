@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
+import org.purc.purcforms.client.cmd.ChangeViewCmd;
 import org.purc.purcforms.client.cmd.ChangeWidgetCmd;
 import org.purc.purcforms.client.controller.IFormSelectionListener;
 import org.purc.purcforms.client.controller.WidgetPropertyChangeListener;
@@ -378,17 +379,21 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			public void onChange(ChangeEvent event){
 				updateWidth();
 
-				if(widget != null && beforeChangeText != null){
-					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_WIDTH, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+				if(beforeChangeText != null){
+					if(widget != null)
+						Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_WIDTH, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+					else if(viewWidget != null)
+						Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_WIDTH, beforeChangeText, viewWidget));
+
 					beforeChangeText = null;
 				}
 			}
 		});
 		txtWidth.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				if(beforeChangeText == null && widget != null){
+				if(beforeChangeText == null && (widget != null || viewWidget != null)){
 					beforeChangeProperty = ChangeWidgetCmd.PROPERTY_WIDTH;
-					beforeChangeText = widget.getWidth();
+					beforeChangeText = widget != null ? widget.getWidth() : viewWidget.getWidth();
 
 					if(beforeChangeText == null)
 						beforeChangeText = "";
@@ -402,17 +407,23 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			public void onChange(ChangeEvent event){
 				updateHeight();
 
-				if(widget != null && beforeChangeText != null){
-					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_HEIGHT, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+				if(beforeChangeText != null){
+					if(widget != null){
+						Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_HEIGHT, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+						beforeChangeText = null;
+					}
+					else if(viewWidget != null)
+						Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_HEIGHT, beforeChangeText, viewWidget));
+
 					beforeChangeText = null;
 				}
 			}
 		});
 		txtHeight.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				if(beforeChangeText == null && widget != null){
+				if(beforeChangeText == null && (widget != null || viewWidget != null)){
 					beforeChangeProperty = ChangeWidgetCmd.PROPERTY_HEIGHT;
-					beforeChangeText = widget.getHeight();
+					beforeChangeText = widget != null ? widget.getHeight() : viewWidget.getHeight();
 
 					if(beforeChangeText == null)
 						beforeChangeText = "";
@@ -710,6 +721,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		sgstForeColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
 				if(widget != null){
+					beforeChangeText = widget.getForeColor();
+					
 					widget.setForeColor(txtForeColor.getText());
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FORE_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
@@ -731,14 +744,20 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		});
 		sgstBackgroundColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
-				if(widget != null)	{		
+				if(widget != null)	{
+					beforeChangeText = widget.getBackgroundColor();
+					
 					widget.setBackgroundColor(txtBackgroundColor.getText());
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BACKGROUND_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
 					beforeChangeText = null;
 				}
-				else if(viewWidget != null)
+				else if(viewWidget != null){
+					beforeChangeText = viewWidget.getBackgroundColor();
 					viewWidget.setBackgroundColor(txtBackgroundColor.getText());
+					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BACKGROUND_COLOR, beforeChangeText, viewWidget));
+					beforeChangeText =  null;
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BACKGROUND_COLOR, txtBackgroundColor.getText());
 			}
@@ -756,13 +775,19 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		sgstBorderColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
 				if(widget != null){
+					beforeChangeText = widget.getBorderColor();
+					
 					widget.setBorderColor(txtBorderColor.getText());
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
 					beforeChangeText = null;
 				}
-				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
+				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
+					beforeChangeText = ((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderColor();
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderColor(txtBorderColor.getText());
+					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, viewWidget));
+					beforeChangeText = null;
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_COLOR, txtBorderColor.getText());
 			}
@@ -839,8 +864,14 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 						beforeChangeText = null;
 					}
 				}
-				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
+				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderWidth(txtBorderWidth.getText());
+
+					if(beforeChangeText != null){
+						Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BORDER_WIDTH, beforeChangeText, viewWidget));
+						beforeChangeText = null;
+					}
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_WIDTH, txtBorderWidth.getText());
 			}
@@ -858,8 +889,16 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 
 					widget.setBorderWidth(txtBorderWidth.getText());
 				}
-				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
+				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
+					if(beforeChangeText == null){
+						beforeChangeProperty = ChangeWidgetCmd.PROPERTY_BORDER_WIDTH;
+						beforeChangeText = ((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderWidth();
+
+						if(beforeChangeText == null)
+							beforeChangeText = "";
+					}
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderWidth(txtBorderWidth.getText());
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_WIDTH, txtBorderWidth.getText());
 			}
@@ -920,8 +959,12 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_STYLE, prevValue, (DesignGroupView)widgetPropertyChangeListener));
 				}
-				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
+				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
+					String prevValue = ((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderStyle();
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderStyle(lbBorderStyle.getItemText(lbBorderStyle.getSelectedIndex()));
+					
+					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BORDER_STYLE, prevValue, viewWidget));
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_STYLE, lbBorderStyle.getItemText(lbBorderStyle.getSelectedIndex()));
 			}
@@ -1143,8 +1186,14 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 */
 	public void onWidgetSelected(Widget widget, boolean multipleSel) {
 
-		if(this.widget != null && this.beforeChangeText != null){
-			Context.getCommandHistory().add(new ChangeWidgetCmd(this.widget, beforeChangeProperty, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+		//This happens when one selects another widget on the design surface before the
+		//change event is fired for the widget property editor.
+		if(this.beforeChangeText != null){
+			if(this.widget != null)
+				Context.getCommandHistory().add(new ChangeWidgetCmd(this.widget, beforeChangeProperty, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+			else if(viewWidget != null)
+				Context.getCommandHistory().add(new ChangeViewCmd(beforeChangeProperty, beforeChangeText, this.viewWidget));
+				
 			beforeChangeText = null;
 		}
 
