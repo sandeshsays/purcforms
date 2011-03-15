@@ -174,7 +174,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 						Element parent = (Element)dataNode.getParentNode();
 						NodeList nodeList = parent.getElementsByTagName(dataNode.getNodeName());*/
 
-						Element repeatDataNode = getParentNode(widget.getQuestionDef().getDataNode(),(widget.getWrappedWidget() instanceof CheckBox) ? widget.getParentBinding() : widget.getBinding());
+						Element repeatDataNode = getParentNode(widget.getQuestionDef().getDataNode(),(widget.getWrappedWidget() instanceof CheckBox) ? widget.getParentBinding() : widget.getBinding(), ((QuestionDef)widget.getQuestionDef().getParent()).getBinding());
 						Element parent = (Element)repeatDataNode.getParentNode();
 						NodeList nodeList = parent.getElementsByTagName(repeatDataNode.getNodeName());
 
@@ -521,7 +521,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				loadWidget = false;
 			}
 		}*/
-		
+
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_VALUEFIELD);
 		if(value != null && value.trim().length() > 0){
 			wrapper.setValueField(value);
@@ -544,7 +544,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		if(loadWidget)
 			wrapper.loadQuestion();
-		
+
 		wrapper.setExternalSourceDisplayValue();
 
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEIGHT);
@@ -762,11 +762,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		RuntimeWidgetWrapper firstWidget = null;
 		Element newRepeatDataNode = null;
+		String parentRptBinding = null;
 		int row = table.getRowCount();
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
 			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);
-
+			parentRptBinding = ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding();
 			//table.setWidget(row, index, copyWidget);
 
 			if(index == 0){
@@ -776,7 +777,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					return; //possibly form not yet saved
 				}
 
-				Element repeatDataNode = getParentNode(dataNode,(mainWidget.getWrappedWidget() instanceof CheckBox) ? mainWidget.getParentBinding() : mainWidget.getBinding());
+				Element repeatDataNode = getParentNode(dataNode,(mainWidget.getWrappedWidget() instanceof CheckBox) ? mainWidget.getParentBinding() : mainWidget.getBinding(), parentRptBinding);
 				newRepeatDataNode = (Element)repeatDataNode.cloneNode(true);
 				repeatDataNode.getParentNode().appendChild(newRepeatDataNode);
 				//workonDefaults(newRepeatDataNode);
@@ -787,7 +788,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			table.setWidget(row, index, copyWidget);
 
-			setDataNode(copyWidget,newRepeatDataNode,copyWidget.getBinding(),false);
+			setDataNode(copyWidget,newRepeatDataNode,copyWidget.getBinding(),false, parentRptBinding);
 
 			//For now we do not allow default values for repeat kids to simplify implementation.
 			copyWidget.getQuestionDef().setDefaultValue(null);
@@ -838,20 +839,24 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			table.setWidget(row, index, copyWidget);
 
-			setDataNode(copyWidget,dataNode,copyWidget.getBinding(),true);
+			setDataNode(copyWidget,dataNode,copyWidget.getBinding(),true, ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding());
 		}
 
 		addDeleteButton(row);
 	}
 
-	private Element getParentNode(Node node, String binding){	
+	private Element getParentNode(Node node, String binding, String parentBinding){	
 		String name = binding;
-		int pos = binding.indexOf('/');
-		if(pos > 0){
-			name = binding.substring(0, pos);
-			int pos2 = binding.lastIndexOf('/');
-			if(pos != pos2)
-				return (Element)node.getParentNode(); //name = binding.substring(pos+1, pos2);
+		if(parentBinding != null && binding.startsWith(parentBinding))
+			name = binding.substring(parentBinding.length() + 1, binding.indexOf('/', parentBinding.length() + 1));
+		else{
+			int pos = binding.indexOf('/');
+			if(pos > 0){
+				name = binding.substring(0, pos);
+				int pos2 = binding.lastIndexOf('/');
+				if(pos != pos2)
+					return (Element)node.getParentNode(); //name = binding.substring(pos+1, pos2);
+			}
 		}
 
 		return getParentNodeWithName(node,name);
@@ -866,20 +871,29 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		return getParentNodeWithName(parentNode,name);
 	}
 
-	private void setDataNode(RuntimeWidgetWrapper widget, Element parentNode, String binding, boolean loadQtn){
+	private void setDataNode(RuntimeWidgetWrapper widget, Element parentNode, String binding, boolean loadQtn, String parentBinding){
 		if(widget.getQuestionDef() == null)
 			return; //for checkboxes, only the first may have reference to the parent questiondef
 
-		String name = (widget.getWrappedWidget() instanceof CheckBox) ? widget.getParentBinding() : binding;
-		int pos = name.indexOf('/');
-		if(pos > 0){
-			int pos2 = name.lastIndexOf('/');
-			if(pos != pos2){
-				name = name.substring(pos2+1);
-				pos = -1;
+		String name = null;
+		int pos = 0;
+		if(parentBinding != null && binding.startsWith(parentBinding)){
+			name = binding.substring(parentBinding.length() + 1);
+			String s = name.substring(0, name.indexOf('/'));
+			parentNode = XmlUtil.getNode(parentNode, s);
+		}
+		else{
+			name = (widget.getWrappedWidget() instanceof CheckBox) ? widget.getParentBinding() : binding;
+			pos = name.indexOf('/');
+			if(pos > 0){
+				int pos2 = name.lastIndexOf('/');
+				if(pos != pos2){
+					name = name.substring(pos2+1);
+					pos = -1;
+				}
+				else
+					name = name.substring(0, pos);
 			}
-			else
-				name = name.substring(0, pos);
 		}
 
 		NodeList nodes = parentNode.getChildNodes();
@@ -892,7 +906,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(child.getNodeName().equals(name) /*||
 					(child.getParentNode().getNodeName() + "/"+ child.getNodeName()).equals(widget.getBinding())*/){
 				if(pos > 0)
-					setDataNode(widget,(Element)child,binding.substring(pos+1),loadQtn);
+					setDataNode(widget,(Element)child,binding.substring(pos+1),loadQtn, parentBinding);
 				else{
 					widget.getQuestionDef().setDataNode((Element)child);
 					if(loadQtn){
@@ -1070,7 +1084,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					if(firstInvalidWidget == null && widget.isFocusable())
 						firstInvalidWidget = widget.getInvalidWidget();
 				}
-				
+
 				if(fireValueChanged && widget.getQuestionDef() != null)
 					editListener.onValueChanged(widget);
 			}
