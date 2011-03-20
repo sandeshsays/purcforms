@@ -35,6 +35,7 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.xml.client.Document;
 
 
@@ -324,7 +325,7 @@ public class CenterWidget extends Composite implements IFileListener,IFormSelect
 		return xml;
 	}
 
-	public void onFormItemSelected(Object formItem){
+	public void onFormItemSelected(Object formItem, TreeItem treeItem){
 		if(!(formItem instanceof FormDef))
 			return;
 

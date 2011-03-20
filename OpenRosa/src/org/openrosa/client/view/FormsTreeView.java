@@ -339,7 +339,7 @@ public class FormsTreeView extends com.extjs.gxt.ui.client.widget.Composite impl
 	 */
 	private void fireFormItemSelected(Object formItem){
 		for(int i=0; i<formSelectionListeners.size(); i++)
-			formSelectionListeners.get(i).onFormItemSelected(formItem);
+			formSelectionListeners.get(i).onFormItemSelected(formItem, null);
 	}
 
 	public void loadForm(FormDef formDef,boolean select, boolean langRefresh){

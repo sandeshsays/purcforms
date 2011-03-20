@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TreeItem;
 
 /**
  * This widget is the tool bar for the form designer.
@@ -473,7 +474,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, IDa
 
 		dtabWidget.addFormSelectionListener(new IFormSelectionListener() {		
 			@Override
-			public void onFormItemSelected(Object formItem) {
+			public void onFormItemSelected(Object formItem, TreeItem item) {
 				// TODO Auto-generated method stub
 				checkEnableAddSelect((IFormElement)formItem);
 
