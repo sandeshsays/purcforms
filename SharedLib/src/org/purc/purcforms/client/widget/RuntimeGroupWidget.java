@@ -766,14 +766,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		int row = table.getRowCount();
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
-			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);
+			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);			
 			parentRptBinding = ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding();
 			//table.setWidget(row, index, copyWidget);
 
 			if(index == 0){
 				Element dataNode = mainWidget.getQuestionDef().getDataNode();
 				if(dataNode == null){
-					Window.alert("Please first save the form"); //LocaleText.get("?????");
+					Window.alert("Please first save the form, and then refresh the Preview surface."); //LocaleText.get("?????");
 					return; //possibly form not yet saved
 				}
 
@@ -847,7 +847,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	private Element getParentNode(Node node, String binding, String parentBinding){	
 		String name = binding;
-		if(parentBinding != null && binding.startsWith(parentBinding))
+		if(parentBinding != null && binding.startsWith(parentBinding) && binding.indexOf('/', parentBinding.length() + 1) > 0)
 			name = binding.substring(parentBinding.length() + 1, binding.indexOf('/', parentBinding.length() + 1));
 		else{
 			int pos = binding.indexOf('/');
@@ -877,7 +877,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		String name = null;
 		int pos = 0;
-		if(parentBinding != null && binding.startsWith(parentBinding)){
+		if(parentBinding != null && binding.startsWith(parentBinding) && binding.indexOf('/', parentBinding.length() + 1) > 0){
 			name = binding.substring(parentBinding.length() + 1);
 			String s = name.substring(0, name.indexOf('/'));
 			parentNode = XmlUtil.getNode(parentNode, s);

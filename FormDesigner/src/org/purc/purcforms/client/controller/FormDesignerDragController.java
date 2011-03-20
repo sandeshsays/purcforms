@@ -68,11 +68,11 @@ public class FormDesignerDragController extends AbstractDragController{
 		int width;
 		int height;
 	}
-	
+
 	/**
-	   * TODO Decide if 100ms is a good number
-	   */
-	  private static final int CACHE_TIME_MILLIS = 100;
+	 * TODO Decide if 100ms is a good number
+	 */
+	private static final int CACHE_TIME_MILLIS = 100;
 
 	/**
 	 * CSS style name applied to movable panels.
@@ -102,7 +102,7 @@ public class FormDesignerDragController extends AbstractDragController{
 	private int dropTargetClientHeight;
 
 	private int dropTargetClientWidth;
-	
+
 	private long lastResetCacheTimeMillis;
 
 	private Widget movablePanel;
@@ -172,17 +172,17 @@ public class FormDesignerDragController extends AbstractDragController{
 
 		assert context.finalDropController == null == (context.vetoException != null);
 		if (context.vetoException != null) {
-			
+
 			context.dropController.onLeave(context);
-		    context.dropController = null;
-		    
+			context.dropController = null;
+
 			if (!getBehaviorDragProxy())
 				restoreSelectedWidgetsLocation();
 		} else{
 			context.dropController.onDrop(context);
 
-		context.dropController.onLeave(context);
-		context.dropController = null;
+			context.dropController.onLeave(context);
+			context.dropController = null;
 		}
 
 		if (!getBehaviorDragProxy()) {
@@ -203,7 +203,7 @@ public class FormDesignerDragController extends AbstractDragController{
 				CommandList commands = new CommandList((DesignGroupView)dragDropListener);
 
 				if(!"move".equals(cursor)){
-					if(((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget)
+					if(((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget && ((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel() != null)
 						cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getWrappedWidget().getElement(), "cursor");
 				}
 
@@ -367,6 +367,17 @@ public class FormDesignerDragController extends AbstractDragController{
 	@Override
 	public void dragStart() {
 
+		if(context.selectedWidgets.size() > 1 && isResizing()){
+			for (Widget widget : context.selectedWidgets) {
+				if(widget != context.draggable)
+					widget.removeStyleName(DragClientBundle.INSTANCE.css().selected());
+			}
+
+			context.selectedWidgets.clear();
+			context.selectedWidgets.add(context.draggable);
+		}
+
+
 		if(context.draggable instanceof DesignWidgetWrapper && "100%".equals(((DesignWidgetWrapper)context.draggable).getWidth())){
 			context.draggable = context.draggable;//.getParent().getParent().getParent().getParent();
 		}
@@ -375,7 +386,7 @@ public class FormDesignerDragController extends AbstractDragController{
 		//	return;
 
 		super.dragStart();
-		
+
 		lastResetCacheTimeMillis = System.currentTimeMillis();
 
 		if(dragDropListener != null)
@@ -426,13 +437,13 @@ public class FormDesignerDragController extends AbstractDragController{
 			}
 			movablePanel = container;
 		}
-		
+
 		movablePanel.addStyleName(PRIVATE_CSS_MOVABLE_PANEL);
 		//movablePanel.addStyleName(DragClientBundle.INSTANCE.css().movablePanel());
 
 		// one time calculation of boundary panel location for efficiency during
 		// dragging
-		
+
 		calcBoundaryOffset();
 
 		dropTargetClientWidth = DOMUtil.getClientWidth(context.boundaryPanel.getElement()); //TODO ?????????????????????????
@@ -713,5 +724,18 @@ public class FormDesignerDragController extends AbstractDragController{
 		+ DOMUtil.getBorderLeft(context.boundaryPanel.getElement());
 		boundaryOffsetY = widgetLocation.getTop()
 		+ DOMUtil.getBorderTop(context.boundaryPanel.getElement());
+	}
+
+	private boolean isResizing(){
+		String cursor = DOM.getStyleAttribute(((DesignWidgetWrapper)context.draggable).getWrappedWidget().getElement(), "cursor");
+
+		if(cursor.equalsIgnoreCase("w-resize") || cursor.equalsIgnoreCase("e-resize")
+				|| cursor.equalsIgnoreCase("n-resize") || cursor.equalsIgnoreCase("s-resize")
+				|| cursor.equalsIgnoreCase("se-resize") || cursor.equalsIgnoreCase("sw-resize")
+				|| cursor.equalsIgnoreCase("ne-resize") || cursor.equalsIgnoreCase("nw-resize")){
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -42,6 +42,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
@@ -53,7 +54,7 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
  * @author daniel
  *
  */
-public class PropertiesView extends Composite implements IFormSelectionListener,ItemSelectionListener{
+public class PropertiesView extends Composite implements IFormSelectionListener, ItemSelectionListener{
 
 	/** List box index for no selected data type. */
 	private static final byte DT_INDEX_NONE = -1;
@@ -176,7 +177,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * Creates a new instance of the properties view widget.
 	 */
 	public PropertiesView(){
-
+		
 		btnDescTemplate = new DescTemplateWidget(this);
 		btnCalculation = new DescTemplateWidget(this);
 
@@ -911,6 +912,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 */
 	public void setFormChangeListener(IFormChangeListener formChangeListener){
 		this.formChangeListener = formChangeListener;
+		skipRulesView.setFormChangeListener(formChangeListener);
 	}
 
 	/**
@@ -1125,8 +1127,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormSelectionListener#onFormItemSelected(java.lang.Object)
 	 */
-	public void onFormItemSelected(Object formItem) {
+	public void onFormItemSelected(Object formItem, TreeItem treeItem) {
 		propertiesObj = formItem;
+		skipRulesView.onFormItemSelected(treeItem);
 
 		clearProperties();
 

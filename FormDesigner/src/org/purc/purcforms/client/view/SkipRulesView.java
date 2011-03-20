@@ -3,7 +3,11 @@ package org.purc.purcforms.client.view;
 import java.util.List;
 import java.util.Vector;
 
+import org.purc.purcforms.client.Context;
+import org.purc.purcforms.client.cmd.DeleteSkipRuleCmd;
+import org.purc.purcforms.client.cmd.InsertSkipRuleCmd;
 import org.purc.purcforms.client.controller.IConditionController;
+import org.purc.purcforms.client.controller.IFormChangeListener;
 import org.purc.purcforms.client.controller.QuestionSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
@@ -16,12 +20,14 @@ import org.purc.purcforms.client.widget.skiprule.GroupHyperlink;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -85,6 +91,9 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	/** Widget for Label "and". */
 	private Label lblAnd = new Label(LocaleText.get("and"));
 
+	private IFormChangeListener formChangeListener;
+	private TreeItem treeItem;
+	private TreeItem prevTreeItem;
 
 	/**
 	 * Creates a new instance of the skip logic widget.
@@ -246,13 +255,17 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		else{
 			skipRule.setConditionsOperator(groupHyperlink.getConditionsOperator());
 			skipRule.setAction(getAction());
-			
+
 			if(!skipRule.containsActionTarget(questionDef.getId()))
 				skipRule.addActionTarget(questionDef.getId());
 		}
 
-		if(skipRule != null && !formDef.containsSkipRule(skipRule))
-			formDef.addSkipRule(skipRule);
+		if(skipRule != null && !formDef.containsSkipRule(skipRule)){
+			if(treeItem != prevTreeItem){
+				formDef.addSkipRule(skipRule);
+				Context.getCommandHistory().add(new InsertSkipRuleCmd(skipRule, formDef, prevTreeItem, (FormsTreeView)formChangeListener));
+			}
+		}
 	}
 
 	/**
@@ -312,7 +325,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		this.questionDef = questionDef;
 
 		skipRule = formDef.getSkipRule(questionDef);
-		if(skipRule != null){
+
+		if(skipRule != null){ 
 			groupHyperlink.setCondionsOperator(skipRule.getConditionsOperator());
 			setAction(skipRule.getAction());
 			verticalPanel.remove(addConditionLink);
@@ -327,8 +341,10 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			}
 			for(int i=0; i<lostConditions.size(); i++)
 				skipRule.removeCondition((Condition)lostConditions.elementAt(i));
+
 			if(skipRule.getConditionCount() == 0){
 				formDef.removeSkipRule(skipRule);
+				Context.getCommandHistory().add(new DeleteSkipRuleCmd(skipRule, formDef, treeItem, (FormsTreeView)formChangeListener));
 				skipRule = null;
 			}
 
@@ -414,7 +430,7 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		if(actnTargets == null){
 			for(String varName : questions)
 				skipRule.addActionTarget(formDef.getQuestion(varName).getId());
-			
+
 			return;
 		}
 
@@ -431,16 +447,25 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 					actnTargets.remove(index);
 				else
 					skipRule.removeActionTarget(qtnDef);
-				
+
 				index = index - 1;
 			}
 		}
-		
+
 		//Add any newly added questions as action targets.
 		for(String varName : questions){
 			QuestionDef qtnDef = formDef.getQuestion(varName);
 			if(!skipRule.containsActionTarget(qtnDef.getId()))
 				skipRule.addActionTarget(qtnDef.getId());
 		}
+	}
+
+	public void setFormChangeListener(IFormChangeListener formChangeListener){
+		this.formChangeListener = formChangeListener;
+	}
+
+	public void onFormItemSelected(TreeItem treeItem) {
+		this.prevTreeItem = this.treeItem;
+		this.treeItem = treeItem;
 	}
 }

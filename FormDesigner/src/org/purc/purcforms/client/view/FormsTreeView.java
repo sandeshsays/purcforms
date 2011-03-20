@@ -296,7 +296,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			Context.setFormDef(FormDef.getFormDef(item.getUserObject()));
 			formDef = Context.getFormDef();
 
-			fireFormItemSelected(item.getUserObject());
+			fireFormItemSelected(item.getUserObject(), item);
 			this.item = item;
 
 			//Expand if has kids such that users do not have to click the plus
@@ -312,9 +312,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	 * 
 	 * @param formItem the selected form item.
 	 */
-	private void fireFormItemSelected(Object formItem){
+	private void fireFormItemSelected(Object formItem, TreeItem treeItem){
 		for(int i=0; i<formSelectionListeners.size(); i++)
-			formSelectionListeners.get(i).onFormItemSelected(formItem);
+			formSelectionListeners.get(i).onFormItemSelected(formItem, treeItem);
 	}
 
 	public void loadForm(FormDef formDef,boolean select, boolean langRefresh){
@@ -336,7 +336,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				return;
 
 			//A temporary hack to ensure top level object is accessed.
-			fireFormItemSelected(formDef);
+			fireFormItemSelected(formDef, tree.getSelectedItem());
 		}
 
 		TreeItem formRoot = null;
@@ -392,7 +392,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			tree.removeItem(root);
 		}
 
-		loadForm(formDef,true,false);
+		loadForm(formDef, true, false);
 	}
 
 	/**
@@ -429,7 +429,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			if(formDef.getId() == selFormId){
 				this.formDef = formDef;
 				//A temporary hack to ensure top level object is accessed.
-				fireFormItemSelected(this.formDef);
+				fireFormItemSelected(this.formDef, tree.getSelectedItem());
 			}
 		}
 	}
@@ -1492,7 +1492,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 					TreeItem item = tree.getSelectedItem();
 					if(item != null)
-						fireFormItemSelected(item.getUserObject());
+						fireFormItemSelected(item.getUserObject(), item);
 
 					FormUtil.dlg.hide();
 				}

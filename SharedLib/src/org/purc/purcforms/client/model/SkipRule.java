@@ -280,7 +280,7 @@ public class SkipRule implements Serializable{
 	}
 	
 	public void updateDoc(FormDef formDef){
-		RelevantBuilder.fromSkipRule2Xform(this,formDef);
+		RelevantBuilder.fromSkipRule2Xform(this, formDef);
 	}
 	
 	public void refresh(FormDef dstFormDef, FormDef srcFormDef){

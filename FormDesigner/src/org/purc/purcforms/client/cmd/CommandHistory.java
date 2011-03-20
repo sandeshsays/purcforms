@@ -1,8 +1,11 @@
 package org.purc.purcforms.client.cmd;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import org.purc.purcforms.client.Context;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.user.client.ui.PushButton;
 
@@ -19,17 +22,31 @@ public class CommandHistory {
 
 	private int undoBufferSize = 100;
 	
+	private List<ICommand> cmds = new ArrayList<ICommand>();
 	private Stack<ICommand> undoCmds = new Stack<ICommand>();
 	private Stack<ICommand> redoCmds = new Stack<ICommand>();
 	private PushButton btnUndo;
 	private PushButton btnRedo;
 	
+	public CommandHistory(){
+		try{
+			undoBufferSize = Integer.parseInt(FormUtil.getUndoRedoBufferSize());
+		}
+		catch(Exception ex){}
+	}
+	
 	public void add(ICommand command){
 		undoCmds.add(command);
+		//cmds.add(command);
 		
 		//Trim the undo buffer size such that we do not run out of memory.
-		if(undoCmds.size() > undoBufferSize)
-			undoCmds.remove(undoBufferSize);
+		/*if(cmds.size() > undoBufferSize){
+			ICommand cmd = cmds.get(0);
+			if(!undoCmds.remove(cmd)){
+				redoCmds.remove(cmd);
+			}
+			cmds.remove(0);
+		}*/
 		
 		btnUndo.setEnabled(true);
 		btnUndo.setTitle("Undo " + command.getName());
@@ -46,6 +63,7 @@ public class CommandHistory {
 		command.undo();
 
 		redoCmds.push(command);
+		//cmds.add(command);
 				
 		btnUndo.setEnabled(canUndo());
 		btnUndo.setTitle(getUndoCommandName());
@@ -65,12 +83,16 @@ public class CommandHistory {
 		command.redo();
 
 		undoCmds.push(command);
+		//cmds.add(command);
 		
 		btnRedo.setEnabled(canRedo());
 		btnRedo.setTitle(getRedoCommandName());
 		
 		btnUndo.setEnabled(true);
 		btnUndo.setTitle("Undo " + command.getName());
+		
+		//if(undoCmds.size() > undoBufferSize)
+		//	undoCmds.remove(undoCmds.size() - 1);
 	}
 	
 	public boolean canUndo(){
@@ -95,13 +117,14 @@ public class CommandHistory {
 			return "Redo " + redoCmds.lastElement().getName();
 	}
 	
-	public void clear(){
+	/*public void clear(){
 		undoCmds.clear();
 		redoCmds.clear();
+		cmds.clear();
 		
 		btnUndo.setEnabled(false);
 		btnRedo.setEnabled(false);
-	}
+	}*/
 	
 	public void setUndoBufferSize(int size){
 		this.undoBufferSize = size;

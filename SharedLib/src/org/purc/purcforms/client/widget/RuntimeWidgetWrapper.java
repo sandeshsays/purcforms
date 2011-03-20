@@ -518,9 +518,15 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					else if(defaultValue.trim().length() > 0 && questionDef.isDate())
 						defaultValue = fromSubmit2DisplayDate(defaultValue);
 					
+					if(defaultValue != null && type == QuestionDef.QTN_TYPE_NUMERIC){
+						int pos = defaultValue.indexOf('.');
+						if(pos > 0)
+							defaultValue = defaultValue.substring(0, pos);
+					}
+					
 					if(defaultValue != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL)
-						defaultValue = defaultValue.replace(FormUtil.SAVE_DECIMAL_SEPARATOR, FormUtil.getDecimalSeparator());
-
+						defaultValue = defaultValue.replace(FormUtil.SAVE_DECIMAL_SEPARATOR, FormUtil.getDecimalSeparator());	
+					
 					((TextBoxBase)widget).setText(defaultValue);
 
 					setExternalSourceDisplayValue();

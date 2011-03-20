@@ -112,6 +112,7 @@ public class FormUtil {
 	private static String fileSaveUrlSuffix;
 	private static String gpsTypeName;
 	private static String saveFormat;
+	private static String undoRedoBufferSize;
 	private static boolean combineFormOnSave = true;
 	private static boolean rebuildBindings = false;
 	private static boolean readOnlyMode = false;;
@@ -484,6 +485,8 @@ public class FormUtil {
 			XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE = s;
 
 		saveFormat = getDivValue(PARAM_NAME_SAVE_FORMAT);
+		
+		undoRedoBufferSize = getDivValue("undoRedoBufferSize");
 
 		if(JAVAROSA.equalsIgnoreCase(saveFormat)){
 			gpsTypeName = "geopoint";
@@ -745,6 +748,10 @@ public class FormUtil {
 
 	public static String getSaveFormat(){
 		return saveFormat;
+	}
+	
+	public static String getUndoRedoBufferSize(){
+		return undoRedoBufferSize;
 	}
 
 	public static boolean isJavaRosaSaveFormat(){
