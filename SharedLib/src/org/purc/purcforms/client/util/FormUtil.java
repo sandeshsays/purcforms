@@ -189,7 +189,7 @@ public class FormUtil {
 				if ((!Character.isDigit(keyCode)) && (keyCode != (char) KeyCodes.KEY_TAB)
 						&& (keyCode != (char) KeyCodes.KEY_BACKSPACE) && (keyCode != (char) KeyCodes.KEY_LEFT)
 						&& (keyCode != (char) KeyCodes.KEY_UP) && (keyCode != (char) KeyCodes.KEY_RIGHT)
-						&& (keyCode != (char) KeyCodes.KEY_DOWN)) {
+						&& (keyCode != (char) KeyCodes.KEY_DOWN ) && (keyCode != (char) KeyCodes.KEY_DELETE)) {
 
 					String decimalSepChar = getDecimalSeparator();
 					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
@@ -235,7 +235,7 @@ public class FormUtil {
 				if ((!Character.isDigit(keyCode)) && (keyCode != (char) KeyCodes.KEY_TAB)
 						&& (keyCode != (char) KeyCodes.KEY_BACKSPACE) && (keyCode != (char) KeyCodes.KEY_LEFT)
 						&& (keyCode != (char) KeyCodes.KEY_UP) && (keyCode != (char) KeyCodes.KEY_RIGHT)
-						&& (keyCode != (char) KeyCodes.KEY_DOWN)) {
+						&& (keyCode != (char) KeyCodes.KEY_DOWN) && (keyCode != (char) KeyCodes.KEY_DELETE)) {
 
 					String decimalSepChar = getDecimalSeparator();
 					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))

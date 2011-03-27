@@ -82,6 +82,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	private boolean showLayoutXml = true;
 	private boolean showLanguageXml = true;
 	private boolean showModelXml = true;
+	
+	private boolean refreshWidgets = true;
 
 
 	/**
@@ -246,11 +248,12 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			}
 		}
 		else if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE){
-			if(!designSurfaceView.hasWidgets())
+			if(!designSurfaceView.hasWidgets() && refreshWidgets)
 				designSurfaceView.refresh();
 		}
 
 
+		refreshWidgets = true;
 		//else if(selectedTabIndex == SELECTED_INDEX_LAYOUT_XML)
 		//	txtLayoutXml.setText(designSurfaceView.getLayoutXml());
 	}
@@ -1029,7 +1032,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		return designSurfaceView;
 	}
 	
-	public void selectDesignSurface(){
+	public void selectDesignSurface(boolean refreshWidgets){
+		this.refreshWidgets =  refreshWidgets;
 		tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
 	}
 	

@@ -143,7 +143,7 @@ public class CommandHistory {
 	private void selectUITab(ICommand command){
 		if(command.isWidgetCommand()){
 			//Context.getLeftPanel().selectWidgetProperties();
-			Context.getCenterPanel().selectDesignSurface();
+			Context.getCenterPanel().selectDesignSurface(false);
 		}
 		else{
 			Context.getLeftPanel().selectFormFields();
