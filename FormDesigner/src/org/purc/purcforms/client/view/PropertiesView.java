@@ -159,7 +159,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private IFormChangeListener formChangeListener;
 
 	/** Widget for defining skip rules. */
-	private SkipRulesView skipRulesView = new SkipRulesView();
+	private SkipRulesView skipRulesView = new SkipRulesView(this);
 
 	/** Widget for defining validation rules. */
 	private ValidationRulesView validationRulesView = new ValidationRulesView();
@@ -169,6 +169,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** Listener to form action events. */
 	private IFormActionListener formActionListener;
+	
+	DecoratedTabPanel tabs;
 
 	private String beforeChangeText;
 
@@ -264,7 +266,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		verticalPanel.setSpacing(5);
 		verticalPanel.add(table);
 
-		DecoratedTabPanel tabs = new DecoratedTabPanel();
+		tabs = new DecoratedTabPanel();
 		tabs.add(skipRulesView, LocaleText.get("skipLogic"));
 		tabs.add(validationRulesView, LocaleText.get("validationLogic"));
 		tabs.add(dynamicListsView, LocaleText.get("dynamicLists"));
@@ -1278,5 +1280,17 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		//form key
 		cellFormatter.setVisible(11, 0, enable);
 		cellFormatter.setVisible(11, 1, enable);
+	}
+	
+	public void selectSkipRulesTab(){
+		tabs.selectTab(0);
+	}
+	
+	public void selectValidationRulesTab(){
+		tabs.selectTab(1);
+	}
+	
+	public void selectDynamicListsTab(){
+		tabs.selectTab(2);
 	}
 }

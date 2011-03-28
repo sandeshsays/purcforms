@@ -16,8 +16,6 @@ public class InsertSkipRuleCmd  implements ICommand {
 
 	protected FormsTreeView view;
 	protected TreeItem item;
-	protected TreeItem parentItem;
-	protected int index;
 	protected SkipRule skipRule;
 	protected FormDef formDef;
 	
@@ -26,7 +24,6 @@ public class InsertSkipRuleCmd  implements ICommand {
 		this.skipRule = skipRule;
 		this.formDef = formDef;
 		this.item = item;
-		this.parentItem = item.getParentItem();
 		this.view = view;
 	}
 	
