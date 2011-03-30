@@ -5,6 +5,7 @@ import java.util.Vector;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.controller.IConditionController;
+import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
@@ -31,7 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author daniel
  *
  */
-public class ValidationRulesView extends Composite implements IConditionController{
+public class ValidationRulesView extends Composite implements IConditionController, ItemSelectionListener{
 
 	/** The widget horizontal spacing in horizontal panels. */
 	private static final int HORIZONTAL_SPACING = 5;
@@ -46,7 +47,7 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	private Hyperlink addConditionLink = new Hyperlink(LocaleText.get("clickToAddNewCondition"),"");
 	
 	/** Widget for grouping conditions. Has all,any, none, and not all. */
-	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"");
+	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL, "", this);
 	
 	/** The form definition object that this validation rule belongs to. */
 	private FormDef formDef;
@@ -303,5 +304,13 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	public void onWindowResized(int width, int height){
 		if(width - 700 > 0)
 			txtErrorMessage.setWidth(width - 700 + PurcConstants.UNITS);
+	}
+	
+	public void onItemSelected(Object sender, Object item){
+		
+	}
+
+	public void onStartItemSelection(Object sender){
+		assert(sender == groupHyperlink);
 	}
 }

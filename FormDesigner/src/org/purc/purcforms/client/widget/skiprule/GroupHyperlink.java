@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.widget.skiprule;
 
+import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.ModelConstants;
 
@@ -37,6 +38,8 @@ public class GroupHyperlink extends Hyperlink{
 	
 	/** Flag to tell if we are enabled or not. */
 	private boolean enabled;
+	
+	private ItemSelectionListener itemSelectionListener;
 
 	
 	/**
@@ -45,9 +48,10 @@ public class GroupHyperlink extends Hyperlink{
 	 * @param text the default display text.
 	 * @param targetHistoryToken the history token to which it will link.
 	 */
-	public GroupHyperlink(String text, String targetHistoryToken){
+	public GroupHyperlink(String text, String targetHistoryToken, ItemSelectionListener itemSelectionListener){
 		super(text,targetHistoryToken);
-
+		this.itemSelectionListener = itemSelectionListener;
+		
 		DOM.sinkEvents(getElement(), DOM.getEventsSunk(getElement()) | Event.ONMOUSEDOWN );
 	}
 
@@ -68,19 +72,19 @@ public class GroupHyperlink extends Hyperlink{
 
 		MenuBar menuBar = new MenuBar(true);
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ANY,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NONE,true,new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NOT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
 
 		popup.setWidget(menuBar);
 	}

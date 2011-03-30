@@ -36,7 +36,7 @@ public class SkipRule implements Serializable{
 	private Vector actionTargets;
 		
 	/** Operator for combining more than one condition. (And, Or) only these two for now. */
-	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_NULL;
+	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_AND;
 	
 		
 	/** Constructs a rule object ready to be initialized. */

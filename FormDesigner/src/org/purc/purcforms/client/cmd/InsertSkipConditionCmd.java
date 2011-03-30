@@ -16,8 +16,8 @@ import com.google.gwt.user.client.ui.TreeItem;
  *
  */
 public class InsertSkipConditionCmd extends DeleteSkipConditionCmd {
-
-	public InsertSkipConditionCmd(SkipRule skipRule, ConditionWidget widget, SkipRulesView view, TreeItem item, FormsTreeView formsTreeView){
+	
+	public InsertSkipConditionCmd(SkipRule skipRule, ConditionWidget widget, SkipRulesView view, TreeItem item, FormsTreeView formsTreeView, boolean clearAction){
 		super(skipRule, widget, skipRule.getConditionCount(), view, item, formsTreeView);
 	}
 	
