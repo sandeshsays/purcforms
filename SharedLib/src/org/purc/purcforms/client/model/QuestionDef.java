@@ -86,15 +86,14 @@ public class QuestionDef implements Serializable{
 
 	/** The allowed set of values (OptionDef) for an answer of the question. 
 	 * This also holds repeat sets of questions (RepeatQtnsDef) for the QTN_TYPE_REPEAT.
-	 * This is an optimization aspect to prevent storing these guys diffently as 
+	 * This is an optimization aspect to prevent storing these guys differently as 
 	 * they can't both happen at the same time. The internal storage implementation of these
 	 * repeats is hidden from the user by means of getRepeatQtnsDef() and setRepeatQtnsDef().
 	 */
 	private Object options;
 
 	/** The numeric identifier of a question. When a form definition is being built, each question is 
-	 * given a unique (on a form) id starting from 1 up to 127. The assumption is that one will never need to have
-	 * a form with more than 127 questions for a mobile device (It would be too big).
+	 * given a unique (on a form) id starting from 1 .
 	 */
 	private int id = ModelConstants.NULL_ID;
 

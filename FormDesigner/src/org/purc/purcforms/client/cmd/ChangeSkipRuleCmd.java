@@ -2,6 +2,8 @@ package org.purc.purcforms.client.cmd;
 
 import java.util.Vector;
 
+import org.purc.purcforms.client.Context;
+import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
 import org.purc.purcforms.client.view.FormsTreeView;
 import org.purc.purcforms.client.view.SkipRulesView;
@@ -107,6 +109,16 @@ public class ChangeSkipRuleCmd implements ICommand {
 	}
 
 	private void setTargets(Object field, Object value){
+		for(int index = 0; index < skipRule.getActionTargets().size(); index++){
+			Integer qtnId = (Integer)skipRule.getActionTargets().get(index);
+
+			QuestionDef qtnDef = Context.getFormDef().getQuestion(qtnId);
+			if(qtnDef == null)
+				continue; //Ignore the question for which we are editing the skip rule.
+
+			skipRule.removeActionTargetXformData(qtnDef);
+		}
+		
 		oldValue = skipRule.getActionTargets();
 		skipRule.setActionTargets((Vector)value);
 		view.setActionTargets(skipRule);

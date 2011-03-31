@@ -182,12 +182,16 @@ public class SkipRule implements Serializable{
 		conditions.remove(condition);
 	}
 	
-	public void removeActionTarget(QuestionDef questionDef){
-		
+	public void removeActionTargetXformData(QuestionDef questionDef){
 		if(questionDef.getBindNode() != null){
 			questionDef.getBindNode().removeAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT);
 			questionDef.getBindNode().removeAttribute(XformConstants.ATTRIBUTE_NAME_ACTION);
 		}
+	}
+	
+	public void removeActionTarget(QuestionDef questionDef){
+		
+		removeActionTargetXformData(questionDef);
 		
 		for(int index = 0; index < getActionTargetCount(); index++){
 			Integer id = getActionTargetAt(index);
