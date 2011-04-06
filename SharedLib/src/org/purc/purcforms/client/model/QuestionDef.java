@@ -675,7 +675,7 @@ public class QuestionDef implements Serializable{
 					OptionDef optnDef = getNextSavedOption(list,i); //(OptionDef)list.get(i);
 					if(optnDef.getControlNode() != null && optionDef.getControlNode() != null)
 						controlNode.insertBefore(optionDef.getControlNode(), optnDef.getControlNode());
-					else
+					else if(optionDef.getControlNode() != null)
 						controlNode.appendChild(optionDef.getControlNode());
 				}
 			}
