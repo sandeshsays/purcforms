@@ -72,19 +72,19 @@ public class GroupHyperlink extends Hyperlink{
 
 		MenuBar menuBar = new MenuBar(true);
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ANY,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NONE,true,new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NOT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator()); }});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		popup.setWidget(menuBar);
 	}

@@ -15,7 +15,7 @@ public interface ItemSelectionListener {
 	 * @param sender the widget sending this event.
 	 * @param item the item being selected.
 	 */
-	public void onItemSelected(Object sender, Object item);
+	public void onItemSelected(Object sender, Object item, boolean userAction);
 	
 	/**
 	 * Called when an item is about to be selected.

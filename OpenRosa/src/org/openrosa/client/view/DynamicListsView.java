@@ -262,7 +262,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		//This is only useful for us when a new parent question has been selected.
 		if(sender != fieldWidget)
 			return;

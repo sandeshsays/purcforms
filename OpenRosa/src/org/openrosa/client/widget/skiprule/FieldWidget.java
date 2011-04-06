@@ -131,7 +131,7 @@ public class FieldWidget extends Composite{
 		horizontalPanel.add(fieldHyperlink);
 		IFormElement qtn = formDef.getQuestionWithText(txtField.getText());
 		if(qtn != null)
-			itemSelectionListener.onItemSelected(this,qtn);
+			itemSelectionListener.onItemSelected(this, qtn, true);
 	}
 
 	private void setupPopup(){
@@ -161,7 +161,7 @@ public class FieldWidget extends Composite{
 
 	public void selectQuestion(IFormElement questionDef){
 		fieldHyperlink.setText(questionDef.getText());
-		itemSelectionListener.onItemSelected(this, questionDef);
+		itemSelectionListener.onItemSelected(this, questionDef, false);
 	}
 
 	private void selectFirstQuestion(){

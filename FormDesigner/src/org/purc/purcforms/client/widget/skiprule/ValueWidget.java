@@ -29,6 +29,7 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -141,7 +142,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			public void onClick(ClickEvent event){
 				setupFieldSelection();
 
-				conditionWidget.onConditionQtnValueToggleChanged(chkQuestionValue.getValue());
+				conditionWidget.onConditionQtnValueToggleChanged(!chkQuestionValue.getValue());
 			}
 		});
 
@@ -194,14 +195,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private void setupFieldSelection(){
 		if(chkQuestionValue.getValue() == true){
 			if(horizontalPanel.getWidgetIndex(txtValue1) > -1){
-				horizontalPanel.remove(txtValue1);
-				horizontalPanel.remove(chkQuestionValue);
-				setupPopup();
-				horizontalPanel.add(sgstField);
-				horizontalPanel.add(chkQuestionValue);
-				sgstField.setFocus(true);
-				sgstField.setFocus(true);
-				txtValue1.selectAll();
+				addFieldSelection();
 			}
 		}
 		else{
@@ -228,6 +222,17 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				txtValue1.selectAll();
 			}
 		}
+	}
+	
+	private void addFieldSelection(){
+		horizontalPanel.remove(txtValue1);
+		horizontalPanel.remove(chkQuestionValue);
+		setupPopup();
+		horizontalPanel.add(sgstField);
+		horizontalPanel.add(chkQuestionValue);
+		sgstField.setFocus(true);
+		sgstField.setFocus(true);
+		txtValue1.selectAll();
 	}
 
 	private void startEdit(){
@@ -682,8 +687,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		else
 			sValue = EMPTY_VALUE;
-
+		
 		valueHyperlink.setText(sValue);
+		
+		/*if(chkQuestionValue.getValue() && sValue.equals(EMPTY_VALUE)){
+			horizontalPanel.remove(valueHyperlink);
+			if(horizontalPanel.getWidgetIndex(sgstField) == -1)
+				addFieldSelection();
+		}	*/	
 	}
 
 	public void setFormDef(FormDef formDef){
@@ -740,6 +751,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	
 	public void setQtnToggleValue(boolean value){
 		chkQuestionValue.setValue(value);
+		startEdit();
 		setupFieldSelection();
 	}
 }

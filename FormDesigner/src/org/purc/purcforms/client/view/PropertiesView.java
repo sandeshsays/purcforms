@@ -1194,7 +1194,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender == btnDescTemplate){
 
 			item = "${" + item + "}$";

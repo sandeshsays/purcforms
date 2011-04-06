@@ -129,7 +129,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(java.lang.Object, java.lang.Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender == fieldWidget /*fieldHyperlink*/){
 			questionDef = (QuestionDef)item;
 			//operatorHyperlink.setDataType(questionDef.getDataType());

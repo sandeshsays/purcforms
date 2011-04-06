@@ -306,11 +306,35 @@ public class ValidationRulesView extends Composite implements IConditionControll
 			txtErrorMessage.setWidth(width - 700 + PurcConstants.UNITS);
 	}
 	
-	public void onItemSelected(Object sender, Object item){
+	public void onItemSelected(Object sender, Object item, boolean userAction){
 		
 	}
 
 	public void onStartItemSelection(Object sender){
 		assert(sender == groupHyperlink);
+	}
+	
+	public void onConditionOperatorChanged(ConditionWidget conditionWidget, int oldOperator){
+		
+	}
+	
+	public void onConditionValue1Changed(ConditionWidget conditionWidget, String oldValue){
+		
+	}
+	
+	public void onConditionValue2Changed(ConditionWidget conditionWidget, String oldValue){
+		
+	}
+	
+	public void onConditionQuestionChanged(ConditionWidget conditionWidget, QuestionDef oldQuestionDef){
+		
+	}
+	
+	public void onConditionQtnValueToggleChanged(ConditionWidget conditionWidget, boolean oldValue){
+		
+	}
+	
+	public void onConditionFunctionChanged(ConditionWidget conditionWidget){
+		
 	}
 }

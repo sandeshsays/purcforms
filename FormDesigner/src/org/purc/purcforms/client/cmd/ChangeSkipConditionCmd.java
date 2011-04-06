@@ -1,6 +1,8 @@
 package org.purc.purcforms.client.cmd;
 
 import org.purc.purcforms.client.locale.LocaleText;
+import org.purc.purcforms.client.model.Condition;
+import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
 import org.purc.purcforms.client.view.FormsTreeView;
 import org.purc.purcforms.client.view.SkipRulesView;
@@ -20,21 +22,21 @@ public class ChangeSkipConditionCmd implements ICommand {
 
 	public static final byte PROPERTY_QUESTION = 1;
 	public static final byte PROPERTY_OPERATOR = 2;
-	public static final byte PROPERTY_VALUE = 3;
-	public static final byte PROPERTY_QTN_VALUE_TOGGLE = 4;
+	public static final byte PROPERTY_VALUE1 = 3;
+	public static final byte PROPERTY_VALUE2 = 4;
+	public static final byte PROPERTY_QTN_VALUE_TOGGLE = 5;
 	
 	protected SkipRulesView view;
 	protected ConditionWidget widget;
 	protected FormsTreeView formsTreeView;
 	protected TreeItem item;
 	protected SkipRule skipRule;
-	protected int index;
+
+	protected Object oldValue;
+	protected byte property;
 	
-	private String oldValue;
-	private byte property;
 	
-	
-	public ChangeSkipConditionCmd(byte property, String oldValue, SkipRule skipRule, ConditionWidget widget, int index, SkipRulesView view, TreeItem item, FormsTreeView formsTreeView){
+	public ChangeSkipConditionCmd(byte property, Object oldValue, SkipRule skipRule, ConditionWidget widget, SkipRulesView view, TreeItem item, FormsTreeView formsTreeView){
 		this.property = property;
 		this.oldValue = oldValue;
 		this.skipRule = skipRule;
@@ -42,7 +44,6 @@ public class ChangeSkipConditionCmd implements ICommand {
 		this.view = view;
 		this.item = item;
 		this.formsTreeView = formsTreeView;
-		this.index = index;
 	}
 	
 	public String getName(){
@@ -73,7 +74,7 @@ public class ChangeSkipConditionCmd implements ICommand {
 		});
 	}
 	
-	private void setProperyValue(String value){
+	private void setProperyValue(Object value){
 		Object field = item.getUserObject();
 
 		switch(property){
@@ -83,8 +84,11 @@ public class ChangeSkipConditionCmd implements ICommand {
 		case PROPERTY_OPERATOR:
 			setOperator(field, value);
 			break;
-		case PROPERTY_VALUE:
-			setValue(field, value);
+		case PROPERTY_VALUE1:
+			setValue1(field, value);
+			break;
+		case PROPERTY_VALUE2:
+			setValue2(field, value);
 			break;
 		case PROPERTY_QTN_VALUE_TOGGLE:
 			setQtnToggleValue(field, value);
@@ -92,20 +96,43 @@ public class ChangeSkipConditionCmd implements ICommand {
 		}
 	}
 	
-	private void setQuestion(Object field, String value){
+	private void setQuestion(Object field, Object value){
+		Condition condition = widget.getExistingCondition();
+		oldValue = widget.getQuestionDef();
 		
+		QuestionDef questionDef = (QuestionDef)value;
+		condition.setQuestionId(questionDef.getId());
+		widget.setQuestionDef(questionDef);
+		view.setCondionQuestion(skipRule, condition, questionDef);
 	}
 	
-	private void setOperator(Object field, String value){
+	private void setOperator(Object field, Object value){
+		Condition condition = widget.getExistingCondition();
+		oldValue = condition.getOperator();
 		
+		condition.setOperator((Integer)value);
+		widget.setOperator(condition.getOperator());
+		view.setCondionOperator(skipRule, condition);
 	}
 
-	private void setValue(Object field, String value){
+	private void setValue1(Object field, Object value){
+		Condition condition = widget.getExistingCondition();
+		oldValue = condition.getValue();
 		
+		condition.setValue((String)value);
+		widget.setValue((String)value);
+		view.setConditionValue(skipRule, condition);
+	}
+	
+	private void setValue2(Object field, Object value){
+		setValue1(field, value); //TODO Just for now since between operator is not implemented.
 	}
 
-	private void setQtnToggleValue(Object field, String value){
+	private void setQtnToggleValue(Object field, Object value){
+		oldValue = !(Boolean)value;
 		
+		widget.setQtnToggleValue((Boolean)value);
+		view.setQtnToggleValue(skipRule, widget.getExistingCondition(), (Boolean)value);
 	}
 	
 	private String getFieldName(){
@@ -114,8 +141,10 @@ public class ChangeSkipConditionCmd implements ICommand {
 			return LocaleText.get("question");
 		case PROPERTY_OPERATOR:
 			return "Operator";
-		case PROPERTY_VALUE:
+		case PROPERTY_VALUE1:
 			return "Value";
+		case PROPERTY_VALUE2:
+			return "Second Value";
 		case PROPERTY_QTN_VALUE_TOGGLE:
 			return LocaleText.get("question") + " value toggle";
 		}
