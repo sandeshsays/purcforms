@@ -651,12 +651,15 @@ public class XformParser {
 		String parentName = ((Element)child.getParentNode()).getNodeName();
 		//if(!(parentName.equalsIgnoreCase(NODE_NAME_GROUP)||parentName.equalsIgnoreCase(NODE_NAME_GROUP_MINUS_PREFIX))){
 		if(!XmlUtil.nodeNameEquals(parentName,XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
-			if(formDef.getPageCount() < ++currentPageNo)
+			if(formDef.getPageCount() < pageNo){
 				formDef.addPage();
+			}
 			else if(questionDef != null){
 				NodeList nodes = child.getElementsByTagName(XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX);
 				if(nodes != null && nodes.getLength() > 0){
-					parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
+					//parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
+					//pass the current pageNo
+					parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,pageNo,parentQtn,constraints,orphanDynOptionQns);
 					return;
 				}
 					
@@ -666,7 +669,8 @@ public class XformParser {
 			}
 			formDef.setPageGroupNode((Element)child);
 		}
-		parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
+		//parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
+		parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,pageNo,parentQtn,constraints,orphanDynOptionQns);
 		
 		if(questionDef != null)
 			XformParser.currentPageNo = pageNo;
