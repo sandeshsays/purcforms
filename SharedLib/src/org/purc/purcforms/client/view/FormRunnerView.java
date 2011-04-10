@@ -190,6 +190,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private int externalSourceWidgetIndex = 0;
 
 	private boolean loaded = false;
+	
+	//Contains form definitions for each row of a repeat question starting from the second row.
+	//This is mostly because these repeat rows create copies of existing questions defs starting
+	//from the second row.
+	private List<FormDef> repeatQtnFormDefs = new ArrayList<FormDef>();
 
 
 	/**
@@ -1124,7 +1129,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * Checks all skip logic and does the appropriate action for the affected widgets.
 	 */
-	protected void fireSkipRules(){		
+	public void fireSkipRules(){		
 		Vector rules = formDef.getSkipRules();
 		if(rules != null){
 			for(int i=0; i<rules.size(); i++){
@@ -1132,6 +1137,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				rule.fire(formDef);
 			}
 		}
+		
+		fireRepeatQtnSkipRules();
 	}
 
 	protected void doCalculations(){		
@@ -1916,4 +1923,27 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			}
 		}
 	}*/
+	
+	public void addRepeatQtnFormDef(FormDef formDef){
+		repeatQtnFormDefs.add(formDef);
+	}
+	
+	public void removeRepeatQtnFormDef(FormDef formDef){
+		repeatQtnFormDefs.remove(formDef);
+	}
+	
+	public void fireRepeatQtnSkipRules(){
+		for(FormDef formDef : repeatQtnFormDefs)
+			fireFormDefSkipRules(formDef);
+	}
+	
+	private void fireFormDefSkipRules(FormDef formDef){
+		Vector rules = formDef.getSkipRules();
+		if(rules != null){
+			for(int i=0; i<rules.size(); i++){
+				SkipRule rule = (SkipRule)rules.elementAt(i);
+				rule.fire(formDef);
+			}
+		}
+	}
 }

@@ -3,14 +3,17 @@ package org.purc.purcforms.client.widget;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import org.purc.purcforms.client.controller.OpenFileDialogEventListener;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
 import org.purc.purcforms.client.locale.LocaleText;
+import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.RepeatQtnsDef;
+import org.purc.purcforms.client.model.SkipRule;
 import org.purc.purcforms.client.model.ValidationRule;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.FormRunnerView;
@@ -84,6 +87,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	 */
 	protected HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap = new HashMap<QuestionDef,RuntimeWidgetWrapper>();
 
+	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
+	
 
 	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, boolean isRepeated){
 		this.images = images;
@@ -213,7 +218,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 	}
 
-	private void addDeleteButton(int row){
+	private PushButton addDeleteButton(int row){
 		PushButton btn = new PushButton(LocaleText.get("deleteItem"));
 		btn.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
@@ -221,6 +226,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		});
 		table.setWidget(row, widgets.size(), btn);
+		
+		return btn;
 	}
 
 
@@ -243,12 +250,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				if(btnAdd != null)
 					btnAdd.setEnabled(true);
 
-				editListener.onRowRemoved(wrapper,y-getHeightInt());
+				editListener.onRowRemoved(wrapper, y-getHeightInt());
 
 				RuntimeWidgetWrapper parent = (RuntimeWidgetWrapper)getParent().getParent();
 				ValidationRule validationRule = parent.getValidationRule();
 				if(validationRule != null)
 					parent.getQuestionDef().setAnswer(table.getRowCount()+"");
+				
+				List<FormDef> forms = repeatRowFormMap.get(sender);
+				for(FormDef formDef : forms)
+					((FormRunnerView)editListener).removeRepeatQtnFormDef(formDef);
 			}
 		}
 	}
@@ -764,6 +775,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		Element newRepeatDataNode = null;
 		String parentRptBinding = null;
 		int row = table.getRowCount();
+		
+		List<Integer> qtnIds = new ArrayList<Integer>();
+		List<QuestionDef> qtns = new ArrayList<QuestionDef>();
+		
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
 			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);			
@@ -807,9 +822,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				}
 				widget.addChildWidget(copyWidget);
 			}
+			
+			copyWidget.getQuestionDef().addChangeListener(copyWidget);
+			qtnIds.add(copyWidget.getQuestionDef().getId());
+			qtns.add(copyWidget.getQuestionDef());
 		}
 
-		addDeleteButton(row);
+		PushButton deleteButton = addDeleteButton(row);
+		copySkipRules(qtnIds, qtns, deleteButton);
 
 		btnAdd = (Button)sender;
 		RuntimeWidgetWrapper parent = (RuntimeWidgetWrapper)getParent().getParent();
@@ -1053,6 +1073,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			for(int col = 0; col < table.getCellCount(0)-1; col++)
 				((RuntimeWidgetWrapper)table.getWidget(0, col)).clearValue();
+			
+			((FormRunnerView)editListener).fireSkipRules();
 		}
 		else{
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++)
@@ -1254,4 +1276,38 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			workonDefaults(child);
 		}
 	}*/
+	
+	public void copySkipRules(List<Integer> qtnIds, List<QuestionDef> qtns, PushButton deleteButton){
+		List<FormDef> forms = new ArrayList<FormDef>();
+		
+		Vector rules = formDef.getSkipRules();
+		if(rules != null){
+			for(int i=0; i<rules.size(); i++){
+				SkipRule rule = (SkipRule)rules.elementAt(i);
+				
+				for(int k = 0; k < rule.getConditionCount(); k++){
+					Condition condition = rule.getConditionAt(k);
+					if(qtnIds.contains(condition.getQuestionId())){
+						SkipRule skipRule = new SkipRule(rule);	
+						FormDef formDef = new FormDef();
+						formDef.addSkipRule(skipRule);
+						forms.add(formDef);
+						
+						for(QuestionDef qtn : qtns)
+							formDef.addQuestion(qtn);
+						
+						skipRule.fire(formDef);
+						
+						break;
+					}
+				}
+			}
+		}
+		
+		for(FormDef form : forms)
+			((FormRunnerView)editListener).addRepeatQtnFormDef(form);
+		
+		if(forms.size() > 0)
+			repeatRowFormMap.put(deleteButton, forms);
+	}
 }
