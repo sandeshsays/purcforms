@@ -60,7 +60,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 	private int function = ModelConstants.FUNCTION_VALUE;
 
 	/** Flag determining whether we should allow field selection for the condition.
-	 *  Skip rule conditions have filed selection while validation rules normally
+	 *  Skip rule conditions have field selection while validation rules normally
 	 *  just have values. eg skip rule (have allowFieldSelection = true) may be Current Pregnancy question is skipped 
 	 *  when Sex field = Male, while validation (have allowFieldSelection = false) for the current say Weight question
 	 *  is valid when Value > 0
@@ -151,12 +151,13 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 
 		}
 		else if(sender == funcHyperlink){
+			int oldValue = function;
 			function = ((Integer)item).intValue();
 			valueWidget.setFunction(function);
 			setOperatorDataType(questionDef);
 			//operatorHyperlink.setDataType(function == ModelConstants.FUNCTION_LENGTH ? QuestionDef.QTN_TYPE_NUMERIC : questionDef.getDataType());
 			
-			view.onConditionFunctionChanged(this);
+			view.onConditionFunctionChanged(this, oldValue);
 		}
 		else if(sender == valueWidget){
 			
@@ -168,7 +169,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 	 */
 	public void onStartItemSelection(Object sender){
 		if(sender != valueWidget)
-			valueWidget.stopEdit(false, true); //Temporary hack to turn off edits when focus goes off the edit widget
+			valueWidget.stopEdit(true /*false*/, true); //Temporary hack to turn off edits when focus goes off the edit widget
 
 		if(allowFieldSelection && sender != fieldWidget)
 			fieldWidget.stopSelection();
@@ -292,8 +293,19 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 		valueWidget.setOperator(operator);
 	}
 	
+	public void setFunction(int function){
+		this.function = function;
+		funcHyperlink.setFunction(function);
+		valueWidget.setFunction(function);
+		setOperatorDataType(questionDef);
+	}
+	
 	public void setValue(String value){
 		valueWidget.setValue(value);
+	}
+	
+	public void restoreConditionValue(String value){
+		condition.setValue(value);
 	}
 	
 	public void onConditionValue1Changed(String oldValue){

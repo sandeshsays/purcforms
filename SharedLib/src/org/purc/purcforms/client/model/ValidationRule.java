@@ -36,7 +36,7 @@ public class ValidationRule implements Serializable{
 	private String errorMessage;
 	
 	/** Operator for combining more than one condition. (And, Or) only these two for now. */
-	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_NULL;
+	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_AND;
 	
 	/** The form to which the validation rule belongs. */
 	private FormDef formDef;

@@ -29,7 +29,6 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -81,6 +80,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private QuestionDef parentQuestionDef;
 
 	private ConditionWidget conditionWidget;
+	
+	private String preNonNumericValue;
+	
 
 	public ValueWidget(ConditionWidget conditionWidget){
 		this.conditionWidget = conditionWidget;
@@ -112,8 +114,28 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	}
 
 	public void setFunction(int function){
-		if(this.function != function)
-			valueHyperlink.setText(EMPTY_VALUE);
+		if(this.function != function){
+			
+			//If we are setting to a function length and the existing value is not a number,
+			//the just blank it out.
+			if(function == ModelConstants.FUNCTION_LENGTH){
+				try{
+					Integer.parseInt(valueHyperlink.getText());
+					preNonNumericValue = null;
+				}
+				catch(NumberFormatException ex){
+					preNonNumericValue = valueHyperlink.getText();
+					valueHyperlink.setText(EMPTY_VALUE);
+					conditionWidget.restoreConditionValue(EMPTY_VALUE);
+				}
+			}
+			else if(preNonNumericValue != null){
+				valueHyperlink.setText(preNonNumericValue);
+				conditionWidget.restoreConditionValue(preNonNumericValue);
+				preNonNumericValue = null;
+			}
+		}
+
 		this.function = function;
 	}
 
@@ -223,7 +245,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			}
 		}
 	}
-	
+
 	private void addFieldSelection(){
 		horizontalPanel.remove(txtValue1);
 		horizontalPanel.remove(chkQuestionValue);
@@ -494,7 +516,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			String oldValue = valueHyperlink.getText();
 			if(!val.equals(oldValue)){
 				valueHyperlink.setText(val);
-				
+
 				if(value1)
 					conditionWidget.onConditionValue1Changed(oldValue);
 				else
@@ -513,17 +535,17 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender instanceof SelectItemCommand){
 			popup.hide();
-			
+
 			String oldValue = valueHyperlink.getText();;
 			String value = oldValue;
-			
+
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
 				value = ((OptionDef)item).getText();
 			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
 				value = (String)item;
-			
+
 			if(!value.equals(oldValue)){
 				valueHyperlink.setText(value);
 				conditionWidget.onConditionValue1Changed(oldValue);
@@ -538,12 +560,12 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	public void onClose(CloseEvent event){
 		String value = "";
 		VerticalPanel panel = null; //(VerticalPanel)popup.getWidget();
-		
+
 		if(popup.getWidget() instanceof ScrollPanel)
 			panel = (VerticalPanel)((ScrollPanel)popup.getWidget()).getWidget();
 		else
 			panel = (VerticalPanel)popup.getWidget();
-		
+
 		int count = panel.getWidgetCount();
 		for(int i=0; i<count; i++){
 			CheckBox checkbox = (CheckBox)panel.getWidget(i);
@@ -555,9 +577,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		if(value.length() == 0)
 			value = EMPTY_VALUE;
-		
+
 		//valueHyperlink.setText(value);
-		
+
 		String oldValue = valueHyperlink.getText();
 		if(!value.equals(oldValue)){
 			valueHyperlink.setText(value);
@@ -687,9 +709,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		else
 			sValue = EMPTY_VALUE;
-		
+
 		valueHyperlink.setText(sValue);
-		
+
 		/*if(chkQuestionValue.getValue() && sValue.equals(EMPTY_VALUE)){
 			horizontalPanel.remove(valueHyperlink);
 			if(horizontalPanel.getWidgetIndex(sgstField) == -1)
@@ -748,7 +770,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	public void setParentQuestionDef(QuestionDef questionDef){
 		this.parentQuestionDef = questionDef;
 	}
-	
+
 	public void setQtnToggleValue(boolean value){
 		chkQuestionValue.setValue(value);
 		startEdit();

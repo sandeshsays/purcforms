@@ -97,8 +97,12 @@ public class RelevantBuilder {
 		QuestionDef questionDef = formDef.getQuestion(condition.getQuestionId());
 		if(questionDef != null){
 			relevant = questionDef.getBinding();
-			if(!relevant.contains(formDef.getBinding()))
-				relevant = "/" + formDef.getBinding() + "/" + questionDef.getBinding();
+			if(!relevant.contains(formDef.getBinding())){
+				if(questionDef.getParent() != null && questionDef.getParent() instanceof QuestionDef)
+					relevant = "/" + formDef.getBinding() + "/" + ((QuestionDef)questionDef.getParent()).getBinding() + "/" + questionDef.getBinding();
+				else
+					relevant = "/" + formDef.getBinding() + "/" + questionDef.getBinding();
+			}
 
 			String value = " '" + condition.getValue() + "'";
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC)

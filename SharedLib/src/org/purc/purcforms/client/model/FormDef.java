@@ -91,7 +91,7 @@ public class FormDef implements Serializable{
 
 	/** The language xml for this form. */
 	private String languageXml;
-	
+
 	/** The xpath expression pointing to the corresponding node in the xforms document. */
 	private String xpathExpression;
 
@@ -170,7 +170,7 @@ public class FormDef implements Serializable{
 		setDescriptionTemplate((descTemplate == null) ? ModelConstants.EMPTY_STRING : descTemplate);
 		setCalculations(calculations);
 	}
-	
+
 	public void addPage(PageDef pageDef){
 		addPage(pageDef, null);
 	}
@@ -188,7 +188,7 @@ public class FormDef implements Serializable{
 			pages.add(pageDef);
 		else
 			pages.add(pages.indexOf(refPageDef) + 1, pageDef);
-		
+
 		pageDef.setParent(this);
 	}
 
@@ -394,9 +394,11 @@ public class FormDef implements Serializable{
 		for(int i=0; i<skipRules.size(); i++){
 			SkipRule rule = (SkipRule)skipRules.elementAt(i);
 			Vector targets = rule.getActionTargets();
-			for(int j=0; j<targets.size(); j++){
-				if(((Integer)targets.elementAt(j)).intValue() == questionDef.getId())
-					return rule;
+			if(targets != null){
+				for(int j=0; j<targets.size(); j++){
+					if(((Integer)targets.elementAt(j)).intValue() == questionDef.getId())
+						return rule;
+				}
 			}
 		}
 
@@ -441,12 +443,12 @@ public class FormDef implements Serializable{
 	 * @param withData set to true if you want question answers to also be saved as part of the xform.
 	 */
 	public void updateDoc(boolean withData){
-		
+
 		//JR prefix may not have been set and we try set the jr:constraintMessage during
 		//validation rule update, which will throw exceptions.
 		if(FormUtil.isJavaRosaSaveFormat())
 			doc.getDocumentElement().setAttribute("xmlns:jr", "http://openrosa.org/javarosa");
-		
+
 		dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NAME, name);
 
 		//TODO Check that this comment out does not introduce bugs
@@ -530,7 +532,7 @@ public class FormDef implements Serializable{
 							node.getParentNode().removeChild(node);
 						else
 							node.getParentNode().getParentNode().removeChild(node.getParentNode());
-						
+
 						childQuestionDef.setFirstOptionNode(null);
 					}
 
@@ -1392,22 +1394,22 @@ public class FormDef implements Serializable{
 		if(dataNode != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 			String xpath = FormUtil.getNodePath(dataNode)+"[@name]";
-			
+
 			if(FormUtil.isJavaRosaSaveFormat() && xpath.startsWith("model[@id='"))
 				xpath = "html/head/" + xpath;
-			
+
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
-			
+
 			//Store the old xpath expression for localization processing which identifies us by the previous value.
 			if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
 				changedXpaths.put(this.xpathExpression, xpath);
 			}
 			this.xpathExpression = xpath;
-			
+
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
 			rootNode.appendChild(node);
-			
+
 			if(FormUtil.isJavaRosaSaveFormat()){
 				node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, "html/head/title");

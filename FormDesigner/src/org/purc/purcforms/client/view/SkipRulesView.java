@@ -259,9 +259,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			skipRule.addCondition(conditionWidget.getCondition());
 			setAction(skipRule.getAction());
 
-			if(storeHistory){
+			if(storeHistory)
 				Context.getCommandHistory().add(new InsertSkipConditionCmd(skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener, skpRule == null));
-			}
 			else
 				propertiesView.selectSkipRulesTab();
 		}
@@ -613,15 +612,21 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	public void setAction(SkipRule skipRule){
 		this.skipRule = skipRule;
 		setAction(skipRule.getAction());
+		
+		propertiesView.selectSkipRulesTab();
 	}
 
 	public void setCondionsOperator(SkipRule skipRule){
 		this.skipRule = skipRule;
 		groupHyperlink.setCondionsOperator(skipRule.getConditionsOperator());
+		
+		propertiesView.selectSkipRulesTab();
 	}
 
 	public void setActionTargets(SkipRule skipRule){
 		this.skipRule = skipRule;
+		
+		propertiesView.selectSkipRulesTab();
 	}
 
 	public void onItemSelected(Object sender, Object item, boolean userAction){
@@ -633,7 +638,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		int oldValue = skipRule.getConditionsOperator();
 		skipRule.setConditionsOperator(groupHyperlink.getConditionsOperator());
 
-		Context.getCommandHistory().add(new ChangeSkipRuleCmd(ChangeSkipRuleCmd.PROPERTY_CONDITIONS_OPERATOR, oldValue, skipRule, this, treeItem, (FormsTreeView)formChangeListener));
+		if(oldValue != skipRule.getConditionsOperator())
+			Context.getCommandHistory().add(new ChangeSkipRuleCmd(ChangeSkipRuleCmd.PROPERTY_CONDITIONS_OPERATOR, oldValue, skipRule, this, treeItem, (FormsTreeView)formChangeListener));
 	}
 
 	public void onStartItemSelection(Object sender){
@@ -646,6 +652,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		int index = getConditionIndex(condition);
 		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
 		widget.setOperator(condition.getOperator());
+		
+		propertiesView.selectSkipRulesTab();
 	}
 	
 	public void setCondionQuestion(SkipRule skipRule, Condition condition, QuestionDef questionDef){
@@ -654,6 +662,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		int index = getConditionIndex(condition);
 		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
 		widget.setQuestionDef(questionDef);
+		
+		propertiesView.selectSkipRulesTab();
 	}
 	
 	public void setConditionValue(SkipRule skipRule, Condition condition){
@@ -662,6 +672,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		int index = getConditionIndex(condition);
 		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
 		widget.setValue(condition.getValue());
+		
+		propertiesView.selectSkipRulesTab();
 	}
 	
 	public void setQtnToggleValue(SkipRule skipRule, Condition condition, boolean value){
@@ -670,6 +682,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		int index = getConditionIndex(condition);
 		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
 		widget.setQtnToggleValue(value);
+		
+		propertiesView.selectSkipRulesTab();
 	}
 	
 	public void onConditionOperatorChanged(ConditionWidget conditionWidget, int oldOperator){
@@ -692,7 +706,7 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_QTN_VALUE_TOGGLE, oldValue, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));
 	}
 	
-	public void onConditionFunctionChanged(ConditionWidget conditionWidget){
-		
+	public void onConditionFunctionChanged(ConditionWidget conditionWidget, int oldFunction){
+		//Note implemented for skip rules.
 	}
 }

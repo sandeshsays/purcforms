@@ -162,10 +162,10 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private SkipRulesView skipRulesView = new SkipRulesView(this);
 
 	/** Widget for defining validation rules. */
-	private ValidationRulesView validationRulesView = new ValidationRulesView();
+	private ValidationRulesView validationRulesView = new ValidationRulesView(this);
 
 	/** Widget for defining dynamic selection lists. */
-	private DynamicListsView dynamicListsView = new DynamicListsView();
+	private DynamicListsView dynamicListsView = new DynamicListsView(this);
 
 	/** Listener to form action events. */
 	private IFormActionListener formActionListener;
@@ -830,6 +830,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		if(deleteKids)
 			formChangeListener.onDeleteChildren(propertiesObj);
+		
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
+			selectDynamicListsTab();
 	}
 	
 	private int getSelectedDataType(){
@@ -915,6 +918,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	public void setFormChangeListener(IFormChangeListener formChangeListener){
 		this.formChangeListener = formChangeListener;
 		skipRulesView.setFormChangeListener(formChangeListener);
+		validationRulesView.setFormChangeListener(formChangeListener);
+		dynamicListsView.setFormChangeListener(formChangeListener);
 	}
 
 	/**
@@ -1132,6 +1137,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	public void onFormItemSelected(Object formItem, TreeItem treeItem) {
 		propertiesObj = formItem;
 		skipRulesView.onFormItemSelected(treeItem);
+		validationRulesView.onFormItemSelected(treeItem);
+		dynamicListsView.onFormItemSelected(treeItem);
 
 		clearProperties();
 

@@ -35,5 +35,5 @@ public interface IConditionController {
 	public void onConditionValue2Changed(ConditionWidget conditionWidget, String oldValue);
 	public void onConditionQuestionChanged(ConditionWidget conditionWidget, QuestionDef oldQuestionDef);
 	public void onConditionQtnValueToggleChanged(ConditionWidget conditionWidget, boolean oldValue);
-	public void onConditionFunctionChanged(ConditionWidget conditionWidget);
+	public void onConditionFunctionChanged(ConditionWidget conditionWidget, int oldFunction);
 }
