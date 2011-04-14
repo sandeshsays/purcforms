@@ -275,19 +275,19 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					}
 				});
 			}
-			
+
 			((TextBox)widget).addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event){
 					((TextBox)widget).selectAll();
 				}
 			});
-			
+
 			((TextBox)widget).addFocusHandler(new FocusHandler(){
 				public void onFocus(FocusEvent event){
 					((TextBox)widget).selectAll();
 				}
 			});
-	
+
 			addSuggestBoxChangeEvent();
 		}
 		else{
@@ -479,9 +479,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			listBox.setSelectedIndex(0);
 
 			if(defaultValue != null){
-				if(defaultValue.equalsIgnoreCase(QuestionDef.TRUE_VALUE))
+				if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE))
 					listBox.setSelectedIndex(1);
-				else if(defaultValue.equalsIgnoreCase(QuestionDef.FALSE_VALUE))
+				else if(defaultValue.trim().equalsIgnoreCase(QuestionDef.FALSE_VALUE))
 					listBox.setSelectedIndex(2);
 			}
 		}
@@ -501,6 +501,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				((DateTimeWidget)widget).setText(defaultValue);
 			}
 		}
+		else if(type == QuestionDef.QTN_TYPE_BOOLEAN && defaultValue != null 
+				&& defaultValue.trim().length() > 0 && binding != null 
+				&& binding.trim().length() > 0 && widget instanceof CheckBox){
+			
+			if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE))
+				((CheckBox)widget).setValue(true);
+		}
 
 
 		if(widget instanceof TextBoxBase){
@@ -517,16 +524,16 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						defaultValue = questionDef.getDefaultValueDisplay();
 					else if(defaultValue.trim().length() > 0 && questionDef.isDate())
 						defaultValue = fromSubmit2DisplayDate(defaultValue);
-					
+
 					if(defaultValue != null && type == QuestionDef.QTN_TYPE_NUMERIC){
 						int pos = defaultValue.indexOf('.');
 						if(pos > 0)
 							defaultValue = defaultValue.substring(0, pos);
 					}
-					
+
 					if(defaultValue != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL)
 						defaultValue = defaultValue.replace(FormUtil.SAVE_DECIMAL_SEPARATOR, FormUtil.getDecimalSeparator());	
-					
+
 					((TextBoxBase)widget).setText(defaultValue);
 
 					setExternalSourceDisplayValue();
@@ -884,17 +891,27 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			questionDef.setAnswer(value);
 		}
 		else if(widget instanceof CheckBox){
-			if(questionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_MULTIPLE || childWidgets == null)
+			if(childWidgets == null || !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
+					questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)){
 				return;
+			}
 
 			String value = "";
-			for(int index=0; index < childWidgets.size(); index++){
-				RuntimeWidgetWrapper childWidget = childWidgets.get(index);
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+				RuntimeWidgetWrapper childWidget = childWidgets.get(0);
 				String binding = childWidget.getBinding();
-				if(((CheckBox)((RuntimeWidgetWrapper)childWidget).getWrappedWidget()).getValue() == true && binding != null){
-					if(value.length() != 0)
-						value += " ";
-					value += binding;
+				if(binding != null)
+					value = (((CheckBox)((RuntimeWidgetWrapper)childWidget).getWrappedWidget()).getValue() == true) ? QuestionDef.TRUE_VALUE : QuestionDef.FALSE_VALUE;
+			}
+			else{
+				for(int index=0; index < childWidgets.size(); index++){
+					RuntimeWidgetWrapper childWidget = childWidgets.get(index);
+					String binding = childWidget.getBinding();
+					if(((CheckBox)((RuntimeWidgetWrapper)childWidget).getWrappedWidget()).getValue() == true && binding != null){
+						if(value.length() != 0)
+							value += " ";
+						value += binding;
+					}
 				}
 			}
 
@@ -1139,7 +1156,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		if(questionDef != null){
 			questionDef.setAnswer(null);
-			
+
 			//Clear value for external source widgets.
 			if(panel.getWidgetCount() == 2)
 				panel.remove(1);

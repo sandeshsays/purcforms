@@ -496,7 +496,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(parentBindingWidgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentBindingWrapper(widget,parentBinding);
+			parentWrapper = getParentBindingWrapper(widget, binding, parentBinding);
 			((RadioButton)widget).setTabIndex(tabIndex);
 
 			if(wrapperSet){
@@ -509,17 +509,21 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(parentBindingWidgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentBindingWrapper(widget,parentBinding);
-			((CheckBox)widget).setTabIndex(tabIndex);
-
-			String defaultValue = parentWrapper.getQuestionDef().getDefaultValue();
-			if(defaultValue != null && defaultValue.contains(binding))
-				((CheckBox)widget).setValue(true);
-
-			if(wrapperSet){
-				wrapper = parentWrapper;
-				questionDef = formDef.getQuestion(parentBinding);
+			parentWrapper = getParentBindingWrapper(widget, binding, parentBinding);
+			if(parentWrapper != null){
+				((CheckBox)widget).setTabIndex(tabIndex);
+	
+				String defaultValue = parentWrapper.getQuestionDef().getDefaultValue();
+				if(defaultValue != null && defaultValue.contains(binding))
+					((CheckBox)widget).setValue(true);
+	
+				if(wrapperSet){
+					wrapper = parentWrapper;
+					questionDef = formDef.getQuestion(parentBinding);
+				}
 			}
+			else
+				wrapperSet = false;
 
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_BUTTON)){
@@ -803,7 +807,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * @param parentBinding the parent binding value.
 	 * @return the widget that has the same parent binding.
 	 */
-	protected RuntimeWidgetWrapper getParentBindingWrapper(Widget widget, String parentBinding){
+	protected RuntimeWidgetWrapper getParentBindingWrapper(Widget widget, String binding, String parentBinding){
 		RuntimeWidgetWrapper parentWrapper = parentBindingWidgetMap.get(parentBinding);
 		if(parentWrapper == null){
 			QuestionDef qtn = formDef.getQuestion(parentBinding);
@@ -820,6 +824,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		else
 			checkBoxGroupMap.get(parentWrapper.getQuestionDef()).add((CheckBox)widget);
+		
+		//Update widget with default value for boolean questions.
+		QuestionDef questionDef = parentWrapper.getQuestionDef();
+		if(questionDef != null && questionDef.getDefaultValue() != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+			if(questionDef.getDefaultValue().trim().equals(binding))
+				((CheckBox)widget).setValue(true);
+		}
 
 		return parentWrapper;
 	}

@@ -1319,6 +1319,11 @@ public class QuestionDef implements Serializable{
 		return -1;
 	}
 
+	/**
+	 * Updates this questionDef's options (as the main) with the parameter one (which is the old)
+	 * 
+	 * @param questionDef the old question before the refresh
+	 */
 	private void refreshOptions(QuestionDef questionDef){
 		List options2 = questionDef.getOptions();
 		if(options == null || options2 == null)
@@ -1338,6 +1343,24 @@ public class QuestionDef implements Serializable{
 			optionDef.setText(optn.getText());
 
 			orderedOptns.add(optionDef); //add the option in the order it was before the refresh.
+			
+			
+			//Preserve the previous option ordering even in the xforms document nodes.
+			int newIndex = ((List)options).indexOf(optionDef);
+			if(index != newIndex){
+				if(newIndex < index){
+					while(newIndex < index){
+						moveOptionDown(optionDef);
+						newIndex++;
+					}
+				}
+				else{
+					while(newIndex > index){
+						moveOptionUp(optionDef);
+						newIndex--;
+					}
+				}
+			}
 
 			/*int index1 = this.getOptionIndex(optn.getVariableName());
 			if(index != index1 && index1 != -1 && index < this.getOptionCount() - 1){
