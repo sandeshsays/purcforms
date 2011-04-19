@@ -185,7 +185,7 @@ public class FormUtil {
 
 				if( keyCode == '%' || keyCode == '&' || keyCode == '(')
 					((TextBox) event.getSource()).cancelKey();
-
+				
 				if ((!Character.isDigit(keyCode)) && (keyCode != (char) KeyCodes.KEY_TAB)
 						&& (keyCode != (char) KeyCodes.KEY_BACKSPACE) && (keyCode != (char) KeyCodes.KEY_LEFT)
 						&& (keyCode != (char) KeyCodes.KEY_UP) && (keyCode != (char) KeyCodes.KEY_RIGHT)
@@ -201,14 +201,15 @@ public class FormUtil {
 							return;
 					}
 
-					//Allow backspace, delete and arrow keys
-					if(String.valueOf(keyCode).trim().length() > 0)
+					//Allow backspace, delete, tab and arrow keys, which are = 0
+					if((int)keyCode > 0)
 						((TextBox) event.getSource()).cancelKey();
 				}
 				else if(!Character.isDigit(keyCode)){
 					String decimalSepChar = getDecimalSeparator();
 					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
 						return;
+					
 					((TextBox) event.getSource()).cancelKey();
 				}
 			}
@@ -253,14 +254,15 @@ public class FormUtil {
 					if((text.length() == 0 && keyCode == '-') || (keyCode == '-' && ((TextBox)event.getSource()).getCursorPos() == 0))
 						return;
 
-					//Allow backspace, delete and arrow keys
-					if(String.valueOf(keyCode).trim().length() > 0)
+					//Allow backspace, delete, tab and arrow keys, which are = 0
+					if((int)keyCode > 0)
 						((TextBox) event.getSource()).cancelKey();
 				}
 				else if(!Character.isDigit(keyCode)){
 					String decimalSepChar = getDecimalSeparator();
 					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
 						return;
+					
 					((TextBox) event.getSource()).cancelKey();
 				}
 			}

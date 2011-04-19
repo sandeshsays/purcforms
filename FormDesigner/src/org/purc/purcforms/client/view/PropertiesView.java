@@ -679,7 +679,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				code == KeyCodes.KEY_HOME || code == KeyCodes.KEY_LEFT ||
 				code == KeyCodes.KEY_PAGEDOWN || code == KeyCodes.KEY_PAGEUP ||
 				code == KeyCodes.KEY_RIGHT || code == KeyCodes.KEY_SHIFT ||
-				code == KeyCodes.KEY_TAB || code == KeyCodes.KEY_UP);
+				code == KeyCodes.KEY_TAB || code == KeyCodes.KEY_UP ||
+				code == 0);
 	}
 
 	/**
