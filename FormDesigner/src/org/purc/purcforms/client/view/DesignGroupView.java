@@ -1624,7 +1624,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			String beforeChangeText = editWidget.getText();
 
 			String text = txtEdit.getText();
-			if(text.trim().length() > 0)
+			if((text.trim().length() > 0 && editWidget.getWrappedWidget() instanceof Label) || !(editWidget.getWrappedWidget() instanceof Label))
 				editWidget.setText(text);
 
 			Context.getCommandHistory().add(new ChangeWidgetCmd(editWidget, ChangeWidgetCmd.PROPERTY_TEXT, beforeChangeText, this));

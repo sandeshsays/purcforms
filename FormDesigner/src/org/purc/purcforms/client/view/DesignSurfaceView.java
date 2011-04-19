@@ -703,7 +703,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			//Without this, widgets in this box cant use Ctrl + A in edit mode and also
 			//edited text is not automatically selected.
-			wrapper.removeStyleName("dragdrop-handle");
+			
+			//The line below has been purposely commented out because it makes label widgets get selected
+			//when one drags a rubber band - a behavior that is very annoying.
+			//wrapper.removeStyleName("dragdrop-handle");
 		}
 
 		panel.add(wrapper);
