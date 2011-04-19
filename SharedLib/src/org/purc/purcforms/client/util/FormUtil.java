@@ -201,7 +201,15 @@ public class FormUtil {
 							return;
 					}
 
-					((TextBox) event.getSource()).cancelKey(); 
+					//Allow backspace, delete and arrow keys
+					if(String.valueOf(keyCode).trim().length() > 0)
+						((TextBox) event.getSource()).cancelKey();
+				}
+				else if(!Character.isDigit(keyCode)){
+					String decimalSepChar = getDecimalSeparator();
+					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+						return;
+					((TextBox) event.getSource()).cancelKey();
 				}
 			}
 		});
@@ -245,7 +253,15 @@ public class FormUtil {
 					if((text.length() == 0 && keyCode == '-') || (keyCode == '-' && ((TextBox)event.getSource()).getCursorPos() == 0))
 						return;
 
-					((TextBox) event.getSource()).cancelKey(); 
+					//Allow backspace, delete and arrow keys
+					if(String.valueOf(keyCode).trim().length() > 0)
+						((TextBox) event.getSource()).cancelKey();
+				}
+				else if(!Character.isDigit(keyCode)){
+					String decimalSepChar = getDecimalSeparator();
+					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+						return;
+					((TextBox) event.getSource()).cancelKey();
 				}
 			}
 		};
