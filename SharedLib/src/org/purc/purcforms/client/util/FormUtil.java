@@ -192,25 +192,37 @@ public class FormUtil {
 						&& (keyCode != (char) KeyCodes.KEY_DOWN ) && (keyCode != (char) KeyCodes.KEY_DELETE)) {
 
 					String decimalSepChar = getDecimalSeparator();
-					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
-						return;
-
+					if(keyCode == decimalSepChar.charAt(0)) {
+						if(allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+							return;
+						else
+							((TextBox) event.getSource()).cancelKey();
+					}
+					
 					String text = ((TextBox) event.getSource()).getText().trim();
 					if(keyCode == '-'){
 						if(text.length() == 0 || ((TextBox)event.getSource()).getCursorPos() == 0)
 							return;
 					}
-
+					
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if((int)keyCode > 0)
+					if(!isControlChar(keyCode))
 						((TextBox) event.getSource()).cancelKey();
 				}
 				else if(!Character.isDigit(keyCode)){
 					String decimalSepChar = getDecimalSeparator();
-					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
-						return;
+					if(keyCode == decimalSepChar.charAt(0)) {
+						if(allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+							return;
+						else
+							((TextBox) event.getSource()).cancelKey();
+					}
+						
 					
-					((TextBox) event.getSource()).cancelKey();
+					//TODO Why does runtime mode reach here for these special keys yet preview mode does not?
+					//Allow backspace, delete, tab and arrow keys, which are = 0
+					if(!isControlChar(keyCode))
+						((TextBox) event.getSource()).cancelKey();
 				}
 			}
 		});
@@ -237,7 +249,7 @@ public class FormUtil {
 		return new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				char keyCode = event.getCharCode();
-
+				
 				if( keyCode == '%' || keyCode == '&' || keyCode == '(')
 					((TextBox) event.getSource()).cancelKey();
 
@@ -247,23 +259,34 @@ public class FormUtil {
 						&& (keyCode != (char) KeyCodes.KEY_DOWN) && (keyCode != (char) KeyCodes.KEY_DELETE)) {
 
 					String decimalSepChar = getDecimalSeparator();
-					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
-						return;
+					if(keyCode == decimalSepChar.charAt(0)) {
+						if(allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+							return;
+						else
+							((TextBox) event.getSource()).cancelKey();
+					}
 
 					String text = ((TextBox) event.getSource()).getText().trim();
 					if((text.length() == 0 && keyCode == '-') || (keyCode == '-' && ((TextBox)event.getSource()).getCursorPos() == 0))
 						return;
 
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if((int)keyCode > 0)
+					if(!isControlChar(keyCode))
 						((TextBox) event.getSource()).cancelKey();
 				}
 				else if(!Character.isDigit(keyCode)){
 					String decimalSepChar = getDecimalSeparator();
-					if(keyCode == decimalSepChar.charAt(0) && allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
-						return;
+					if(keyCode == decimalSepChar.charAt(0)) {
+						if(allowDecimalPoints && !((TextBox)event.getSource()).getText().contains(decimalSepChar))
+							return;
+						else
+							((TextBox) event.getSource()).cancelKey();
+					}
 					
-					((TextBox) event.getSource()).cancelKey();
+					//TODO Why does runtime mode reach here for these special keys yet preview mode does not?
+					//Allow backspace, delete, tab and arrow keys, which are = 0
+					if(!isControlChar(keyCode))
+						((TextBox) event.getSource()).cancelKey();
 				}
 			}
 		};
@@ -1321,5 +1344,23 @@ public class FormUtil {
 
 		// return token
 		return token.trim();
+	}
+	
+	/**
+	 * Check if a character is a control character. Examples of control characters are
+	 * ALT, CTRL, ESCAPE, DELETE, SHIFT, HOME, PAGE_UP, BACKSPACE, ENTER, TAB, LEFT, and more.
+	 * 
+	 * @param keyCode the character code.
+	 * @return true if yes, else false.
+	 */
+	public static boolean isControlChar(char keyCode){
+		int code = keyCode;
+		return (code == KeyCodes.KEY_ALT || code == KeyCodes.KEY_BACKSPACE ||
+				code == KeyCodes.KEY_CTRL || code == KeyCodes.KEY_DELETE ||
+				code == KeyCodes.KEY_DOWN || code == KeyCodes.KEY_END ||
+				code == KeyCodes.KEY_ENTER || code == KeyCodes.KEY_ESCAPE ||
+				code == KeyCodes.KEY_HOME || code == KeyCodes.KEY_LEFT ||
+				code == KeyCodes.KEY_PAGEDOWN || code == KeyCodes.KEY_PAGEUP ||
+				code == KeyCodes.KEY_RIGHT || code == KeyCodes.KEY_SHIFT);
 	}
 }

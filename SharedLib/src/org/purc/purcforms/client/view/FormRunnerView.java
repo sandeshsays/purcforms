@@ -1242,9 +1242,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(formDef.getPages() == null)
 			return;
 
-		for(byte i=0; i<formDef.getPages().size(); i++){
+		for(int i=0; i<formDef.getPages().size(); i++){
 			PageDef pageDef = (PageDef)formDef.getPages().elementAt(i);
-			for(byte j=0; j<pageDef.getQuestionCount(); j++)
+			for(int j=0; j<pageDef.getQuestionCount(); j++)
 				updateDynamicOptions((QuestionDef)pageDef.getQuestions().elementAt(j));
 		}
 	}

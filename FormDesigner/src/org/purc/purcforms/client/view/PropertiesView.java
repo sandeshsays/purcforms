@@ -650,7 +650,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @return true if is allowed, else false.
 	 */
 	private boolean isAllowedXmlNodeNameStartChar(char keyCode){
-		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || isControlChar(keyCode));
+		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || FormUtil.isControlChar(keyCode));
 	}
 
 	/**
@@ -661,26 +661,6 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 */
 	private boolean isAllowedXmlNodeNameChar(char keyCode){
 		return isAllowedXmlNodeNameStartChar(keyCode) || Character.isDigit(keyCode) || keyCode == '-' || keyCode == '_' || keyCode == '.';
-	}
-
-	/**
-	 * Check if a character is a control character. Examples of control characters are
-	 * ALT, CTRL, ESCAPE, DELETE, SHIFT, HOME, PAGE_UP, BACKSPACE, ENTER, TAB, LEFT, and more.
-	 * 
-	 * @param keyCode the character code.
-	 * @return true if yes, else false.
-	 */
-	private boolean isControlChar(char keyCode){
-		int code = keyCode;
-		return (code == KeyCodes.KEY_ALT || code == KeyCodes.KEY_BACKSPACE ||
-				code == KeyCodes.KEY_CTRL || code == KeyCodes.KEY_DELETE ||
-				code == KeyCodes.KEY_DOWN || code == KeyCodes.KEY_END ||
-				code == KeyCodes.KEY_ENTER || code == KeyCodes.KEY_ESCAPE ||
-				code == KeyCodes.KEY_HOME || code == KeyCodes.KEY_LEFT ||
-				code == KeyCodes.KEY_PAGEDOWN || code == KeyCodes.KEY_PAGEUP ||
-				code == KeyCodes.KEY_RIGHT || code == KeyCodes.KEY_SHIFT ||
-				code == KeyCodes.KEY_TAB || code == KeyCodes.KEY_UP ||
-				code == 0);
 	}
 
 	/**
