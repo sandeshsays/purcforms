@@ -735,8 +735,9 @@ public class QuestionDef implements Serializable{
 				if(!binding.startsWith(formDef.getBinding()+"/")){
 					if(parentBinding != null && !binding.contains("/"))
 						binding = "/"+ formDef.getBinding()+"/" + parentBinding + "/" + binding;
-					else
-						binding = "/"+ formDef.getBinding()+"/" + binding;
+					else{
+						binding = "/"+ formDef.getBinding() + (binding.startsWith("/") ? "" : "/") + binding;
+					}
 				}
 				else{
 					this.binding = "/" + this.binding; //correct user binding syntax error

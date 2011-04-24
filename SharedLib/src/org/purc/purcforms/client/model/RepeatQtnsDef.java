@@ -169,7 +169,7 @@ public class RepeatQtnsDef implements Serializable {
 		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef def = (QuestionDef)questions.elementAt(i);
-			if(def.getBinding().equals(varName) )
+			if(def.getBinding().equals(varName) || ("/" + def.getBinding()).equals(varName))
 				return def;
 		}
 		
