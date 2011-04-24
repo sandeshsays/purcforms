@@ -117,14 +117,17 @@ public class CommandHistory {
 			return "Redo " + redoCmds.lastElement().getName();
 	}
 	
-	/*public void clear(){
+	public void clear(){
 		undoCmds.clear();
 		redoCmds.clear();
 		cmds.clear();
 		
 		btnUndo.setEnabled(false);
 		btnRedo.setEnabled(false);
-	}*/
+		
+		btnUndo.setTitle("Undo");
+		btnRedo.setTitle("Redo");
+	}
 	
 	public void setUndoBufferSize(int size){
 		this.undoBufferSize = size;

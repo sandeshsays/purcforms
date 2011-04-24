@@ -994,6 +994,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 						leftPanel.refresh(formDef);
 						centerPanel.refresh();
+						
+						Context.getCommandHistory().clear();
 					}
 					FormUtil.dlg.hide();
 				}
