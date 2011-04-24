@@ -23,7 +23,11 @@ public class InsertWidgetCmd extends DeleteWidgetCmd {
 	public void redo(){
 		view.insertWidget(widget, panel);
 		
-		if(widget.getLayoutNode() != null)
+		if(widget.getLayoutNode() != null){
+			if(parentLayoutNode == null)
+				parentLayoutNode = widget.getLayoutNode().getParentNode();
+			
 			parentLayoutNode.appendChild(widget.getLayoutNode());
+		}
 	}
 }

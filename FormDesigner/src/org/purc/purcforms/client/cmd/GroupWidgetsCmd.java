@@ -53,8 +53,12 @@ public class GroupWidgetsCmd implements ICommand {
 		deleteWidgetsCmd.redo();
 		view.insertWidget(widget, panel);
 		
-		if(widget.getLayoutNode() != null && parentLayoutNode != null)
+		if(widget.getLayoutNode() != null){
+			if(parentLayoutNode == null)
+				parentLayoutNode = widget.getLayoutNode().getParentNode();
+			
 			parentLayoutNode.appendChild(widget.getLayoutNode());
+		}
 	}
 	
 	public boolean isWidgetCommand(){

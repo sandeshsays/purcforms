@@ -25,7 +25,11 @@ public class InsertTabCmd extends DeleteTabCmd {
 		view.clearSelection();
 		view.addNewTab(widget.getText(), index);
 		
-		if(widget.getLayoutNode() != null)
+		if(widget.getLayoutNode() != null){
+			if(parentLayoutNode == null)
+				parentLayoutNode = widget.getLayoutNode().getParentNode();
+			
 			parentLayoutNode.appendChild(widget.getLayoutNode());
+		}
 	}
 }

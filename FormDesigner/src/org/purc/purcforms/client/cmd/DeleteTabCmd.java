@@ -35,8 +35,12 @@ public class DeleteTabCmd implements ICommand {
 		view.clearSelection();
 		view.addNewTab(name, index);
 		
-		if(widget.getLayoutNode() != null)
+		if(widget.getLayoutNode() != null){
+			if(parentLayoutNode == null)
+				parentLayoutNode = widget.getLayoutNode().getParentNode();
+			
 			parentLayoutNode.appendChild(widget.getLayoutNode());
+		}
 	}
 	
 	public void redo(){
