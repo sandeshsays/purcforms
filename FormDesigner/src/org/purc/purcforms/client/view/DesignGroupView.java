@@ -184,8 +184,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(multipleSel && selectedDragController.getSelectedWidgetCount() > 1)
 			return;
 
-		if(widget == null)
-			selectedDragController.clearSelection();
+		if(widget == null){
+			if(!(selectedDragController.getSelectedWidgetCount() > 1))
+				selectedDragController.clearSelection();
+		}
 		else if(widget instanceof DesignWidgetWrapper && !(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof DesignGroupWidget)){
 			String s = ((DesignWidgetWrapper)widget).getWidth();
 			if(!"100%".equals(s)){
@@ -203,8 +205,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 				//Deselect and stop editing of any widget in group boxes
 				//TODO Doesnt this slow us a bit?
-				if(widget instanceof DesignWidgetWrapper &&  ((DesignWidgetWrapper)widget).getWidgetSelectionListener() instanceof DesignSurfaceView)
-					clearGroupBoxSelection();
+				if(widget instanceof DesignWidgetWrapper &&  ((DesignWidgetWrapper)widget).getWidgetSelectionListener() instanceof DesignSurfaceView){
+					if(!(selectedDragController.isWidgetSelected(widget) && selectedDragController.getSelectedWidgetCount() > 1)){
+							clearGroupBoxSelection();
+					}
+				}
 
 				//Deselect any previously selected widgets in groupbox
 				selectedDragController.selectWidget(widget); //TODO Test this and make sure it does not introduce bugs
