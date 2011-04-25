@@ -430,6 +430,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 	public void deleteWidget(DesignWidgetWrapper widget, AbsolutePanel panel){
 		//Added only for support of undo redo. So should be refactored.
+		widget.refreshPosition();
 		selectPanel(panel);
 		selectedPanel.remove(widget);
 		selectedDragController.clearSelection();
@@ -1550,8 +1551,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			int w = retWidget.getLeftInt() + retWidget.getWidthInt();
 			if(width < w)
 				setWidth(width + (w-width)+10+PurcConstants.UNITS);
-
-			Context.getCommandHistory().add(new CommandList(this, new InsertWidgetCmd(retWidget, retWidget.getLayoutNode(), this)));
 		}
 
 		return retWidget;

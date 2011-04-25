@@ -1034,10 +1034,17 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	
 	public void selectDesignSurface(boolean refreshWidgets){
 		this.refreshWidgets =  refreshWidgets;
+		
+		if(tabs.getTabBar().getSelectedTab() == SELECTED_INDEX_DESIGN_SURFACE)
+			return;
+		
 		tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
 	}
 	
 	public void selectPropertiesTab(){
+		if(tabs.getTabBar().getSelectedTab() == SELECTED_INDEX_PROPERTIES)
+			return;
+		
 		tabs.selectTab(SELECTED_INDEX_PROPERTIES);
 	}
 }

@@ -1448,6 +1448,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 	public void selectPanel(AbsolutePanel panel){
 		int index = tabs.getWidgetIndex(panel);
+		if(index == tabs.getTabBar().getSelectedTab())
+			return;
+		
 		tabs.selectTab(index);
 
 		selectedDragController = dragControllers.elementAt(index);
