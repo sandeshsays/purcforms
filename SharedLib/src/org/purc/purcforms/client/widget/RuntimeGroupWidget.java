@@ -59,6 +59,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private RepeatQtnsDef repeatQtnsDef;
 	private HashMap<String,RuntimeWidgetWrapper> widgetMap = new HashMap<String,RuntimeWidgetWrapper>();
 	private EditListener editListener;
+	private WidgetListener widgetListener;
 	private FlexTable table;
 	private List<RuntimeWidgetWrapper> buttons = new ArrayList<RuntimeWidgetWrapper>();
 	private List<RuntimeWidgetWrapper> widgets = new ArrayList<RuntimeWidgetWrapper>();
@@ -90,11 +91,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
 	
 
-	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, boolean isRepeated){
+	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated){
 		this.images = images;
 		this.formDef = formDef;
 		this.repeatQtnsDef = repeatQtnsDef;
 		this.editListener = editListener;
+		this.widgetListener = widgetListener;
 		this.isRepeated = isRepeated;
 
 		if(isRepeated){
@@ -124,7 +126,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				qtn = formDef.getQuestion(parentBinding);
 
 			if(qtn != null){
-				parentWrapper = new RuntimeWidgetWrapper(widget,images.error(),editListener);
+				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(),editListener, widgetListener);
 				parentWrapper.setQuestionDef(qtn,true);
 				widgetMap.put(parentBinding, parentWrapper);
 				//addWidget(parentWrapper); //Misplaces first widget (with tabindex > 0) of a group (CheckBox and RadioButtons)
@@ -428,7 +430,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images,formDef,repeatQtnsDef,editListener,repeated);
+			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, editListener, widgetListener, repeated);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			/*getLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
 			getLabelText(((RuntimeGroupWidget)widget).getLabelText());
@@ -445,7 +447,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			return tabIndex;
 
 		if(!wrapperSet){
-			wrapper = new RuntimeWidgetWrapper(widget,images.error(),editListener);
+			wrapper = new RuntimeWidgetWrapper(widget, images.error(), editListener, widgetListener);
 
 			if(parentWrapper != null){ //Check box or radio button
 				if(!parentWrapper.getQuestionDef().isVisible())
@@ -1309,5 +1311,36 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		
 		if(forms.size() > 0)
 			repeatRowFormMap.put(deleteButton, forms);
+	}
+	
+	public boolean isAnyWidgetVisible(){
+		if(isRepeated){
+			for(int row = 0; row < table.getRowCount(); row++){
+				for(int col = 0; col < table.getCellCount(row)-1; col++){
+					RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)table.getWidget(row, col);
+					if(widget.isVisible() && widget.isFocusable()){
+						return true;
+					}
+				}
+			}
+		}
+		else{
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(widget.isVisible() && widget.isFocusable()){
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	public int getHeaderHeight(){
+		if(isRepeated)
+			return 0;
+		
+		RuntimeWidgetWrapper headerLabel = (RuntimeWidgetWrapper)selectedPanel.getWidget(0);
+		return headerLabel.getHeightInt();
 	}
 }
