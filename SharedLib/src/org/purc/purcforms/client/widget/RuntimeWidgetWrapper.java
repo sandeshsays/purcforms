@@ -1213,7 +1213,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			if(visible)
 				widgetListener.onWidgetShown(this, getHeightInt());
 			else
-				widgetListener.onWidgetHiden(this, getHeightInt());
+				widgetListener.onWidgetHidden(this, getHeightInt());
 		}
 	}
 

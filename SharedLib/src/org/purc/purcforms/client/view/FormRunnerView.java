@@ -1975,6 +1975,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			int bottomYpos = wrapper.getTopInt();
 			increment = wrapper.getHeightInt() + groupWidget.getHeaderHeight();
 
+			parent = wrapper.getParent().getParent();
+			if(parent instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)parent).onWidgetShown(wrapper, increment);
+			
 			//Move widgets which are below the bottom of the repeat widget.
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
@@ -1994,11 +1998,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 
 	/**
-	 * @see org.purc.purcforms.client.widget.WidgetListener#onWidgetShown(RuntimeWidgetWrapper, int)
+	 * @see org.purc.purcforms.client.widget.WidgetListener#onWidgetHidden(RuntimeWidgetWrapper, int)
 	 */
-	public void onWidgetHiden(RuntimeWidgetWrapper widget, int decrement){
+	public void onWidgetHidden(RuntimeWidgetWrapper widget, int decrement){
 
-		Widget parent = widget.getParent().getParent() ;
+		Widget parent = widget.getParent().getParent();
 		if(parent instanceof RuntimeGroupWidget){
 			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
 			if(groupWidget.isAnyWidgetVisible())
@@ -2012,12 +2016,16 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			int bottomYpos = wrapper.getTopInt();
 			decrement = wrapper.getHeightInt() + groupWidget.getHeaderHeight();
 
+			parent = wrapper.getParent().getParent();
+			if(parent instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)parent).onWidgetHidden(wrapper, decrement);
+			
 			//Move widgets which are below the bottom of the repeat widget.
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				if(currentWidget == wrapper)
 					continue;
-
+						
 				int top = currentWidget.getTopInt();
 				if(top >= bottomYpos)
 					currentWidget.setTopInt(top - decrement);
@@ -2025,7 +2033,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 			wrapper.setVisible(false);
 			
-			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() - decrement+PurcConstants.UNITS);
+			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() - decrement + PurcConstants.UNITS);
 			setParentHeight(false, wrapper, decrement);
 		}
 	}

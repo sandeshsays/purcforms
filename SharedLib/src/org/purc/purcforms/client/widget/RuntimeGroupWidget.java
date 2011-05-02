@@ -89,7 +89,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap = new HashMap<QuestionDef,RuntimeWidgetWrapper>();
 
 	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
-	
+
 
 	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated){
 		this.images = images;
@@ -228,7 +228,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		});
 		table.setWidget(row, widgets.size(), btn);
-		
+
 		return btn;
 	}
 
@@ -258,10 +258,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				ValidationRule validationRule = parent.getValidationRule();
 				if(validationRule != null)
 					parent.getQuestionDef().setAnswer(table.getRowCount()+"");
-				
+
 				List<FormDef> forms = repeatRowFormMap.get(sender);
-				for(FormDef formDef : forms)
-					((FormRunnerView)editListener).removeRepeatQtnFormDef(formDef);
+				if(forms != null){
+					for(FormDef formDef : forms)
+						((FormRunnerView)editListener).removeRepeatQtnFormDef(formDef);
+				}
 			}
 		}
 	}
@@ -777,10 +779,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		Element newRepeatDataNode = null;
 		String parentRptBinding = null;
 		int row = table.getRowCount();
-		
+
 		List<Integer> qtnIds = new ArrayList<Integer>();
 		List<QuestionDef> qtns = new ArrayList<QuestionDef>();
-		
+
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
 			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);			
@@ -824,7 +826,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				}
 				widget.addChildWidget(copyWidget);
 			}
-			
+
 			copyWidget.getQuestionDef().addChangeListener(copyWidget);
 			qtnIds.add(copyWidget.getQuestionDef().getId());
 			qtns.add(copyWidget.getQuestionDef());
@@ -1075,7 +1077,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			for(int col = 0; col < table.getCellCount(0)-1; col++)
 				((RuntimeWidgetWrapper)table.getWidget(0, col)).clearValue();
-			
+
 			((FormRunnerView)editListener).fireSkipRules();
 		}
 		else{
@@ -1278,15 +1280,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			workonDefaults(child);
 		}
 	}*/
-	
+
 	public void copySkipRules(List<Integer> qtnIds, List<QuestionDef> qtns, PushButton deleteButton){
 		List<FormDef> forms = new ArrayList<FormDef>();
-		
+
 		Vector rules = formDef.getSkipRules();
 		if(rules != null){
 			for(int i=0; i<rules.size(); i++){
 				SkipRule rule = (SkipRule)rules.elementAt(i);
-				
+
 				for(int k = 0; k < rule.getConditionCount(); k++){
 					Condition condition = rule.getConditionAt(k);
 					if(qtnIds.contains(condition.getQuestionId())){
@@ -1294,25 +1296,25 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 						FormDef formDef = new FormDef();
 						formDef.addSkipRule(skipRule);
 						forms.add(formDef);
-						
+
 						for(QuestionDef qtn : qtns)
 							formDef.addQuestion(qtn);
-						
+
 						skipRule.fire(formDef);
-						
+
 						break;
 					}
 				}
 			}
 		}
-		
+
 		for(FormDef form : forms)
 			((FormRunnerView)editListener).addRepeatQtnFormDef(form);
-		
+
 		if(forms.size() > 0)
 			repeatRowFormMap.put(deleteButton, forms);
 	}
-	
+
 	public boolean isAnyWidgetVisible(){
 		if(isRepeated){
 			for(int row = 0; row < table.getRowCount(); row++){
@@ -1335,12 +1337,58 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		return false;
 	}
-	
+
 	public int getHeaderHeight(){
 		if(isRepeated)
 			return 0;
-		
+
 		RuntimeWidgetWrapper headerLabel = (RuntimeWidgetWrapper)selectedPanel.getWidget(0);
 		return headerLabel.getHeightInt();
+	}
+
+	public void onWidgetHidden(RuntimeWidgetWrapper widget, int decrement){
+		Widget parent = getParent().getParent();
+		if(parent instanceof RuntimeGroupWidget){
+			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
+			RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)groupWidget.getParent().getParent();
+			groupWidget.onWidgetHidden(wrapper, decrement);
+		}
+
+		int bottomYpos = widget.getTopInt();
+
+		if(!isRepeated){
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == widget)
+					continue;
+
+				int top = currentWidget.getTopInt();
+				if(top >= bottomYpos)
+					currentWidget.setTopInt(top - decrement);
+			}
+		}
+	}
+
+	public void onWidgetShown(RuntimeWidgetWrapper widget, int increment){
+		Widget parent = getParent().getParent();
+		if(parent instanceof RuntimeGroupWidget){
+			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
+			RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)groupWidget.getParent().getParent();
+			groupWidget.onWidgetShown(wrapper, increment);
+		}
+
+		int bottomYpos = widget.getTopInt();
+
+		if(!isRepeated){
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == widget)
+					continue;
+
+				int top = currentWidget.getTopInt();
+				if(top >= bottomYpos)
+					currentWidget.setTopInt(top + increment);
+			}
+		}
 	}
 }

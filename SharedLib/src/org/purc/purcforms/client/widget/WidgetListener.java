@@ -24,6 +24,6 @@ public interface WidgetListener {
 	 * @param widget the widget that has been hidden
 	 * @param decrement the decrease in height due to the hiding of the widget.
 	 */
-	public void onWidgetHiden(RuntimeWidgetWrapper widget, int decrement);
+	public void onWidgetHidden(RuntimeWidgetWrapper widget, int decrement);
 	
 }

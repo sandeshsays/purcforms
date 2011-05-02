@@ -144,7 +144,7 @@ public class Context {
 	 * 
 	 * @return true if in localization mode, else false.
 	 */
-	public static boolean inLocalizationMode(){
+	public static boolean inLocalizationMode(){	
 		return !defaultLocale.getKey().equalsIgnoreCase(locale.getKey());
 	}
 	

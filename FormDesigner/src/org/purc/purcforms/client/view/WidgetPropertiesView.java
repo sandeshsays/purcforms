@@ -709,12 +709,19 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			}
 		});
 
-
-
 		txtForeColor.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				if(widget != null)
+				if(widget != null){
+					if(txtForeColor.getText().equals(widget.getForeColor()))
+						return;
+					
+					beforeChangeText = widget.getForeColor();
+					
 					widget.setForeColor(txtForeColor.getText());
+					
+					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FORE_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+					beforeChangeText = null;
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_FORE_COLOR, txtForeColor.getText());
 			}
@@ -722,6 +729,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		sgstForeColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
 				if(widget != null){
+					if(txtForeColor.getText().equals(widget.getForeColor()))
+						return;
+					
 					beforeChangeText = widget.getForeColor();
 					
 					widget.setForeColor(txtForeColor.getText());
@@ -735,10 +745,28 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		});
 		txtBackgroundColor.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				if(widget != null)
+				if(widget != null){
+					if(txtBackgroundColor.getText().equals(widget.getBackgroundColor()))
+						return;
+					
+					beforeChangeText = widget.getBackgroundColor();
+					
 					widget.setBackgroundColor(txtBackgroundColor.getText());
-				else if(viewWidget != null)
+					
+					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BACKGROUND_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+					beforeChangeText = null;
+				}
+				else if(viewWidget != null){
+					if(txtBackgroundColor.getText().equals(viewWidget.getBackgroundColor()))
+						return;
+					
+					beforeChangeText = viewWidget.getBackgroundColor();
+					
 					viewWidget.setBackgroundColor(txtBackgroundColor.getText());
+					
+					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BACKGROUND_COLOR, beforeChangeText, viewWidget));
+					beforeChangeText =  null;
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BACKGROUND_COLOR, txtBackgroundColor.getText());
 			}
@@ -746,6 +774,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		sgstBackgroundColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
 				if(widget != null)	{
+					if(txtBackgroundColor.getText().equals(widget.getBackgroundColor()))
+						return;
+					
 					beforeChangeText = widget.getBackgroundColor();
 					
 					widget.setBackgroundColor(txtBackgroundColor.getText());
@@ -754,6 +785,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					beforeChangeText = null;
 				}
 				else if(viewWidget != null){
+					if(txtBackgroundColor.getText().equals(viewWidget.getBackgroundColor()))
+						return;
+					
 					beforeChangeText = viewWidget.getBackgroundColor();
 					viewWidget.setBackgroundColor(txtBackgroundColor.getText());
 					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BACKGROUND_COLOR, beforeChangeText, viewWidget));
@@ -765,10 +799,28 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		});
 		txtBorderColor.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				if(widget != null)	
+				if(widget != null)	{
+					if(txtBorderColor.getText().equals(widget.getBorderColor()))
+						return;
+					
+					beforeChangeText = widget.getBorderColor();
+					
 					widget.setBorderColor(txtBorderColor.getText());
-				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
+					
+					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+					beforeChangeText = null;
+				}
+				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
+					if(txtBorderColor.getText().equals(((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderColor()))
+						return;
+					
+					beforeChangeText = ((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderColor();
+
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderColor(txtBorderColor.getText());
+					
+					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, viewWidget));
+					beforeChangeText = null;
+				}
 				else
 					widgetPropertyChangeListener.onWidgetPropertyChanged(WidgetPropertySetter.PROP_BORDER_COLOR, txtBorderColor.getText());
 			}
@@ -776,6 +828,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		sgstBorderColor.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
 				if(widget != null){
+					if(txtBorderColor.getText().equals(widget.getBorderColor()))
+						return;
+					
 					beforeChangeText = widget.getBorderColor();
 					
 					widget.setBorderColor(txtBorderColor.getText());
@@ -784,6 +839,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					beforeChangeText = null;
 				}
 				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
+					if(txtBorderColor.getText().equals(((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderColor()))
+						return;
+					
 					beforeChangeText = ((DesignWidgetWrapper)viewWidget.getParent().getParent()).getBorderColor();
 					((DesignWidgetWrapper)viewWidget.getParent().getParent()).setBorderColor(txtBorderColor.getText());
 					Context.getCommandHistory().add(new ChangeViewCmd(ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, viewWidget));
@@ -1114,7 +1172,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new width as typed by the user.
 	 */
 	private void updateWidth(){
-		if(txtWidth.getText().trim().length() > 0){
+		if(true /*txtWidth.getText().trim().length() > 0*/){
 			if(widget != null)		
 				widget.setWidth(txtWidth.getText()+PurcConstants.UNITS);
 			else if(viewWidget != null){
@@ -1132,7 +1190,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new height as typed by the user.
 	 */
 	private void updateHeight(){
-		if(txtHeight.getText().trim().length() > 0){
+		if(true /*txtHeight.getText().trim().length() > 0*/){
 			if(widget != null)
 				widget.setHeight(txtHeight.getText()+PurcConstants.UNITS);
 			else if(viewWidget != null){
@@ -1150,7 +1208,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new left as typed by the user.
 	 */
 	private void updateLeft(){
-		if(txtLeft.getText().trim().length() > 0){
+		if(true /*txtLeft.getText().trim().length() > 0*/){
 			if(widget != null)
 				widget.setLeft(txtLeft.getText()+PurcConstants.UNITS);
 			else
@@ -1162,7 +1220,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new top as typed by the user.
 	 */
 	private void updateTop(){
-		if(txtTop.getText().trim().length() > 0){
+		if(true /*txtTop.getText().trim().length() > 0*/){
 			if(widget != null)
 				widget.setTop(txtTop.getText()+PurcConstants.UNITS);
 			else
@@ -1174,7 +1232,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new tab index as typed by the user.
 	 */
 	private void updateTabIndex(){
-		if(txtTabIndex.getText().trim().length() > 0){
+		if(true /*txtTabIndex.getText().trim().length() > 0*/){
 			if(widget != null)
 				widget.setTabIndex(Integer.parseInt(txtTabIndex.getText()));
 			else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)

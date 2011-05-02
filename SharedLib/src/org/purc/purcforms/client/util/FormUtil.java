@@ -206,8 +206,9 @@ public class FormUtil {
 					}
 					
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if(!isControlChar(keyCode))
+					if(!isControlChar(keyCode) && (int)keyCode != 0){
 						((TextBox) event.getSource()).cancelKey();
+					}
 				}
 				else if(!Character.isDigit(keyCode)){
 					String decimalSepChar = getDecimalSeparator();
@@ -217,11 +218,10 @@ public class FormUtil {
 						else
 							((TextBox) event.getSource()).cancelKey();
 					}
-						
 					
 					//TODO Why does runtime mode reach here for these special keys yet preview mode does not?
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if(!isControlChar(keyCode))
+					if(!isControlChar(keyCode) && (int)keyCode != 0)
 						((TextBox) event.getSource()).cancelKey();
 				}
 			}
@@ -271,7 +271,7 @@ public class FormUtil {
 						return;
 
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if(!isControlChar(keyCode))
+					if(!isControlChar(keyCode) && (int)keyCode != 0)
 						((TextBox) event.getSource()).cancelKey();
 				}
 				else if(!Character.isDigit(keyCode)){
@@ -285,7 +285,7 @@ public class FormUtil {
 					
 					//TODO Why does runtime mode reach here for these special keys yet preview mode does not?
 					//Allow backspace, delete, tab and arrow keys, which are = 0
-					if(!isControlChar(keyCode))
+					if(!isControlChar(keyCode) && (int)keyCode != 0)
 						((TextBox) event.getSource()).cancelKey();
 				}
 			}

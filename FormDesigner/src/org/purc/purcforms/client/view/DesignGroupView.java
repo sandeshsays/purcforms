@@ -8,6 +8,7 @@ import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.cmd.ChangeWidgetCmd;
+import org.purc.purcforms.client.cmd.ChangeWidgetTypeCmd;
 import org.purc.purcforms.client.cmd.CommandList;
 import org.purc.purcforms.client.cmd.DeleteWidgetCmd;
 import org.purc.purcforms.client.cmd.GroupWidgetsCmd;
@@ -58,6 +59,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Element;
 
 
 /**
@@ -1945,9 +1947,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * 
 	 * @param questionDef the question that we are to add the radio buttons for.
 	 * @param vertically set to true to add the radio buttons slopping vertically downwards instead of horizontally.
-	 * @return this will always be null.
+	 * @return list of radion button widgets that have been created.
 	 */
-	protected DesignWidgetWrapper addNewRadioButtonSet(QuestionDef questionDef, boolean vertically){
+	protected List<DesignWidgetWrapper> addNewRadioButtonSet(QuestionDef questionDef, boolean vertically){
+		List<DesignWidgetWrapper> widgets = new ArrayList<DesignWidgetWrapper>();
+			
 		List<OptionDef> options = questionDef.getOptions();
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
@@ -1977,6 +1981,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				y += 40;
 			else
 				x += (optionDef.getText().length() * 14);
+
+			selectedDragController.selectWidget(wrapper);
+			
+			widgets.add(wrapper);
 		}
 
 		/*OptionDef optionDef = new OptionDef(0,LocaleText.get("noSelection"),null,questionDef);
@@ -1987,7 +1995,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		wrapper.setText(optionDef.getText());
 		wrapper.setTitle(optionDef.getText());*/
 
-		return null;
+		return widgets;
 	}
 
 	/**
@@ -2016,8 +2024,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		x = widget.getLeftInt() + selectedPanel.getAbsoluteLeft();
 		y = widget.getTopInt() + selectedPanel.getAbsoluteTop();
 
-		if(widget.getLayoutNode() != null){
-			widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
+		Element layoutNode = widget.getLayoutNode();
+		if(layoutNode != null){
+			layoutNode.getParentNode().removeChild(layoutNode);
 			widget.setLayoutNode(null);
 		}
 
@@ -2025,7 +2034,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		if(widget.getWrappedWidget() instanceof ListBox){
 			selectedPanel.remove(widget);
-			addNewRadioButtonSet(questionDef,vertically);
+			List<DesignWidgetWrapper> widgets = addNewRadioButtonSet(questionDef, vertically);
+			Context.getCommandHistory().add(new ChangeWidgetTypeCmd(widget, layoutNode, widgets, this));
 		}
 		else{
 			//addNewSearchServerWidget(questionDef.getVariableName(),questionDef.getText(), true);
