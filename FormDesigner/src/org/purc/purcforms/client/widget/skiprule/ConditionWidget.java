@@ -169,7 +169,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 	 */
 	public void onStartItemSelection(Object sender){
 		if(sender != valueWidget)
-			valueWidget.stopEdit(true /*false*/, true); //Temporary hack to turn off edits when focus goes off the edit widget
+			valueWidget.stopEdit(sender != this.operatorHyperlink /*false*/, true); //Temporary hack to turn off edits when focus goes off the edit widget
 
 		if(allowFieldSelection && sender != fieldWidget)
 			fieldWidget.stopSelection();
