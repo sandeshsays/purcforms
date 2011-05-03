@@ -207,7 +207,9 @@ public class FormDesignerDragController extends AbstractDragController{
 						cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getWrappedWidget().getElement(), "cursor");
 				}
 
-				if("move".equals(cursor) || "".equals(cursor)){
+				if(("move".equals(cursor) || "".equals(cursor)) && 
+				   (context.selectedWidgets.size() > 0 && !(((DesignWidgetWrapper)context.selectedWidgets.get(0)).getWrappedWidget() instanceof DesignGroupWidget))){
+					
 					for (Widget widget : context.selectedWidgets) {
 						SavedWidgetInfo info = savedWidgetInfoMap.get(widget);
 						int x = info.initialDraggableParentLocation.getLeft() - ((DesignWidgetWrapper)widget).getLeftInt();
