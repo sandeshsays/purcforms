@@ -53,7 +53,9 @@ public class FormRunnerEntryPoint implements EntryPoint{
 				return;
 			}
 			
-			FormUtil.setupUncaughtExceptionHandler();	
+			FormUtil.setupUncaughtExceptionHandler();
+			
+			FormUtil.initialize();
 
 			FormUtil.retrieveUserDivParameters();
 			

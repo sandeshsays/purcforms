@@ -231,7 +231,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * 		  external to the xform.
 	 */
 	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
-		FormUtil.initialize();
+		//FormUtil.initialize();
 
 		if(previewMode /*externalSourceWidgets == null*/){
 			//Here we must be in preview mode where we need to create a new copy of the formdef

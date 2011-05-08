@@ -57,6 +57,8 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 			}
 
 			FormUtil.setupUncaughtExceptionHandler();
+			
+			FormUtil.initialize();
 
 			FormDesignerUtil.setDesignerTitle();
 
@@ -110,7 +112,7 @@ public class FormDesignerEntryPoint implements EntryPoint ,ResizeHandler{
 						FormUtil.dlg.hide();
 				}
 			});
-
+			
 			// Hook the window resize event, so that we can adjust the UI.
 			Window.addResizeHandler(this);
 		}
