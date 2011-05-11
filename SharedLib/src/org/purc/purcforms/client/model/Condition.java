@@ -141,12 +141,18 @@ public class Condition implements Serializable, BindingChangeListener {
 						value = tempValue;
 						if(qn.getAnswer() == null || qn.getAnswer().trim().length() == 0)
 							return true; //Both questions not answered yet
-						return false;
+						//return false;
+						return (operator == ModelConstants.OPERATOR_NOT_EQUAL || operator == ModelConstants.OPERATOR_NOT_BETWEEN ||
+								operator == ModelConstants.OPERATOR_NOT_CONTAIN || operator == ModelConstants.OPERATOR_NOT_END_WITH ||
+								operator == ModelConstants.OPERATOR_NOT_IN_LIST || operator == ModelConstants.OPERATOR_NOT_START_WITH);
 					}
 					else if(qn.getAnswer() == null || qn.getAnswer().trim().length() == 0){
 						value = tempValue;
-						return false;
+						//return false;
 						//return validation; //TODO Do we really need validations to return true when qtn is not answered?
+						return (operator == ModelConstants.OPERATOR_NOT_EQUAL || operator == ModelConstants.OPERATOR_NOT_BETWEEN ||
+								operator == ModelConstants.OPERATOR_NOT_CONTAIN || operator == ModelConstants.OPERATOR_NOT_END_WITH ||
+								operator == ModelConstants.OPERATOR_NOT_IN_LIST || operator == ModelConstants.OPERATOR_NOT_START_WITH);
 					}
 				}
 			}

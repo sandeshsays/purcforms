@@ -897,7 +897,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			else if(type == QuestionDef.QTN_TYPE_BOOLEAN)
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
-				widgetWrapper = addNewRepeatSet(questionDef,false);
+				widgetWrapper = addNewRepeatSet(questionDef, false, commands);
 			else if(type == QuestionDef.QTN_TYPE_IMAGE)
 				widgetWrapper = addNewPictureSection(questionDef.getBinding(),questionDef.getText(),false);
 			else if(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO)
@@ -1030,7 +1030,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param select set to true to select the repeat widget after adding it.
 	 * @return the added repeat widget.
 	 */
-	protected DesignWidgetWrapper addNewRepeatSet(QuestionDef questionDef, boolean select){
+	protected DesignWidgetWrapper addNewRepeatSet(QuestionDef questionDef, boolean select, CommandList commands){
 		x = 35 + selectedPanel.getAbsoluteLeft();
 		y += 25;
 
@@ -1045,6 +1045,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			label.setBinding(qtn.getBinding());
 			label.setTitle(qtn.getText());
 			label.setTextDecoration("underline");
+			
+			if(commands != null)
+				commands.add(new InsertWidgetCmd(label, label.getLayoutNode(), this));
 		}
 
 		x = 20 + selectedPanel.getAbsoluteLeft();

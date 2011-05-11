@@ -80,9 +80,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private QuestionDef parentQuestionDef;
 
 	private ConditionWidget conditionWidget;
-	
+
 	private String preNonNumericValue;
-	
+
 
 	public ValueWidget(ConditionWidget conditionWidget){
 		this.conditionWidget = conditionWidget;
@@ -115,7 +115,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 	public void setFunction(int function){
 		if(this.function != function){
-			
+
 			//If we are setting to a function length and the existing value is not a number,
 			//the just blank it out.
 			if(function == ModelConstants.FUNCTION_LENGTH){
@@ -217,7 +217,11 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private void setupFieldSelection(){
 		if(chkQuestionValue.getValue() == true){
 			if(horizontalPanel.getWidgetIndex(txtValue1) > -1){
-				addFieldSelection();
+				addFieldSelection(false);
+			}
+			else{
+				horizontalPanel.remove(valueHyperlink);
+				addFieldSelection(false);
 			}
 		}
 		else{
@@ -237,7 +241,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 					setupTextListeners();
 				}
 
-				horizontalPanel.add(txtValue1);
+				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
+						questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
+						questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+					horizontalPanel.add(valueHyperlink);
+				}
+				else
+					horizontalPanel.add(txtValue1);
+
 				horizontalPanel.add(chkQuestionValue);
 				txtValue1.setFocus(true);
 				txtValue1.setFocus(true);
@@ -246,7 +257,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 	}
 
-	private void addFieldSelection(){
+	private void addFieldSelection(boolean maintainValue){
 		horizontalPanel.remove(txtValue1);
 		horizontalPanel.remove(chkQuestionValue);
 		setupPopup();
@@ -254,6 +265,10 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		horizontalPanel.add(chkQuestionValue);
 		sgstField.setFocus(true);
 		sgstField.setFocus(true);
+		
+		if(maintainValue && !EMPTY_VALUE.equals(valueHyperlink.getText()))
+			txtValue1.setText(valueHyperlink.getText());
+		
 		txtValue1.selectAll();
 	}
 
@@ -271,6 +286,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_EQUAL || operator == ModelConstants.OPERATOR_NOT_EQUAL) ){
+
+			if(chkQuestionValue.getValue() == true){
+				horizontalPanel.remove(valueHyperlink);
+				addFieldSelection(true);
+				return;
+			}
+			else
+				horizontalPanel.add(chkQuestionValue);
 
 			MenuBar menuBar = new MenuBar(true);
 
@@ -325,6 +348,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_IN_LIST || operator == ModelConstants.OPERATOR_NOT_IN_LIST) ){
+
+			if(chkQuestionValue.getValue() == true){
+				horizontalPanel.remove(valueHyperlink);
+				addFieldSelection(true);
+				return;
+			}
+			else
+				horizontalPanel.add(chkQuestionValue);
 
 			String values = valueHyperlink.getText();
 			String[] vals = null;
@@ -603,43 +634,44 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			else
 				val = EMPTY_VALUE;
 		}
-
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
-			OptionDef optionDef = questionDef.getOptionWithText(val);
-			if(optionDef != null)
-				val = optionDef.getBinding();
-			else
-				val = null;
-		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
-			DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
-			if(dynamicOptionDef != null){
-				OptionDef optionDef = dynamicOptionDef.getOptionWithText(val);
+		else{
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
+				OptionDef optionDef = questionDef.getOptionWithText(val);
 				if(optionDef != null)
 					val = optionDef.getBinding();
+				else
+					val = null;
 			}
-		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
-			String[] options = val.split(LIST_SEPARATOR);
-			if(options == null || options.length == 0)
-				val = null;
-			else{
-				val = "";
-				for(int i=0; i<options.length; i++){
-					OptionDef optionDef = questionDef.getOptionWithText(options[i]);
-					if(optionDef != null){
-						if(val.length() > 0)
-							val += LIST_SEPARATOR;
-						val += optionDef.getBinding();
+			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+				DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
+				if(dynamicOptionDef != null){
+					OptionDef optionDef = dynamicOptionDef.getOptionWithText(val);
+					if(optionDef != null)
+						val = optionDef.getBinding();
+				}
+			}
+			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+				String[] options = val.split(LIST_SEPARATOR);
+				if(options == null || options.length == 0)
+					val = null;
+				else{
+					val = "";
+					for(int i=0; i<options.length; i++){
+						OptionDef optionDef = questionDef.getOptionWithText(options[i]);
+						if(optionDef != null){
+							if(val.length() > 0)
+								val += LIST_SEPARATOR;
+							val += optionDef.getBinding();
+						}
 					}
 				}
 			}
-		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
-			if(val.equals(QuestionDef.TRUE_DISPLAY_VALUE))
-				val = QuestionDef.TRUE_VALUE;
-			else if(val.equals(QuestionDef.FALSE_DISPLAY_VALUE))
-				val = QuestionDef.FALSE_VALUE;
+			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+				if(val.equals(QuestionDef.TRUE_DISPLAY_VALUE))
+					val = QuestionDef.TRUE_VALUE;
+				else if(val.equals(QuestionDef.FALSE_DISPLAY_VALUE))
+					val = QuestionDef.FALSE_VALUE;
+			}
 		}
 
 		if(val != null && this.chkQuestionValue.getValue() == true)
