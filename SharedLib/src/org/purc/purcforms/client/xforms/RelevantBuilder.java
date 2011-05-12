@@ -108,7 +108,24 @@ public class RelevantBuilder {
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC)
 				value = " " + condition.getValue();
 
-			relevant += " " + XformBuilderUtil.getXpathOperator(condition.getOperator(),action)+value;
+			if(condition.getOperator() == ModelConstants.OPERATOR_BETWEEN)
+				relevant += XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+value + " and "+ "." + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action)+ condition.getSecondValue();
+			else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_BETWEEN)
+				relevant +=XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+condition.getSecondValue() + " or "+ "." + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action)+value ;
+			else if (condition.getOperator() == ModelConstants.OPERATOR_STARTS_WITH)
+				relevant += " starts-with(.,"+ value+")"; 
+			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_START_WITH)
+				relevant += " not(starts-with(.,"+ value+"))";
+			else if (condition.getOperator() == ModelConstants.OPERATOR_ENDS_WITH)
+				relevant += " ends-with(.,"+ value+")"; 
+			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_END_WITH)
+				relevant += " not(ends-with(.,"+ value+"))";
+			else if (condition.getOperator() == ModelConstants.OPERATOR_CONTAINS)
+				relevant += " contains(.,"+ value+")";
+			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN)
+				relevant += " not(contains(.,"+ value+"))";
+			else
+				relevant += " " + XformBuilderUtil.getXpathOperator(condition.getOperator(),action)+value;
 		}
 		return relevant;
 	}

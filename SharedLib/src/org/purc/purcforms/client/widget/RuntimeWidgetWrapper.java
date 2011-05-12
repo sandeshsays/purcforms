@@ -372,6 +372,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					Label label = new Label("");
 					label.setVisible(false);
 					panel.add(label);
+					String s = getLeft();
+					s = getTop();
 					FormUtil.searchExternal(externalSource,String.valueOf(event.getCharCode()), widget.getElement(), label.getElement(), widget.getElement(),filterField);
 				}
 			}

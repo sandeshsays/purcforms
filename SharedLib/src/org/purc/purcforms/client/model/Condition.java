@@ -325,6 +325,10 @@ public class Condition implements Serializable, BindingChangeListener {
 			return answer.contains(value);
 		else if(operator == ModelConstants.OPERATOR_NOT_CONTAIN)
 			return !answer.contains(value);
+		else if(operator == ModelConstants.OPERATOR_ENDS_WITH)
+			return answer.endsWith(value);
+		else if(operator == ModelConstants.OPERATOR_NOT_END_WITH)
+			return !answer.endsWith(value);
 
 		return false;
 	}
