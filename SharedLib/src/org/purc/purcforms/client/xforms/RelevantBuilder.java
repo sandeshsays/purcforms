@@ -37,6 +37,9 @@ public class RelevantBuilder {
 	public static void fromSkipRule2Xform(SkipRule rule, FormDef formDef){
 		String relevant = "";
 		Vector conditions  = rule.getConditions();
+		if(conditions == null)
+			return;
+		
 		for(int i=0; i<conditions.size(); i++){
 			if(relevant.length() > 0)
 				relevant += XformBuilderUtil.getConditionsOperatorText(rule.getConditionsOperator());
