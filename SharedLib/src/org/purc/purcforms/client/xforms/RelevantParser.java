@@ -118,6 +118,37 @@ public class RelevantParser {
 				conditions.add(condition);
 		}
 
+		//Preserve the between operator
+		if( (relevant.contains(" and ") && relevant.contains(">") && relevant.contains("<") ) &&
+				(conditions.size() == 2 || (conditions.size() == 3 && XformParserUtil.getConditionsOperator(relevant) == ModelConstants.CONDITIONS_OPERATOR_OR)) ){
+
+			condition  = new Condition();
+			condition.setId(((Condition)conditions.get(0)).getId());
+			condition.setOperator(ModelConstants.OPERATOR_BETWEEN);
+			condition.setQuestionId(((Condition)conditions.get(0)).getQuestionId());
+			if(relevant.contains("length(.)") || relevant.contains("count(.)"))
+				condition.setFunction(ModelConstants.FUNCTION_LENGTH);
+			
+			condition.setValue(((Condition)conditions.get(0)).getValue());
+			condition.setSecondValue(((Condition)conditions.get(1)).getValue());
+			
+			//This is just for the designer
+			if(condition.getValue().startsWith(formDef.getBinding() + "/"))
+				condition.setValueQtnDef(formDef.getQuestion(condition.getValue().substring(condition.getValue().indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(formDef.getQuestion(((Condition)conditions.get(0)).getQuestionId()));
+			
+			Condition cond = null;
+			if(conditions.size() == 3)
+				cond = (Condition)conditions.get(2);
+			
+			conditions.clear();
+			conditions.add(condition);
+			
+			if(cond != null)
+				conditions.add(cond);
+		}
+		
 		return conditions;
 	}
 

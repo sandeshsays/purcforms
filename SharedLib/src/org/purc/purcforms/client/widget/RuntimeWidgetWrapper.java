@@ -357,7 +357,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						return;
 					}
 
-					((TextBox) event.getSource()).cancelKey(); 
+					((TextBox) event.getSource()).cancelKey();
+					
+					//Remove error icon.
 					while(panel.getWidgetCount() > 1)
 						panel.remove(1);
 
@@ -368,12 +370,10 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 						return;
 					}
-
+				
 					Label label = new Label("");
 					label.setVisible(false);
 					panel.add(label);
-					String s = getLeft();
-					s = getTop();
 					FormUtil.searchExternal(externalSource,String.valueOf(event.getCharCode()), widget.getElement(), label.getElement(), widget.getElement(),filterField);
 				}
 			}
@@ -830,15 +830,48 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 		else if(widget instanceof TextBox){
 			String answer = getTextBoxAnswer();
+
 			if(externalSource != null && externalSource.trim().length() > 0 /*&&
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC*/){ //the internal save (non display) value needs to also work for non numerics.
 				//answer = null; //TODO This seems to cause some bugs where numeric questions seem un answered. 
 
-				if(panel.getWidgetCount() == 2){
+				if(panel.getWidgetCount() > 1 && answer != null && answer.trim().length() > 0){
 					Widget wid = panel.getWidget(1);
-					if(wid instanceof Label)
+					if(wid instanceof Label){
 						answer = ((Label)wid).getText();
+					}
 				}
+				
+				/*if(panel.getWidgetCount() > 1 ){
+					Window.alert("before removing");
+					com.google.gwt.user.client.Element elem = panel.getWidget(1).getElement();
+					Window.alert("yayayya");
+					Element parent = DOM.getParent(elem);
+					Window.alert("just about=" + parent.getChildCount());
+					parent.removeChild(parent.getChild(0));
+					Window.alert("just about");
+					parent.appendChild(widget.getElement());
+					
+					//panel.remove(1);
+					Window.alert("removed");
+				}
+				else{
+					Window.alert("NOT removed =" + panel.getWidgetCount());
+					for(int index = 0; index < panel.getWidgetCount(); index++){
+						Widget w = panel.getWidget(index);
+						String s = "NODE";
+						if(w instanceof TextBox)
+							s = "TEXTBOX = " + ((TextBox)w).getText();
+						else if(w instanceof Label)
+							s = "LABEL = " + ((Label)w).getText();
+						else if(w instanceof Image)
+							s = "IMAGE";
+						
+						Window.alert(s);
+						
+						((TextBox)widget).setFocus(true);
+					}
+				}*/
 			}
 
 			questionDef.setAnswer(answer);
@@ -1030,6 +1063,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 
 		if(questionDef.isRequired() && !this.isAnswered()){
+			
+			//Clear the value widget, if any, for external source widgets.
+			if(externalSource != null && externalSource.trim().length() > 0){
+				while(panel.getWidgetCount() > 1)
+					panel.remove(1);
+			}
+			
 			if(panel.getWidgetCount() < 2)
 				panel.add(errorImage);
 
@@ -1122,11 +1162,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			((ListBox)widget).setFocus(true);
 		else if(widget instanceof TextArea){
 			((TextArea)widget).setFocus(true);
-			((TextArea)widget).selectAll();
+			((TextArea)widget).selectAll();	
 		}
 		else if(widget instanceof TextBox){
 			((TextBox)widget).setFocus(true);
 			((TextBox)widget).selectAll();
+			((TextBox)panel.getWidget(0)).setFocus(true);
 		}
 		else if(widget instanceof DateTimeWidget)
 			((DateTimeWidget)widget).setFocus(true);
@@ -1164,7 +1205,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			questionDef.setAnswer(null);
 
 			//Clear value for external source widgets.
-			if(panel.getWidgetCount() == 2)
+			//if(panel.getWidgetCount() == 2)
+			while(panel.getWidgetCount() > 1)
 				panel.remove(1);
 		}
 	}

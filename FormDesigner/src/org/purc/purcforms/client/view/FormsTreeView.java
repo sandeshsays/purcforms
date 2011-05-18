@@ -561,6 +561,14 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			//Because of command history, we do not want design surface widgets to be cleared is
 			//why i have commented out the line below.
 			//fireFormItemSelected(null);
+			
+			//Because of commenting out of the above line, i have replaces it with these
+			//three calls such that we clear the xml tabs incase one wants to open
+			//a file that requires a file open dialog box which will only come when the
+			//xml tab is empty.
+			Context.getCenterPanel().setXformsSource(null, false);
+			Context.getCenterPanel().setLanguageXml(null, false);
+			Context.getCenterPanel().setLayoutXml(null, false);
 
 			if(tree.getItemCount() == 0){
 				nextFormId = 0;

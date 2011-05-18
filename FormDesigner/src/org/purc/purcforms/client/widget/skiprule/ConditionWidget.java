@@ -208,6 +208,10 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 		condition.setQuestionId(questionDef.getId());
 		condition.setOperator(operator);
 		condition.setValue(valueWidget.getValue());
+		
+		if(operator == ModelConstants.OPERATOR_BETWEEN || operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+			condition.setSecondValue(valueWidget.getValue(false));
+		
 		condition.setValueQtnDef(valueWidget.getValueQtnDef());
 		condition.setFunction(function);
 
@@ -272,6 +276,8 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 			valueWidget.setOperator(operator);
 			valueWidget.setValueQtnDef(condition.getValueQtnDef()); //Should be set before value such that value processing finds it.
 			valueWidget.setValue(condition.getValue());
+			if(condition.getOperator() == ModelConstants.OPERATOR_BETWEEN)
+				valueWidget.setValue(condition.getSecondValue(), false);
 		}
 	}
 	

@@ -249,7 +249,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				else
 					horizontalPanel.add(txtValue1);
 
-				horizontalPanel.add(chkQuestionValue);
+				if(!isBetweenOperator())
+					horizontalPanel.add(chkQuestionValue);
+
 				txtValue1.setFocus(true);
 				txtValue1.setFocus(true);
 				txtValue1.selectAll();
@@ -262,13 +264,16 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		horizontalPanel.remove(chkQuestionValue);
 		setupPopup();
 		horizontalPanel.add(sgstField);
-		horizontalPanel.add(chkQuestionValue);
+
+		if(!isBetweenOperator())
+			horizontalPanel.add(chkQuestionValue);
+
 		sgstField.setFocus(true);
 		sgstField.setFocus(true);
-		
+
 		if(maintainValue && !EMPTY_VALUE.equals(valueHyperlink.getText()))
 			txtValue1.setText(valueHyperlink.getText());
-		
+
 		txtValue1.selectAll();
 	}
 
@@ -287,13 +292,15 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_EQUAL || operator == ModelConstants.OPERATOR_NOT_EQUAL) ){
 
-			if(chkQuestionValue.getValue() == true){
-				horizontalPanel.remove(valueHyperlink);
-				addFieldSelection(true);
-				return;
+			if(!isBetweenOperator()){
+				if(chkQuestionValue.getValue() == true){
+					horizontalPanel.remove(valueHyperlink);
+					addFieldSelection(true);
+					return;
+				}
+				else
+					horizontalPanel.add(chkQuestionValue);
 			}
-			else
-				horizontalPanel.add(chkQuestionValue);
 
 			MenuBar menuBar = new MenuBar(true);
 
@@ -349,13 +356,15 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_IN_LIST || operator == ModelConstants.OPERATOR_NOT_IN_LIST) ){
 
-			if(chkQuestionValue.getValue() == true){
-				horizontalPanel.remove(valueHyperlink);
-				addFieldSelection(true);
-				return;
+			if(!isBetweenOperator()){
+				if(chkQuestionValue.getValue() == true){
+					horizontalPanel.remove(valueHyperlink);
+					addFieldSelection(true);
+					return;
+				}
+				else
+					horizontalPanel.add(chkQuestionValue);
 			}
-			else
-				horizontalPanel.add(chkQuestionValue);
 
 			String values = valueHyperlink.getText();
 			String[] vals = null;
@@ -447,7 +456,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			else
 				horizontalPanel.add(txtValue1);
 
-			horizontalPanel.add(chkQuestionValue);
+			if(!isBetweenOperator())
+				horizontalPanel.add(chkQuestionValue);
 
 			if(!valueHyperlink.getText().equals(EMPTY_VALUE) && (prevQuestionDef == questionDef || prevQuestionDef == null))
 				txtValue1.setText(valueHyperlink.getText());
@@ -619,6 +629,10 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	}
 
 	public String getValue(){
+		return getValue(true);
+	}
+
+	public String getValue(boolean firstValue){
 		valueQtnDef = null;
 
 		String val = valueHyperlink.getText();
@@ -626,6 +640,13 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			return null;
 		else if(val == null || val.trim().length() == 0)
 			return val; //could be IS NULL or IS NOT NULL
+
+		if(isBetweenOperator()){
+			if(firstValue)
+				val = val.substring(0, val.indexOf(" and "));
+			else
+				val = val.substring(val.indexOf(" and ") + 5);
+		}
 
 		if(chkQuestionValue.getValue() == true){
 			valueQtnDef = formDef.getQuestionWithText(val);
@@ -681,6 +702,10 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	}
 
 	public void setValue(String value){
+		setValue(value, true);
+	}
+
+	public void setValue(String value, boolean firstValue){
 		String sValue = value;
 
 		if(sValue != null){
@@ -742,7 +767,10 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else
 			sValue = EMPTY_VALUE;
 
-		valueHyperlink.setText(sValue);
+		if(firstValue)
+			valueHyperlink.setText(sValue);
+		else
+			valueHyperlink.setText(valueHyperlink.getText() + BETWEEN_VALUE_SEPARATOR + sValue);
 
 		/*if(chkQuestionValue.getValue() && sValue.equals(EMPTY_VALUE)){
 			horizontalPanel.remove(valueHyperlink);
@@ -807,5 +835,9 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		chkQuestionValue.setValue(value);
 		startEdit();
 		setupFieldSelection();
+	}
+
+	private boolean isBetweenOperator(){
+		return operator == ModelConstants.OPERATOR_BETWEEN || operator == ModelConstants.OPERATOR_NOT_BETWEEN;
 	}
 }

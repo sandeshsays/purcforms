@@ -326,10 +326,15 @@ public class XformParserUtil {
 	 * @return the operator constant.
 	 */
 	public static int getConditionsOperator(String expression){
-		if(expression.toLowerCase().indexOf(XformConstants.CONDITIONS_OPERATOR_TEXT_AND) > 0)
+		if(expression.toLowerCase().indexOf(XformConstants.CONDITIONS_OPERATOR_TEXT_AND) > 0 
+				&& expression.toLowerCase().indexOf(XformConstants.CONDITIONS_OPERATOR_TEXT_OR) > 0){
+			return ModelConstants.CONDITIONS_OPERATOR_OR; 
+		}
+		else if(expression.toLowerCase().indexOf(XformConstants.CONDITIONS_OPERATOR_TEXT_AND) > 0)
 			return ModelConstants.CONDITIONS_OPERATOR_AND;
 		else if(expression.toLowerCase().indexOf(XformConstants.CONDITIONS_OPERATOR_TEXT_OR) > 0)
 			return ModelConstants.CONDITIONS_OPERATOR_OR;
+		
 		return ModelConstants.CONDITIONS_OPERATOR_NULL;
 	}
 }

@@ -227,12 +227,12 @@ public class Condition implements Serializable, BindingChangeListener {
 			return len <= len1;
 		else if(operator == ModelConstants.OPERATOR_GREATER)
 			return len > len1;
-			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-				return len >= len1;
-				else if(operator == ModelConstants.OPERATOR_BETWEEN)
-					return len > len1 && len < len2;
-					else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-						return !(len > len1 && len < len2);
+		else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+			return len >= len1;
+		else if(operator == ModelConstants.OPERATOR_BETWEEN)
+			return len > len1 && len < len2;
+		else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+			return !(len > len1 && len < len2);
 
 		return false;
 	}
@@ -275,12 +275,12 @@ public class Condition implements Serializable, BindingChangeListener {
 				return answer < longValue || longValue == answer;
 			else if(operator == ModelConstants.OPERATOR_GREATER)
 				return answer > longValue;
-				else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-					return answer > longValue || longValue == answer;
-					else if(operator == ModelConstants.OPERATOR_BETWEEN)
-						return answer > longValue && longValue < secondLongValue;
-						else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-							return !(answer > longValue && longValue < secondLongValue);
+			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+				return answer > longValue || longValue == answer;
+			else if(operator == ModelConstants.OPERATOR_BETWEEN)
+				return answer > longValue && answer < secondLongValue;
+			else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+				return !(answer > longValue && answer < secondLongValue);
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
@@ -382,9 +382,9 @@ public class Condition implements Serializable, BindingChangeListener {
 			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
 				return answer.after(dateValue) || dateValue.equals(answer);
 			else if(operator == ModelConstants.OPERATOR_BETWEEN)
-				return answer.after(dateValue) && dateValue.before(secondDateValue);
+				return answer.after(dateValue) && answer.before(secondDateValue);
 			else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-				return !(answer.after(dateValue) && dateValue.before(secondDateValue));
+				return !(answer.after(dateValue) && answer.before(secondDateValue));
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
@@ -551,12 +551,12 @@ public class Condition implements Serializable, BindingChangeListener {
 				return answer < doubleValue || doubleValue == answer;
 			else if(operator == ModelConstants.OPERATOR_GREATER)
 				return answer > doubleValue;
-				else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
-					return answer > doubleValue || doubleValue == answer;
-					else if(operator == ModelConstants.OPERATOR_BETWEEN)
-						return answer > doubleValue && doubleValue < secondDoubleValue;
-						else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
-							return !(answer > doubleValue && doubleValue < secondDoubleValue);
+			else if(operator == ModelConstants.OPERATOR_GREATER_EQUAL)
+				return answer > doubleValue || doubleValue == answer;
+			else if(operator == ModelConstants.OPERATOR_BETWEEN)
+				return answer > doubleValue && answer < secondDoubleValue;
+			else if(operator == ModelConstants.OPERATOR_NOT_BETWEEN)
+				return !(answer > doubleValue && answer < secondDoubleValue);
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
