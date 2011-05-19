@@ -608,7 +608,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			widget = new ListBox(false);
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TEXTAREA))
 			widget = new TextArea();
-		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE))
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE) || s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LOGO))
 			widget = FormUtil.createImage(images.picture());
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VIDEO_AUDIO))
 			widget = new Hyperlink(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT),"");

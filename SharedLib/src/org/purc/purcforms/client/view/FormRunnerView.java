@@ -609,6 +609,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				xpath = "/" + formDef.getBinding() + "/" + binding;
 			((Image)widget).setUrl(URL.encode(FormUtil.getMultimediaUrl()+"?formId="+formDef.getId()+"&xpath="+xpath));
 		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LOGO)){
+			widget = new Image();
+			((Image)widget).setUrl(URL.encode(FormUtil.getHostPageBaseURL() + node.getAttribute(WidgetEx.WIDGET_PROPERTY_EXTERNALSOURCE)));
+		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VIDEO_AUDIO) && questionDef != null){
 			String answer = questionDef.getAnswer();
 			if(answer != null && answer.trim().length() !=0 ){

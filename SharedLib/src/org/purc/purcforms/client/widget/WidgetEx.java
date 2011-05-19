@@ -46,6 +46,7 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_TYPE_VIDEO_AUDIO = "VideoAudio";
 	public static final String WIDGET_TYPE_TIME = "TimeWidget";
 	public static final String WIDGET_TYPE_DATETIME = "DateTimeWidget";
+	public static final String WIDGET_TYPE_LOGO = "Logo";
 	
 	public static final String WIDGET_PROPERTY_TOP = "Top";
 	public static final String WIDGET_PROPERTY_LEFT = "Left";

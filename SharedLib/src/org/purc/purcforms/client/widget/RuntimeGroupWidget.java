@@ -402,6 +402,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				xpath = "/" + formDef.getBinding() + "/" + binding;
 			((Image)widget).setUrl(URL.encode(FormUtil.getMultimediaUrl()+"?formId="+formDef.getId()+"&xpath="+xpath+"&time="+ new java.util.Date().getTime()));
 		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LOGO)){
+			widget = new Image();
+			((Image)widget).setUrl(URL.encode(FormUtil.getHostPageBaseURL() + node.getAttribute(WidgetEx.WIDGET_PROPERTY_EXTERNALSOURCE)));
+		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VIDEO_AUDIO) && questionDef != null){
 			widget = new HTML();
 			String xpath = binding;

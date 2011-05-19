@@ -52,6 +52,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Element;
 
@@ -442,8 +443,12 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			return WidgetEx.WIDGET_TYPE_TEXTBOX;
 		else if(widget instanceof Label)
 			return WidgetEx.WIDGET_TYPE_LABEL;
-		else if(widget instanceof Image)
+		else if(widget instanceof Image){
+			if(getParent().getParent().getParent() instanceof VerticalPanel)
+				return WidgetEx.WIDGET_TYPE_LOGO;
+			
 			return WidgetEx.WIDGET_TYPE_IMAGE;
+		}
 		else if(widget instanceof Hyperlink)
 			return WidgetEx.WIDGET_TYPE_VIDEO_AUDIO;
 		else if(widget instanceof DesignGroupWidget)

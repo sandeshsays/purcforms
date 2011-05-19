@@ -62,6 +62,7 @@ public class PaletteView extends Composite {
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("repeatSection"))));
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("picture"))));
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("videoAudio"))));
+		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("logo"))));
 		
 		//verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("searchServer"))));
 

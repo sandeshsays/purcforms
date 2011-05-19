@@ -1540,6 +1540,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			retWidget = addNewPictureSection(null,null,true);
 		else if(text.equals(LocaleText.get("videoAudio")))
 			retWidget = addNewVideoAudioSection(null,null,true);
+		else if(text.equals(LocaleText.get("logo")))
+			retWidget = addNewPicture(true);
 		/*else if(text.equals(LocaleText.get("searchServer")))
 			retWidget = addNewSearchServerWidget(null,null,true);*/
 
