@@ -112,9 +112,9 @@ public class RelevantBuilder {
 				value = " " + condition.getValue();
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_BETWEEN)
-				relevant += XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+value + " and "+ "." + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action)+ condition.getSecondValue();
+				relevant += " " + XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+value + " and " + relevant + " " + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action) + " " + condition.getSecondValue();
 			else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_BETWEEN)
-				relevant +=XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+condition.getSecondValue() + " or "+ "." + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action)+value ;
+				relevant += " " + XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action) + " " + condition.getSecondValue() + " or " + relevant + " " + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action)+value ;
 			else if (condition.getOperator() == ModelConstants.OPERATOR_STARTS_WITH)
 				relevant += " starts-with(.,"+ value+")"; 
 			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_START_WITH)
