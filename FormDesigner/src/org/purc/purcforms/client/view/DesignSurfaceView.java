@@ -287,7 +287,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {
 				popup.hide(); 
 				selectedTabIndex++;
-				DesignWidgetWrapper widget = addNewTab(null, selectedTabIndex);
+				DesignWidgetWrapper widget = addNewTab(null, selectedTabIndex, true);
 				Context.getCommandHistory().add(new InsertTabCmd(widget, selectedTabIndex, widget.getText(), widget.getLayoutNode(), (DesignSurfaceView)widget.getWidgetSelectionListener()));
 			}});
 
@@ -332,8 +332,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		popup.setWidget(menuBar);
 	}
 
-	private DesignWidgetWrapper addNewTab(String name){
-		return addNewTab(name, selectedTabIndex);
+	private DesignWidgetWrapper addNewTab(String name, boolean forcename){
+		return addNewTab(name, selectedTabIndex, forcename);
 	}
 
 	/**
@@ -341,8 +341,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * 
 	 * @param name the tab name.
 	 */
-	public DesignWidgetWrapper addNewTab(String name, int index){
+	public DesignWidgetWrapper addNewTab(String name, int index, boolean forcename){
 		initPanel();
+		
+		if(!forcename)
 		//if(name == null)
 			name = LocaleText.get("page")+(tabs.getWidgetCount());
 
@@ -521,7 +523,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		pageWidgets.clear();
 
 		if(xml == null || xml.trim().length() == 0){
-			addNewTab(null);
+			addNewTab(null, true);
 			return false;
 		}
 
@@ -532,7 +534,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			if(pages.item(i).getNodeType() != Node.ELEMENT_NODE)
 				continue;
 			Element node = (Element)pages.item(i);
-			DesignWidgetWrapper widget = addNewTab(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
+			DesignWidgetWrapper widget = addNewTab(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT), true);
 			WidgetEx.loadLabelProperties(node, widget);
 
 			((DesignGroupView)this).setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
@@ -788,7 +790,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		if(pages != null){
 			for(int i=0; i<pages.size(); i++){
 				PageDef pageDef = (PageDef)pages.get(i);
-				addNewTab(pageDef.getName());
+				addNewTab(pageDef.getName(), true);
 				loadPage(pageDef);
 
 				selectAll();
@@ -953,7 +955,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			if((y+40+rptIncr) > max){
 				y += 10;
 				//addNewButton(false);
-				addNewTab(LocaleText.get("page"));
+				addNewTab(LocaleText.get("page"), true);
 				y = 20 + selectedPanel.getAbsoluteTop();
 			}
 		}
@@ -990,6 +992,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 */
 	protected DesignWidgetWrapper addNewCheckBoxSet(QuestionDef questionDef, boolean vertically, int tabIndex){
 		List options = questionDef.getOptions();
+		if(options == null)
+			return null;
+		
 		for(int i=0; i < options.size(); i++){
 			/*if(i != 0){
 				y += 40;
@@ -1148,7 +1153,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			PaletteView.unRegisterAllDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
-			addNewTab(null);
+			addNewTab(null, true);
 		}
 
 		this.formDef = formDef;
@@ -1281,7 +1286,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			//Check if this is a new page whose tab has not yet been added, and then add it
 			if(tabs.getTabBar().getTabCount() < index+1)
-				addNewTab(LocaleText.get("page") + (index+1));
+				addNewTab(LocaleText.get("page") + (index+1), true);
 			else
 				tabs.getTabBar().selectTab(index);
 

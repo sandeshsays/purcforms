@@ -47,6 +47,12 @@ public class RelevantParser {
 			QuestionDef qtn = (QuestionDef)keys.next();
 			String relevant = (String)relevants.get(qtn);
 
+			if(relevant.startsWith("("))
+				relevant = relevant.substring(1);
+			
+			if(relevant.endsWith(")"))
+				relevant = relevant.substring(0, relevant.length() - 1);
+			
 			//If there is a skip rule with the same relevant as the current
 			//then just add this question as another action target to the skip
 			//rule instead of creating a new skip rule.

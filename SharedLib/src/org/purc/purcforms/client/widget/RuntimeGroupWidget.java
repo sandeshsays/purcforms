@@ -789,8 +789,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
-			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);			
-			parentRptBinding = ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding();
+			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);
+			
+			if(mainWidget.getQuestionDef() == null && (mainWidget.getWrappedWidget() instanceof CheckBox)){
+				parentRptBinding = ((QuestionDef)widgets.get(0).getQuestionDef().getParent()).getBinding();
+				copyWidget.setQuestionDef(new QuestionDef(widgets.get(0).questionDef, widgets.get(0).questionDef.getParent()), false);
+			}
+			else
+				parentRptBinding = ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding();
+			
 			//table.setWidget(row, index, copyWidget);
 
 			if(index == 0){
@@ -1082,7 +1089,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			for(int col = 0; col < table.getCellCount(0)-1; col++)
 				((RuntimeWidgetWrapper)table.getWidget(0, col)).clearValue();
 
-			((FormRunnerView)editListener).fireSkipRules();
+			//TODO Causes an infinite loop for repeat questions having skip logic that refers
+			//     to non repeat children.
+			//((FormRunnerView)editListener).fireSkipRules();
 		}
 		else{
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++)

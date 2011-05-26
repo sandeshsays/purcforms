@@ -23,7 +23,7 @@ public class InsertTabCmd extends DeleteTabCmd {
 	
 	public void redo(){
 		view.clearSelection();
-		view.addNewTab(widget.getText(), index);
+		view.addNewTab(widget.getText(), index, false);
 		
 		if(widget.getLayoutNode() != null){
 			if(parentLayoutNode == null)

@@ -69,6 +69,8 @@ public class ItextParser {
 		List<Locale> locales = new ArrayList<Locale>(); //New list of locales as it comes form the parsed xform.
 		HashMap<String,String> defaultText = null; //Map of default id and itext (for multiple values of the itext node) for the default language.
 
+		HashMap<String, String> textMap = null;
+		
 		//Map of each locale key and map of its id and itext translations.
 		for(int index = 0; index < nodes.getLength(); index++){
 			Element translationNode = (Element)nodes.item(index);
@@ -91,6 +93,8 @@ public class ItextParser {
 
 			//create a new locale object for the current translation.
 			locales.add(new Locale(lang, langName));
+			
+			textMap = defText;
 		}
 
 		Context.setLocales(locales);
@@ -108,7 +112,10 @@ public class ItextParser {
 			addLayoutLocaleText(doc, locale, localeXformNode);
 			localeXformNodeMap.put(locale.getKey(), localeXformNode);
 		}
-
+			
+		if(defaultText == null)
+			defaultText = textMap;
+		
 		translateNodes("label", doc, defaultText);
 		translateNodes("hint", doc, defaultText);
 		translateNodes("title", doc, defaultText);
