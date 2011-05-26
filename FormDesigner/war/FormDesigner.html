@@ -348,7 +348,8 @@
            		id: "ID",
            		formKey: "Form Key",
            		filterField: "Filter Field",
-           		rebuildBindings: "Rebuild Bindings"
+           		rebuildBindings: "Rebuild Bindings",
+           		logo: "Logo"
  		  };
 
 		  function isUserAuthenticated(){
@@ -360,7 +361,12 @@
 		  }
 
 		  function searchExternal(key,value,parentElement,textElement,valueElement,filterField){
-			  alert(valueElement.parentNode.style.left);
+			  //alert(valueElement.parentNode.parentNode.parentNode.parentNode.offsetLeft);
+			  //alert(valueElement.parentNode.parentNode.parentNode.parentNode.style.left);
+			  if(value != 'k'){
+				  valueElement.value = value;
+				  textElement.innerHTML = value;
+			  }
 		  }
 
 		  function initialize(){
