@@ -50,7 +50,7 @@ public class RelevantParser {
 			if(relevant.startsWith("("))
 				relevant = relevant.substring(1);
 			
-			if(relevant.endsWith(")"))
+			if(relevant.endsWith(")") && !QuestionDef.isDateFunction(relevant))
 				relevant = relevant.substring(0, relevant.length() - 1);
 			
 			//If there is a skip rule with the same relevant as the current

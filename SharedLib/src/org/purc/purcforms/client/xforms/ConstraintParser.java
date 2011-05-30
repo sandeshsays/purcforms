@@ -69,7 +69,7 @@ public class ConstraintParser {
 		if(constraint.startsWith("("))
 			constraint = constraint.substring(1);
 		
-		if(constraint.endsWith(")"))
+		if(constraint.endsWith(")") && !QuestionDef.isDateFunction(constraint))
 			constraint = constraint.substring(0, constraint.length() - 1);
 		
 		ValidationRule validationRule = new ValidationRule(questionId,formDef);
