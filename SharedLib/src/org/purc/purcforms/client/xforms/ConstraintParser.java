@@ -115,8 +115,9 @@ public class ConstraintParser {
 		}
 		
 		
+		//TODO Commented out because of being buggy when form is refreshed
 		//Preserve the between operator
-		if( (constraint.contains(" and ") && constraint.contains(">") && constraint.contains("<") ) &&
+		/*if( (constraint.contains(" and ") && constraint.contains(">") && constraint.contains("<") ) &&
 				(conditions.size() == 2 || (conditions.size() == 3 && XformParserUtil.getConditionsOperator(constraint) == ModelConstants.CONDITIONS_OPERATOR_OR)) ){
 			
 			condition  = new Condition();
@@ -144,7 +145,7 @@ public class ConstraintParser {
 			
 			if(cond != null)
 				conditions.add(cond);
-		}
+		}*/
 
 		return conditions;
 	}

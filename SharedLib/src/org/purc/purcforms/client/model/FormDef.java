@@ -1293,9 +1293,11 @@ public class FormDef implements Serializable{
 
 		//Clear existing validation rules if any. Already existing validation rules 
 		//will always overwrite those from the refresh source.
-		validationRules = new Vector();
-		for(int index = 0; index < formDef.getValidationRuleCount(); index++)
-			formDef.getValidationRuleAt(index).refresh(this, formDef);
+		if(!FormUtil.overwriteValidationsOnRefresh()){
+			validationRules = new Vector();
+			for(int index = 0; index < formDef.getValidationRuleCount(); index++)
+				formDef.getValidationRuleAt(index).refresh(this, formDef);
+		}
 
 		//If we already had dynamic options, they will always overwrite all 
 		//from the refresh source.

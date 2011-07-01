@@ -124,8 +124,9 @@ public class RelevantParser {
 				conditions.add(condition);
 		}
 
+		//TODO Commented out because of being buggy when form is refreshed
 		//Preserve the between operator
-		if( (relevant.contains(" and ") && relevant.contains(">") && relevant.contains("<") ) &&
+		/*if( (relevant.contains(" and ") && relevant.contains(">") && relevant.contains("<") ) &&
 				(conditions.size() == 2 || (conditions.size() == 3 && XformParserUtil.getConditionsOperator(relevant) == ModelConstants.CONDITIONS_OPERATOR_OR)) ){
 
 			condition  = new Condition();
@@ -153,7 +154,7 @@ public class RelevantParser {
 			
 			if(cond != null)
 				conditions.add(cond);
-		}
+		}*/
 		
 		return conditions;
 	}

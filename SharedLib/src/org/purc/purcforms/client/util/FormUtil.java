@@ -115,7 +115,8 @@ public class FormUtil {
 	private static String undoRedoBufferSize;
 	private static boolean combineFormOnSave = true;
 	private static boolean rebuildBindings = false;
-	private static boolean readOnlyMode = false;;
+	private static boolean readOnlyMode = false;
+	private static boolean overwriteValidationsOnRefresh = false;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -553,6 +554,12 @@ public class FormUtil {
 			if("1".equals(s) || "true".equals(s))
 				readOnlyMode = true;
 		}
+		
+		s = getDivValue("overwriteValidationsOnRefresh");
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				overwriteValidationsOnRefresh = true;
+		}
 
 		retrieveUrlParameters();
 	}
@@ -858,6 +865,10 @@ public class FormUtil {
 		return rebuildBindings;
 	}
 
+	public static boolean overwriteValidationsOnRefresh(){
+		return overwriteValidationsOnRefresh;
+	}
+	
 	public static boolean isReadOnlyMode(){
 		return readOnlyMode;
 	}
