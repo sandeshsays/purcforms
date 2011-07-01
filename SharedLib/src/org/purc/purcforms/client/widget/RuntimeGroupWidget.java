@@ -1,8 +1,10 @@
 package org.purc.purcforms.client.widget;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 import org.purc.purcforms.client.controller.OpenFileDialogEventListener;
@@ -148,6 +150,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap){
 
 		HashMap<Integer,RuntimeWidgetWrapper> widgetMap = new HashMap<Integer,RuntimeWidgetWrapper>();
+		HashMap<Integer,RuntimeWidgetWrapper> labelWidgetMap = new HashMap<Integer,RuntimeWidgetWrapper>();
+		
 		int maxTabIndex = 0;
 
 		for(int i=0; i<nodes.getLength(); i++){
@@ -155,7 +159,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				continue;
 			try{
 				Element node = (Element)nodes.item(i);
-				int index = loadWidget(formDef,node,widgetMap,externalSourceWidgets,calcQtnMappings, calcWidgetMap, filtDynOptWidgetMap);
+				int index = loadWidget(formDef,node,widgetMap,externalSourceWidgets,calcQtnMappings, calcWidgetMap, filtDynOptWidgetMap, labelWidgetMap);
 				if(index > maxTabIndex)
 					maxTabIndex = index;
 			}
@@ -164,6 +168,17 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 
+		//Adding label headers
+		if(this.isRepeated){
+			int col = 0;
+			Set<Integer> keys = labelWidgetMap.keySet();	
+			Object[] keyArray = keys.toArray();
+			Arrays.sort(keyArray);
+			for(Object key : keyArray){
+				table.setWidget(0, col++, labelWidgetMap.get(key));
+			}
+		}
+		
 		//We are adding widgets to the panel according to the tab index.
 		for(int index = 0; index <= maxTabIndex; index++){
 			RuntimeWidgetWrapper widget = widgetMap.get(new Integer(index));
@@ -198,7 +213,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			});	
 		}
 
-		//Now add the button widgets, if any.
+		//Now add the button and label widgets, if any.
 		if(isRepeated){
 			HorizontalPanel panel = new HorizontalPanel();
 			panel.setSpacing(5);
@@ -206,7 +221,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				panel.add(buttons.get(index));
 			verticalPanel.add(panel);
 
-			addDeleteButton(0);
+			addDeleteButton(table.getRowCount() - 1);
 
 			FormUtil.maximizeWidget(panel);
 		}
@@ -239,14 +254,18 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			return;
 		}
 
-		for(int row = 1; row < table.getRowCount(); row++){
+		int rowStartIndex = 1;
+		if(((RuntimeWidgetWrapper)table.getWidget(0, 0)).getWrappedWidget() instanceof Label)
+			rowStartIndex = 2;
+		
+		for(int row = rowStartIndex; row < table.getRowCount(); row++){
 			if(sender == table.getWidget(row, widgets.size())){
 
 				RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)getParent().getParent();
 				int y = getHeightInt();
 
 				table.removeRow(row);
-				Element node = dataNodes.get(row-1);
+				Element node = dataNodes.get(row-rowStartIndex);
 				node.getParentNode().removeChild(node);
 				dataNodes.remove(node);
 				if(btnAdd != null)
@@ -270,7 +289,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	private int loadWidget(FormDef formDef, Element node,HashMap<Integer,RuntimeWidgetWrapper> widgets, List<RuntimeWidgetWrapper> externalSourceWidgets,
 			HashMap<QuestionDef,List<QuestionDef>> calcQtnMappings,HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap,
-			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap){
+			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap, HashMap<Integer,RuntimeWidgetWrapper> labelWidgetMap){
 
 		RuntimeWidgetWrapper parentWrapper = null;
 
@@ -586,6 +605,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		if(tabIndex > 0 && !(wrapper.getWrappedWidget() instanceof Button))
 			widgets.put(new Integer(tabIndex), wrapper);
+		else if (wrapper.getWrappedWidget() instanceof Label && this.isRepeated)
+			labelWidgetMap.put(new Integer(wrapper.getLeftInt()), wrapper);
 		else
 			addWidget(wrapper);
 
@@ -637,8 +658,18 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			widgets.add(wrapper);
 
 			int row = 0 , col = 0;
-			if(table.getRowCount() > 0)
-				col = table.getCellCount(row);
+			if(table.getRowCount() > 0){
+				if(((RuntimeWidgetWrapper)table.getWidget(0, 0)).getWrappedWidget() instanceof Label){
+					row = 1;
+					if(table.getRowCount() == 1)
+						col = 0;
+					else
+						col = table.getCellCount(row);
+				}
+				else{
+					col = table.getCellCount(row);
+				}
+			}
 
 			table.setWidget(row, col, wrapper);
 		}
@@ -790,14 +821,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
 			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);
-			
+
 			if(mainWidget.getQuestionDef() == null && (mainWidget.getWrappedWidget() instanceof CheckBox)){
 				parentRptBinding = ((QuestionDef)widgets.get(0).getQuestionDef().getParent()).getBinding();
 				copyWidget.setQuestionDef(new QuestionDef(widgets.get(0).questionDef, widgets.get(0).questionDef.getParent()), false);
 			}
 			else
 				parentRptBinding = ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding();
-			
+
 			//table.setWidget(row, index, copyWidget);
 
 			if(index == 0){
