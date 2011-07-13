@@ -105,6 +105,7 @@ public class FormUtil {
 	private static String entityFormDefDownloadUrlSuffix;
 	private static String formDataUploadUrlSuffix;
 	private static String afterSubmitUrlSuffix;
+	private static String afterCancelUrlSuffix;
 	private static String formDefRefreshUrlSuffix;
 	private static String externalSourceUrlSuffix;
 	private static String multimediaUrlSuffix;
@@ -152,6 +153,8 @@ public class FormUtil {
 	 * we go to after a form submission. eg ........?patientId=13
 	 */
 	private static boolean appendEntityIdAfterSubmit;
+	
+	private static boolean appendEntityIdAfterCancel;
 
 	/** 
 	 * Flag determining whether to display the language xml tab or not.
@@ -444,6 +447,7 @@ public class FormUtil {
 		entityFormDefDownloadUrlSuffix = getDivValue("entityFormDefDownloadUrlSuffix");
 		formDataUploadUrlSuffix = getDivValue("formDataUploadUrlSuffix");
 		afterSubmitUrlSuffix = getDivValue("afterSubmitUrlSuffix");
+		afterCancelUrlSuffix = getDivValue("afterCancelUrlSuffix");
 		formDefRefreshUrlSuffix = getDivValue("formDefRefreshUrlSuffix");
 		externalSourceUrlSuffix = getDivValue("externalSourceUrlSuffix");
 		multimediaUrlSuffix = getDivValue("multimediaUrlSuffix");
@@ -505,6 +509,12 @@ public class FormUtil {
 			appendEntityIdAfterSubmit = false;
 		else
 			appendEntityIdAfterSubmit = !s.equals("0");
+		
+		s = getDivValue("appendEntityIdAfterCancel");
+		if(s == null || s.trim().length() == 0)
+			appendEntityIdAfterCancel = false;
+		else
+			appendEntityIdAfterCancel = !s.equals("0");
 
 		s = getDivValue("showSubmitSuccessMsg");
 		if("1".equals(s) || "true".equals(s))
@@ -745,6 +755,10 @@ public class FormUtil {
 	public static String getAfterSubmitUrlSuffix(){
 		return afterSubmitUrlSuffix;
 	}
+	
+	public static String getAfterCancelUrlSuffix(){
+		return afterCancelUrlSuffix;
+	}
 
 	public static String getFormDefRefreshUrlSuffix(){
 		return formDefRefreshUrlSuffix;
@@ -851,6 +865,10 @@ public class FormUtil {
 
 	public static boolean appendEntityIdAfterSubmit(){
 		return appendEntityIdAfterSubmit;
+	}
+	
+	public static boolean appendEntityIdAfterCancel(){
+		return appendEntityIdAfterCancel;
 	}
 
 	public static boolean showSubmitSuccessMsg(){
