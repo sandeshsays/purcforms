@@ -93,10 +93,13 @@ public class ConstraintBuilder {
 		QuestionDef questionDef = formDef.getQuestion(condition.getQuestionId());
 		if(questionDef != null){			
 			String value = " '" + condition.getValue() + "'";
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || 
-					questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || condition.getFunction() == ModelConstants.FUNCTION_LENGTH ||
-					condition.getValue().endsWith("()"))
-				value = " " + condition.getValue();
+			
+			if(condition.getValue() != null && condition.getValue().trim().length() > 0){
+				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || 
+						questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || condition.getFunction() == ModelConstants.FUNCTION_LENGTH ||
+						condition.getValue().endsWith("()"))
+					value = " " + condition.getValue();
+			}
 
 			constraint = ". ";
 			//if(actionQtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)

@@ -108,8 +108,10 @@ public class RelevantBuilder {
 			}
 
 			String value = " '" + condition.getValue() + "'";
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC)
-				value = " " + condition.getValue();
+			if(condition.getValue() != null && condition.getValue().trim().length() > 0){
+				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC)
+					value = " " + condition.getValue();
+			}
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_BETWEEN)
 				relevant += " " + XformBuilderUtil.getXpathOperator(ModelConstants.OPERATOR_GREATER,action)+value + " and " + relevant + " " + XformBuilderUtil.getXpathOperator( ModelConstants.OPERATOR_LESS,action) + " " + condition.getSecondValue();
