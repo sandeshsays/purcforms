@@ -41,6 +41,7 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
 
@@ -983,11 +984,19 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 						//changing the xform.
 						if(!isOfflineMode() && !overwrite)
 							formDef.refresh(oldFormDef);
+							
+						if(FormUtil.isJavaRosaSaveFormat() && oldFormDef.getDoc() != null){
+							if(formDef.getModelNode().getElementsByTagName("itext").getLength() == 0){
+								NodeList nodes = oldFormDef.getDoc().getElementsByTagName("itext");
+								if(nodes.getLength() > 0)
+									formDef.getModelNode().appendChild(nodes.item(0));
+							}
+						}
 
 						formDef.updateDoc(false);
 						xml = formDef.getDoc().toString();
 
-						formDef.setXformXml(FormUtil.formatXml(xml));
+						formDef.setXformXml(xml/*FormUtil.formatXml(xml)*/);
 
 						formDef.setLayoutXml(oldFormDef.getLayoutXml());
 						formDef.setLanguageXml(oldFormDef.getLanguageXml());
