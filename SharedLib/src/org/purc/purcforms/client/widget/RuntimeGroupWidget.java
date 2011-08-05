@@ -275,8 +275,13 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 				RuntimeWidgetWrapper parent = (RuntimeWidgetWrapper)getParent().getParent();
 				ValidationRule validationRule = parent.getValidationRule();
-				if(validationRule != null)
+				if(validationRule != null){
 					parent.getQuestionDef().setAnswer(table.getRowCount()+"");
+					
+					//Add error message
+					if(getParent().getParent() instanceof RuntimeWidgetWrapper)
+						((RuntimeWidgetWrapper)getParent().getParent()).isValid(true);
+				}
 
 				List<FormDef> forms = repeatRowFormMap.get(sender);
 				if(forms != null){
@@ -883,8 +888,13 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if(validationRule != null){
 			row++;
 			parent.getQuestionDef().setAnswer(row+"");
-			if(validationRule.getMaxValue(formDef) == row)
+			if(validationRule.getMaxValue(formDef) == row){
 				((Button)sender).setEnabled(false);
+				
+				//Remove error message.
+				if(getParent().getParent() instanceof RuntimeWidgetWrapper)
+					((RuntimeWidgetWrapper)getParent().getParent()).isValid(true);
+			}
 		}
 
 		if(firstWidget != null)
