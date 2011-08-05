@@ -254,6 +254,9 @@ public class SkipRule implements Serializable{
 	
 	/** Executes the rule action on the supplied question. */
 	public void ExecuteAction(QuestionDef qtn,boolean conditionTrue){
+		if(qtn == null)
+			return;
+		
 		//qtn.setVisible(true);
 		qtn.setEnabled(true);
 		qtn.setRequired(false);
