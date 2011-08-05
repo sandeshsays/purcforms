@@ -203,6 +203,17 @@ public class Condition implements Serializable, BindingChangeListener {
 		return ret;
 	}
 
+	private Integer getRepeatQtnAnswerLength(String answer){
+		try{
+			return Integer.parseInt(answer);
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
+		
+		return -1;
+	}
+	
 	private boolean isLengthTrue(QuestionDef qtn){
 		String answer = qtn.getAnswer();
 
@@ -215,7 +226,10 @@ public class Condition implements Serializable, BindingChangeListener {
 		if(secondValue != null && secondValue.trim().length() > 0)
 			len2 = Long.parseLong(secondValue);
 
-		len = answer.trim().length();
+		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			len = getRepeatQtnAnswerLength(answer);
+		else
+			len = answer.trim().length();
 
 		if(operator == ModelConstants.OPERATOR_EQUAL)
 			return len == len1;
