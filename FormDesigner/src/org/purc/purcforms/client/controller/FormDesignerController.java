@@ -829,6 +829,12 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	}
 
 	public void saveForm(String xformXml, String layoutXml, String languageXml, String javaScriptSrc){
+		
+		if(xformXml == null || xformXml.trim().length() == 0){
+			Window.alert("Attempted to save empty form. Please report this to your Administrator");
+			return;
+		}
+		
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getFormDefUploadUrlSuffix();
 		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
