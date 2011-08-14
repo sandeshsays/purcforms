@@ -735,13 +735,17 @@ public class PageDef implements Serializable{
 			name = pageDef.getName();
 
 		Vector<QuestionDef> orderedQtns = new Vector<QuestionDef>();
+		Vector<QuestionDef> missingQtns = new Vector<QuestionDef>();
 
 		int count = pageDef.getQuestionCount();
 		for(int index = 0; index < count; index++){
 			QuestionDef qtn = pageDef.getQuestionAt(index);
 			QuestionDef questionDef = this.getQuestion(qtn.getBinding());
-			if(questionDef == null)
+			if(questionDef == null){
+				missingQtns.add(qtn);
 				continue; //Possibly this question was deleted on server
+			}
+			
 			questionDef.refresh(qtn);
 
 			orderedQtns.add(questionDef); //add the question in the order it was before the refresh.
@@ -749,17 +753,21 @@ public class PageDef implements Serializable{
 			
 			//Preserve the previous question ordering even in the xforms document nodes.
 			int newIndex = ((List)questions).indexOf(questionDef);
-			if(index != newIndex){
-				if(newIndex < index){
-					while(newIndex < index){
-						moveQuestionDown(questionDef);
-						newIndex++;
+			
+			int tempIndex = index - missingQtns.size();
+			if(newIndex < ((List)questions).size()){
+				if(tempIndex != newIndex){
+					if(newIndex < tempIndex){
+						while(newIndex < tempIndex){
+							moveQuestionDown(questionDef);
+							newIndex++;
+						}
 					}
-				}
-				else{
-					while(newIndex > index){
-						moveQuestionUp(questionDef);
-						newIndex--;
+					else{
+						while(newIndex > tempIndex){
+							moveQuestionUp(questionDef);
+							newIndex--;
+						}
 					}
 				}
 			}
@@ -778,7 +786,15 @@ public class PageDef implements Serializable{
 			if(pageDef.getQuestion(questionDef.getBinding()) == null)
 				orderedQtns.add(questionDef);
 		}
-
+		
+		//Now add the missing questions. Possibly they were added by user and not existing in the
+		//original server side form.
+		for(int index = 0; index < missingQtns.size(); index++){
+			QuestionDef qtnDef = missingQtns.get(index);
+			orderedQtns.add(new QuestionDef(qtnDef, this));
+			orderedQtns.get(orderedQtns.size() - 1).setId(orderedQtns.size() + index + 1);
+		}
+		
 		questions = orderedQtns;
 	}
 

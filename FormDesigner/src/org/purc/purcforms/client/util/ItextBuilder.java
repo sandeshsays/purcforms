@@ -32,7 +32,7 @@ public class ItextBuilder {
 	 * 
 	 * @param formDef
 	 */
-	public static void build(FormDef formDef){
+	public synchronized static void build(FormDef formDef){
 
 		Element modelNode = XmlUtil.getNode(formDef.getDoc().getDocumentElement(),"model");
 		assert(modelNode != null); //we must have a model in an xform.
@@ -47,6 +47,7 @@ public class ItextBuilder {
 
 		itextNode = formDef.getDoc().createElement("itext");
 		modelNode.appendChild(itextNode);
+		formDef.setItextNode(itextNode);
 
 		HashMap<String,String> xpathIdMap = new HashMap<String,String>();
 		HashMap<String,String> languageText = Context.getLanguageText().get(formDef.getId());
@@ -94,7 +95,7 @@ public class ItextBuilder {
 	}
 
 
-	private static void build(Document doc, Element languageNode, Locale locale, Element itextNode, boolean addItextAttribute, HashMap<String,String> xpathIdMap, HashMap<String, String> changedXpaths){
+	private synchronized static void build(Document doc, Element languageNode, Locale locale, Element itextNode, boolean addItextAttribute, HashMap<String,String> xpathIdMap, HashMap<String, String> changedXpaths){
 		Element translationNode = doc.createElement("translation");
 		translationNode.setAttribute("lang", locale.getKey());
 		translationNode.setAttribute("lang-name", locale.getName());
@@ -211,7 +212,7 @@ public class ItextBuilder {
 	 * @param value the itext value of the given id.
 	 * @param localeKey the locale key
 	 */
-	private static void addTextNode(Document doc, Element translationNode, String xpath, String id, String value, String localeKey, String uniqueId){
+	private synchronized static void addTextNode(Document doc, Element translationNode, String xpath, String id, String value, String localeKey, String uniqueId){
 		if(value.trim().length() == 0)
 			return;
 
@@ -232,7 +233,7 @@ public class ItextBuilder {
 	 * 
 	 * @param node the node whose child nodes to remove.
 	 */
-	private static void removeAllChildNodes(Element node){
+	private synchronized static void removeAllChildNodes(Element node){
 		while(node.getChildNodes().getLength() > 0)
 			node.removeChild(node.getChildNodes().item(0));
 	}

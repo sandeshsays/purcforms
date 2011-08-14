@@ -1036,9 +1036,16 @@ public class QuestionDef implements Serializable{
 				parentNode.appendChild(node);
 				if(formDef.getBinding().equals(parent.getNodeName()))
 					parent.replaceChild(parentNode, dataNode);
-				else
+				else{
 					//if(dataNode.getParentNode().getParentNode() != null)
-					formDef.getDataNode().replaceChild(parentNode, dataNode.getParentNode());
+					try{
+						formDef.getDataNode().replaceChild(parentNode, dataNode.getParentNode());
+					}
+					catch(Exception ex){
+						ex.printStackTrace();
+						return; //TODO Am not sure what causes this.
+					}
+				}
 
 				dataNode = node;
 			}
@@ -1330,6 +1337,11 @@ public class QuestionDef implements Serializable{
 		if(options == null || options2 == null)
 			return;
 
+		if(getText().equals("MODE OF TRANSPORT OF ARRIVAL AT HOSPITAL") ||
+				getText().equals("During the most recent hospital visit for this illness/clinician, what means of transport did [NAME] use to arrive at the hospital?")){
+			options.toString();
+		}
+		
 		Vector<OptionDef> orderedOptns = new Vector<OptionDef>();
 		Vector<OptionDef> missingOptns = new Vector<OptionDef>();
 		
@@ -1348,17 +1360,21 @@ public class QuestionDef implements Serializable{
 			
 			//Preserve the previous option ordering even in the xforms document nodes.
 			int newIndex = ((List)options).indexOf(optionDef);
-			if(index != newIndex){
-				if(newIndex < index){
-					while(newIndex < index){
-						moveOptionDown(optionDef);
-						newIndex++;
+			
+			int tempIndex = index - missingOptns.size();
+			if(newIndex < ((List)options).size()){
+				if(tempIndex != newIndex){
+					if(newIndex < tempIndex){
+						while(newIndex < tempIndex){
+							moveOptionDown(optionDef);
+							newIndex++;
+						}
 					}
-				}
-				else{
-					while(newIndex > index){
-						moveOptionUp(optionDef);
-						newIndex--;
+					else{
+						while(newIndex > tempIndex){
+							moveOptionUp(optionDef);
+							newIndex--;
+						}
 					}
 				}
 			}

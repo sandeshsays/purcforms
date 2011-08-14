@@ -79,6 +79,8 @@ public class FormDef implements Serializable{
 
 	/** The model node of the xform that this form represents. */
 	private Element modelNode;
+	
+	private Element itextNode;
 
 	/** The layout xml for this form. */
 	private String layoutXml;
@@ -1338,9 +1340,49 @@ public class FormDef implements Serializable{
 		calculations = new Vector();
 		for(int index = 0; index < formDef.getCalculationCount(); index++){
 			Calculation calculation = formDef.getCalculationAt(index);
-			QuestionDef questionDef = getQuestion(formDef.getQuestion(calculation.getQuestionId()).getBinding());
-			if(questionDef != null)
-				addCalculation(new Calculation(questionDef.getId(),calculation.getCalculateExpression()));
+			QuestionDef qtn = formDef.getQuestion(calculation.getQuestionId());
+			if(qtn != null){
+				QuestionDef questionDef = getQuestion(qtn.getBinding());
+				if(questionDef != null)
+					addCalculation(new Calculation(questionDef.getId(),calculation.getCalculateExpression()));
+			}
+			//else possibly removed by xformsparser for not having ui questions but were added during bind parsing.
+		}
+		
+		//For multiple page documents, move questions in the appropriate pages.
+		if(formDef.getPageCount() > 1){
+			for(int pageNo = 0; pageNo < formDef.getPageCount(); pageNo++){
+				PageDef pageDef = formDef.getPageAt(pageNo);
+				
+				PageDef thisPageDef = null;
+				if(pageNo >= getPageCount()){
+					thisPageDef = new PageDef(this);
+					thisPageDef.setQuestions(new Vector());
+					thisPageDef.setPageNo(pageNo + 1);
+					thisPageDef.setName(pageDef.getName());
+					addPage(thisPageDef);
+				}
+				else
+					thisPageDef = getPageAt(pageNo);
+				
+				for(int qtnNo = 0; qtnNo < pageDef.getQuestionCount(); qtnNo++){
+					QuestionDef questionDef = pageDef.getQuestionAt(qtnNo);
+					QuestionDef qtnDef = thisPageDef.getQuestion(questionDef.getBinding());
+					if(qtnDef == null){
+						QuestionDef qtn = getQuestionAndRemove(questionDef.getBinding(), pageNo);
+						if(qtn == null)
+							continue;
+						
+						if(qtn.getControlNode() != null)
+							qtn.getControlNode().getParentNode().removeChild(qtn.getControlNode());
+						
+						qtn.setControlNode(null);
+						qtn.setHintNode(null);
+						qtn.setParent(thisPageDef);
+						thisPageDef.getQuestions().add(qtn);
+					}
+				}
+			}
 		}
 	}
 
@@ -1471,5 +1513,31 @@ public class FormDef implements Serializable{
 
 		for(int i=0; i<pages.size(); i++)
 			((PageDef)pages.elementAt(i)).clearChangeListeners();
+	}
+	
+	public QuestionDef getQuestionAndRemove(String varName, int minusPageNo){
+		if(varName == null || pages == null)
+			return null;
+
+		for(int i=0; i<getPages().size(); i++){
+			if(i == minusPageNo)
+				continue;
+			
+			QuestionDef def = ((PageDef)getPages().elementAt(i)).getQuestion(varName);
+			if(def != null){
+				((PageDef)getPages().elementAt(i)).getQuestions().remove(i);
+				return def;
+			}
+		}
+
+		return null;
+	}
+
+	public Element getItextNode() {
+		return itextNode;
+	}
+
+	public void setItextNode(Element itextNode) {
+		this.itextNode = itextNode;
 	}
 }

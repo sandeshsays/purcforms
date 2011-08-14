@@ -78,22 +78,40 @@ public class UiElementBuilder {
 	 * @param groupNode the xforms group node to which the question belongs.
 	 */
 	public static void fromQuestionDef2Xform(QuestionDef qtn, Document doc, Element xformsNode, FormDef formDef, Element formNode, Element modelNode,Element groupNode){
-		Element dataNode =  XformBuilderUtil.fromVariableName2Node(doc,qtn.getBinding(),formDef,formNode);
-		if(qtn.getDefaultValue() != null && qtn.getDefaultValue().trim().length() > 0)
-			dataNode.appendChild(doc.createTextNode(qtn.getDefaultValue()));
-		qtn.setDataNode(dataNode);
-
-		Element bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
-		String id = setBindNodeProperties(bindNode, qtn, null, formDef);
+		Element dataNode = qtn.getDataNode();
+		if(dataNode == null){
+			dataNode =  XformBuilderUtil.fromVariableName2Node(doc,qtn.getBinding(),formDef,formNode);
+			if(qtn.getDefaultValue() != null && qtn.getDefaultValue().trim().length() > 0)
+				dataNode.appendChild(doc.createTextNode(qtn.getDefaultValue()));
+			qtn.setDataNode(dataNode);
+		}
 
 		String bindAttributeName = XformConstants.ATTRIBUTE_NAME_REF;
+		Element bindNode = qtn.getBindNode();
+		String id = qtn.getBinding();
+		if(bindNode == null){
+			bindNode =  doc.createElement(XformConstants.NODE_NAME_BIND);
+			if(!groupNode.getNodeName().equals(XformConstants.NODE_NAME_REPEAT)){
+				modelNode.appendChild(bindNode);
+				qtn.setBindNode(bindNode);
+			}	
+			
+			id = setBindNodeProperties(bindNode, qtn, null, formDef);
+		}
+		else{
+			if(id != null && !(id.contains("/")))
+				id = XformBuilderUtil.getBindIdFromVariableName(qtn.getBinding(),false);
+			else
+				id = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
+		}
+			
+		
 		if(!groupNode.getNodeName().equals(XformConstants.NODE_NAME_REPEAT)){
-			modelNode.appendChild(bindNode);
-			qtn.setBindNode(bindNode);
 			bindAttributeName = XformConstants.ATTRIBUTE_NAME_BIND;
-		}	
+		}
+		
 
-		Element uiNode =  getXformUIElement(doc,qtn,bindAttributeName,false, id);
+		Element uiNode =  getXformUIElement(doc,qtn,bindAttributeName, false, id);
 		if(groupNode != null) //Some forms may not be in groups
 			groupNode.appendChild(uiNode);
 		else
