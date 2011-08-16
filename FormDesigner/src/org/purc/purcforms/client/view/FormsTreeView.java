@@ -1459,7 +1459,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			if(parentObj instanceof QuestionDef){
 				QuestionDef parentQuestionDef = (QuestionDef)parentObj;
 				if(parentQuestionDef != null && parentQuestionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-					return parentQuestionDef.getRepeatQtnsDef().getQuestionsCount() + 1;
+					return parentQuestionDef.getId() + parentQuestionDef.getRepeatQtnsDef().getQuestionsCount() + 1;
 			}
 			
 			return formDef.getQuestionCount() + 1;
