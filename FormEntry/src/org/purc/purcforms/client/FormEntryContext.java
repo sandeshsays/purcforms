@@ -30,7 +30,7 @@ public class FormEntryContext {
 	private static List<FormDataListLoadListener> formDataListLoadListeners = new ArrayList<FormDataListLoadListener>();
 	private static List<FormDataLoadListener> formDataLoadListeners = new ArrayList<FormDataLoadListener>();
 
-	private static String formDownloadUrl; //http://open-data-kit.appspot.com/formList
+	private static String formDownloadUrl;
 	private static String dataUploadUrl;
 	
 	/** The current form definition id. */
