@@ -429,12 +429,12 @@ public class XFormsUtil {
     
     public static String getFormList(){
     	return "<forms> " +
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chELEgRGb3JtIgdERUZBVUxUDA\">Sample form</form> "+
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0choLEgRGb3JtIhBIb3VzZWhvbGRTdXJ2ZXkxDA\">Household Survey</form> "+
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0cg8LEgRGb3JtIgViYXNpYww\">Basic</form> "+
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chQLEgRGb3JtIgpnZW9fdGFnZ2VyDA\">Geo Tagger</form> "+
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0cg4LEgRGb3JtIgRpbWNpDA\">IMCI</form>"+
-			"<form url=\"http://open-data-kit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chELEgRGb3JtIgd3aWRnZXRzDA\">Widgets</form> "+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chELEgRGb3JtIgdERUZBVUxUDA\">Sample form</form> "+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0choLEgRGb3JtIhBIb3VzZWhvbGRTdXJ2ZXkxDA\">Household Survey</form> "+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0cg8LEgRGb3JtIgViYXNpYww\">Basic</form> "+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chQLEgRGb3JtIgpnZW9fdGFnZ2VyDA\">Geo Tagger</form> "+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0cg4LEgRGb3JtIgRpbWNpDA\">IMCI</form>"+
+			"<form url=\"http://opendatakit.appspot.com/formXml?odkFormKey=ag1vcGVuLWRhdGEta2l0chELEgRGb3JtIgd3aWRnZXRzDA\">Widgets</form> "+
 			"</forms>";
     }
     
