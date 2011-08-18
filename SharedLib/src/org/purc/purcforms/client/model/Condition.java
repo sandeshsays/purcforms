@@ -469,9 +469,9 @@ public class Condition implements Serializable, BindingChangeListener {
 			case ModelConstants.OPERATOR_NOT_EQUAL:
 				return !qtn.getAnswer().contains(value); //!qtn.getAnswer().equals(value);
 			case ModelConstants.OPERATOR_IN_LIST:
-				return value.contains(qtn.getAnswer());
+				return multipleSelectContains(value, qtn.getAnswer(), validation);
 			case ModelConstants.OPERATOR_NOT_IN_LIST:
-				return !value.contains(qtn.getAnswer());
+				return !multipleSelectContains(value, qtn.getAnswer(), validation);
 			default:
 				return false;
 			}
@@ -482,6 +482,39 @@ public class Condition implements Serializable, BindingChangeListener {
 		return false;
 	}
 
+	
+	/**
+	 * Checks if there is any multiple select answer option contained in a condition value.
+	 * 
+	 * @param conditionValue the condition value.
+	 * @param multipleSelectAnswer the multiple select answer.
+	 * @param validation has value of true if this is a validation logic condition, else false if skip logic one.
+	 * @return true if there is, else false.
+	 */
+	private boolean multipleSelectContains(String conditionValue, String multipleSelectAnswer, boolean validation){
+		if(conditionValue == null || multipleSelectAnswer == null)
+			return false;
+		
+		String[] answers = multipleSelectAnswer.split(",");
+		String[] values = conditionValue.split(",");
+		if(answers == null || values == null)
+			return false;
+		
+		//Check if we should use space separator.
+		if(validation && multipleSelectAnswer.indexOf(',') < 0)
+			answers = multipleSelectAnswer.split(" ");
+		
+		for(int index = 0; index < answers.length; index++){
+			String answer = answers[index].trim();
+			for(int i = 0; i < values.length; i++){
+				if(values[i].trim().equals(answer))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
 
 	/**
 	 * Check to see if a condition, attached to a single select question, is true.

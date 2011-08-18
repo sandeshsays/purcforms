@@ -224,6 +224,14 @@ public class RelevantParser {
 		else
 			condition.setOperator(ModelConstants.OPERATOR_IS_NULL); //must be = ''
 
+		//correct back the in and not in list operators for multiple selects.
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE && value.contains(",")){
+			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
+				condition.setOperator(ModelConstants.OPERATOR_IN_LIST);
+			else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
+				condition.setOperator(ModelConstants.OPERATOR_NOT_IN_LIST);
+		}
+		
 		return condition;
 	}
 }
