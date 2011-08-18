@@ -138,7 +138,7 @@ public class OperatorHyperlink extends Hyperlink implements ItemSelectionListene
 		
 		if(!(dataType == QuestionDef.QTN_TYPE_GPS || dataType == QuestionDef.QTN_TYPE_VIDEO ||
 				dataType == QuestionDef.QTN_TYPE_AUDIO || dataType == QuestionDef.QTN_TYPE_IMAGE ||
-				dataType == QuestionDef.QTN_TYPE_BARCODE)){
+				dataType == QuestionDef.QTN_TYPE_BARCODE || dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE)){
 			menuBar.addItem(OP_TEXT_EQUAL,true, new SelectItemCommand(OP_TEXT_EQUAL,this));
 			menuBar.addItem(OP_TEXT_NOT_EQUAL,true, new SelectItemCommand(OP_TEXT_NOT_EQUAL,this));
 			count += 2;
@@ -157,9 +157,14 @@ public class OperatorHyperlink extends Hyperlink implements ItemSelectionListene
 			count += 6;
 		}
 		
-		if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){		  
+		if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){		  
 			menuBar.addItem(OP_TEXT_IN_LIST,true,new SelectItemCommand(OP_TEXT_IN_LIST,this));	  
 			menuBar.addItem(OP_TEXT_NOT_IN_LIST,true, new SelectItemCommand(OP_TEXT_NOT_IN_LIST,this));
+			count += 2;
+		}
+		else if(dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){		  
+			menuBar.addItem(OP_TEXT_CONTAINS,true,new SelectItemCommand(OP_TEXT_CONTAINS,this));	  
+			menuBar.addItem(OP_TEXT_NOT_CONTAIN,true, new SelectItemCommand(OP_TEXT_NOT_CONTAIN,this));
 			count += 2;
 		}
 			  

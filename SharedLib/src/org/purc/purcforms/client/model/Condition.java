@@ -455,7 +455,7 @@ public class Condition implements Serializable, BindingChangeListener {
 				if(validation && operator == ModelConstants.OPERATOR_IS_NOT_NULL)
 					return false;
 				else if(validation || operator == ModelConstants.OPERATOR_NOT_EQUAL || 
-						operator == ModelConstants.OPERATOR_NOT_IN_LIST)
+						operator == ModelConstants.OPERATOR_NOT_CONTAIN)
 					return true;
 				return operator == ModelConstants.OPERATOR_IS_NULL;
 			}
@@ -468,9 +468,9 @@ public class Condition implements Serializable, BindingChangeListener {
 				return qtn.getAnswer().contains(value); //qtn.getAnswer().equals(value);
 			case ModelConstants.OPERATOR_NOT_EQUAL:
 				return !qtn.getAnswer().contains(value); //!qtn.getAnswer().equals(value);
-			case ModelConstants.OPERATOR_IN_LIST:
+			case ModelConstants.OPERATOR_CONTAINS:
 				return multipleSelectContains(value, qtn.getAnswer(), validation);
-			case ModelConstants.OPERATOR_NOT_IN_LIST:
+			case ModelConstants.OPERATOR_NOT_CONTAIN:
 				return !multipleSelectContains(value, qtn.getAnswer(), validation);
 			default:
 				return false;
