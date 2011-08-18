@@ -7,7 +7,6 @@ import java.util.Vector;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
-import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
 
@@ -180,6 +179,12 @@ public class RelevantParser {
 			return null;
 
 		String varName = relevant.substring(0, pos);
+		
+		if(varName.startsWith("selected("))
+			varName = varName.substring("selected(".length());
+		else if(varName.startsWith("not selected("))
+			varName = varName.substring("not selected(".length());
+		
 		QuestionDef questionDef = formDef.getQuestion(varName.trim());
 		if(questionDef == null){
 			String prefix = "/" + formDef.getBinding() + "/";

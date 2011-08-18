@@ -7,6 +7,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Element;
 
@@ -119,10 +120,18 @@ public class ConstraintBuilder {
 				constraint += " ends-with(.,"+ value+")"; 
 			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_END_WITH)
 				constraint += " not(ends-with(.,"+ value+"))";
-			else if (condition.getOperator() == ModelConstants.OPERATOR_CONTAINS)
-				 constraint += " contains(.,"+ value+")";
-			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN)
-				 constraint += " not(contains(.,"+ value+"))";
+			else if (condition.getOperator() == ModelConstants.OPERATOR_CONTAINS){
+				if(FormUtil.isJavaRosaSaveFormat())
+					constraint = "selected(" + constraint + "," + value + ")";
+				else	
+					constraint += " contains(.,"+ value+")";
+			}
+			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN){
+				if(FormUtil.isJavaRosaSaveFormat())
+					constraint = "not selected(" + constraint + "," + value + ")";
+				else
+					constraint += " not(contains(.,"+ value+"))";
+			}
 			else
 				constraint += XformBuilderUtil.getXpathOperator(condition.getOperator(),action)+value;
 		}

@@ -7,6 +7,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Element;
 
@@ -125,10 +126,18 @@ public class RelevantBuilder {
 				relevant += " ends-with(.,"+ value+")"; 
 			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_END_WITH)
 				relevant += " not(ends-with(.,"+ value+"))";
-			else if (condition.getOperator() == ModelConstants.OPERATOR_CONTAINS)
-				relevant += " contains(.,"+ value+")";
-			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN)
-				relevant += " not(contains(.,"+ value+"))";
+			else if (condition.getOperator() == ModelConstants.OPERATOR_CONTAINS){
+				if(FormUtil.isJavaRosaSaveFormat())
+					relevant = "selected(" + relevant + "," + value + ")";
+				else	
+					relevant += " contains(.,"+ value+")";
+			}
+			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN){
+				if(FormUtil.isJavaRosaSaveFormat())
+					relevant = "not selected(" + relevant + "," + value + ")";
+				else
+					relevant += " not(contains(.,"+ value+"))";
+			}
 			else
 				relevant += " " + XformBuilderUtil.getXpathOperator(condition.getOperator(),action)+value;
 		}

@@ -98,6 +98,16 @@ public class XformParserUtil {
 				return ModelConstants.OPERATOR_CONTAINS;
 			return ModelConstants.OPERATOR_NOT_CONTAIN;
 		}
+		else if(expression.indexOf("not selected(") > -1){
+			if(XformBuilderUtil.isPositiveAction(action))
+				return ModelConstants.OPERATOR_NOT_CONTAIN;
+			return ModelConstants.OPERATOR_CONTAINS;
+		}
+		else if(expression.indexOf("selected(") > -1){
+			if(XformBuilderUtil.isPositiveAction(action))
+				return ModelConstants.OPERATOR_CONTAINS;
+			return ModelConstants.OPERATOR_NOT_CONTAIN;
+		}
 
 		return ModelConstants.OPERATOR_NULL;
 	}
@@ -183,6 +193,14 @@ public class XformParserUtil {
 		pos = expression.lastIndexOf("contains");
 		if(pos > -1)
 			return pos;
+		
+		pos = expression.lastIndexOf("not selected(");
+		if(pos > -1)
+			return expression.indexOf(',');
+		
+		pos = expression.lastIndexOf("selected(");
+		if(pos > -1)
+			return expression.indexOf(',');
 
 		return pos;
 	}
