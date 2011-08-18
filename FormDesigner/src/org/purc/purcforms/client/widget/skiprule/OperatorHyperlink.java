@@ -109,9 +109,9 @@ public class OperatorHyperlink extends Hyperlink implements ItemSelectionListene
 	public void setDataType(int dataType){
 		this.dataType = dataType;
 		
-		//We set the universal operator which is valid for all questions,
+		//We set the universal operator which is valid for all non multiple select questions,
 		//as the one to start with or display by default.
-		setText(OP_TEXT_EQUAL);
+		setText(dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ? OP_TEXT_CONTAINS : OP_TEXT_EQUAL);
 	}
 	  
 	@Override

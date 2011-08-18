@@ -120,7 +120,10 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 
 		valueWidget.setFormDef(formDef);
 
-		operator = ModelConstants.OPERATOR_EQUAL;
+		//Multiple selects do not have the equal operator.
+		operator = ( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) ? 
+				ModelConstants.OPERATOR_CONTAINS : ModelConstants.OPERATOR_EQUAL);
+		
 		valueWidget.setOperator(operator);
 	}
 
