@@ -562,24 +562,26 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			widget = new Label(text);
 
-			int pos1 = text.indexOf("${");
-			int pos2 = text.indexOf("}$");
-			if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
-				String varname = text.substring(pos1+2,pos2);
-				labelText.put((Label)widget, text);
-				labelReplaceText.put((Label)widget, "${"+varname+"}$");
-
-				((Label)widget).setText(text.replace("${"+varname+"}$", ""));
-				if(varname.startsWith("/"+ formDef.getBinding()+"/"))
-					varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
-
-				QuestionDef qtnDef = formDef.getQuestion(varname);
-				List<Label> labels = labelMap.get(qtnDef);
-				if(labels == null){
-					labels = new ArrayList<Label>();
-					labelMap.put(qtnDef, labels);
+			if(text != null){
+				int pos1 = text.indexOf("${");
+				int pos2 = text.indexOf("}$");
+				if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
+					String varname = text.substring(pos1+2,pos2);
+					labelText.put((Label)widget, text);
+					labelReplaceText.put((Label)widget, "${"+varname+"}$");
+	
+					((Label)widget).setText(text.replace("${"+varname+"}$", ""));
+					if(varname.startsWith("/"+ formDef.getBinding()+"/"))
+						varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
+	
+					QuestionDef qtnDef = formDef.getQuestion(varname);
+					List<Label> labels = labelMap.get(qtnDef);
+					if(labels == null){
+						labels = new ArrayList<Label>();
+						labelMap.put(qtnDef, labels);
+					}
+					labels.add((Label)widget);
 				}
-				labels.add((Label)widget);
 			}
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
