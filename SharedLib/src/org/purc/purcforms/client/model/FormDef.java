@@ -952,8 +952,6 @@ public class FormDef implements Serializable{
 					removeDynamicInstanceNode(dynamicOptionDef);
 					continue;
 				}
-
-				dynamicOptionDef.updateDoc(this,questionDef);
 			}
 		}
 	}
