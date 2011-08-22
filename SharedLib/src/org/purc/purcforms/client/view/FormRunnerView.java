@@ -1156,11 +1156,18 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onMoveToPrevWidget(Widget widget){
 		boolean moved = false;
 
+		//Could be group box widget parent or repeat widget parent.
 		if(widget.getParent().getParent() instanceof RuntimeGroupWidget){
 			if(((RuntimeGroupWidget)widget.getParent().getParent()).onMoveToPrevWidget(widget))
 				return;
 			else
 				widget = widget.getParent().getParent().getParent().getParent();
+		}
+		else if(widget.getParent().getParent().getParent() instanceof RuntimeGroupWidget){
+			if(((RuntimeGroupWidget)widget.getParent().getParent().getParent()).onMoveToPrevWidget(widget))
+				return;
+			else
+				widget = widget.getParent().getParent().getParent().getParent().getParent();
 		}
 
 
