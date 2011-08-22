@@ -908,6 +908,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private void addNewRow(Element dataNode){
 		dataNodes.add(dataNode);
 
+		List<Integer> qtnIds = new ArrayList<Integer>();
+		List<QuestionDef> qtns = new ArrayList<QuestionDef>();
+		
 		int row = table.getRowCount();
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
@@ -916,9 +919,32 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			table.setWidget(row, index, copyWidget);
 
 			setDataNode(copyWidget,dataNode,copyWidget.getBinding(),true, ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding());
+			
+			//For now we do not allow default values for repeat kids to simplify implementation.
+			copyWidget.getQuestionDef().setDefaultValue(null);
+
+			//Loading widget from here instead of in getPreparedWidget because setDataNode may clear default values			
+			copyWidget.loadQuestion();
+
+			if(copyWidget.getWrappedWidget() instanceof RadioButton)
+				((RadioButton)copyWidget.getWrappedWidget()).setName(((RadioButton)copyWidget.getWrappedWidget()).getName()+row);
+
+			if(copyWidget.getWrappedWidget() instanceof CheckBox){
+				RuntimeWidgetWrapper widget = widgetMap.get(copyWidget.getParentBinding());
+				if(widget == null){
+					widget = copyWidget;
+					widgetMap.put(copyWidget.getParentBinding(), widget);
+				}
+				widget.addChildWidget(copyWidget);
+			}
+			
+			copyWidget.getQuestionDef().addChangeListener(copyWidget);
+			qtnIds.add(copyWidget.getQuestionDef().getId());
+			qtns.add(copyWidget.getQuestionDef());
 		}
 
-		addDeleteButton(row);
+		PushButton deleteButton = addDeleteButton(row);
+		copySkipRules(qtnIds, qtns, deleteButton);
 	}
 
 	private Element getParentNode(Node node, String binding, String parentBinding){	
