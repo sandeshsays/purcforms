@@ -112,6 +112,10 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else if(operator == ModelConstants.OPERATOR_BETWEEN || operator == ModelConstants.OPERATOR_NOT_BETWEEN)
 			valueHyperlink.setText(EMPTY_VALUE + BETWEEN_VALUE_SEPARATOR + EMPTY_VALUE);
 	}
+	
+	public void setFunctionWithoutValidation(int function){
+		this.function = function;
+	}
 
 	public void setFunction(int function){
 		if(this.function != function){
@@ -278,7 +282,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	}
 
 	private void startEdit(){
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN && function != ModelConstants.FUNCTION_LENGTH){
 			MenuBar menuBar = new MenuBar(true);
 			menuBar.addItem(QuestionDef.TRUE_DISPLAY_VALUE,true, new SelectItemCommand(QuestionDef.TRUE_DISPLAY_VALUE,this));
 			menuBar.addItem(QuestionDef.FALSE_DISPLAY_VALUE,true, new SelectItemCommand(QuestionDef.FALSE_DISPLAY_VALUE,this));
@@ -290,7 +294,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
-				(operator == ModelConstants.OPERATOR_EQUAL || operator == ModelConstants.OPERATOR_NOT_EQUAL) ){
+				(operator == ModelConstants.OPERATOR_EQUAL || operator == ModelConstants.OPERATOR_NOT_EQUAL) && 
+				(function != ModelConstants.FUNCTION_LENGTH) ){
 
 			if(!isBetweenOperator()){
 				if(chkQuestionValue.getValue() == true){
@@ -355,7 +360,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		else if( (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE
 				|| questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC) &&
 				(operator == ModelConstants.OPERATOR_IN_LIST || operator == ModelConstants.OPERATOR_NOT_IN_LIST ||
-				operator == ModelConstants.OPERATOR_CONTAINS || operator == ModelConstants.OPERATOR_NOT_CONTAIN) ){
+				operator == ModelConstants.OPERATOR_CONTAINS || operator == ModelConstants.OPERATOR_NOT_CONTAIN) &&
+				(function != ModelConstants.FUNCTION_LENGTH) ){
 
 			if(!isBetweenOperator()){
 				if(chkQuestionValue.getValue() == true){
@@ -656,7 +662,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			else
 				val = EMPTY_VALUE;
 		}
-		else{
+		else if(function != ModelConstants.FUNCTION_LENGTH){
+			
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 				OptionDef optionDef = questionDef.getOptionWithText(val);
 				if(optionDef != null)
@@ -729,40 +736,43 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				chkQuestionValue.setValue(true);
 			}
 
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
-				OptionDef optionDef = ((OptionDef)questionDef.getOptionWithValue(value));
-				if(optionDef != null)
-					sValue = optionDef.getText();
-			}
-			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
-				DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
-				if(dynamicOptionDef != null){
-					OptionDef optionDef = dynamicOptionDef.getOptionWithValue(value);
+			if(function != ModelConstants.FUNCTION_LENGTH){
+				
+				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
+					OptionDef optionDef = ((OptionDef)questionDef.getOptionWithValue(value));
 					if(optionDef != null)
 						sValue = optionDef.getText();
 				}
-			}
-			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
-				String[] options = sValue.split(LIST_SEPARATOR);
-				if(options == null || options.length == 0)
-					sValue = null;
-				else{
-					sValue = "";
-					for(int i=0; i<options.length; i++){
-						OptionDef optionDef = questionDef.getOptionWithValue(options[i]);
-						if(optionDef != null){
-							if(sValue.length() > 0)
-								sValue += LIST_SEPARATOR;
-							sValue += optionDef.getText();
+				else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+					DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
+					if(dynamicOptionDef != null){
+						OptionDef optionDef = dynamicOptionDef.getOptionWithValue(value);
+						if(optionDef != null)
+							sValue = optionDef.getText();
+					}
+				}
+				else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+					String[] options = sValue.split(LIST_SEPARATOR);
+					if(options == null || options.length == 0)
+						sValue = null;
+					else{
+						sValue = "";
+						for(int i=0; i<options.length; i++){
+							OptionDef optionDef = questionDef.getOptionWithValue(options[i]);
+							if(optionDef != null){
+								if(sValue.length() > 0)
+									sValue += LIST_SEPARATOR;
+								sValue += optionDef.getText();
+							}
 						}
 					}
 				}
-			}
-			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
-				if(sValue.equals(QuestionDef.TRUE_VALUE))
-					sValue = QuestionDef.TRUE_DISPLAY_VALUE;
-				else if(sValue.equals(QuestionDef.FALSE_VALUE))
-					sValue = QuestionDef.FALSE_DISPLAY_VALUE;
+				else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+					if(sValue.equals(QuestionDef.TRUE_VALUE))
+						sValue = QuestionDef.TRUE_DISPLAY_VALUE;
+					else if(sValue.equals(QuestionDef.FALSE_VALUE))
+						sValue = QuestionDef.FALSE_DISPLAY_VALUE;
+				}
 			}
 		}
 		else
@@ -802,7 +812,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
 
 		for(int i=0; i<formDef.getPageCount(); i++)
-			FormDesignerUtil.loadQuestions(false, formDef.getPageAt(i).getQuestions(),questionDef,oracle,false,questionDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT, parentQuestionDef);
+			FormDesignerUtil.loadQuestions(false, formDef.getPageAt(i).getQuestions(),questionDef,oracle,false, (function == ModelConstants.FUNCTION_LENGTH ? false : questionDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT), parentQuestionDef);
 
 		sgstField = new SuggestBox(oracle,txtValue1);
 		//selectFirstQuestion();

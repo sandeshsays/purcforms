@@ -191,7 +191,7 @@ public class Condition implements Serializable, BindingChangeListener {
 				}
 			}
 			else{
-				return isLengthTrue(qn);
+				ret = isLengthTrue(qn);
 			}
 		}
 		catch(Exception ex){
@@ -214,6 +214,19 @@ public class Condition implements Serializable, BindingChangeListener {
 		return -1;
 	}
 	
+	private Integer getMultipleSelectAnswerLength(String answer){
+		if(answer == null)
+			return 0;
+		
+		String[] answers = answer.split(",");
+		
+		//Check if we should use space separator.
+		if(answer.indexOf(',') < 0)
+			answers = answer.split(" ");
+		
+		return answers.length;
+	}
+	
 	private boolean isLengthTrue(QuestionDef qtn){
 		String answer = qtn.getAnswer();
 
@@ -228,6 +241,8 @@ public class Condition implements Serializable, BindingChangeListener {
 
 		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
 			len = getRepeatQtnAnswerLength(answer);
+		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
+			len = getMultipleSelectAnswerLength(answer);
 		else
 			len = answer.trim().length();
 

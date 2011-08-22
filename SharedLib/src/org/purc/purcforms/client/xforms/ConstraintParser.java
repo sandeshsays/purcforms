@@ -208,13 +208,14 @@ public class ConstraintParser {
 
 		if(constraint.contains("length(.)") || constraint.contains("count(.)"))
 			condition.setFunction(ModelConstants.FUNCTION_LENGTH);
-
-		//correct back the contains and not contain operators for multiple selects.
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
-			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
-				condition.setOperator(ModelConstants.OPERATOR_CONTAINS);
-			else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
-				condition.setOperator(ModelConstants.OPERATOR_NOT_CONTAIN);
+		else{
+			//correct back the contains and not contain operators for multiple selects.
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+				if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
+					condition.setOperator(ModelConstants.OPERATOR_CONTAINS);
+				else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
+					condition.setOperator(ModelConstants.OPERATOR_NOT_CONTAIN);
+			}
 		}
 		
 		return condition;

@@ -276,6 +276,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener{
 
 			funcHyperlink.setFunction(function);
 			operatorHyperlink.setOperator(operator);
+			valueWidget.setFunctionWithoutValidation(function);
 			valueWidget.setOperator(operator);
 			valueWidget.setValueQtnDef(condition.getValueQtnDef()); //Should be set before value such that value processing finds it.
 			valueWidget.setValue(condition.getValue());
