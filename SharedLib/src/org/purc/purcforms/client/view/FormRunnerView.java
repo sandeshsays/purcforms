@@ -192,9 +192,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 	private boolean loaded = false;
 
-	//Contains form definitions for each row of a repeat question starting from the second row.
-	//This is mostly because these repeat rows create copies of existing questions defs starting
-	//from the second row.
+	/**
+	 * Contains form definitions for each row of a repeat question starting from the second row.
+	 * This is mostly because these repeat rows create copies of existing questions defs starting
+	 * from the second row.
+	 */
 	private List<FormDef> repeatQtnFormDefs = new ArrayList<FormDef>();
 
 
