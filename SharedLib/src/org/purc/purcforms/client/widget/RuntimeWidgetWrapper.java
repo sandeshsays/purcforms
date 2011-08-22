@@ -178,10 +178,10 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			((CheckBox)widget).addKeyDownHandler(new KeyDownHandler(){
 				public void onKeyDown(KeyDownEvent event) {
 					int keyCode = event.getNativeKeyCode();
-					if(keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_DOWN
+					if((keyCode == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_DOWN
 							|| keyCode == KeyCodes.KEY_RIGHT)
 						editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
-					else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_LEFT)
+					else if((keyCode == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_LEFT)
 						editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
 				}
 			}); 
@@ -196,9 +196,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			((ListBox)widget).addKeyDownHandler(new KeyDownHandler(){
 				public void onKeyDown(KeyDownEvent event) {
 					int keyCode = event.getNativeKeyCode();
-					if(keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_RIGHT)
+					if((keyCode == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_RIGHT)
 						editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
-					else if(keyCode == KeyCodes.KEY_LEFT)
+					else if((keyCode == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_LEFT)
 						editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
 					/*else if(keyCode == KeyCodes.KEY_UP || keyCode == KeyCodes.KEY_DOWN){
 						//This is put such that we can detect list box changes immediately on moving the
@@ -338,9 +338,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		((TextBox)widget).addKeyDownHandler(new KeyDownHandler(){
 			public void onKeyDown(KeyDownEvent event) {
 				int keyCode = event.getNativeKeyCode();
-				if(keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_DOWN)
+				if((keyCode == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_DOWN)
 					editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
-				else if(keyCode == KeyCodes.KEY_UP)
+				else if((keyCode == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_UP)
 					editListener.onMoveToPrevWidget((RuntimeWidgetWrapper)panel.getParent());
 			}
 		});
