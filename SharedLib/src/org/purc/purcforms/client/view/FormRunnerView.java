@@ -305,9 +305,16 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 */
 	protected void moveToNextWidget(int index){
 
-		//If we have reached end of tab order, just wrap around to the first widget.
-		if(index > selectedPanel.getWidgetCount() - 2)
-			index = 0;
+		//If we have reached end of tab order.
+		if(index > selectedPanel.getWidgetCount() - 2){
+			index = 0; //just wrap around to the first widget if we have one page.
+			
+			//try move to next or previous page if any.
+			if(nextPage())
+				return;
+			else if(prevPage())
+				return;
+		}
 
 		while(++index < selectedPanel.getWidgetCount()){
 			if(((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).setFocus())
@@ -856,16 +863,24 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			FormUtil.isAuthenticated();
 	}
 
-	public void nextPage(){
+	public boolean nextPage(){
 		int index = tabs.getTabBar().getSelectedTab() + 1;
-		if(index < tabs.getTabBar().getTabCount())
+		if(index < tabs.getTabBar().getTabCount()){
 			tabs.selectTab(index);
+			return true;
+		}
+		
+		return false;
 	}
 
-	public void prevPage(){
+	public boolean prevPage(){
 		int index = tabs.getTabBar().getSelectedTab() - 1;
-		if(index >= 0)
+		if(index >= 0){
 			tabs.selectTab(index);
+			return true;
+		}
+		
+		return false;
 	}
 
 
