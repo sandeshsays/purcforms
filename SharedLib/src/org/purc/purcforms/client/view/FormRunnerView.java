@@ -191,6 +191,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private int externalSourceWidgetIndex = 0;
 
 	private boolean loaded = false;
+	
+	/** Used for navigating between more than two pages to and fro by simply pressing enter. */
+	private boolean movingToNextPage = true;
 
 	/**
 	 * Contains form definitions for each row of a repeat question starting from the second row.
@@ -310,10 +313,22 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			index = 0; //just wrap around to the first widget if we have one page.
 			
 			//try move to next or previous page if any.
-			if(nextPage())
-				return;
-			else if(prevPage())
-				return;
+			if(movingToNextPage){
+				if(nextPage())
+					return;
+				else if(prevPage()){
+					movingToNextPage = false;
+					return;
+				}
+			}
+			else{
+				if(prevPage())
+					return;
+				else if(nextPage()){
+					movingToNextPage = true;
+					return;
+				}
+			}
 		}
 
 		while(++index < selectedPanel.getWidgetCount()){
