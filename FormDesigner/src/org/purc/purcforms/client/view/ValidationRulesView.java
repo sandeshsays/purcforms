@@ -20,11 +20,14 @@ import org.purc.purcforms.client.model.ValidationRule;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.widget.skiprule.ConditionWidget;
 import org.purc.purcforms.client.widget.skiprule.GroupHyperlink;
+import org.purc.purcforms.client.xforms.XformParser;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
@@ -33,6 +36,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Element;
 
 
 /**
@@ -149,6 +153,9 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	 * Adds a new condition.
 	 */
 	public void addCondition(){
+		if(!enabled)
+			return;
+		
 		addCondition(new ConditionWidget(formDef, this, false, questionDef), -1, validationRule, true);
 	}
 	
@@ -299,6 +306,20 @@ public class ValidationRulesView extends Composite implements IConditionControll
 	 */
 	public void setQuestionDef(QuestionDef questionDef){
 		clearConditions();
+		
+		//Check if form designer is allowed to modify this node.
+		Element node = (questionDef.getBindNode() != null ? questionDef.getBindNode() : questionDef.getControlNode());
+		if(node != null){
+			if(XformParser.isDesignerReadOnlyConstraint(node)){
+				DeferredCommand.addCommand(new Command(){
+					public void execute() {
+						setEnabled(false);
+					}
+				});
+				
+				return;
+			}
+		}
 		
 		formDef = questionDef.getParentFormDef();
 		

@@ -577,13 +577,13 @@ public class XformParser {
 		qtn.setBinding(binding);
 		formDef.addQuestion(qtn);
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT) != null && !isDesignerReadOnlyRelevant(child))
 			relevants.put(qtn,child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT));
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT) != null && !isDesignerReadOnlyConstraint(child))
 			constraints.put(qtn,child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT));
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE) != null && !isDesignerReadOnlyCalculate(child))
 			formDef.addCalculation(new Calculation(qtn.getId(),child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE)));
 
 		return qtn.getBinding();
@@ -720,13 +720,13 @@ public class XformParser {
 			formDef.addQuestion(qtn);
 		}
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT) != null && !isDesignerReadOnlyRelevant(child))
 			relevants.put(qtn,child.getAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT));
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT) != null && !isDesignerReadOnlyConstraint(child))
 			constraints.put(qtn,child.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT));
 
-		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE) != null)
+		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE) != null && !isDesignerReadOnlyCalculate(child))
 			formDef.addCalculation(new Calculation(qtn.getId(),child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE)));
 
 		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
@@ -931,5 +931,20 @@ public class XformParser {
 		if(node.getChildNodes().getLength() != 0)
 			return node.getChildNodes().item(0).getNodeValue().trim();
 		return node.getAttribute("ref");
+	}
+	
+	public static boolean isDesignerReadOnlyConstraint(Element element){
+		return "true".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_CONSTRAINT)) ||
+			   "true()".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_CONSTRAINT));
+	}
+	
+	public static boolean isDesignerReadOnlyRelevant(Element element){
+		return "true".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_RELEVANT)) ||
+			   "true()".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_RELEVANT));
+	}
+	
+	public static boolean isDesignerReadOnlyCalculate(Element element){
+		return "true".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_CALCULATE)) ||
+			   "true()".equalsIgnoreCase(element.getAttribute(XformConstants.ATTRIBUTE_NAME_DESIGNER_READONLY_CALCULATE));
 	}
 }

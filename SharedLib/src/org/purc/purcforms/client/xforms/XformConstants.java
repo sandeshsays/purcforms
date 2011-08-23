@@ -107,6 +107,9 @@ public class XformConstants {
 	public static final String ATTRIBUTE_NAME_PARENT = "parent";
 	public static final String ATTRIBUTE_NAME_FORMAT = "format";
 	public static final String ATTRIBUTE_NAME_MEDIATYPE = "mediatype";
+	public static final String ATTRIBUTE_NAME_DESIGNER_READONLY_CONSTRAINT = "designer-readonly-constraint";
+	public static final String ATTRIBUTE_NAME_DESIGNER_READONLY_RELEVANT = "designer-readonly-relevant";
+	public static final String ATTRIBUTE_NAME_DESIGNER_READONLY_CALCULATE = "designer-readonly-calculate";
 
 	public static final String ATTRIBUTE_VALUE_ENABLE = "enable";
 	public static final String ATTRIBUTE_VALUE_DISABLE = "disable";

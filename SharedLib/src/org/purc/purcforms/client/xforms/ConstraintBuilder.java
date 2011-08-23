@@ -50,6 +50,11 @@ public class ConstraintBuilder {
 		if(node == null)
 			node = questionDef.getControlNode();
 
+		if(XformParser.isDesignerReadOnlyConstraint(node)){
+			//TODO we should not let the user change read only nodes.
+			return;
+		}
+		
 		Vector conditions  = rule.getConditions();
 		if(conditions == null || conditions.size() == 0){
 			node.removeAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT);

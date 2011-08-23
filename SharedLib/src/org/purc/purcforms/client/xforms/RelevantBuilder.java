@@ -58,6 +58,11 @@ public class RelevantBuilder {
 			if(node == null)
 				node = questionDef.getControlNode();
 
+			if(XformParser.isDesignerReadOnlyRelevant(node)){
+				//TODO we should not let the user change read only nodes.
+				return;
+			}
+			
 			if(relevant.trim().length() == 0){
 				node.removeAttribute(XformConstants.ATTRIBUTE_NAME_RELEVANT);
 				node.removeAttribute(XformConstants.ATTRIBUTE_NAME_ACTION);
