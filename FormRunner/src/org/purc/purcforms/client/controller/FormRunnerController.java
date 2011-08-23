@@ -3,6 +3,7 @@ package org.purc.purcforms.client.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
@@ -138,6 +139,9 @@ public class FormRunnerController implements SubmitListener{
 			url += "=" + entityId;
 		}
 
+		//Prevent close confirmation dialog box.
+		Context.setWarnOnClose(false);
+		
 		Window.Location.replace(url);
 	}
 
@@ -182,6 +186,9 @@ public class FormRunnerController implements SubmitListener{
 										url += "=" + response.getText();
 								}
 
+								//Prevent close confirmation dialog box.
+								Context.setWarnOnClose(false);
+								
 								Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
 							}
 							else
