@@ -629,6 +629,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 						execute((Widget)event.getSource());
 					}
 				});
+				
+				if(binding.equals("addnew"))
+					btnAdd = (Button)widget;
 			}
 		}
 

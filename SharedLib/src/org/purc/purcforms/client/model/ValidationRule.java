@@ -215,17 +215,20 @@ public class ValidationRule implements Serializable{
 	}
 
 	//TODO This should be smarter
-	public byte getMaxValue(FormDef formDef){
+	public int getMaxValue(FormDef formDef){
 		if(conditions == null || conditions.size() == 0)
-			return 127;
+			return 0;
+		
 		String value = ((Condition)conditions.get(0)).getValue(formDef);
 		if(value == null || value.trim().length() == 0)
-			return 127;
+			return 0;
+		
 		try{
-			return Byte.parseByte(value);
+			return Integer.parseInt(value);
 		}
-		catch(Exception ex){}
-		return 127;
+		catch(Exception ex){
+			return 0;
+		}
 	}
 	
 	public void updateConditionValue(String origValue, String newValue){
