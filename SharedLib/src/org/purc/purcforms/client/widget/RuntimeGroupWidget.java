@@ -1494,4 +1494,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 	}
+	
+	public void onValidationFailed(ValidationRule validationRule){
+		if(btnAdd != null)
+			btnAdd.setEnabled(validationRule.getMaxValue(formDef) > table.getRowCount());
+	}
+	
+	public void onValidationPassed(ValidationRule validationRule){
+		if(btnAdd != null)
+			btnAdd.setEnabled(false);
+	}
 }

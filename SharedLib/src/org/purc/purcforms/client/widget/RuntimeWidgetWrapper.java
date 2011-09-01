@@ -1096,12 +1096,23 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				validationRule.setFormDef(formDef);
 		}
 
-		if(validationRule != null && !validationRule.isValid()){
-			if(panel.getWidgetCount() < 2)
-				panel.add(errorImage);
-
-			errorImage.setTitle(validationRule.getErrorMessage());
-			return false;
+		if(validationRule != null){
+			if(!validationRule.isValid()){
+				if(panel.getWidgetCount() < 2)
+					panel.add(errorImage);
+	
+				errorImage.setTitle(validationRule.getErrorMessage());
+				
+				if(widget instanceof RuntimeGroupWidget)
+					((RuntimeGroupWidget)widget).onValidationFailed(validationRule);
+				
+				return false;
+			}
+			else{
+				if(widget instanceof RuntimeGroupWidget)
+					((RuntimeGroupWidget)widget).onValidationPassed(validationRule);
+			}
+				
 		}
 		/*FormDef formDef = null;
 		ValidationRule rule = new ValidationRule();
