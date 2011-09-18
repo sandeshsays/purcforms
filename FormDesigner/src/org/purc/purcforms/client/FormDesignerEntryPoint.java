@@ -156,6 +156,14 @@ public class FormDesignerEntryPoint implements EntryPoint, ResizeHandler, Closin
 		s = FormUtil.getDivValue("showJavaScriptTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeJavaScriptTab();
+		
+		s = FormUtil.getDivValue("showDesignSurfaceTab");
+		if(!("1".equals(s) || "true".equals(s)))
+			designer.removeDesignSurfaceTab();
+		
+		s = FormUtil.getDivValue("showPreviewTab");
+		if(!("1".equals(s) || "true".equals(s)))
+			designer.removePreviewTab();
 	}
 
 	public void onResize(ResizeEvent event){

@@ -82,6 +82,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	private boolean showLayoutXml = true;
 	private boolean showLanguageXml = true;
 	private boolean showModelXml = true;
+	private boolean showDesignSurface = true;
+	private boolean showPreview = true;
 	
 	private boolean refreshWidgets = true;
 
@@ -1026,7 +1028,30 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			showModelXml = false;
 		}
 	}
+	
+	public void removeDesignSurfaceTab(){
+		if(showDesignSurface){
+			tabs.remove(SELECTED_INDEX_DESIGN_SURFACE);
 
+			--SELECTED_INDEX_LANGUAGE_XML;
+			--SELECTED_INDEX_PREVIEW;
+			--SELECTED_INDEX_MODEL_XML;
+			--SELECTED_INDEX_LAYOUT_XML;
+			--SELECTED_INDEX_JAVASCRIPT_SOURCE;
+
+			showDesignSurface = false;
+		}
+	}
+	
+	public void removePreviewTab(){
+		if(showPreview){
+			tabs.remove(SELECTED_INDEX_PREVIEW);
+
+			--SELECTED_INDEX_MODEL_XML;
+
+			showPreview = false;
+		}
+	}
 
 	public WidgetPropertyChangeListener getWidgetPropertyChangeListener(){
 		return designSurfaceView;
@@ -1035,10 +1060,12 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public void selectDesignSurface(boolean refreshWidgets){
 		this.refreshWidgets =  refreshWidgets;
 		
-		if(tabs.getTabBar().getSelectedTab() == SELECTED_INDEX_DESIGN_SURFACE)
-			return;
-		
-		tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
+		if(showDesignSurface){
+			if(tabs.getTabBar().getSelectedTab() == SELECTED_INDEX_DESIGN_SURFACE)
+				return;
+			
+			tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
+		}
 	}
 	
 	public void selectPropertiesTab(){
