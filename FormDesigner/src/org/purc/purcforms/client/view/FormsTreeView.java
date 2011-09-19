@@ -453,9 +453,11 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
 			List options = questionDef.getOptions();
-			for(int currentOptionNo=0; currentOptionNo < options.size(); currentOptionNo++){
-				OptionDef optionDef = (OptionDef)options.get(currentOptionNo);
-				addImageItem(questionRoot, optionDef.getText(), images.markRead(),optionDef,null);
+			if(options != null){
+				for(int currentOptionNo=0; currentOptionNo < options.size(); currentOptionNo++){
+					OptionDef optionDef = (OptionDef)options.get(currentOptionNo);
+					addImageItem(questionRoot, optionDef.getText(), images.markRead(),optionDef,null);
+				}
 			}
 		}
 		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){

@@ -420,6 +420,9 @@ public class DynamicOptionDef  implements Serializable{
 	 * 
 	 */
 	public void refresh(FormDef dstFormDef, FormDef srcFormDef,DynamicOptionDef newDynOptionDef, DynamicOptionDef srcDynOptionDef, QuestionDef newParentQtnDef, QuestionDef oldParentQtnDef, QuestionDef oldChildQtnDef, QuestionDef newChildQtnDef){
+		if(srcDynOptionDef.getParentToChildOptions() == null)
+			return;
+		
 		parentToChildOptions = new HashMap<Integer,List<OptionDef>>();
 
 		Iterator<Entry<Integer,List<OptionDef>>> iterator = srcDynOptionDef.getParentToChildOptions().entrySet().iterator();
