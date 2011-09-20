@@ -113,7 +113,7 @@ public class FormRunnerEntryPoint implements EntryPoint, ClosingHandler {
 	
 	
 	public void onWindowClosing(ClosingEvent event){
-		if(Context.isWarnOnClose())
+		if(FormRunnerContext.isWarnOnClose())
 			event.setMessage("");
 	}
 }

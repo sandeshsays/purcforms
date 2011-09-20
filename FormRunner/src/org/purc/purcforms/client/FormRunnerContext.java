@@ -6,7 +6,7 @@ package org.purc.purcforms.client;
  * @author danielkayiwa
  *
  */
-public class Context {
+public class FormRunnerContext {
 
 	private static boolean warnOnClose = true;
 
@@ -15,6 +15,6 @@ public class Context {
 	}
 
 	public static void setWarnOnClose(boolean warnOnClose) {
-		Context.warnOnClose = warnOnClose;
+		FormRunnerContext.warnOnClose = warnOnClose;
 	}
 }
