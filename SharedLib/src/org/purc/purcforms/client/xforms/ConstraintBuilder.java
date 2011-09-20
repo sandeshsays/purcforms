@@ -135,7 +135,7 @@ public class ConstraintBuilder {
 				}
 				else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN){
 					if(FormUtil.isJavaRosaSaveFormat())
-						constraint = "not(selected(" + constraint + "," + value + ")";
+						constraint = "not(selected(" + constraint + "," + value + "))";
 					else
 						constraint += " not(contains(.,"+ value+"))";
 				}
