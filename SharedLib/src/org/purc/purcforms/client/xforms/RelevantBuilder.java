@@ -139,7 +139,7 @@ public class RelevantBuilder {
 			}
 			else if (condition.getOperator() == ModelConstants.OPERATOR_NOT_CONTAIN){
 				if(FormUtil.isJavaRosaSaveFormat())
-					relevant = "not selected(" + relevant + "," + value + ")";
+					relevant = "not(selected(" + relevant + "," + value + "))";
 				else
 					relevant += " not(contains(.,"+ value+"))";
 			}

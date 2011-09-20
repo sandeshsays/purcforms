@@ -98,7 +98,7 @@ public class XformParserUtil {
 				return ModelConstants.OPERATOR_CONTAINS;
 			return ModelConstants.OPERATOR_NOT_CONTAIN;
 		}
-		else if(expression.indexOf("not selected(") > -1){
+		else if(expression.indexOf("not(selected(") > -1){
 			if(XformBuilderUtil.isPositiveAction(action))
 				return ModelConstants.OPERATOR_NOT_CONTAIN;
 			return ModelConstants.OPERATOR_CONTAINS;

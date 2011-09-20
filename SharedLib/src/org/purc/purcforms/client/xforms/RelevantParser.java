@@ -182,8 +182,8 @@ public class RelevantParser {
 		
 		if(varName.startsWith("selected("))
 			varName = varName.substring("selected(".length());
-		else if(varName.startsWith("not selected("))
-			varName = varName.substring("not selected(".length());
+		else if(varName.startsWith("not(selected("))
+			varName = varName.substring("not(selected(".length());
 		
 		QuestionDef questionDef = formDef.getQuestion(varName.trim());
 		if(questionDef == null){
