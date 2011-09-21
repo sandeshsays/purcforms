@@ -1065,7 +1065,11 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			return true;
 		}
 
-		if(questionDef.isRequired() && !this.isAnswered()){
+		boolean answered = this.isAnswered();
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			answered = (questionDef.getAnswer() != null && !questionDef.getAnswer().equals("0"));
+		
+		if(questionDef.isRequired() && !answered){
 			
 			//Clear the value widget, if any, for external source widgets.
 			if(externalSource != null && externalSource.trim().length() > 0){
