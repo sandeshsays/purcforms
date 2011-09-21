@@ -225,8 +225,11 @@ public class ValidationRule implements Serializable{
 			return 0;
 		
 		try{
-			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
+			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL || condition.getOperator() == ModelConstants.OPERATOR_LESS_EQUAL)
 				return Integer.parseInt(value);
+			else if(condition.getOperator() == ModelConstants.OPERATOR_LESS)
+				return Integer.parseInt(value) - 1;
+			
 			return 9999999;
 		}
 		catch(Exception ex){
