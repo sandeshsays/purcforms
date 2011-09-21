@@ -219,12 +219,15 @@ public class ValidationRule implements Serializable{
 		if(conditions == null || conditions.size() == 0)
 			return 0;
 		
-		String value = ((Condition)conditions.get(0)).getValue(formDef);
+		Condition condition = getConditionAt(0);
+		String value = condition.getValue(formDef);
 		if(value == null || value.trim().length() == 0)
 			return 0;
 		
 		try{
-			return Integer.parseInt(value);
+			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
+				return Integer.parseInt(value);
+			return 9999999;
 		}
 		catch(Exception ex){
 			return 0;

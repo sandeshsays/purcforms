@@ -12,6 +12,7 @@ import org.purc.purcforms.client.controller.QuestionChangeListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.RepeatQtnsDef;
@@ -1499,12 +1500,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 	
 	public void onValidationFailed(ValidationRule validationRule){
-		if(btnAdd != null)
+		if(btnAdd != null && hasEqualOperator(validationRule))
 			btnAdd.setEnabled(validationRule.getMaxValue(formDef) > table.getRowCount());
 	}
 	
 	public void onValidationPassed(ValidationRule validationRule){
-		if(btnAdd != null)
+		if(btnAdd != null && hasEqualOperator(validationRule))
 			btnAdd.setEnabled(false);
+	}
+	
+	private boolean hasEqualOperator(ValidationRule validationRule){
+		return validationRule.getConditionAt(0).getOperator() == ModelConstants.OPERATOR_EQUAL;
 	}
 }
