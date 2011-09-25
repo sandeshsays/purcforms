@@ -1117,16 +1117,43 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			if(data == null || data.trim().length() == 0)
 				return;
 
-			FormDef formDef = leftPanel.getSelectedForm();
-			String fileName = "filename";
-			if(formDef != null)
-				fileName = formDef.getName();
+			if(!isOfflineMode()) {
+				FormDef formDef = leftPanel.getSelectedForm();
+				String fileName = "filename";
+				if(formDef != null)
+					fileName = formDef.getName();
+	
+				if(centerPanel.isInLayoutMode())
+					fileName += "-" + LocaleText.get("layout");
+	
+				SaveFileDialog dlg = new SaveFileDialog(FormUtil.getFileSaveUrl(),data,fileName);
+				dlg.center();
+			}
+			else {
+				FormUtil.dlg.setText(LocaleText.get("savingForm"));
+				FormUtil.dlg.center();
 
-			if(centerPanel.isInLayoutMode())
-				fileName += "-" + LocaleText.get("layout");
-
-			SaveFileDialog dlg = new SaveFileDialog(FormUtil.getFileSaveUrl(),data,fileName);
-			dlg.center();
+				DeferredCommand.addCommand(new Command(){
+					public void execute() {
+						try{
+							FormDef formDef = leftPanel.getSelectedForm();
+							String xml = null;
+							
+							if(FormUtil.isJavaRosaSaveFormat())
+								xml = XhtmlBuilder.fromFormDef2Xhtml(formDef);	
+							else	
+								xml = XformBuilder.fromFormDef2Xform(formDef);
+							
+							xml = FormDesignerUtil.formatXml(xml);
+							centerPanel.setXformsSource(xml, formSaveListener == null && isOfflineMode());
+							FormUtil.dlg.hide();
+						}
+						catch(Exception ex){
+							FormUtil.displayException(ex);
+						}	
+					}
+				});
+			}
 		}
 		catch(Exception ex){
 			FormUtil.displayException(ex);
