@@ -1232,7 +1232,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	 * Updates the selected widget with the new tab index as typed by the user.
 	 */
 	private void updateTabIndex(){
-		if(true /*txtTabIndex.getText().trim().length() > 0*/){
+		if(txtTabIndex.getText().trim().length() > 0){
 			if(widget != null)
 				widget.setTabIndex(Integer.parseInt(txtTabIndex.getText()));
 			else if(viewWidget != null && viewWidget instanceof DesignGroupWidget)
