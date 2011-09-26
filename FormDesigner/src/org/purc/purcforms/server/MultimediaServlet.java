@@ -81,7 +81,7 @@ public class MultimediaServlet extends HttpServlet {
 				if(doc == null)
 					return;
 	
-				String value = XmlUtil.getNodeValue(doc, xpath);
+				value = XmlUtil.getNodeValue(doc, xpath);
 			}
 			
 			if(bytes != null || (value != null && value.trim().length() > 0)){
