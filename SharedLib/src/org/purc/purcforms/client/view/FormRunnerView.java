@@ -1034,8 +1034,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(labels != null){
 			for(Widget widget : labels){
 				String replaceText = questionDef.getAnswer();
-				if(replaceText == null)
+				if(replaceText == null){
 					replaceText = "";
+				}
+				else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+						questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+					
+					OptionDef optionDef = questionDef.getOptionWithValue(replaceText);
+					if(optionDef != null)
+						replaceText = optionDef.getText();
+				}
+				
 				((Label)widget).setText(labelText.get(widget).replace(labelReplaceText.get(widget), replaceText));
 			}
 		}
