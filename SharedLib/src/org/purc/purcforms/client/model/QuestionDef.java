@@ -1589,7 +1589,23 @@ public class QuestionDef implements Serializable{
 	}
 
 	public String getDisplayText(){
-		String displayText = getText();
+		String text = getText();
+		if(text == null)
+			return null;
+		
+		String displayText = text;
+		do{
+			displayText = getDisplayText(text);
+			if(displayText.equals(text))
+				break;
+			
+			text = displayText;
+		}while(true);
+		
+		return displayText;
+	}
+	
+	public String getDisplayText(String displayText){
 		int pos1 = displayText.indexOf("${");
 		int pos2 = displayText.indexOf("}$");
 		if(pos1 > -1 && pos2 > -1 && (pos2 > pos1))
