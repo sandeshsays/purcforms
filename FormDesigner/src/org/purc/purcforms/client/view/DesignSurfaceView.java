@@ -1205,7 +1205,17 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @return true if it has, else false.
 	 */
 	public boolean hasWidgets(){
-		return (tabs.getTabBar().getTabCount() > 0 && selectedPanel != null && selectedPanel.getWidgetCount() > 0);
+		//return (tabs.getTabBar().getTabCount() > 0 && selectedPanel != null && selectedPanel.getWidgetCount() > 0);
+		for(int index = 0; index < tabs.getTabBar().getTabCount(); index++){
+			Widget widget = tabs.getWidget(index);
+			if(!(widget instanceof AbsolutePanel))
+				continue;
+			
+			if(((AbsolutePanel)widget).getWidgetCount() > 0)
+				return true;
+		}
+		
+		return false;
 	}
 
 
