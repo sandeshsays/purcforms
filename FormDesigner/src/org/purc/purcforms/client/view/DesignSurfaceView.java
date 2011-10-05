@@ -838,6 +838,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param select set to true to select all the created widgets.
 	 */
 	private void loadQuestions(List<QuestionDef> questions, int startY, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
+		if(questions == null)
+			return;
+		
 		int maxX = 0, max = 999999; //FormUtil.convertDimensionToInt(sHeight) - 0 + 150; //40; No longer adding submit button on every page
 		x = 20;
 		y = startY;
