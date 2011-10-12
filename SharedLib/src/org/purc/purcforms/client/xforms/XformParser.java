@@ -431,7 +431,7 @@ public class XformParser {
 
 				setQuestionDataNode(questionDef,formDef,parentQtn);
 			}
-			else{
+			else if(!(questionDef.getParent() instanceof PageDef)){
 				PageDef pageDef = formDef.setPageName(nodeContext.getLabel());
 				pageDef.setLabelNode(nodeContext.getLabelNode());
 				pageDef.setPageNo(getNextPageNo());
