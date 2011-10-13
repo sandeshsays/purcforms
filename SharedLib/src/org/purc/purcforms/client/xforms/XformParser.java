@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.purc.purcforms.client.model.Calculation;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
@@ -834,7 +835,9 @@ public class XformParser {
 					rptQtnDef = formDef.getQuestion(varName);
 				}
 				
-				qtn.setId(getNextQuestionId());
+				if(qtn.getId() ==  ModelConstants.NULL_ID){
+					qtn.setId(getNextQuestionId());
+				}
 				rptQtnDef.addRepeatQtnsDef(qtn);
 
 				//We do not want the bind node to be removed from the document as we remove the question
