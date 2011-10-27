@@ -1185,7 +1185,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(widget instanceof TextBox){
 			((TextBox)widget).setFocus(true);
 			((TextBox)widget).selectAll();
-			((TextBox)panel.getWidget(0)).setFocus(true);
+			if(panel.getWidget(0) instanceof TextBox){
+				((TextBox)panel.getWidget(0)).setFocus(true);
+			}
 		}
 		else if(widget instanceof Button)
 			((Button)widget).setFocus(true);
