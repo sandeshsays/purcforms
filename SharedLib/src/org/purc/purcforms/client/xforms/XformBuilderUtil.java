@@ -180,10 +180,10 @@ public class XformBuilderUtil {
 		String id = variableName;
 
 		if(!isRepeatKid && variableName.contains("/")){
-			/*if(variableName.indexOf('/') == variableName.lastIndexOf('/'))
+			if(variableName.indexOf('/') == variableName.lastIndexOf('/'))
 				id = variableName.substring(variableName.lastIndexOf('/')+1); //as one / eg encounter/encounter.encounter_datetime
 			else
-				id = variableName.substring(variableName.indexOf('/')+1,variableName.lastIndexOf('/')); //has two / eg obs/method_of_delivery/value*/
+				id = variableName.substring(variableName.indexOf('/')+1,variableName.lastIndexOf('/')); //has two / eg obs/method_of_delivery/value
 			
 			id = FormUtil.getXmlTagName(id);
 		}
