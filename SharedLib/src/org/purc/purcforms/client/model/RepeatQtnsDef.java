@@ -83,7 +83,7 @@ public class RepeatQtnsDef implements Serializable {
 			questions.add(questions.indexOf(refQtn) + 1, qtn);
 	}
 	
-	public void removeQuestion(QuestionDef qtnDef, FormDef formDef){
+	public boolean removeQuestion(QuestionDef qtnDef, FormDef formDef){
 		if(qtnDef.getControlNode() != null && qtnDef.getControlNode().getParentNode() != null)
 			qtnDef.getControlNode().getParentNode().removeChild(qtnDef.getControlNode());
 		if(qtnDef.getDataNode() != null && qtnDef.getDataNode().getParentNode() != null)
@@ -94,7 +94,7 @@ public class RepeatQtnsDef implements Serializable {
 		if(formDef != null)
 			formDef.removeQtnFromRules(qtnDef);
 		
-		questions.removeElement(qtnDef);
+		return questions.removeElement(qtnDef);
 	}
 	
 	public void setQuestions(Vector questions) {

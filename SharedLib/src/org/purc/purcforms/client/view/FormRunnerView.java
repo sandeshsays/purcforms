@@ -165,6 +165,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 *  which are the keys in this map.
 	 */
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap;
+	
+	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> repeatCalcWidgetMap;
 
 	/**
 	 * A map of filtered single select dynamic questions and their corresponding 
@@ -359,6 +361,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		validationWidgetsMap = new HashMap<RuntimeWidgetWrapper,List<RuntimeWidgetWrapper>>();
 		calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 		filtDynOptWidgetMap = new HashMap<QuestionDef,RuntimeWidgetWrapper>();
+		repeatCalcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
 		//A list of widgets with validation rules.
 		List<RuntimeWidgetWrapper> validationRuleWidgets = new ArrayList<RuntimeWidgetWrapper>();
@@ -587,7 +590,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			widget = new Label(text);
 
 			if(text != null){
-				int pos1 = text.indexOf("${");
+				int pos = replaceTemplateText(text, widget, 0);
+				while(pos > 0){
+					pos = replaceTemplateText(text, widget, pos + 1);
+				}
+				/*int pos1 = text.indexOf("${");
 				int pos2 = text.indexOf("}$");
 				if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
 					String varname = text.substring(pos1+2,pos2);
@@ -605,7 +612,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						labelMap.put(qtnDef, labels);
 					}
 					labels.add((Label)widget);
-				}
+				}*/
 			}
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
@@ -1054,7 +1061,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(widgets != null){
 
 			for(RuntimeWidgetWrapper widget : widgets){
-				Calculation calculation = formDef.getCalculation(widget.getQuestionDef());
+				Calculation calculation = questionDef.getParentFormDef().getCalculation(widget.getQuestionDef());
 				//String calcExpression = calculation.getCalculateExpression();
 				String calcExpression = replaceCalcExpression(calculation.getCalculateExpression(),widget.getQuestionDef()); //calcExpression.replace(binding, answer);
 
@@ -1096,7 +1103,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				onValueChanged(widget);
 			}
 		}
-
 
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
 		if(list != null /*&& questionDef.isRequired()*/){
@@ -1997,6 +2003,14 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void removeRepeatQtnFormDef(FormDef formDef){
 		repeatQtnFormDefs.remove(formDef);
 	}
+	
+	public void addRepeatQtnCalculationWidget(QuestionDef questionDef, List<RuntimeWidgetWrapper> widgets){
+		repeatCalcWidgetMap.put(questionDef, widgets);
+	}
+
+	public void removeRepeatQtnCalculationWidget(QuestionDef questionDef){
+		repeatCalcWidgetMap.remove(questionDef);
+	}
 
 	public void fireRepeatQtnSkipRules(){
 		for(FormDef formDef : repeatQtnFormDefs)
@@ -2090,5 +2104,29 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() - decrement + PurcConstants.UNITS);
 			setParentHeight(false, wrapper, decrement);
 		}
+	}
+	
+	private int replaceTemplateText(String text, Widget widget, int pos){
+		int pos1 = text.indexOf("${", pos);
+		int pos2 = text.indexOf("}$", pos);
+		if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
+			String varname = text.substring(pos1+2,pos2);
+			labelText.put((Label)widget, text);
+			labelReplaceText.put((Label)widget, "${"+varname+"}$");
+
+			((Label)widget).setText(text.replace("${"+varname+"}$", ""));
+			if(varname.startsWith("/"+ formDef.getBinding()+"/"))
+				varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
+
+			QuestionDef qtnDef = formDef.getQuestion(varname);
+			List<Label> labels = labelMap.get(qtnDef);
+			if(labels == null){
+				labels = new ArrayList<Label>();
+				labelMap.put(qtnDef, labels);
+			}
+			labels.add((Label)widget);
+		}
+		
+		return pos2;
 	}
 }

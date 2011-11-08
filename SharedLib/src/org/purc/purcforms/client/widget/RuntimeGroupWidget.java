@@ -826,7 +826,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		List<Integer> qtnIds = new ArrayList<Integer>();
 		List<QuestionDef> qtns = new ArrayList<QuestionDef>();
-
+		
+		FormDef copyFormDef = new FormDef(formDef);
+		List<RuntimeWidgetWrapper> copyWidgets = new ArrayList<RuntimeWidgetWrapper>();
+		
 		for(int index = 0; index < widgets.size(); index++){
 			RuntimeWidgetWrapper mainWidget = widgets.get(index);
 			RuntimeWidgetWrapper copyWidget = getPreparedWidget(mainWidget,false);
@@ -881,10 +884,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			copyWidget.getQuestionDef().addChangeListener(copyWidget);
 			qtnIds.add(copyWidget.getQuestionDef().getId());
 			qtns.add(copyWidget.getQuestionDef());
+			
+			copyFormDef.removeQuestion(copyFormDef.getQuestion(copyWidget.getQuestionDef().getId()));
+			copyFormDef.addQuestion(copyWidget.getQuestionDef());
+			copyWidgets.add(copyWidget);
 		}
 
 		PushButton deleteButton = addDeleteButton(row);
 		copySkipRules(qtnIds, qtns, deleteButton);
+		copyCalculations(copyWidgets, copyFormDef);
 
 		btnAdd = (Button)sender;
 		RuntimeWidgetWrapper parent = (RuntimeWidgetWrapper)getParent().getParent();
@@ -914,6 +922,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		List<Integer> qtnIds = new ArrayList<Integer>();
 		List<QuestionDef> qtns = new ArrayList<QuestionDef>();
+		
+		FormDef copyFormDef = new FormDef(formDef);
+		List<RuntimeWidgetWrapper> copyWidgets = new ArrayList<RuntimeWidgetWrapper>();
 		
 		int row = table.getRowCount();
 		for(int index = 0; index < widgets.size(); index++){
@@ -945,10 +956,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			copyWidget.getQuestionDef().addChangeListener(copyWidget);
 			qtnIds.add(copyWidget.getQuestionDef().getId());
 			qtns.add(copyWidget.getQuestionDef());
+			
+			copyFormDef.removeQuestion(copyFormDef.getQuestion(copyWidget.getQuestionDef().getId()));
+			copyFormDef.addQuestion(copyWidget.getQuestionDef());
+			copyWidgets.add(copyWidget);
 		}
 
 		PushButton deleteButton = addDeleteButton(row);
 		copySkipRules(qtnIds, qtns, deleteButton);
+		copyCalculations(copyWidgets, copyFormDef);
 	}
 
 	private Element getParentNode(Node node, String binding, String parentBinding){	
@@ -1420,6 +1436,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 		if(forms.size() > 0)
 			repeatRowFormMap.put(deleteButton, forms);
+	}
+	
+	private void copyCalculations(List<RuntimeWidgetWrapper> widgets, FormDef formDef){
+		HashMap<QuestionDef,List<QuestionDef>> calcQtnMappings = FormRunnerView.getCalcQtnMappings(formDef);
+
+		for(RuntimeWidgetWrapper widget : widgets){
+			if(widget.isEditable()){
+				FormRunnerView.updateCalcWidgetMapping(widget, calcQtnMappings, calcWidgetMap);
+			}
+		}
 	}
 
 	public boolean isAnyWidgetVisible(){

@@ -838,7 +838,6 @@ public class XformParser {
 				if(qtn.getId() ==  ModelConstants.NULL_ID){
 					qtn.setId(getNextQuestionId());
 				}
-				rptQtnDef.addRepeatQtnsDef(qtn);
 
 				//We do not want the bind node to be removed from the document as we remove the question
 				Element bindNode = qtn.getBindNode();
@@ -846,6 +845,9 @@ public class XformParser {
 				
 				//This should be before the data and control nodes are set because it removed them.
 				formDef.removeQuestion(qtn);
+				
+				//should add after the above call
+				rptQtnDef.addRepeatQtnsDef(qtn);
 
 				//TODO repeat kind bind node is no longer the control node.
 				//qtn.setBindNode(child);

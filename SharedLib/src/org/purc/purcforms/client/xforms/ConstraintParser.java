@@ -7,7 +7,6 @@ import java.util.Vector;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
-import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
 import org.purc.purcforms.client.util.FormUtil;
@@ -203,8 +202,10 @@ public class ConstraintParser {
 			if(condition.getOperator() == ModelConstants.OPERATOR_NULL)
 				return null; //no operator set hence making the condition invalid
 		}
+		else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
+			condition.setOperator(ModelConstants.OPERATOR_IS_NOT_NULL); //must be != ''
 		else
-			condition.setOperator(ModelConstants.OPERATOR_IS_NULL);
+			condition.setOperator(ModelConstants.OPERATOR_IS_NULL); //must be = ''
 
 		if(constraint.contains("length(.)") || constraint.contains("count-selected(.)"))
 			condition.setFunction(ModelConstants.FUNCTION_LENGTH);
