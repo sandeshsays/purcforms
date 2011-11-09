@@ -5,5 +5,16 @@
   <welcome-file-list>
     <welcome-file>FormDesigner.html</welcome-file>
   </welcome-file-list>
+  
+  <!-- 
+  <servlet>
+  	<servlet-name>widgetExternalSource</servlet-name>
+  	<servlet-class>org.purc.purcforms.server.ExternalSourceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>widgetExternalSource</servlet-name>
+  	<url-pattern>/widgetExternalSource</url-pattern>
+  </servlet-mapping>
+  -->
 
 </web-app>

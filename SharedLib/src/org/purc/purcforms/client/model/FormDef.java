@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -15,6 +16,7 @@ import org.purc.purcforms.client.xforms.XformUtil;
 
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 
 /**
@@ -28,16 +30,10 @@ import com.google.gwt.xml.client.XMLParser;
  * @author Daniel Kayiwa
  *
  */
-public class FormDef implements Serializable {
-
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = -8541151681376336376L;
-	
+public class FormDef implements Serializable{
 
 	/** A collection of page definitions (PageDef objects). */
-	private Vector<PageDef> pages;
+	private Vector pages;
 
 	//TODO May not need to serialize this property for smaller pay load. Then we may just rely on the id.
 	//afterall it is not even guaranteed to be unique.
@@ -53,13 +49,13 @@ public class FormDef implements Serializable {
 	private int id = ModelConstants.NULL_ID;
 
 	/** The collection of rules (SkipRule objects) for this form. */
-	private Vector<SkipRule> skipRules;
+	private Vector skipRules;
 
 	/** The collection of rules (ValidationRule objects) for this form. */
-	private Vector<ValidationRule> validationRules;
+	private Vector validationRules;
 
 	/** The collection of calculations (Calculation objects) for this form. */
-	private Vector<Calculation> calculations;
+	private Vector calculations;
 
 	/** A string constistig for form fields that describe its data. eg description-template="${/data/question1}$ Market" */
 	private String descriptionTemplate =  ModelConstants.EMPTY_STRING;
@@ -67,7 +63,7 @@ public class FormDef implements Serializable {
 	/** A mapping of dynamic lists keyed by the id of the question whose values
 	 *  determine possible values of another question as specified in the DynamicOptionDef object.
 	 */
-	private HashMap<Integer, DynamicOptionDef>  dynamicOptions;
+	private HashMap<Integer,DynamicOptionDef>  dynamicOptions;
 
 
 	/** The xforms document.(for easy syncing between the object model and actual xforms document. */
@@ -84,6 +80,8 @@ public class FormDef implements Serializable {
 
 	/** The model node of the xform that this form represents. */
 	private Element modelNode;
+	
+	private Element itextNode;
 
 	/** The layout xml for this form. */
 	private String layoutXml;
@@ -96,6 +94,9 @@ public class FormDef implements Serializable {
 
 	/** The language xml for this form. */
 	private String languageXml;
+
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
 
 	/** 
 	 * Flag to determine if we can change the form structure.
@@ -130,9 +131,10 @@ public class FormDef implements Serializable {
 		setId(formDef.getId());
 		setName(formDef.getName());
 		setFormKey(formDef.getFormKey());
+		this.xpathExpression = formDef.xpathExpression;
 
 		//I just don't think we need this in addition to the id
-		setVariableName(formDef.getBinding());
+		setBinding(formDef.getBinding());
 
 		setDescriptionTemplate(formDef.getDescriptionTemplate());
 		copyPages(formDef.getPages());
@@ -156,15 +158,13 @@ public class FormDef implements Serializable {
 	 * @param pages - collection of page definitions.
 	 * @param rules - collection of branching rules.
 	 */
-	public FormDef(int id, String name, String formKey, String variableName, Vector<PageDef> pages, Vector<SkipRule> skipRules, 
-			Vector<ValidationRule> validationRules, HashMap<Integer,DynamicOptionDef> dynamicOptions, String descTemplate, Vector<Calculation> calculations) {
-		
+	public FormDef(int id, String name, String formKey, String variableName,Vector pages, Vector skipRules, Vector validationRules, HashMap<Integer,DynamicOptionDef> dynamicOptions, String descTemplate, Vector calculations) {
 		setId(id);
 		setName(name);
 		setFormKey(formKey);
 
 		//I just don't think we need this in addition to the id
-		setVariableName(variableName);
+		setBinding(variableName);
 
 		setPages(pages);
 		setSkipRules(skipRules);
@@ -174,16 +174,24 @@ public class FormDef implements Serializable {
 		setCalculations(calculations);
 	}
 
+	public void addPage(PageDef pageDef){
+		addPage(pageDef, null);
+	}
+
 	/**
 	 * Adds a new page to the form.
 	 * 
 	 * @param pageDef the page to add.
 	 */
-	public void addPage(PageDef pageDef){
+	public void addPage(PageDef pageDef, PageDef refPageDef){
 		if(pages == null)
-			pages = new Vector<PageDef>();
+			pages = new Vector();
 
-		pages.add(pageDef);
+		if(refPageDef == null)
+			pages.add(pageDef);
+		else
+			pages.add(pages.indexOf(refPageDef) + 1, pageDef);
+
 		pageDef.setParent(this);
 	}
 
@@ -192,7 +200,7 @@ public class FormDef implements Serializable {
 	 */
 	public void addPage(){
 		if(pages == null)
-			pages = new Vector<PageDef>();
+			pages = new Vector();
 
 		int pageno = pages.size() + 1;
 		pages.add(new PageDef("Page"+pageno,pageno,this));
@@ -223,7 +231,7 @@ public class FormDef implements Serializable {
 	 * 
 	 * @return the page list
 	 */
-	public Vector<PageDef> getPages() {
+	public Vector getPages() {
 		return pages;
 	}
 
@@ -251,7 +259,7 @@ public class FormDef implements Serializable {
 		return (Calculation)calculations.elementAt(index);
 	}
 
-	public void setPages(Vector<PageDef> pages) {
+	public void setPages(Vector pages) {
 		this.pages = pages;
 	}
 
@@ -276,8 +284,8 @@ public class FormDef implements Serializable {
 		return binding;
 	}
 
-	public void setVariableName(String variableName) {
-		this.binding = variableName;
+	public void setBinding(String binding) {
+		this.binding = binding;
 	}
 
 	public int getId() {
@@ -288,27 +296,27 @@ public class FormDef implements Serializable {
 		this.id = id;
 	}
 
-	public Vector<SkipRule> getSkipRules() {
+	public Vector getSkipRules() {
 		return skipRules;
 	}
 
-	public void setSkipRules(Vector<SkipRule> skipRules) {
+	public void setSkipRules(Vector skipRules) {
 		this.skipRules = skipRules;
 	}
 
-	public Vector<ValidationRule> getValidationRules() {
+	public Vector getValidationRules() {
 		return validationRules;
 	}
 
-	public void setValidationRules(Vector<ValidationRule> validationRules) {
+	public void setValidationRules(Vector validationRules) {
 		this.validationRules = validationRules;
 	}
 
-	public Vector<Calculation> getCalculations() {
+	public Vector getCalculations() {
 		return calculations;
 	}
 
-	public void setCalculations(Vector<Calculation> calculations) {
+	public void setCalculations(Vector calculations) {
 		this.calculations = calculations;
 	}
 
@@ -368,6 +376,14 @@ public class FormDef implements Serializable {
 		this.readOnly = readOnly;
 	}
 
+	public String getXpathExpression() {
+		return xpathExpression;
+	}
+
+	public void setXpathExpression(String xpathExpression) {
+		this.xpathExpression = xpathExpression;
+	}
+
 	/**
 	 * Gets the first skip rule which has a given question as one of its targets.
 	 * 
@@ -380,10 +396,12 @@ public class FormDef implements Serializable {
 
 		for(int i=0; i<skipRules.size(); i++){
 			SkipRule rule = (SkipRule)skipRules.elementAt(i);
-			Vector<Integer> targets = rule.getActionTargets();
-			for(int j=0; j<targets.size(); j++){
-				if(((Integer)targets.elementAt(j)).intValue() == questionDef.getId())
-					return rule;
+			Vector targets = rule.getActionTargets();
+			if(targets != null){
+				for(int j=0; j<targets.size(); j++){
+					if(((Integer)targets.elementAt(j)).intValue() == questionDef.getId())
+						return rule;
+				}
 			}
 		}
 
@@ -428,6 +446,12 @@ public class FormDef implements Serializable {
 	 * @param withData set to true if you want question answers to also be saved as part of the xform.
 	 */
 	public void updateDoc(boolean withData){
+
+		//JR prefix may not have been set and we try set the jr:constraintMessage during
+		//validation rule update, which will throw exceptions.
+		if(FormUtil.isJavaRosaSaveFormat())
+			doc.getDocumentElement().setAttribute("xmlns:jr", "http://openrosa.org/javarosa");
+
 		dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NAME, name);
 
 		//TODO Check that this comment out does not introduce bugs
@@ -445,7 +469,7 @@ public class FormDef implements Serializable {
 		String sid = dataNode.getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 		if(sid == null || sid.trim().length() == 0 || FormUtil.isNumeric(sid))
 			dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID,String.valueOf(id));
-		
+
 		//Put it after id attr such that it can be overwritten by ODK which uses non numeric id as a form key.
 		if(formKey != null && formKey.trim().length() > 0)
 			dataNode.setAttribute(XformConstants.ATTRIBUTE_NAME_FORM_KEY, formKey);
@@ -496,7 +520,31 @@ public class FormDef implements Serializable {
 				if(questionDef == null)
 					continue;
 
-				dynamicOptionDef.updateDoc(this,questionDef);
+
+				//Delete the dynamic option def xforms xml stuff which got changed to other types.
+				QuestionDef childQuestionDef = getQuestion(dynamicOptionDef.getQuestionId());
+				if(childQuestionDef != null &&
+						childQuestionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+
+					dynamicOptions.remove(entry.getKey());
+
+					Element node = childQuestionDef.getFirstOptionNode();
+					if(node != null){
+						if(childQuestionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+								childQuestionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
+							node.getParentNode().removeChild(node);
+						else
+							node.getParentNode().getParentNode().removeChild(node.getParentNode());
+
+						childQuestionDef.setFirstOptionNode(null);
+					}
+
+					node = dynamicOptionDef.getDataNode();
+					if(node != null)
+						node.getParentNode().getParentNode().removeChild(node.getParentNode());
+				}
+				else
+					dynamicOptionDef.updateDoc(this,questionDef);
 			}
 		}
 
@@ -582,7 +630,7 @@ public class FormDef implements Serializable {
 	 */
 	public void addQuestion(QuestionDef qtn){
 		if(pages == null){
-			pages = new Vector<PageDef>();
+			pages = new Vector();
 			PageDef page = new PageDef(/*this.getVariableName()*/"Page1",Integer.parseInt("1"),null,this);
 			pages.addElement(page);
 		}
@@ -597,9 +645,9 @@ public class FormDef implements Serializable {
 	 * 
 	 * @param pages the pages to copy.
 	 */
-	private void copyPages(Vector<PageDef> pages){
+	private void copyPages(Vector pages){
 		if(pages != null){
-			this.pages =  new Vector<PageDef>();
+			this.pages =  new Vector();
 			for(int i=0; i<pages.size(); i++) //Should have atleast one page is why we are not checking for nulls.
 				this.pages.addElement(new PageDef((PageDef)pages.elementAt(i),this));
 		}
@@ -610,10 +658,10 @@ public class FormDef implements Serializable {
 	 * 
 	 * @param rules the skip rules.
 	 */
-	private void copySkipRules(Vector<SkipRule> rules){
+	private void copySkipRules(Vector rules){
 		if(rules != null)
 		{
-			this.skipRules =  new Vector<SkipRule>();
+			this.skipRules =  new Vector();
 			for(int i=0; i<rules.size(); i++)
 				this.skipRules.addElement(new SkipRule((SkipRule)rules.elementAt(i)));
 		}
@@ -624,10 +672,10 @@ public class FormDef implements Serializable {
 	 * 
 	 * @param rules the validation rules.
 	 */
-	private void copyValidationRules(Vector<ValidationRule> rules){
+	private void copyValidationRules(Vector rules){
 		if(rules != null)
 		{
-			this.validationRules =  new Vector<ValidationRule>();
+			this.validationRules =  new Vector();
 			for(int i=0; i<rules.size(); i++)
 				this.validationRules.addElement(new ValidationRule((ValidationRule)rules.elementAt(i)));
 		}
@@ -650,10 +698,10 @@ public class FormDef implements Serializable {
 		}
 	}
 
-	private void copyCalculations(Vector<Calculation> calculations){
+	private void copyCalculations(Vector calculations){
 		if(calculations != null)
 		{
-			this.calculations =  new Vector<Calculation>();
+			this.calculations =  new Vector();
 			for(int i=0; i<calculations.size(); i++)
 				this.calculations.addElement(new Calculation((Calculation)calculations.elementAt(i)));
 		}
@@ -737,7 +785,7 @@ public class FormDef implements Serializable {
 	 */
 	public void setModelNode(Element modelNode) {
 		this.modelNode = modelNode;
-		
+
 		if(modelNode != null){
 			String prefix = modelNode.getPrefix();
 			if(prefix != null && prefix.trim().length() > 0)
@@ -757,7 +805,7 @@ public class FormDef implements Serializable {
 		pages.remove(pageDef);
 
 		if(pageDef.getGroupNode() != null)
-			xformsNode.removeChild(pageDef.getGroupNode());
+			pageDef.getGroupNode().getParentNode().removeChild(pageDef.getGroupNode());
 
 		PageDef currentPageDef;
 		List<PageDef> list = new ArrayList<PageDef>();
@@ -773,7 +821,7 @@ public class FormDef implements Serializable {
 			if(i == 0){
 				PageDef pgDef = (PageDef)list.get(i);
 				if(pgDef.getGroupNode() != null)
-					xformsNode.insertBefore(pageDef.getGroupNode(), pgDef.getGroupNode());
+					pgDef.getGroupNode().getParentNode().insertBefore(pageDef.getGroupNode(), pgDef.getGroupNode());
 			}
 			pages.add(list.get(i));
 		}
@@ -789,8 +837,9 @@ public class FormDef implements Serializable {
 
 		pages.remove(pageDef);
 
+		Node parentNode = pageDef.getGroupNode().getParentNode();
 		if(pageDef.getGroupNode() != null)
-			xformsNode.removeChild(pageDef.getGroupNode());
+			parentNode.removeChild(pageDef.getGroupNode());
 
 		PageDef currentItem; // = parent.getChild(index - 1);
 		List<PageDef> list = new ArrayList<PageDef>();
@@ -807,7 +856,7 @@ public class FormDef implements Serializable {
 
 				PageDef pgDef = (PageDef)list.get(i);
 				if(pgDef.getGroupNode() != null)
-					xformsNode.insertBefore(pageDef.getGroupNode(), pgDef.getGroupNode());
+					pgDef.getGroupNode().getParentNode().insertBefore(pageDef.getGroupNode(), pgDef.getGroupNode());
 			}
 			pages.add(list.get(i));
 		}
@@ -816,7 +865,7 @@ public class FormDef implements Serializable {
 			pages.add(pageDef);
 
 			if(pageDef.getGroupNode() != null)
-				xformsNode.appendChild(pageDef.getGroupNode());
+				parentNode.appendChild(pageDef.getGroupNode());
 		}
 	}
 
@@ -905,8 +954,6 @@ public class FormDef implements Serializable {
 					removeDynamicInstanceNode(dynamicOptionDef);
 					continue;
 				}
-
-				dynamicOptionDef.updateDoc(this,questionDef);
 			}
 		}
 	}
@@ -1007,24 +1054,27 @@ public class FormDef implements Serializable {
 	public boolean moveQuestion2Page(QuestionDef qtn, int pageNo, FormDef formDef){
 		if(pages.size() < pageNo)
 			pages.add(new PageDef(LocaleText.get("page") + pageNo, pageNo, formDef));
-		
+
 		for(int i=0; i<pages.size(); i++){
 			PageDef page = (PageDef)pages.elementAt(i);
 			if(page.contains(qtn)){
 				if(i == pageNo-1)
 					return true; //Makes no sense to move question from and back to the same page.
-							
+
+				if((pageNo-1) >= pages.size())
+					return true;
+				
 				PageDef pageDef = (PageDef)pages.elementAt(pageNo-1);
 				Element node = qtn.getControlNode();
 				if(node != null && pageDef.getGroupNode() != null && !node.getParentNode().equals(pageDef.getGroupNode()))
 					return true;
-				
+
 				page.getQuestions().removeElement(qtn);
 				pageDef.addQuestion(qtn);
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -1076,7 +1126,7 @@ public class FormDef implements Serializable {
 	 */
 	public void addSkipRule(SkipRule skipRule){
 		if(skipRules == null)
-			skipRules = new Vector<SkipRule>();
+			skipRules = new Vector();
 		skipRules.addElement(skipRule);
 	}
 
@@ -1087,13 +1137,13 @@ public class FormDef implements Serializable {
 	 */
 	public void addValidationRule(ValidationRule validationRule){
 		if(validationRules == null)
-			validationRules = new Vector<ValidationRule>();
+			validationRules = new Vector();
 		validationRules.addElement(validationRule);
 	}
 
 	public void addCalculation(Calculation calculation){
 		if(calculations == null)
-			calculations = new Vector<Calculation>();
+			calculations = new Vector();
 		calculations.addElement(calculation);
 	}
 
@@ -1208,6 +1258,7 @@ public class FormDef implements Serializable {
 		return null;
 	}
 
+
 	/**
 	 * Removes a dynamic selection list relationship referenced by a given question.
 	 * 
@@ -1241,15 +1292,17 @@ public class FormDef implements Serializable {
 
 		//Clear existing skip rules if any. Already existing skip rules will always
 		//overwrite those from the refresh source.
-		skipRules = new Vector<SkipRule>();
+		skipRules = new Vector();
 		for(int index = 0; index < formDef.getSkipRuleCount(); index++)
 			formDef.getSkipRuleAt(index).refresh(this, formDef);
 
 		//Clear existing validation rules if any. Already existing validation rules 
 		//will always overwrite those from the refresh source.
-		validationRules = new Vector<ValidationRule>();
-		for(int index = 0; index < formDef.getValidationRuleCount(); index++)
-			formDef.getValidationRuleAt(index).refresh(this, formDef);
+		if(!FormUtil.overwriteValidationsOnRefresh()){
+			validationRules = new Vector();
+			for(int index = 0; index < formDef.getValidationRuleCount(); index++)
+				formDef.getValidationRuleAt(index).refresh(this, formDef);
+		}
 
 		//If we already had dynamic options, they will always overwrite all 
 		//from the refresh source.
@@ -1287,12 +1340,52 @@ public class FormDef implements Serializable {
 		}
 
 		//add calculations for questions that still exist.
-		calculations = new Vector<Calculation>();
+		calculations = new Vector();
 		for(int index = 0; index < formDef.getCalculationCount(); index++){
 			Calculation calculation = formDef.getCalculationAt(index);
-			QuestionDef questionDef = getQuestion(formDef.getQuestion(calculation.getQuestionId()).getBinding());
-			if(questionDef != null)
-				addCalculation(new Calculation(questionDef.getId(),calculation.getCalculateExpression()));
+			QuestionDef qtn = formDef.getQuestion(calculation.getQuestionId());
+			if(qtn != null){
+				QuestionDef questionDef = getQuestion(qtn.getBinding());
+				if(questionDef != null)
+					addCalculation(new Calculation(questionDef.getId(),calculation.getCalculateExpression()));
+			}
+			//else possibly removed by xformsparser for not having ui questions but were added during bind parsing.
+		}
+		
+		//For multiple page documents, move questions in the appropriate pages.
+		if(formDef.getPageCount() > 1){
+			for(int pageNo = 0; pageNo < formDef.getPageCount(); pageNo++){
+				PageDef pageDef = formDef.getPageAt(pageNo);
+				
+				PageDef thisPageDef = null;
+				if(pageNo >= getPageCount()){
+					thisPageDef = new PageDef(this);
+					thisPageDef.setQuestions(new Vector());
+					thisPageDef.setPageNo(pageNo + 1);
+					thisPageDef.setName(pageDef.getName());
+					addPage(thisPageDef);
+				}
+				else
+					thisPageDef = getPageAt(pageNo);
+				
+				for(int qtnNo = 0; qtnNo < pageDef.getQuestionCount(); qtnNo++){
+					QuestionDef questionDef = pageDef.getQuestionAt(qtnNo);
+					QuestionDef qtnDef = thisPageDef.getQuestion(questionDef.getBinding());
+					if(qtnDef == null){
+						QuestionDef qtn = getQuestionAndRemove(questionDef.getBinding(), pageNo);
+						if(qtn == null)
+							continue;
+						
+						if(qtn.getControlNode() != null)
+							qtn.getControlNode().getParentNode().removeChild(qtn.getControlNode());
+						
+						qtn.setControlNode(null);
+						qtn.setHintNode(null);
+						qtn.setParent(thisPageDef);
+						thisPageDef.getQuestions().add(qtn);
+					}
+				}
+			}
 		}
 	}
 
@@ -1316,7 +1409,7 @@ public class FormDef implements Serializable {
 
 		return count;
 	}
-	
+
 	/**
 	 * Gets the question at a given position in the first page.
 	 * 
@@ -1326,7 +1419,7 @@ public class FormDef implements Serializable {
 	/*public QuestionDef getQuestionAt(int index){
 		if(pages == null)
 			return null;
-		
+
 		return  getPageAt(0).getQuestionAt(index);
 	}*/
 
@@ -1338,7 +1431,7 @@ public class FormDef implements Serializable {
 			getValidationRuleAt(index).updateConditionValue(origValue, newValue);
 	}
 
-	public Element getLanguageNode() {
+	public Element getLanguageNode(Map<String, String> changedXpaths) {
 		com.google.gwt.xml.client.Document doc = XMLParser.createDocument();
 		doc.appendChild(doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\""));
 		Element rootNode = doc.createElement("xform");
@@ -1347,24 +1440,44 @@ public class FormDef implements Serializable {
 
 		if(dataNode != null){
 			Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
-			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, FormUtil.getNodePath(dataNode)+"[@name]");
+			String xpath = FormUtil.getNodePath(dataNode)+"[@name]";
+
+			if(FormUtil.isJavaRosaSaveFormat() && xpath.startsWith("model[@id='"))
+				xpath = "html/head/" + xpath;
+
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, xpath);
+			}
+			this.xpathExpression = xpath;
+
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
 			rootNode.appendChild(node);
 
+			if(FormUtil.isJavaRosaSaveFormat()){
+				node = doc.createElement(XformConstants.NODE_NAME_TEXT);
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, "html/head/title");
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, name);
+				rootNode.appendChild(node);
+			}
+
 			if(pages != null){
 				for(int index = 0; index < pages.size(); index++)
-					((PageDef)pages.elementAt(index)).buildLanguageNodes(doc, rootNode);
+					((PageDef)pages.elementAt(index)).buildLanguageNodes(doc, rootNode, changedXpaths);
 			}
 
 			if(validationRules != null){
 				for(int index = 0; index < validationRules.size(); index++)
-					((ValidationRule)validationRules.elementAt(index)).buildLanguageNodes(this, rootNode);
+					((ValidationRule)validationRules.elementAt(index)).buildLanguageNodes(this, rootNode, changedXpaths);
 			}
 
 			if(dynamicOptions != null){
 				Iterator<Entry<Integer,DynamicOptionDef>> iterator = dynamicOptions.entrySet().iterator();
 				while(iterator.hasNext())
-					iterator.next().getValue().buildLanguageNodes(this, rootNode);
+					iterator.next().getValue().buildLanguageNodes(this, rootNode, changedXpaths);
 			}
 		}
 
@@ -1403,5 +1516,31 @@ public class FormDef implements Serializable {
 
 		for(int i=0; i<pages.size(); i++)
 			((PageDef)pages.elementAt(i)).clearChangeListeners();
+	}
+	
+	public QuestionDef getQuestionAndRemove(String varName, int minusPageNo){
+		if(varName == null || pages == null)
+			return null;
+
+		for(int i=0; i<getPages().size(); i++){
+			if(i == minusPageNo)
+				continue;
+			
+			QuestionDef def = ((PageDef)getPages().elementAt(i)).getQuestion(varName);
+			if(def != null){
+				((PageDef)getPages().elementAt(i)).getQuestions().remove(i);
+				return def;
+			}
+		}
+
+		return null;
+	}
+
+	public Element getItextNode() {
+		return itextNode;
+	}
+
+	public void setItextNode(Element itextNode) {
+		this.itextNode = itextNode;
 	}
 }

@@ -492,7 +492,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		horizontalPanel.add(valueHyperlink);
 	}
 
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender instanceof SelectItemCommand){
 			popup.hide();
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||

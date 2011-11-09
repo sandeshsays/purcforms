@@ -36,8 +36,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 
@@ -121,7 +119,7 @@ public class TextTabWidget extends com.extjs.gxt.ui.client.widget.Composite {
 				menuItem.addListener(Events.Select, new Listener<BaseEvent>(){
 					public void handleEvent(BaseEvent be)
 					{
-						addNewLanguage("Language");
+						addNewLanguage();
 					}
 				});
 
@@ -201,7 +199,7 @@ public class TextTabWidget extends com.extjs.gxt.ui.client.widget.Composite {
 		addLang.addListener(Events.Select, new Listener<ButtonEvent>(){
 			public void handleEvent(ButtonEvent be)
 			{
-				addNewLanguage("Language");
+				addNewLanguage();
 			}
 		});
 
@@ -248,7 +246,7 @@ public class TextTabWidget extends com.extjs.gxt.ui.client.widget.Composite {
 				//TODO
 				//NEED TO PUT HOOK TO addLanguage() here!
 
-				addNewLanguage("Language");
+				addNewLanguage();
 			}
 		});  
 		contextMenu.add(addLang);  
@@ -374,16 +372,9 @@ public class TextTabWidget extends com.extjs.gxt.ui.client.widget.Composite {
 		contentPanel.setHeight(height);
 	}
 
-	public void addNewLanguage(String defaultName) {
-		String lang = com.google.gwt.user.client.Window.prompt("Please enter the language name", defaultName);
+	public void addNewLanguage() {
+		String lang = com.google.gwt.user.client.Window.prompt("Please enter the language name", "Language");
 		if(lang != null && lang.trim().length() > 0){
-
-			if(languageExists(lang.trim())){
-				com.google.gwt.user.client.Window.alert("Please enter a language name different from those that exist.");
-				addNewLanguage(lang);
-				return;
-			}
-
 			ColumnConfig columnConfig = new ColumnConfig(lang, lang, 200);
 			grid.getColumnModel().getColumns().add(columnConfig);
 			columnConfig.setEditor(new CellEditor(new TextField<String>()));
@@ -468,35 +459,7 @@ public class TextTabWidget extends com.extjs.gxt.ui.client.widget.Composite {
 	}
 
 	public void save(){
-		
-		hideWindow();
-		
-		FormUtil.dlg.setText("Saving Itext...");
-		FormUtil.dlg.show();
-
-		DeferredCommand.addCommand(new Command() {
-			public void execute() {
-				try{
-					listener.onSaveItext(getItext());
-					FormUtil.dlg.hide();
-					showWindow();
-					//com.google.gwt.user.client.Window.alert("Saved Successfully");
-				}
-				catch(Exception ex){
-					FormUtil.displayException(ex);
-				}
-			}
-		});
-	}
-
-	private boolean languageExists(String name){
-		List<Locale> locales = Context.getLocales();
-		for(Locale locale : locales){
-			if(locale.getName().equals(name)){
-				return true;
-			}
-		}
-
-		return false;
+		listener.onSaveItext(getItext());
+		com.google.gwt.user.client.Window.alert("Saved Successfully");
 	}
 }

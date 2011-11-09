@@ -9,6 +9,7 @@ import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractPositioningDropController;
 import com.allen_sauer.gwt.dnd.client.util.DOMUtil;
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -55,9 +56,9 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 	int dropTargetOffsetX;
 
 	int dropTargetOffsetY;
-	
+
 	private DragDropListener dragDropListener;
-	
+
 
 	public FormDesignerDropController(AbsolutePanel dropTarget,DragDropListener dragDropListener) {
 		super(dropTarget);
@@ -92,7 +93,7 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			}
 			else if(dragDropListener != null)
 				dragDropListener.onDrop(draggable.widget,context.mouseX,context.mouseY);
-				//dragDropListener.onDrop(draggable.widget,context.desiredDraggableX,context.desiredDraggableY);
+			//dragDropListener.onDrop(draggable.widget,context.desiredDraggableX,context.desiredDraggableY);
 		}
 		super.onDrop(context);
 	}
@@ -104,10 +105,12 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 
 		dropTargetClientWidth = DOMUtil.getClientWidth(dropTarget.getElement());
 		dropTargetClientHeight = DOMUtil.getClientHeight(dropTarget.getElement());
-		WidgetLocation dropTargetLocation = new WidgetLocation(dropTarget, null);
+		calcDropTargetOffset();
+
+		/*WidgetLocation dropTargetLocation = new WidgetLocation(dropTarget, null);
 		dropTargetOffsetX = dropTargetLocation.getLeft()
 		+ DOMUtil.getBorderLeft(dropTarget.getElement());
-		dropTargetOffsetY = dropTargetLocation.getTop() + DOMUtil.getBorderTop(dropTarget.getElement());
+		dropTargetOffsetY = dropTargetLocation.getTop() + DOMUtil.getBorderTop(dropTarget.getElement());*/
 
 		int draggableAbsoluteLeft = context.draggable.getAbsoluteLeft();
 		int draggableAbsoluteTop = context.draggable.getAbsoluteTop();
@@ -126,7 +129,7 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			draggable.positioner.removeFromParent();
 		}
 		draggableList.clear();
-		//super.onLeave(context);
+		super.onLeave(context);  //Was commented out new.............
 	}
 
 	@Override
@@ -153,6 +156,14 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 
 			dropTarget.add(draggable.positioner, draggable.desiredX, draggable.desiredY);
 		}
+
+
+		if (context.dragController.getBehaviorScrollIntoView()) {
+			draggableList.get(draggableList.size() - 1).positioner.getElement().scrollIntoView();
+		}
+
+		// may have changed due to scrollIntoView() or user driven scrolling
+		calcDropTargetOffset();
 	}
 
 	Widget makePositioner(Widget reference) {
@@ -160,6 +171,7 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 		// excluding positioner border in quirks and strict modes
 		SimplePanel outer = new SimplePanel();
 		//outer.addStyleName(CSS_DRAGDROP_POSITIONER); //TODO ????????????????????????????
+		//outer.addStyleName(DragClientBundle.INSTANCE.css().positioner());
 		outer.getElement().getStyle().setProperty("margin", "0"+PurcConstants.UNITS);
 
 		// place off screen for border calculation
@@ -179,5 +191,13 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 		outer.setWidget(inner);
 
 		return outer;
+	}
+	
+	private void calcDropTargetOffset() {
+		WidgetLocation dropTargetLocation = new WidgetLocation(dropTarget, null);
+		dropTargetOffsetX = dropTargetLocation.getLeft()
+		+ DOMUtil.getBorderLeft(dropTarget.getElement());
+		dropTargetOffsetY = dropTargetLocation.getTop() + DOMUtil.getBorderTop(dropTarget.getElement());
+		// System.out.println(dropTargetOffsetX + ", " + dropTargetOffsetY);
 	}
 }

@@ -10,13 +10,15 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
+import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.ui.RootPanel;
 
 
 /**
  * This is the GWT entry point for the form runtime engine.
  */
-public class FormRunnerEntryPoint implements EntryPoint{
+public class FormRunnerEntryPoint implements EntryPoint, ClosingHandler {
 
 	/** The form runtime widget. */
 	private FormRunnerWidget formRunner;
@@ -53,9 +55,13 @@ public class FormRunnerEntryPoint implements EntryPoint{
 				return;
 			}
 			
-			FormUtil.setupUncaughtExceptionHandler();	
+			FormUtil.setupUncaughtExceptionHandler();
+			
+			FormUtil.initialize();
 
 			FormUtil.retrieveUserDivParameters();
+			
+			FormUtil.loadDecimalSeparators();
 
 			formRunner = new FormRunnerWidget(images);
 			
@@ -80,6 +86,9 @@ public class FormRunnerEntryPoint implements EntryPoint{
 						FormUtil.dlg.hide();
 				}
 			});
+			
+			// Prevent the user from closing accidentally and lose unsaved changes.
+			Window.addWindowClosingHandler(this);
 		}
 		catch(Exception ex){
 			FormUtil.displayException(ex);
@@ -101,4 +110,10 @@ public class FormRunnerEntryPoint implements EntryPoint{
    		$wnd.authenticationCallback = @org.purc.purcforms.client.view.FormRunnerView::authenticationCallback(Z);
    		$wnd.submitForm = @org.purc.purcforms.client.view.FormRunnerView::submitForm();
 	}-*/;
+	
+	
+	public void onWindowClosing(ClosingEvent event){
+		if(FormRunnerContext.isWarnOnClose())
+			event.setMessage("");
+	}
 }

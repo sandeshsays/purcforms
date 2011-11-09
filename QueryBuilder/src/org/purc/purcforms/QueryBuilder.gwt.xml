@@ -16,7 +16,7 @@
       <inherits name='org.purc.purcforms.SharedLib'/>                                   -->
 
       <!-- Specify the app entry point class.                         -->
-      <entry-point class='org.purc.purcforms.client.QueryBuilder'/>
+      <entry-point class='org.purc.purcforms.client.querybuilder.QueryBuilder'/>
     
       <!-- Specify the application specific style sheet.              -->
       <stylesheet src='QueryBuilder.css' />

@@ -30,12 +30,15 @@
     <div id="showLayoutXmlTab" style="visibility:hidden;">1</div>
     <div id="showModelXmlTab" style="visibility:hidden;">1</div>
     <div id="showJavaScriptTab" style="visibility:hidden;">1</div>
+    <div id="showPreviewTab" style="visibility:hidden;">1</div>
+    <div id="showDesignSurfaceTab" style="visibility:hidden;">1</div>
     <div id="allowBindEdit" style="visibility:hidden;">1</div>
+    <div id="combineFormOnSave" style="visibility:hidden;">1</div>
     
     <div id="constraintMessageAttributeName" style="visibility:hidden;">message</div>
     <div id="gpsTypeName" style="visibility:hidden;">xsd:string</div>
     <div id="formKeyAttributeName" style="visibility:hidden;">formKey</div>
-    <div id="saveFormat" style="visibility:hidden;">purcforms</div>
+    <div id="saveFormat" style="visibility:hidden;">javarosa</div>
     
     <div id="defaultFontSize" style="visibility:hidden;">16</div>
     <div id="defaultFontFamily" style="visibility:hidden;">Verdana, 'Lucida Grande', 'Trebuchet MS', Arial, Sans-Serif</div>
@@ -340,8 +343,8 @@
            		id: "ID",
            		formKey: "Form Key",
            		filterField: "Filter Field",
-           		
-           		invalidDefaultValueForQuestionType: "The default value specified is invalid with regard to the question type selected. It contains invalid characters like characters where numbers are expected. Please check to proceed!"
+           		rebind: "Rebuild Bindings",
+           		logo: "Logo"
  		  };
 
 		  function isUserAuthenticated(){
@@ -358,6 +361,14 @@
 
 		  function initialize(){
 			  
+		  }
+
+		  function getQuestionBinding(id, pos){
+			  return null;
+		  }
+
+		  function getOptionBinding(id, pos){
+			  return null;
 		  }
 		  
     </script>

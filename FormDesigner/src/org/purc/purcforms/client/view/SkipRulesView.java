@@ -3,7 +3,14 @@ package org.purc.purcforms.client.view;
 import java.util.List;
 import java.util.Vector;
 
+import org.purc.purcforms.client.Context;
+import org.purc.purcforms.client.cmd.ChangeSkipConditionCmd;
+import org.purc.purcforms.client.cmd.ChangeSkipRuleCmd;
+import org.purc.purcforms.client.cmd.DeleteSkipConditionCmd;
+import org.purc.purcforms.client.cmd.InsertSkipConditionCmd;
 import org.purc.purcforms.client.controller.IConditionController;
+import org.purc.purcforms.client.controller.IFormChangeListener;
+import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.controller.QuestionSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
@@ -13,17 +20,22 @@ import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.SkipRule;
 import org.purc.purcforms.client.widget.skiprule.ConditionWidget;
 import org.purc.purcforms.client.widget.skiprule.GroupHyperlink;
+import org.purc.purcforms.client.xforms.XformParser;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Element;
 
 
 /**
@@ -32,7 +44,7 @@ import com.google.gwt.user.client.ui.Widget;
  * @author daniel
  *
  */
-public class SkipRulesView extends Composite implements IConditionController, QuestionSelectionListener{
+public class SkipRulesView extends Composite implements IConditionController, QuestionSelectionListener, ItemSelectionListener{
 
 	/** The widget horizontal spacing in horizontal panels. */
 	private static final int HORIZONTAL_SPACING = 5;
@@ -44,10 +56,10 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	private VerticalPanel verticalPanel = new VerticalPanel();
 
 	/** Widget for adding new conditions. */
-	private Anchor addConditionLink = new Anchor(LocaleText.get("clickToAddNewCondition"), "#");
+	private Hyperlink addConditionLink = new Hyperlink(LocaleText.get("clickToAddNewCondition"),"");
 
 	/** Widget for grouping conditions. Has all,any, none, and not all. */
-	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL, "#");
+	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL, "", this);
 
 	/** The form definition object that this skip rule belongs to. */
 	private FormDef formDef;
@@ -85,11 +97,18 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	/** Widget for Label "and". */
 	private Label lblAnd = new Label(LocaleText.get("and"));
 
+	private IFormChangeListener formChangeListener;
+	private TreeItem treeItem;
+
+	private PropertiesView propertiesView;
+
+	public static final int ACTION_AUTO_SET = 1 << 8;
 
 	/**
 	 * Creates a new instance of the skip logic widget.
 	 */
-	public SkipRulesView(){
+	public SkipRulesView(PropertiesView propertiesView){
+		this.propertiesView = propertiesView;
 		setupWidgets();
 	}
 
@@ -108,8 +127,8 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		actionPanel.add(chkMakeRequired);
 		actionPanel.setSpacing(5);
 
-		Anchor click4OtherQuestionsAnchor = new Anchor(LocaleText.get("clickForOtherQuestions"), "#");
-		click4OtherQuestionsAnchor.addClickHandler(new ClickHandler(){
+		Hyperlink hyperlink = new Hyperlink(LocaleText.get("clickForOtherQuestions"),"");
+		hyperlink.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				showOtherQuestions();
 			}
@@ -119,7 +138,7 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		horzPanel.setSpacing(10);
 		horzPanel.add(lblAction);
 		horzPanel.add(lblAnd);
-		horzPanel.add(click4OtherQuestionsAnchor);
+		horzPanel.add(hyperlink);
 
 		verticalPanel.add(horzPanel);
 		verticalPanel.add(actionPanel);
@@ -140,26 +159,48 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		rdEnable.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				updateMakeRequired();
+				setAction();
 			}
 		});
 		rdDisable.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				updateMakeRequired();
+				setAction();
 			}
 		});
 		rdShow.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				updateMakeRequired();
+				setAction();
 			}
 		});
 		rdHide.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				updateMakeRequired();
+				setAction();
+			}
+		});
+
+		chkMakeRequired.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){
+				setAction();
 			}
 		});
 
 		verticalPanel.setSpacing(VERTICAL_SPACING);
 		initWidget(verticalPanel);
+	}
+
+	private void setAction(){
+		if(skipRule == null){
+			skipRule = new SkipRule();
+			formDef.addSkipRule(skipRule);
+		}
+
+		int oldValue = skipRule.getAction();		
+		skipRule.setAction(getAction());
+
+		Context.getCommandHistory().add(new ChangeSkipRuleCmd(ChangeSkipRuleCmd.PROPERTY_ACTION, oldValue, skipRule, this, treeItem, (FormsTreeView)formChangeListener));
 	}
 
 	/**
@@ -169,23 +210,63 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	private void updateMakeRequired(){
 		chkMakeRequired.setEnabled(rdEnable.getValue() == true || rdShow.getValue() == true);
 		if(!chkMakeRequired.isEnabled())
-			chkMakeRequired.setValue(false);
+			;//chkMakeRequired.setValue(false);
 	}
 
 	/**
 	 * Adds a new condition.
 	 */
 	public void addCondition(){
-		if(formDef != null && enabled){
+		if(!enabled)
+			return;
+
+		addCondition(new ConditionWidget(formDef, this, true, questionDef), -1, skipRule, true);
+	}
+
+	public void addCondition(ConditionWidget conditionWidget, int index, SkipRule skpRule, boolean storeHistory) {
+		this.skipRule = skpRule;
+
+		if(formDef != null && enabled){		
+			
+			if(!storeHistory)
+				conditionWidget.stopEdit(false);
+			
 			verticalPanel.remove(addConditionLink);
-			ConditionWidget conditionWidget = new ConditionWidget(formDef,this,true,questionDef);
-			verticalPanel.add(conditionWidget);
+
+			if(index == -1)
+				verticalPanel.add(conditionWidget);
+			else
+				verticalPanel.insert(conditionWidget, index + 2);
+
 			verticalPanel.add(addConditionLink);
 
-			if(!(rdEnable.getValue() == true||rdDisable.getValue() == true||rdShow.getValue() == true||rdHide.getValue() == true)){
-				rdEnable.setValue(true);
-				updateMakeRequired();
+			if(skipRule == null){
+
+				if(!(rdEnable.getValue() == true||rdDisable.getValue() == true||rdShow.getValue() == true||rdHide.getValue() == true)){
+					rdEnable.setValue(true);
+					updateMakeRequired();
+				}
+
+				skipRule = new SkipRule();
+				skipRule.setConditionsOperator(groupHyperlink.getConditionsOperator());
+
+				int action = getAction();
+				action |= ACTION_AUTO_SET;
+				skipRule.setAction(action);
+
+				skipRule.addActionTarget(questionDef.getId());
+				formDef.addSkipRule(skipRule);
 			}
+			else if(!formDef.containsSkipRule(skipRule))
+				formDef.addSkipRule(skipRule);
+
+			skipRule.addCondition(conditionWidget.getCondition());
+			setAction(skipRule.getAction());
+
+			if(storeHistory)
+				Context.getCommandHistory().add(new InsertSkipConditionCmd(skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener, skpRule == null));
+			else
+				propertiesView.selectSkipRulesTab();
 		}
 	}
 
@@ -203,16 +284,47 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	 * @param conditionWidget the widget having the condition to delete.
 	 */
 	public void deleteCondition(ConditionWidget conditionWidget){
-		if(skipRule != null){
-			Condition condition = conditionWidget.getCondition();
-			if(condition != null){
-				if(skipRule.getConditionCount() == 1 && skipRule.getActionTargetCount() > 1)
-					skipRule.removeActionTarget(questionDef);
-				else
-					skipRule.removeCondition(condition);
-			}
+		deleteCondition(conditionWidget, skipRule, true);
+	}
+
+	/**
+	 * Deletes a condition.
+	 * 
+	 * @param conditionWidget the widget having the condition to delete.
+	 */
+	public void deleteCondition(ConditionWidget conditionWidget, SkipRule skpRule, boolean storeHistory){
+		this.skipRule = skpRule;
+
+		//if(skipRule != null){
+		Condition condition = conditionWidget.getCondition();
+		if(condition != null){
+			if(skipRule.getConditionCount() == 1 && skipRule.getActionTargetCount() > 1)
+				skipRule.removeActionTarget(questionDef);
+			else
+				skipRule.removeCondition(condition);
 		}
-		verticalPanel.remove(conditionWidget);
+		//}
+
+		int index = verticalPanel.getWidgetIndex(conditionWidget);
+		if(index > -1)
+			verticalPanel.remove(index);
+		else
+			index = removeConditionWidget(conditionWidget.getExistingCondition());
+
+		if(skipRule.getConditionCount() == 0){
+			formDef.removeSkipRule(skipRule);
+
+			if((skipRule.getAction() & ACTION_AUTO_SET) != 0)
+				setAction(0);
+
+			//skipRule = null;
+		}
+
+		if(storeHistory){
+			Context.getCommandHistory().add(new DeleteSkipConditionCmd(skipRule, conditionWidget, index - 2, this, treeItem, (FormsTreeView)formChangeListener));
+		}
+		else
+			propertiesView.selectSkipRulesTab();
 	}
 
 	/**
@@ -245,14 +357,49 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			skipRule = null;
 		else{
 			skipRule.setConditionsOperator(groupHyperlink.getConditionsOperator());
-			skipRule.setAction(getAction());
-			
+
+			boolean autoSetAction = ((skipRule.getAction() & ACTION_AUTO_SET) != 0);
+			int action = getAction();
+			if(autoSetAction)
+				action |= ACTION_AUTO_SET;
+			skipRule.setAction(action);
+
 			if(!skipRule.containsActionTarget(questionDef.getId()))
 				skipRule.addActionTarget(questionDef.getId());
 		}
+	}
 
-		if(skipRule != null && !formDef.containsSkipRule(skipRule))
-			formDef.addSkipRule(skipRule);
+	private int removeConditionWidget(Condition condition){
+		/*int count = verticalPanel.getWidgetCount();
+		for(int i=0; i<count; i++){
+			Widget widget = verticalPanel.getWidget(i);
+			if(widget instanceof ConditionWidget){
+				if(condition == ((ConditionWidget)widget).getCondition()){
+					verticalPanel.remove(widget);
+					return i;
+				}
+			}
+		}*/
+		
+		int index =  getConditionIndex(condition);
+		if(index > -1){
+			verticalPanel.remove(index);
+		}
+
+		return index;
+	}
+	
+	private int getConditionIndex(Condition condition){
+		int count = verticalPanel.getWidgetCount();
+		for(int i=0; i<count; i++){
+			Widget widget = verticalPanel.getWidget(i);
+			if(widget instanceof ConditionWidget){
+				if(condition == ((ConditionWidget)widget).getExistingCondition())
+					return i;
+			}
+		}
+
+		return -1;
 	}
 
 	/**
@@ -268,7 +415,7 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			action |= ModelConstants.ACTION_SHOW;
 		else if(rdHide.getValue() == true)
 			action |= ModelConstants.ACTION_HIDE;
-		else
+		else if(rdDisable.getValue() == true)
 			action |= ModelConstants.ACTION_DISABLE;
 
 		if(chkMakeRequired.getValue() == true)
@@ -302,22 +449,37 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 	public void setQuestionDef(QuestionDef questionDef){
 		clearConditions();
 
-		if(questionDef != null){
-			formDef = questionDef.getParentFormDef();
-			lblAction.setText(LocaleText.get("forQuestion") + questionDef.getDisplayText());
+		//Check if form designer is allowed to modify this node.
+		Element node = (questionDef.getBindNode() != null ? questionDef.getBindNode() : questionDef.getControlNode());
+		if(node != null){
+			if(XformParser.isDesignerReadOnlyRelevant(node)){
+				DeferredCommand.addCommand(new Command(){
+					public void execute() {
+						setEnabled(false);
+					}
+				});
+				
+				return;
+			}
 		}
+		
+		formDef = questionDef.getParentFormDef();
+
+		if(questionDef != null)
+			lblAction.setText(LocaleText.get("forQuestion") + questionDef.getDisplayText());
 		else
 			lblAction.setText(LocaleText.get("forQuestion"));
 
 		this.questionDef = questionDef;
 
 		skipRule = formDef.getSkipRule(questionDef);
-		if(skipRule != null){
+
+		if(skipRule != null){ 
 			groupHyperlink.setCondionsOperator(skipRule.getConditionsOperator());
 			setAction(skipRule.getAction());
 			verticalPanel.remove(addConditionLink);
-			Vector<Condition> conditions = skipRule.getConditions();
-			Vector<Condition> lostConditions = new Vector<Condition>();
+			Vector conditions = skipRule.getConditions();
+			Vector lostConditions = new Vector();
 			for(int i=0; i<conditions.size(); i++){
 				ConditionWidget conditionWidget = new ConditionWidget(formDef,this,true,questionDef);
 				if(conditionWidget.setCondition((Condition)conditions.elementAt(i)))
@@ -327,8 +489,10 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 			}
 			for(int i=0; i<lostConditions.size(); i++)
 				skipRule.removeCondition((Condition)lostConditions.elementAt(i));
+
 			if(skipRule.getConditionCount() == 0){
 				formDef.removeSkipRule(skipRule);
+				//Context.getCommandHistory().add(new DeleteSkipRuleCmd(skipRule, formDef, treeItem, (FormsTreeView)formChangeListener));
 				skipRule = null;
 			}
 
@@ -409,34 +573,158 @@ public class SkipRulesView extends Composite implements IConditionController, Qu
 		if(skipRule == null)
 			skipRule = new SkipRule();
 
+		Vector<Integer> oldValue = new Vector<Integer>();
+		if(skipRule.getActionTargets() != null){
+			for(int index = 0; index < skipRule.getActionTargets().size(); index++){
+				oldValue.add(skipRule.getActionTargetAt(index));
+			}
+		}
+		
 		//Check if we have any action targets. If we do not, just add all as new.
 		List<Integer> actnTargets = skipRule.getActionTargets();
 		if(actnTargets == null){
 			for(String varName : questions)
 				skipRule.addActionTarget(formDef.getQuestion(varName).getId());
-			
-			return;
+
+			//return;
 		}
+		else{
 
-		//Remove any de selected action targets from the skip rule.
-		for(int index = 0; index < actnTargets.size(); index++){
-			Integer qtnId = actnTargets.get(index);
+			//Remove any de selected action targets from the skip rule.
+			for(int index = 0; index < actnTargets.size(); index++){
+				Integer qtnId = actnTargets.get(index);
 
-			QuestionDef qtnDef = formDef.getQuestion(qtnId);
-			if(qtnDef == questionDef)
-				continue; //Ignore the question for which we are editing the skip rule.
+				QuestionDef qtnDef = formDef.getQuestion(qtnId);
+				if(qtnDef == questionDef)
+					continue; //Ignore the question for which we are editing the skip rule.
 
-			if(qtnDef == null || !questions.contains(qtnDef.getBinding())){
-				actnTargets.remove(index);
-				index = index - 1;
+				if(qtnDef == null || !questions.contains(qtnDef.getBinding())){
+					if(qtnDef == null) //possibly question was deleted or some bug.
+						actnTargets.remove(index);
+					else
+						skipRule.removeActionTarget(qtnDef);
+
+					index = index - 1;
+				}
+			}
+
+			//Add any newly added questions as action targets.
+			for(String varName : questions){
+				QuestionDef qtnDef = formDef.getQuestion(varName);
+				if(!skipRule.containsActionTarget(qtnDef.getId()))
+					skipRule.addActionTarget(qtnDef.getId());
 			}
 		}
 		
-		//Add any newly added questions as action targets.
-		for(String varName : questions){
-			QuestionDef qtnDef = formDef.getQuestion(varName);
-			if(!skipRule.containsActionTarget(qtnDef.getId()))
-				skipRule.addActionTarget(qtnDef.getId());
+		Context.getCommandHistory().add(new ChangeSkipRuleCmd(ChangeSkipRuleCmd.PROPERTY_TARGETS, oldValue, skipRule, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+
+	public void setFormChangeListener(IFormChangeListener formChangeListener){
+		this.formChangeListener = formChangeListener;
+	}
+
+	public void onFormItemSelected(TreeItem treeItem) {
+		this.treeItem = treeItem;
+	}
+
+	public void setAction(SkipRule skipRule){
+		this.skipRule = skipRule;
+		setAction(skipRule.getAction());
+		
+		propertiesView.selectSkipRulesTab();
+	}
+
+	public void setCondionsOperator(SkipRule skipRule){
+		this.skipRule = skipRule;
+		groupHyperlink.setCondionsOperator(skipRule.getConditionsOperator());
+		
+		propertiesView.selectSkipRulesTab();
+	}
+
+	public void setActionTargets(SkipRule skipRule){
+		this.skipRule = skipRule;
+		
+		propertiesView.selectSkipRulesTab();
+	}
+
+	public void onItemSelected(Object sender, Object item, boolean userAction){
+		if(skipRule == null){
+			skipRule = new SkipRule();
+			formDef.addSkipRule(skipRule);
 		}
+
+		int oldValue = skipRule.getConditionsOperator();
+		skipRule.setConditionsOperator(groupHyperlink.getConditionsOperator());
+
+		if(oldValue != skipRule.getConditionsOperator())
+			Context.getCommandHistory().add(new ChangeSkipRuleCmd(ChangeSkipRuleCmd.PROPERTY_CONDITIONS_OPERATOR, oldValue, skipRule, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+
+	public void onStartItemSelection(Object sender){
+		assert(sender == groupHyperlink);
+	}
+	
+	public void setCondionOperator(SkipRule skipRule, Condition condition){
+		this.skipRule = skipRule;
+		
+		int index = getConditionIndex(condition);
+		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
+		widget.setOperator(condition.getOperator());
+		
+		propertiesView.selectSkipRulesTab();
+	}
+	
+	public void setCondionQuestion(SkipRule skipRule, Condition condition, QuestionDef questionDef){
+		this.skipRule = skipRule;
+		
+		int index = getConditionIndex(condition);
+		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
+		widget.setQuestionDef(questionDef);
+		
+		propertiesView.selectSkipRulesTab();
+	}
+	
+	public void setConditionValue(SkipRule skipRule, Condition condition){
+		this.skipRule = skipRule;
+		
+		int index = getConditionIndex(condition);
+		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
+		widget.setValue(condition.getValue());
+		
+		propertiesView.selectSkipRulesTab();
+	}
+	
+	public void setQtnToggleValue(SkipRule skipRule, Condition condition, boolean value){
+		this.skipRule = skipRule;
+		
+		int index = getConditionIndex(condition);
+		ConditionWidget widget = (ConditionWidget)verticalPanel.getWidget(index);
+		widget.setQtnToggleValue(value);
+		
+		propertiesView.selectSkipRulesTab();
+	}
+	
+	public void onConditionOperatorChanged(ConditionWidget conditionWidget, int oldOperator){
+		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_OPERATOR, oldOperator, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+	
+	public void onConditionValue1Changed(ConditionWidget conditionWidget, String oldValue){
+		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_VALUE1, oldValue, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));		
+	}
+	
+	public void onConditionValue2Changed(ConditionWidget conditionWidget, String oldValue){
+		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_VALUE2, oldValue, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+	
+	public void onConditionQuestionChanged(ConditionWidget conditionWidget, QuestionDef oldQuestionDef){
+		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_QUESTION, oldQuestionDef, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+	
+	public void onConditionQtnValueToggleChanged(ConditionWidget conditionWidget, boolean oldValue){
+		Context.getCommandHistory().add(new ChangeSkipConditionCmd(ChangeSkipConditionCmd.PROPERTY_QTN_VALUE_TOGGLE, oldValue, skipRule, conditionWidget, this, treeItem, (FormsTreeView)formChangeListener));
+	}
+	
+	public void onConditionFunctionChanged(ConditionWidget conditionWidget, int oldFunction){
+		//Note implemented for skip rules.
 	}
 }

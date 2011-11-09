@@ -32,6 +32,7 @@ import org.purc.purcforms.client.widget.RuntimeGroupWidget;
 import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
+import org.purc.purcforms.client.widget.WidgetListener;
 import org.purc.purcforms.client.xforms.XformBuilder;
 import org.purc.purcforms.client.xforms.XformParser;
 import org.purc.purcforms.client.xforms.XformUtil;
@@ -82,7 +83,7 @@ import com.google.gwt.xml.client.XMLParser;
  * @author daniel
  *
  */
-public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener,QuestionChangeListener{
+public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener, QuestionChangeListener, WidgetListener{
 
 	private final char FIELD_SEPARATOR = '|'; //TODO These may need to be changed.
 	private final char RECORD_SEPARATOR = '$';
@@ -164,6 +165,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 *  which are the keys in this map.
 	 */
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap;
+	
+	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> repeatCalcWidgetMap;
 
 	/**
 	 * A map of filtered single select dynamic questions and their corresponding 
@@ -189,6 +192,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private List<RuntimeWidgetWrapper> externalSourceWidgets;
 	private int externalSourceWidgetIndex = 0;
 
+	private boolean loaded = false;
+	
+	/** Used for navigating between more than two pages to and fro by simply pressing enter. */
+	private boolean movingToNextPage = true;
+
+	/**
+	 * Contains form definitions for each row of a repeat question starting from the second row.
+	 * This is mostly because these repeat rows create copies of existing questions defs starting
+	 * from the second row.
+	 */
+	private List<FormDef> repeatQtnFormDefs = new ArrayList<FormDef>();
 
 
 	/**
@@ -224,7 +238,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * 		  external to the xform.
 	 */
 	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
-		FormUtil.initialize();
+		//FormUtil.initialize();
 
 		if(previewMode /*externalSourceWidgets == null*/){
 			//Here we must be in preview mode where we need to create a new copy of the formdef
@@ -243,8 +257,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 		}
 
+		loaded = false;
+
 		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
 		isValid(true);
+
+		loaded = true;
+
 		moveToFirstWidget();
 
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
@@ -291,9 +310,28 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 */
 	protected void moveToNextWidget(int index){
 
-		//If we have reached end of tab order, just wrap around to the first widget.
-		if(index > selectedPanel.getWidgetCount() - 2)
-			index = 0;
+		//If we have reached end of tab order.
+		if(index > selectedPanel.getWidgetCount() - 2){
+			index = 0; //just wrap around to the first widget if we have one page.
+			
+			//try move to next or previous page if any.
+			if(movingToNextPage){
+				if(nextPage())
+					return;
+				else if(prevPage()){
+					movingToNextPage = false;
+					return;
+				}
+			}
+			else{
+				if(prevPage())
+					return;
+				else if(nextPage()){
+					movingToNextPage = true;
+					return;
+				}
+			}
+		}
 
 		while(++index < selectedPanel.getWidgetCount()){
 			if(((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).setFocus())
@@ -323,6 +361,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		validationWidgetsMap = new HashMap<RuntimeWidgetWrapper,List<RuntimeWidgetWrapper>>();
 		calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 		filtDynOptWidgetMap = new HashMap<QuestionDef,RuntimeWidgetWrapper>();
+		repeatCalcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
 		//A list of widgets with validation rules.
 		List<RuntimeWidgetWrapper> validationRuleWidgets = new ArrayList<RuntimeWidgetWrapper>();
@@ -337,6 +376,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		initValidationWidgetsMap(parentValidationWidgetQtns);
 
+		String firstPageText = null;
 		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml);
 		Element root = doc.getDocumentElement();
 		NodeList pages = root.getChildNodes();
@@ -346,7 +386,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			Element node = (Element)pages.item(i);
 
 			addNewTab(node.getAttribute("Text"));
-			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this));
+			if(firstPageText == null)
+				firstPageText = node.getAttribute("Text");
+
+			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this, null));
 
 			setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
 			setHeight(node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEIGHT));
@@ -367,6 +410,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(tabs.getWidgetCount() > 0)
 			tabs.selectTab(0);
+
+		if(tabs.getWidgetCount() == 1 && "Page1".equalsIgnoreCase(firstPageText))
+			tabs.getTabBar().setVisible(false);
+		else
+			tabs.getTabBar().setVisible(true);
 	}
 
 
@@ -476,7 +524,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(parentBindingWidgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentBindingWrapper(widget,parentBinding);
+			parentWrapper = getParentBindingWrapper(widget, binding, parentBinding);
 			((RadioButton)widget).setTabIndex(tabIndex);
 
 			if(wrapperSet){
@@ -489,17 +537,21 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(parentBindingWidgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentBindingWrapper(widget,parentBinding);
-			((CheckBox)widget).setTabIndex(tabIndex);
+			parentWrapper = getParentBindingWrapper(widget, binding, parentBinding);
+			if(parentWrapper != null){
+				((CheckBox)widget).setTabIndex(tabIndex);
 
-			String defaultValue = parentWrapper.getQuestionDef().getDefaultValue();
-			if(defaultValue != null && defaultValue.contains(binding))
-				((CheckBox)widget).setValue(true);
+				String defaultValue = parentWrapper.getQuestionDef().getDefaultValue();
+				if(defaultValue != null && defaultValue.contains(binding))
+					((CheckBox)widget).setValue(true);
 
-			if(wrapperSet){
-				wrapper = parentWrapper;
-				questionDef = formDef.getQuestion(parentBinding);
+				if(wrapperSet){
+					wrapper = parentWrapper;
+					questionDef = formDef.getQuestion(parentBinding);
+				}
 			}
+			else
+				wrapperSet = false;
 
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_BUTTON)){
@@ -537,24 +589,30 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			widget = new Label(text);
 
-			int pos1 = text.indexOf("${");
-			int pos2 = text.indexOf("}$");
-			if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
-				String varname = text.substring(pos1+2,pos2);
-				labelText.put((Label)widget, text);
-				labelReplaceText.put((Label)widget, "${"+varname+"}$");
-
-				((Label)widget).setText(text.replace("${"+varname+"}$", ""));
-				if(varname.startsWith("/"+ formDef.getBinding()+"/"))
-					varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
-
-				QuestionDef qtnDef = formDef.getQuestion(varname);
-				List<Label> labels = labelMap.get(qtnDef);
-				if(labels == null){
-					labels = new ArrayList<Label>();
-					labelMap.put(qtnDef, labels);
+			if(text != null){
+				int pos = replaceTemplateText(text, widget, 0);
+				while(pos > 0){
+					pos = replaceTemplateText(text, widget, pos + 1);
 				}
-				labels.add((Label)widget);
+				/*int pos1 = text.indexOf("${");
+				int pos2 = text.indexOf("}$");
+				if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
+					String varname = text.substring(pos1+2,pos2);
+					labelText.put((Label)widget, text);
+					labelReplaceText.put((Label)widget, "${"+varname+"}$");
+	
+					((Label)widget).setText(text.replace("${"+varname+"}$", ""));
+					if(varname.startsWith("/"+ formDef.getBinding()+"/"))
+						varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
+	
+					QuestionDef qtnDef = formDef.getQuestion(varname);
+					List<Label> labels = labelMap.get(qtnDef);
+					if(labels == null){
+						labels = new ArrayList<Label>();
+						labelMap.put(qtnDef, labels);
+					}
+					labels.add((Label)widget);
+				}*/
 			}
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
@@ -567,7 +625,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images,formDef,repeatQtnsDef,this,repeated);
+			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, this, this, repeated);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			//((RuntimeGroupWidget)widget).setTabIndex(tabIndex);
 			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
@@ -583,6 +641,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(!xpath.startsWith(formDef.getBinding()))
 				xpath = "/" + formDef.getBinding() + "/" + binding;
 			((Image)widget).setUrl(URL.encode(FormUtil.getMultimediaUrl()+"?formId="+formDef.getId()+"&xpath="+xpath));
+		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LOGO)){
+			widget = new Image();
+			((Image)widget).setUrl(URL.encode(FormUtil.getHostPageBaseURL() + node.getAttribute(WidgetEx.WIDGET_PROPERTY_EXTERNALSOURCE)));
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VIDEO_AUDIO) && questionDef != null){
 			String answer = questionDef.getAnswer();
@@ -608,7 +670,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return tabIndex;
 
 		if(!wrapperSet){
-			wrapper = new RuntimeWidgetWrapper(widget,images.error(),this);
+			wrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null);
 
 			if(parentWrapper != null){ //Check box or radio button
 				if(!parentWrapper.getQuestionDef().isVisible())
@@ -704,7 +766,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(loadWidget)
 			wrapper.loadQuestion();
-		
+
 		wrapper.setExternalSourceDisplayValue();
 
 		WidgetEx.loadLabelProperties(node,wrapper);
@@ -740,6 +802,20 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					}
 				});
 			}
+			else if(binding.equals("nextPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						nextPage();
+					}
+				});
+			}
+			else if(binding.equals("prevPage")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						prevPage();
+					}
+				});
+			}
 		}
 
 		if(wrapper.isEditable() && questionDef != null)
@@ -769,12 +845,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * @param parentBinding the parent binding value.
 	 * @return the widget that has the same parent binding.
 	 */
-	protected RuntimeWidgetWrapper getParentBindingWrapper(Widget widget, String parentBinding){
+	protected RuntimeWidgetWrapper getParentBindingWrapper(Widget widget, String binding, String parentBinding){
 		RuntimeWidgetWrapper parentWrapper = parentBindingWidgetMap.get(parentBinding);
 		if(parentWrapper == null){
 			QuestionDef qtn = formDef.getQuestion(parentBinding);
 			if(qtn != null){
-				parentWrapper = new RuntimeWidgetWrapper(widget,images.error(),this);
+				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null);
 				parentWrapper.setQuestionDef(qtn,true);
 				parentBindingWidgetMap.put(parentBinding, parentWrapper);
 				//selectedPanel.add(parentWrapper);		//will be added by the caller		
@@ -786,6 +862,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		else
 			checkBoxGroupMap.get(parentWrapper.getQuestionDef()).add((CheckBox)widget);
+
+		//Update widget with default value for boolean questions.
+		QuestionDef questionDef = parentWrapper.getQuestionDef();
+		if(questionDef != null && questionDef.getDefaultValue() != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+			if(questionDef.getDefaultValue().trim().equals(binding))
+				((CheckBox)widget).setValue(true);
+		}
 
 		return parentWrapper;
 	}
@@ -800,6 +883,26 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		//data submission or display the login dialog box.
 		if(formDef != null)
 			FormUtil.isAuthenticated();
+	}
+
+	public boolean nextPage(){
+		int index = tabs.getTabBar().getSelectedTab() + 1;
+		if(index < tabs.getTabBar().getTabCount()){
+			tabs.selectTab(index);
+			return true;
+		}
+		
+		return false;
+	}
+
+	public boolean prevPage(){
+		int index = tabs.getTabBar().getSelectedTab() - 1;
+		if(index >= 0){
+			tabs.selectTab(index);
+			return true;
+		}
+		
+		return false;
 	}
 
 
@@ -881,7 +984,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		boolean valid = true;
 		for(int index=0; index<panel.getWidgetCount(); index++){
 			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)panel.getWidget(index);
-			if(!widget.isValid()){
+			if(!widget.isValid(fireValueChanged)){
 				valid = false;
 				if(firstInvalidWidget == null && widget.isFocusable())
 					firstInvalidWidget = widget.getInvalidWidget();
@@ -938,8 +1041,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(labels != null){
 			for(Widget widget : labels){
 				String replaceText = questionDef.getAnswer();
-				if(replaceText == null)
+				if(replaceText == null){
 					replaceText = "";
+				}
+				else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+						questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+					
+					OptionDef optionDef = questionDef.getOptionWithValue(replaceText);
+					if(optionDef != null)
+						replaceText = optionDef.getText();
+				}
+				
 				((Label)widget).setText(labelText.get(widget).replace(labelReplaceText.get(widget), replaceText));
 			}
 		}
@@ -949,19 +1061,19 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(widgets != null){
 
 			for(RuntimeWidgetWrapper widget : widgets){
-				Calculation calculation = formDef.getCalculation(widget.getQuestionDef());
+				Calculation calculation = questionDef.getParentFormDef().getCalculation(widget.getQuestionDef());
 				//String calcExpression = calculation.getCalculateExpression();
 				String calcExpression = replaceCalcExpression(calculation.getCalculateExpression(),widget.getQuestionDef()); //calcExpression.replace(binding, answer);
 
 				int type = widget.getQuestionDef().getDataType();
 				String answer = calcExpression;
 
-				if(calculation.getCalculateExpression().trim().indexOf(' ') > 0){
+				if(calcExpression != null /*&& calculation.getCalculateExpression().trim().indexOf(' ') > 0*/){
 					if(type == QuestionDef.QTN_TYPE_NUMERIC){
 						try{
 							answer = ""+FormUtil.evaluateIntExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -969,7 +1081,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 					}
@@ -977,23 +1089,25 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 						try{
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
-						catch(Exception ex){
+						catch(Throwable ex){
 							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
 						}
 					}
 				}
 
+				if(answer != null && "NaN".equalsIgnoreCase(answer))
+					answer = null;
+
 				widget.setAnswer(answer);
-				widget.isValid(); //TODO May need to fire change event instead
+				widget.isValid(false); //TODO May need to fire change event instead
 				onValueChanged(widget);
 			}
 		}
 
-
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
 		if(list != null /*&& questionDef.isRequired()*/){
 			for(CheckBox checkBox : list)
-				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid();
+				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid(false);
 		}
 	}
 
@@ -1003,7 +1117,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 		selectedPanel = (AbsolutePanel)tabs.getWidget(selectedTabIndex);
-		moveToFirstWidget();
+
+		if(loaded)
+			moveToFirstWidget();
 	}
 
 	/**
@@ -1055,11 +1171,18 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onMoveToPrevWidget(Widget widget){
 		boolean moved = false;
 
+		//Could be group box widget parent or repeat widget parent.
 		if(widget.getParent().getParent() instanceof RuntimeGroupWidget){
 			if(((RuntimeGroupWidget)widget.getParent().getParent()).onMoveToPrevWidget(widget))
 				return;
 			else
 				widget = widget.getParent().getParent().getParent().getParent();
+		}
+		else if(widget.getParent().getParent().getParent() instanceof RuntimeGroupWidget){
+			if(((RuntimeGroupWidget)widget.getParent().getParent().getParent()).onMoveToPrevWidget(widget))
+				return;
+			else
+				widget = widget.getParent().getParent().getParent().getParent().getParent();
 		}
 
 
@@ -1078,21 +1201,24 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * Checks all skip logic and does the appropriate action for the affected widgets.
 	 */
-	protected void fireSkipRules(){		
-		Vector<SkipRule> rules = formDef.getSkipRules();
+	public void fireSkipRules(){		
+		Vector rules = formDef.getSkipRules();
 		if(rules != null){
 			for(int i=0; i<rules.size(); i++){
 				SkipRule rule = (SkipRule)rules.elementAt(i);
 				rule.fire(formDef);
 			}
 		}
+
+		fireRepeatQtnSkipRules();
 	}
 
 	protected void doCalculations(){		
-		Vector<Calculation> calculations = formDef.getCalculations();
+		Vector calculations = formDef.getCalculations();
 		if(calculations != null){
 			for(int i=0; i<calculations.size(); i++){
-				
+				Calculation calculation = (Calculation)calculations.elementAt(i);
+				//rule.fire(formDef);
 			}
 		}
 	}
@@ -1177,9 +1303,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(formDef.getPages() == null)
 			return;
 
-		for(byte i=0; i<formDef.getPages().size(); i++){
+		for(int i=0; i<formDef.getPages().size(); i++){
 			PageDef pageDef = (PageDef)formDef.getPages().elementAt(i);
-			for(byte j=0; j<pageDef.getQuestions().size(); j++)
+			for(int j=0; j<pageDef.getQuestionCount(); j++)
 				updateDynamicOptions((QuestionDef)pageDef.getQuestions().elementAt(j));
 		}
 	}
@@ -1194,7 +1320,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<Label>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<Label>> entry = iterator.next();
-			this.labelMap.put(entry.getKey(), entry.getValue());
+
+			List<Label> labels = this.labelMap.get(entry.getKey());
+			if(labels == null)
+				this.labelMap.put(entry.getKey(), entry.getValue());
+			else
+				labels.addAll(entry.getValue());
 		}
 	}
 
@@ -1202,7 +1333,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<RuntimeWidgetWrapper>>> iterator = calcWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<RuntimeWidgetWrapper>> entry = iterator.next();
-			this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+
+			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
+			if(widgets == null)
+				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
 		}
 	}
 
@@ -1210,7 +1346,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,RuntimeWidgetWrapper>> iterator = filtDynOptWidgetMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,RuntimeWidgetWrapper> entry = iterator.next();
-			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue());
+			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue()); //TODO Can it affect more than one.
 		}
 	}
 
@@ -1252,7 +1388,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Iterator<Entry<QuestionDef,List<CheckBox>>> iterator = labelMap.entrySet().iterator();
 		while(iterator.hasNext()){
 			Entry<QuestionDef,List<CheckBox>> entry = iterator.next();
-			this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+
+			List<CheckBox> checkboxes = this.checkBoxGroupMap.get(entry.getKey());
+			if(checkboxes == null)
+				this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+			else
+				checkboxes.addAll(entry.getValue());
 		}
 	}
 
@@ -1388,7 +1529,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onOptionsChanged(QuestionDef, List)
 	 */
-	public void onOptionsChanged(QuestionDef sender, List<OptionDef> optionList){
+	public void onOptionsChanged(QuestionDef sender,List<OptionDef> optionList){
 
 	}
 
@@ -1397,7 +1538,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * 
 	 * @param authenticated true o
 	 */
-	public static void authenticationCallback(boolean authenticated) {	
+	private static void authenticationCallback(boolean authenticated) {	
 
 		if(authenticated){
 			loginDlg.hide();
@@ -1434,7 +1575,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()+increment+PurcConstants.UNITS);	
 
-		setParentHeight(true,rptWidget,increment);
+		setParentHeight(true, rptWidget, increment);
 	}
 
 	private void setParentHeight(boolean increase, RuntimeWidgetWrapper rptWidget, int change){
@@ -1495,7 +1636,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()-decrement+PurcConstants.UNITS);
 
-		setParentHeight(false,rptWidget,decrement);
+		setParentHeight(false, rptWidget, decrement);
 	}
 
 	/**
@@ -1521,7 +1662,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return;
 
 		for(RuntimeWidgetWrapper wgt : widgets)
-			wgt.isValid();
+			wgt.isValid(false);
 	}
 
 	/**
@@ -1601,6 +1742,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				qtnBinding = qtnBinding.substring(formBinding.length());
 
 				QuestionDef questionDef = formDef.getQuestion(qtnBinding);
+				if(questionDef == null){
+					qtnBinding = FormUtil.getBinding(qtnBinding);   
+					questionDef = formDef.getQuestion(qtnBinding);
+				}
+
 				if(questionDef != null){
 					List<QuestionDef> qtns = calcQtnMappings.get(questionDef);
 					if(qtns == null){
@@ -1645,6 +1791,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 	private String replaceCalcExpression(String calcExpression, QuestionDef questionDef){
 
+		boolean allEmpty = true;
+
 		String expression = calcExpression;
 
 		String qtnBinding, formBinding = "/" + formDef.getBinding() + "/";
@@ -1660,10 +1808,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			qtnBinding = qtnBinding.substring(formBinding.length());
 
 			QuestionDef qtnDef = formDef.getQuestion(qtnBinding);
+			if(qtnDef == null){
+				qtnBinding = FormUtil.getBinding(qtnBinding);
+				qtnDef = formDef.getQuestion(qtnBinding);
+			}
 			if(qtnDef == null)
 				return "";
 
 			expression = expression.replace(formBinding+qtnBinding, getCalcExpressionAnswer(questionDef.getDataType(),qtnDef,calcExpression));
+
+			if(qtnDef.getAnswer() != null && qtnDef.getAnswer().trim().length() > 0)
+				allEmpty = false;
 
 			if(pos2 > -1)
 				pos = expression.indexOf(formBinding);
@@ -1671,10 +1826,14 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				break;
 		}
 
-		return expression;
+		if(allEmpty)
+			return null;
+		else
+			return expression;
 	}
 
 	private String getCalcExpressionAnswer(int type, QuestionDef questionDef, String calcExpression){
+		type = questionDef.getDataType();
 		String answer = questionDef.getAnswer();
 		if(answer == null || answer.trim().length() == 0){
 			if(type == QuestionDef.QTN_TYPE_NUMERIC || type == QuestionDef.QTN_TYPE_DECIMAL)
@@ -1685,8 +1844,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			else
 				answer = calcExpression.trim().indexOf(' ') > 0 ? "''" : "";
 		}
+		else if(type == QuestionDef.QTN_TYPE_DATE_TIME){
+			answer = FormUtil.getJavaScriptDateTimeFormat().format(FormUtil.getDateTimeSubmitFormat().parse(answer));
+		}
 
-		type = questionDef.getDataType();
+
 		if(type ==  QuestionDef.QTN_TYPE_NUMERIC || type ==  QuestionDef.QTN_TYPE_DECIMAL)
 			return answer;
 		else if(answer != null && answer.trim().length() > 0 && calcExpression.trim().indexOf(' ') > 0 && !answer.equals("''"))
@@ -1750,7 +1912,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 				public void onError(Request request, Throwable exception){
 					FormUtil.displayException(exception);
-					
+
 					if(filterValue == null)
 						fillNextExternalSourceWidget();
 					else
@@ -1760,7 +1922,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		catch(RequestException ex){
 			FormUtil.displayException(ex);
-			
+
 			if(filterValue == null)
 				fillNextExternalSourceWidget();
 			else
@@ -1833,4 +1995,138 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			}
 		}
 	}*/
+
+	public void addRepeatQtnFormDef(FormDef formDef){
+		repeatQtnFormDefs.add(formDef);
+	}
+
+	public void removeRepeatQtnFormDef(FormDef formDef){
+		repeatQtnFormDefs.remove(formDef);
+	}
+	
+	public void addRepeatQtnCalculationWidget(QuestionDef questionDef, List<RuntimeWidgetWrapper> widgets){
+		repeatCalcWidgetMap.put(questionDef, widgets);
+	}
+
+	public void removeRepeatQtnCalculationWidget(QuestionDef questionDef){
+		repeatCalcWidgetMap.remove(questionDef);
+	}
+
+	public void fireRepeatQtnSkipRules(){
+		for(FormDef formDef : repeatQtnFormDefs)
+			fireFormDefSkipRules(formDef);
+	}
+
+	private void fireFormDefSkipRules(FormDef formDef){
+		Vector rules = formDef.getSkipRules();
+		if(rules != null){
+			for(int i=0; i<rules.size(); i++){
+				SkipRule rule = (SkipRule)rules.elementAt(i);
+				rule.fire(formDef);
+			}
+		}
+	}
+
+	/**
+	 * @see org.purc.purcforms.client.widget.WidgetListener#onWidgetShown(RuntimeWidgetWrapper, int)
+	 */
+	public void onWidgetShown(RuntimeWidgetWrapper widget, int increment){
+
+		Widget parent = widget.getParent().getParent();
+		if(parent instanceof RuntimeGroupWidget){
+			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
+			RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)groupWidget.getParent().getParent();
+			if(wrapper.isVisible())
+				return;
+			
+			//Get the current bottom y position of the widget.
+			int bottomYpos = wrapper.getTopInt();
+			increment = wrapper.getHeightInt() + groupWidget.getHeaderHeight();
+
+			parent = wrapper.getParent().getParent();
+			if(parent instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)parent).onWidgetShown(wrapper, increment);
+			
+			//Move widgets which are below the bottom of the repeat widget.
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == wrapper)
+					continue;
+
+				int top = currentWidget.getTopInt();
+				if(top >= bottomYpos)
+					currentWidget.setTopInt(top + increment);
+			}
+
+			wrapper.setVisible(true);
+			
+			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() + increment + PurcConstants.UNITS);
+			setParentHeight(true, wrapper, increment);
+		}
+	}
+
+	/**
+	 * @see org.purc.purcforms.client.widget.WidgetListener#onWidgetHidden(RuntimeWidgetWrapper, int)
+	 */
+	public void onWidgetHidden(RuntimeWidgetWrapper widget, int decrement){
+
+		Widget parent = widget.getParent().getParent();
+		if(parent instanceof RuntimeGroupWidget){
+			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
+			if(groupWidget.isAnyWidgetVisible())
+				return;
+			
+			RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)groupWidget.getParent().getParent();
+			if(!wrapper.isVisible())
+				return;
+
+			//Get the current bottom y position of the widget.
+			int bottomYpos = wrapper.getTopInt();
+			decrement = wrapper.getHeightInt() + groupWidget.getHeaderHeight();
+
+			parent = wrapper.getParent().getParent();
+			if(parent instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)parent).onWidgetHidden(wrapper, decrement);
+			
+			//Move widgets which are below the bottom of the repeat widget.
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == wrapper)
+					continue;
+						
+				int top = currentWidget.getTopInt();
+				if(top >= bottomYpos)
+					currentWidget.setTopInt(top - decrement);
+			}
+
+			wrapper.setVisible(false);
+			
+			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() - decrement + PurcConstants.UNITS);
+			setParentHeight(false, wrapper, decrement);
+		}
+	}
+	
+	private int replaceTemplateText(String text, Widget widget, int pos){
+		int pos1 = text.indexOf("${", pos);
+		int pos2 = text.indexOf("}$", pos);
+		if(pos1 > -1 && pos2 > -1 && (pos2 > pos1)){
+			String varname = text.substring(pos1+2,pos2);
+			labelText.put((Label)widget, text);
+			labelReplaceText.put((Label)widget, "${"+varname+"}$");
+
+			((Label)widget).setText(text.replace("${"+varname+"}$", ""));
+			if(varname.startsWith("/"+ formDef.getBinding()+"/"))
+				varname = varname.substring(("/"+ formDef.getBinding()+"/").length(),varname.length());
+
+			QuestionDef qtnDef = formDef.getQuestion(varname);
+			List<Label> labels = labelMap.get(qtnDef);
+			if(labels == null){
+				labels = new ArrayList<Label>();
+				labelMap.put(qtnDef, labels);
+			}
+			labels.add((Label)widget);
+		}
+		
+		return pos2;
+	}
 }

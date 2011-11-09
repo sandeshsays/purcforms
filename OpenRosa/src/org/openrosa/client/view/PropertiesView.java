@@ -1,7 +1,6 @@
 package org.openrosa.client.view;
 
 import org.openrosa.client.Context;
-import org.openrosa.client.controller.ILocaleSelectionListener;
 import org.openrosa.client.model.Calculation;
 import org.openrosa.client.model.FormDef;
 import org.openrosa.client.model.GroupDef;
@@ -15,7 +14,6 @@ import org.purc.purcforms.client.controller.IFormChangeListener;
 import org.purc.purcforms.client.controller.IFormSelectionListener;
 import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
-import org.purc.purcforms.client.model.Locale;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.util.FormUtil;
 
@@ -47,6 +45,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
@@ -58,7 +57,7 @@ import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
  * @author daniel
  *
  */
-public class PropertiesView extends Composite implements IFormSelectionListener, ItemSelectionListener, ILocaleSelectionListener{
+public class PropertiesView extends Composite implements IFormSelectionListener,ItemSelectionListener{
 
 	/** List box index for no selected data type. */
 	private static final byte DT_INDEX_NONE = -1;
@@ -179,13 +178,11 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** Widget for defining dynamic selection lists. */
 	private DynamicListsView dynamicListsView = new DynamicListsView();
-	
-	private QuestionItextView itextView = new QuestionItextView();
 
 	/** Listener to form action events. */
 	private IFormActionListener formActionListener;
 
-	Label lblText = new Label(LocaleText.get("text") + " (" + Context.getLocale().getName() + ")");
+	Label lblText = new Label(LocaleText.get("text"));
 	Label lblQtnID = new Label("ID");
 	Label lblHelpText = new Label(LocaleText.get("helpText"));
 	Label lblType = new Label(LocaleText.get("type"));
@@ -316,16 +313,12 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		verticalPanel.setSpacing(0);
 		verticalPanel.add(table);
 
-		tabs.add(itextView, "Itext");
 		tabs.add(skipRulesView, LocaleText.get("skipLogic"));
 		tabs.add(validationRulesView, LocaleText.get("validationLogic"));
 		tabs.add(dynamicListsView, LocaleText.get("dynamicLists"));
 
 		tabs.selectTab(0);
-		
-		table.setWidget(12, 0, tabs);
-		table.getFlexCellFormatter().setColSpan(12, 0, 2);
-		//verticalPanel.add(pnl);
+		verticalPanel.add(tabs);
 		//FormUtil.maximizeWidget(tabs);
 
 		//FormUtil.maximizeWidget(verticalPanel);
@@ -362,14 +355,6 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		cbDataType.setTitle(LocaleText.get("questionTypeDesc"));
 
 		DOM.sinkEvents(getElement(), Event.ONKEYDOWN | DOM.getEventsSunk(getElement()));
-		
-		cellFormatter = table.getFlexCellFormatter();
-		cellFormatter.setVisible(4, 0, false);
-		cellFormatter.setVisible(4, 1, false);
-		
-		Context.addLocaleSelectionListener(this);
-		
-		setHeight("100%");
 	}
 
 	/**
@@ -380,28 +365,28 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		chkVisible.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setVisible(chkVisible.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkEnabled.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setEnabled(chkEnabled.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkLocked.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setLocked(chkLocked.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
 		chkRequired.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
 				((QuestionDef)propertiesObj).setRequired(chkRequired.getValue() == true);
-				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+				propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 			}
 		});
 
@@ -741,7 +726,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		else if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setName(txtText.getText());
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 
@@ -752,7 +737,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setFormKey(txtFormKey.getText());
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 
@@ -765,7 +750,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		else if(propertiesObj instanceof FormDef){
 			((FormDef)propertiesObj).setDescriptionTemplate(txtDescTemplate.getText());
-			propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+			propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 		}
 	}
 
@@ -803,7 +788,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 		}
 
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -814,7 +799,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		((IFormElement)propertiesObj).setHelpText(txtHelpText.getText());
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -845,7 +830,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		((QuestionDef)propertiesObj).setDefaultValue(txtDefaultValue.getText());
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 	}
 
 	/**
@@ -882,7 +867,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		
 		//cbDataType.setSelectedIndex(index);
 		setQuestionDataType((IFormElement)propertiesObj);
-		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj);
+		propertiesObj = formChangeListener.onFormItemChanged(propertiesObj, (byte)0, null, false);
 		if(deleteKids)
 			formChangeListener.onDeleteChildren(propertiesObj);
 		
@@ -1024,7 +1009,6 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.setEnabled(enable2);
 		validationRulesView.setEnabled(enable2);
 		dynamicListsView.setEnabled(enable2);
-		itextView.setEnabled(enable2);
 
 		lblType.setVisible(enable2);
 		lblVisible.setVisible(enable2);
@@ -1100,12 +1084,10 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				if(propertiesObj instanceof QuestionDef){
 					validationRulesView.setQuestionDef((QuestionDef)propertiesObj);
 					dynamicListsView.setQuestionDef((QuestionDef)propertiesObj);
-					itextView.setQuestionDef((QuestionDef)propertiesObj);
 				}
 				else{
 					validationRulesView.setQuestionDef(null);
 					dynamicListsView.setQuestionDef(null);
-					itextView.setQuestionDef(null);
 				}
 			}
 		});
@@ -1152,7 +1134,6 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.setEnabled(enable2);
 		validationRulesView.setEnabled(enable2);
 		dynamicListsView.setEnabled(enable2);
-		itextView.setEnabled(enable2);
 
 		lblType.setVisible(enable2);
 		lblVisible.setVisible(enable2);
@@ -1263,7 +1244,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormSelectionListener#onFormItemSelected(java.lang.Object)
 	 */
-	public void onFormItemSelected(Object formItem) {
+	public void onFormItemSelected(Object formItem, TreeItem treeItem) {
 		propertiesObj = formItem;
 
 		clearProperties();
@@ -1330,13 +1311,12 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.updateSkipRule();
 		validationRulesView.updateValidationRule();
 		dynamicListsView.updateDynamicLists();
-		itextView.update();
 	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender == btnDescTemplate){
 
 			item = "${" + item + "}$";
@@ -1431,9 +1411,5 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		//table.removeStyleName("cw-FlexTable");
 
 		//txtDescTemplate.getParent().setVisible(enable);
-	}
-	
-	public void onLocaleSelected(Locale locale){
-		lblText.setText(LocaleText.get("text") + " (" + locale.getName() + ")");
 	}
 }

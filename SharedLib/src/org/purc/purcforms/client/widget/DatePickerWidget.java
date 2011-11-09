@@ -44,13 +44,14 @@ public class DatePickerWidget extends DatePickerEx implements KeyPressHandler, C
 	private Date youngestDate;
 	private DateTimeFormat dateFormatter;
 
+	private ChangeListenerCollection changeListeners;
 	{
 		DateTimeFormat dateTimeFormat = FormUtil.getDateDisplayFormat();
 		if(dateTimeFormat == null)
 			dateTimeFormat = DateUtil.getDateTimeFormat();
 		dateFormatter = dateTimeFormat;
 		popup = new PopupCalendarEx(this);
-		new ChangeListenerCollection();
+		changeListeners = new ChangeListenerCollection();
 	}
 
 	/**
@@ -62,7 +63,7 @@ public class DatePickerWidget extends DatePickerEx implements KeyPressHandler, C
 		setText("");	
 		sinkEvents(Event.ONCHANGE | Event.ONKEYPRESS);
 		addClickHandler(this);
-		addChangeHandler(this);
+		addChangeListener(this);
 		addKeyPressHandler(this);
 	}
 
@@ -240,6 +241,7 @@ public class DatePickerWidget extends DatePickerEx implements KeyPressHandler, C
 					popup.setDisplayedMonth(this.selectedDate);
 				popup.setPopupPosition(this.getAbsoluteLeft()+150, this.getAbsoluteTop());
 				popup.displayMonth();
+				doAfterShowPopup(popup);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package org.purc.purcforms.client.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.purc.purcforms.client.FormRunnerContext;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
@@ -57,6 +58,7 @@ public class FormRunnerController implements SubmitListener{
 				url += FormUtil.getEntityFormDefDownloadUrlSuffix();
 				url += FormUtil.getFormIdName()+"="+formId;
 				url += "&" + FormUtil.getEntityIdName() + "="+entityId;
+				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,URL.encode(url));
 
@@ -130,13 +132,16 @@ public class FormRunnerController implements SubmitListener{
 
 	public void onCancel(){
 		String url = FormUtil.getHostPageBaseURL();
-		url += FormUtil.getAfterSubmitUrlSuffix();
+		url += FormUtil.getAfterCancelUrlSuffix();
 
-		if(FormUtil.appendEntityIdAfterSubmit()){
+		if(FormUtil.appendEntityIdAfterCancel()){
 			url += FormUtil.getEntityIdName();
 			url += "=" + entityId;
 		}
 
+		//Prevent close confirmation dialog box.
+		FormRunnerContext.setWarnOnClose(false);
+		
 		Window.Location.replace(url);
 	}
 
@@ -152,6 +157,7 @@ public class FormRunnerController implements SubmitListener{
 				//"http://127.0.0.1:8080/openmrs/module/xforms/xformDataUpload.form"
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getFormDataUploadUrlSuffix();
+				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,URL.encode(url));
 
@@ -180,6 +186,9 @@ public class FormRunnerController implements SubmitListener{
 										url += "=" + response.getText();
 								}
 
+								//Prevent close confirmation dialog box.
+								FormRunnerContext.setWarnOnClose(false);
+								
 								Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
 							}
 							else

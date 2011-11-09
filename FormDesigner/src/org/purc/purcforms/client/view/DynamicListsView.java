@@ -7,6 +7,11 @@ import java.util.Map.Entry;
 
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.FormDesignerWidget;
+import org.purc.purcforms.client.cmd.ChangeDynamicListChildCmd;
+import org.purc.purcforms.client.cmd.DeleteDynamicListChildCmd;
+import org.purc.purcforms.client.cmd.InsertDynamicListChildCmd;
+import org.purc.purcforms.client.cmd.MoveDynamicListChildCmd;
+import org.purc.purcforms.client.controller.IFormChangeListener;
 import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.DynamicOptionDef;
@@ -37,6 +42,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
@@ -96,11 +102,18 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 */
 	private QuestionDef parentQuestionDef;
 
+	private IFormChangeListener formChangeListener;
+	private TreeItem treeItem;
+
+	private PropertiesView propertiesView;
+	private String beforeChangeText;
+
 
 	/**
 	 * Creates a new instance of the dynamic lists widget.
 	 */
-	public DynamicListsView(){
+	public DynamicListsView(PropertiesView propertiesView){
+		this.propertiesView = propertiesView;
 		setupWidgets();
 	}
 
@@ -154,33 +167,28 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param questionDef the question.
 	 */
 	public void setQuestionDef(QuestionDef questionDef){
-		
-
-		optionList = null;
-		dynamicOptionDef = null;
-		parentQuestionDef = null;
+		if(questionDef == null || questionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+			setEnabled(false);
+			return;
+		}
 
 		setEnabled(true);
 		clear();
 
-		if(questionDef == null){			
-			lblValuesFor.setText(LocaleText.get("valuesFor"));
-		}
-		
-		if(questionDef != null){
-			if(questionDef.getDataType() != QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
-				setEnabled(false);
-				return;
-			}
-			
-			if(questionDef.getParent() instanceof PageDef)
-				formDef = ((PageDef)questionDef.getParent()).getParent();
-			else
-				formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();
+		parentQuestionDef = null;
+		optionList = null;
+		dynamicOptionDef = null;
 
+		if(questionDef.getParent() instanceof PageDef)
+			formDef = ((PageDef)questionDef.getParent()).getParent();
+		else
+			formDef = ((PageDef)((QuestionDef)questionDef.getParent()).getParent()).getParent();
+
+		if(questionDef != null)
 			lblValuesFor.setText(LocaleText.get("valuesFor") + questionDef.getDisplayText() + "  "+LocaleText.get("whenAnswerFor"));
-		}
-		
+		else
+			lblValuesFor.setText(LocaleText.get("valuesFor"));
+
 		this.questionDef = questionDef;
 		fieldWidget.setDynamicQuestionDef(questionDef);
 		fieldWidget.setFormDef(formDef);
@@ -188,7 +196,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		QuestionDef parentQuestionDef = formDef.getDynamicOptionsParent(questionDef.getId());
 		if(parentQuestionDef != null)
 			fieldWidget.selectQuestion(parentQuestionDef);
-		
+
 		if(Context.isStructureReadOnly()){
 			lbOption.setEnabled(false);
 			fieldWidget.setEnabled(false);
@@ -256,6 +264,10 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 			clear();
 	}
 
+	public FormDef getFormDef(){
+		return formDef;
+	}
+
 
 	/**
 	 * Checks whether this widget is enabled or not.
@@ -270,7 +282,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		//This is only useful for us when a new parent question has been selected.
 		if(sender != fieldWidget)
 			return;
@@ -308,7 +320,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 				return;
 			}
 
-			List<OptionDef> options = parentQuestionDef.getOptions();
+			List options = parentQuestionDef.getOptions();
 			for(int i=0; i<options.size(); i++){
 				OptionDef optionDef = (OptionDef)options.get(i);
 				lbOption.addItem(optionDef.getText(),String.valueOf(optionDef.getId()));	
@@ -367,10 +379,12 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		if(dynamicOptionDef == null /*|| dynamicOptionDef.size() == 0*/){
 			if(parentQuestionDef != null)
 				formDef.removeDynamicOptions(parentQuestionDef.getId());
+
 			return;
 		}
 
-		formDef.setDynamicOptionDef(parentQuestionDef.getId(), dynamicOptionDef);
+		if(questionDef != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
+			formDef.setDynamicOptionDef(parentQuestionDef.getId(), dynamicOptionDef);
 	}
 
 
@@ -394,7 +408,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 
 		for(int index = 0; index < optionList.size(); index++){
 			OptionDef optionDef = optionList.get(index);
-			addOption(optionDef.getText(),optionDef.getVariableName(),table.getRowCount());
+			addOption(optionDef.getText(),optionDef.getBinding(),table.getRowCount());
 		}
 
 		addAddButton();
@@ -410,14 +424,14 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	public void onClick(ClickEvent event){	
 		Object sender = event.getSource();
 		if(sender == btnAdd)
-			addNewOption().setFocus(true);
+			addNewOption(true).setFocus(true);
 		else{
 			int rowCount = table.getRowCount();
 			for(int row = 1; row < rowCount; row++){
 				//Delete button
 				if(sender == table.getWidget(row, 2)){
 					OptionDef optionDef = optionList.get(row-1);
-					if(!Window.confirm(LocaleText.get("removeRowPrompt") + " [" + optionDef.getText() + " - " + optionDef.getVariableName() + "]"))
+					if(!Window.confirm(LocaleText.get("removeRowPrompt") + " [" + optionDef.getText() + " - " + optionDef.getBinding() + "]"))
 						return;
 
 					table.removeRow(row);
@@ -425,32 +439,37 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 
 					if(optionDef.getControlNode() != null && optionDef.getControlNode().getParentNode() != null)
 						optionDef.getControlNode().getParentNode().removeChild(optionDef.getControlNode());
+
+					Context.getCommandHistory().add(new DeleteDynamicListChildCmd(optionDef, row, this, treeItem, (FormsTreeView)formChangeListener));		
+
 					break;
 				}
 				else if(sender == table.getWidget(row, 3)){
 					//Move up button.
 					if(row == 1)
 						return;
+
 					moveOptionUp(optionList.get(row-1));
 
 					OptionDef optionDef = optionList.get(row-1);
-					addOption(optionDef.getText(),optionDef.getVariableName(),row);
+					addOption(optionDef.getText(),optionDef.getBinding(),row);
 
 					optionDef = optionList.get(row-2);
-					addOption(optionDef.getText(),optionDef.getVariableName(),row-1);
+					addOption(optionDef.getText(),optionDef.getBinding(),row-1);
 					break;
 				}
 				else if(sender == table.getWidget(row, 4)){
 					//Move down button.
 					if(row == (rowCount - 2))
 						return;
+
 					moveOptionDown(optionList.get(row-1));
 
 					OptionDef optionDef = optionList.get(row-1);
-					addOption(optionDef.getText(),optionDef.getVariableName(),row);
+					addOption(optionDef.getText(),optionDef.getBinding(),row);
 
 					optionDef = optionList.get(row);
-					addOption(optionDef.getText(),optionDef.getVariableName(),row+1);
+					addOption(optionDef.getText(),optionDef.getBinding(),row+1);
 					break;
 				}
 			}
@@ -461,13 +480,18 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * Adds a new dynamic list option to the table.
 	 */
-	private TextBox addNewOption(){
-		table.removeRow(table.getRowCount() - 1);
-		TextBox textBox = addOption("","",table.getRowCount());
+	private TextBox addNewOption(boolean storeHistory){
+		int row = table.getRowCount();
+		table.removeRow(row - 1);
+		TextBox textBox = addOption("", "", row - 1);
 		textBox.setFocus(true);
 		textBox.selectAll();
 		addAddButton();
-		addNewOptionDef();
+		OptionDef optionDef = addNewOptionDef();
+
+		if(storeHistory)
+			Context.getCommandHistory().add(new InsertDynamicListChildCmd(optionDef, row - 1, this, treeItem, (FormsTreeView)formChangeListener));		
+
 		return textBox;
 	}
 
@@ -481,6 +505,10 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @return the widget for editing text of the new option.
 	 */
 	private TextBox addOption(String text, String binding, int row){
+
+		if(row < table.getRowCount())
+			table.insertRow(row);
+
 		TextBox txtText = new TextBox();
 		TextBox txtBinding = new TextBox();
 
@@ -515,9 +543,13 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		table.getWidget(row, 0).setWidth("100%");
 		table.getWidget(row, 1).setWidth("100%");
 
+		final DynamicListsView view = this;
 		txtText.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateText((TextBox)event.getSource());
+				OptionDef optionDef = updateText((TextBox)event.getSource());
+
+				Context.getCommandHistory().add(new ChangeDynamicListChildCmd(ChangeDynamicListChildCmd.PROPERTY_TEXT, beforeChangeText, optionDef, view, treeItem, (FormsTreeView)formChangeListener));		
+				beforeChangeText = null;
 			}
 		});
 
@@ -535,14 +567,28 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 			public void onKeyUp(KeyUpEvent event) {
 				int keyCode = event.getNativeKeyCode();
 				if(!(keyCode == KeyCodes.KEY_ENTER || keyCode == KeyCodes.KEY_DOWN ||
-						keyCode == KeyCodes.KEY_DOWN || keyCode == KeyCodes.KEY_UP))
+						keyCode == KeyCodes.KEY_DOWN || keyCode == KeyCodes.KEY_UP)){
+
+					if(beforeChangeText == null){
+						beforeChangeText = getOptionDefProperty((TextBox)event.getSource(), true);
+
+						if(beforeChangeText == null)
+							beforeChangeText = "";
+					}
+
 					updateText((TextBox)event.getSource());
+				}
 			}
 		});
 
 		txtBinding.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateBinding((TextBox)event.getSource());
+				beforeChangeText = getOptionDefProperty((TextBox)event.getSource(), false);
+
+				OptionDef optionDef = updateBinding((TextBox)event.getSource());
+
+				Context.getCommandHistory().add(new ChangeDynamicListChildCmd(ChangeDynamicListChildCmd.PROPERTY_BINDING, beforeChangeText, optionDef, view, treeItem, (FormsTreeView)formChangeListener));		
+				beforeChangeText = null;
 			}
 		});
 
@@ -563,7 +609,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * Updates the selected object with the new text as typed by the user.
 	 */
-	private void updateText(TextBox txtText){
+	private OptionDef updateText(TextBox txtText){
 		int rowCount = table.getRowCount();
 		for(int row = 1; row < rowCount; row++){
 			if(txtText == table.getWidget(row, 0)){
@@ -585,13 +631,15 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 					//if(binding == null || binding.trim().length() == 0){
 					if(binding == null || binding.trim().length() == 0 || binding.equals(orgTextDefBinding)){
 						txtBinding.setText(FormDesignerUtil.getXmlTagName(optionDef.getText()));
-						optionDef.setVariableName(txtBinding.getText());
+						optionDef.setBinding(txtBinding.getText());
 					}
 				}
 
-				break;
+				return optionDef;
 			}
 		}
+
+		return null;
 	}
 
 
@@ -612,7 +660,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	/**
 	 * Updates the selected object with the new binding as typed by the user.
 	 */
-	private void updateBinding(TextBox txtBinding){
+	private OptionDef updateBinding(TextBox txtBinding){
 		int rowCount = table.getRowCount();
 		for(int row = 1; row < rowCount; row++){
 			if(txtBinding == table.getWidget(row, 1)){
@@ -623,10 +671,12 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 				if(optionDef == null)
 					optionDef = addNewOptionDef();
 
-				optionDef.setVariableName(txtBinding.getText());
-				break;
+				optionDef.setBinding(txtBinding.getText());
+				return optionDef;
 			}
 		}
+
+		return null;
 	}
 
 	/**
@@ -671,7 +721,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 					if(col == 1){
 						if(row == (rowCount - 2)){
 							if(textBox.getText() != null && textBox.getText().trim().length() > 0)
-								addNewOption();
+								addNewOption(true);
 							return;
 						}
 						row++;
@@ -681,7 +731,7 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 						if(textBox.getText() == null || textBox.getText().trim().length() == 0)
 							return;
 						else if(row == (rowCount - 2)){
-							addNewOption();
+							addNewOption(true);
 							return;
 						}
 						else
@@ -722,14 +772,17 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 		}
 	}
 
+	public void moveOptionUp(OptionDef optionDef){
+		moveOptionUp(optionDef, true);
+	}
 
 	/**
 	 * Moves an option one position upwards.
 	 * 
 	 * @param optionDef the option to move.
 	 */
-	public void moveOptionUp(OptionDef optionDef){
-		List<OptionDef> optns = optionList;
+	public void moveOptionUp(OptionDef optionDef, boolean storeHistory){
+		List optns = optionList;
 		int index = optns.indexOf(optionDef);
 
 		optns.remove(optionDef);
@@ -759,16 +812,22 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 			}
 			optns.add(list.get(i));
 		}
+
+		if(storeHistory)
+			Context.getCommandHistory().add(new MoveDynamicListChildCmd(treeItem, true, optionDef, this, (FormsTreeView)formChangeListener, propertiesView));
 	}
 
+	public void moveOptionDown(OptionDef optionDef){
+		moveOptionDown(optionDef, true);
+	}
 
 	/**
 	 * Moves an option one position downwards.
 	 * 
 	 * @param optionDef the option to move.
 	 */
-	public void moveOptionDown(OptionDef optionDef){
-		List<OptionDef> optns = optionList;
+	public void moveOptionDown(OptionDef optionDef, boolean storeHistory){
+		List optns = optionList;
 		int index = optns.indexOf(optionDef);	
 
 		optns.remove(optionDef);
@@ -809,6 +868,9 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 			if(optionDef.getControlNode() != null)
 				parentNode.appendChild(optionDef.getControlNode());
 		}
+
+		if(storeHistory)
+			Context.getCommandHistory().add(new MoveDynamicListChildCmd(treeItem, false, optionDef, this, (FormsTreeView)formChangeListener, propertiesView));
 	}
 
 
@@ -821,12 +883,115 @@ public class DynamicListsView extends Composite implements ItemSelectionListener
 	 * @param index the index to start from in the option list.
 	 * @return the option.
 	 */
-	private OptionDef getNextSavedOption(List<OptionDef> options, int index){
+	private OptionDef getNextSavedOption(List options, int index){
 		for(int i=index; i<options.size(); i++){
 			OptionDef optionDef = (OptionDef)options.get(i);
 			if(optionDef.getControlNode() != null)
 				return optionDef;
 		}
 		return (OptionDef)options.get(index);
+	}
+
+	public void setFormChangeListener(IFormChangeListener formChangeListener){
+		this.formChangeListener = formChangeListener;
+	}
+
+	public void onFormItemSelected(TreeItem treeItem) {
+		this.treeItem = treeItem;
+	}
+
+
+	//TODO This should be refactored with the portion in onClick(ClickEvent event) for moving up
+	public void moveOptionItemUp(OptionDef optionDef, boolean storeHistory){
+		int row = optionList.indexOf(optionDef) + 1;
+
+		moveOptionUp(optionDef, storeHistory); //optionList.get(row-1)
+
+		optionDef = optionList.get(row - 1);
+		addOption(optionDef.getText(),optionDef.getBinding(), row);
+
+		optionDef = optionList.get(row - 2);
+		addOption(optionDef.getText(), optionDef.getBinding(), row-1);
+	}
+
+	//TODO This should be refactored with the portion in onClick(ClickEvent event) for moving down
+	public void moveOptionItemDown(OptionDef optionDef, boolean storeHistory){
+		int row = optionList.indexOf(optionDef) + 1;
+
+		moveOptionDown(optionDef, storeHistory); //optionList.get(row-1)
+
+		optionDef = optionList.get(row-1);
+		addOption(optionDef.getText(), optionDef.getBinding(), row);
+
+		optionDef = optionList.get(row);
+		addOption(optionDef.getText(), optionDef.getBinding(), row + 1);
+	}
+
+	public void displayOptionText(OptionDef optionDef, String oldValue){
+		propertiesView.selectDynamicListsTab();
+
+		String orgTextDefBinding = FormDesignerUtil.getXmlTagName(oldValue);
+
+		int row = optionList.indexOf(optionDef) + 1;
+		TextBox txtText = (TextBox)table.getWidget(row, 0);
+		txtText.setText(optionDef.getText());
+
+		if(!Context.isStructureReadOnly()){
+			//automatically set the binding, if empty.
+			TextBox txtBinding = (TextBox)table.getWidget(row, 1);
+			String binding = txtBinding.getText();
+			//if(binding == null || binding.trim().length() == 0){
+			if(binding == null || binding.trim().length() == 0 || binding.equals(orgTextDefBinding)){
+				if(txtBinding.getText() != null && optionDef.getText().trim().length() > 0){
+					txtBinding.setText(FormDesignerUtil.getXmlTagName(optionDef.getText()));
+					optionDef.setBinding(txtBinding.getText());
+				}
+				else{
+					txtBinding.setText(null);
+					optionDef.setBinding(null);
+				}
+					
+			}
+		}
+	}
+
+	public void displayOptionBinding(OptionDef optionDef){
+		propertiesView.selectDynamicListsTab();
+
+		TextBox txtBinding = (TextBox)table.getWidget(optionList.indexOf(optionDef) + 1, 1);
+		txtBinding.setText(optionDef.getBinding());
+	}
+
+	private String getOptionDefProperty(TextBox txtText, boolean textProperty){
+		int rowCount = table.getRowCount();
+		for(int row = 1; row < rowCount; row++){
+			if(txtText == table.getWidget( row, (textProperty ? 0 : 1) )){
+				if(optionList.size() > row-1){
+					if(textProperty)
+						return optionList.get(row-1).getText();
+					else
+						return optionList.get(row-1).getBinding();
+				}
+
+				return null;
+			}
+		}
+
+		return null;
+	}
+
+	public void deleteOption(OptionDef optionDef){
+		int row = optionList.indexOf(optionDef) + 1;
+
+		table.removeRow(row);
+		optionList.remove(row-1);
+
+		if(optionDef.getControlNode() != null && optionDef.getControlNode().getParentNode() != null)
+			optionDef.getControlNode().getParentNode().removeChild(optionDef.getControlNode());
+	}
+
+	public void addOption(OptionDef optionDef, int index){
+		optionList.add(index - 1, optionDef);
+		addOption(optionDef.getText(), optionDef.getBinding(), index);
 	}
 }

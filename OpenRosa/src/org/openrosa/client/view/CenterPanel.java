@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 
@@ -366,8 +367,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormSelectionListener#onFormItemSelected(java.lang.Object)
 	 */
-	public void onFormItemSelected(Object formItem) {
-		propertiesView.onFormItemSelected(formItem);
+	public void onFormItemSelected(Object formItem, TreeItem treeItem) {
+		propertiesView.onFormItemSelected(formItem, treeItem);
 
 		if(selectedTabIndex == SELECTED_INDEX_PROPERTIES)
 			propertiesView.setFocus();
@@ -864,7 +865,6 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 * @param offset the offset pixels.
 	 */
 	public void setEmbeddedHeightOffset(int offset){
-		designSurfaceView.setEmbeddedHeightOffset(offset);
 		previewView.setEmbeddedHeightOffset(offset);
 	}
 

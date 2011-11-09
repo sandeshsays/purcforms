@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.controller;
 
+import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.widget.skiprule.ConditionWidget;
 
 
@@ -28,4 +29,11 @@ public interface IConditionController {
 	 * @param conditionWidget the widget for the condition to delete.
 	 */
 	public void deleteCondition(ConditionWidget conditionWidget);
+	
+	public void onConditionOperatorChanged(ConditionWidget conditionWidget, int oldOperator);
+	public void onConditionValue1Changed(ConditionWidget conditionWidget, String oldValue);
+	public void onConditionValue2Changed(ConditionWidget conditionWidget, String oldValue);
+	public void onConditionQuestionChanged(ConditionWidget conditionWidget, QuestionDef oldQuestionDef);
+	public void onConditionQtnValueToggleChanged(ConditionWidget conditionWidget, boolean oldValue);
+	public void onConditionFunctionChanged(ConditionWidget conditionWidget, int oldFunction);
 }

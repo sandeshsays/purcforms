@@ -40,7 +40,7 @@ public class TreeItemWidget extends Composite{
 	 * @param popup the pop up panel for context menu.
 	 * @param formActionListener listener to form action events.
 	 */
-	public TreeItemWidget(ImageResource imageProto, String caption, PopupPanel popup,IFormActionListener formActionListener){
+	public TreeItemWidget(ImageResource imageProto, String caption, PopupPanel popup, IFormActionListener formActionListener){
 
 		this.popup = popup;
 		this.formActionListener = formActionListener;
@@ -69,6 +69,7 @@ public class TreeItemWidget extends Composite{
 					ypos = event.getClientY() - 350;
 					
 				FormDesignerUtil.disableContextMenu(popup.getElement());
+				FormDesignerUtil.disableContextMenu(getElement());
 				popup.setPopupPosition(event.getClientX(), ypos);
 				popup.show();
 			}

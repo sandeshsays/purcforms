@@ -44,17 +44,11 @@ import javax.swing.JPanel;
  * Top-level window for the Swing DevMode UI.
  */
 public class ShellMainWindow extends JPanel {
-	
-	/**
-	 * Generated Serialization ID
-	 */
-	private static final long serialVersionUID = -3032334280330292692L;
-	
-	/**
-	 * Launches a URL by copying it to the clipboard.
-	 *
-	 */
-	private class CopyToClipboardLauncher extends LaunchMethod {
+
+  /**
+   * Launches a URL by copying it to the clipboard.
+   */
+  private class CopyToClipboardLauncher extends LaunchMethod {
 
     public CopyToClipboardLauncher() {
       super("Copy URL to clipboard");

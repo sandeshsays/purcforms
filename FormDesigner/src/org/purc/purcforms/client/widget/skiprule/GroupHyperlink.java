@@ -1,12 +1,13 @@
 package org.purc.purcforms.client.widget.skiprule;
 
+import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.ModelConstants;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
 
@@ -18,7 +19,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * @author daniel
  *
  */
-public class GroupHyperlink extends Anchor {
+public class GroupHyperlink extends Hyperlink{
 
 	/** The conditions grouping operator text: all */
 	public static final String CONDITIONS_OPERATOR_TEXT_ALL = LocaleText.get("all");
@@ -37,6 +38,8 @@ public class GroupHyperlink extends Anchor {
 	
 	/** Flag to tell if we are enabled or not. */
 	private boolean enabled;
+	
+	private ItemSelectionListener itemSelectionListener;
 
 	
 	/**
@@ -45,9 +48,10 @@ public class GroupHyperlink extends Anchor {
 	 * @param text the default display text.
 	 * @param targetHistoryToken the history token to which it will link.
 	 */
-	public GroupHyperlink(String text, String targetHistoryToken){
-		super(text, targetHistoryToken);
-
+	public GroupHyperlink(String text, String targetHistoryToken, ItemSelectionListener itemSelectionListener){
+		super(text,targetHistoryToken);
+		this.itemSelectionListener = itemSelectionListener;
+		
 		DOM.sinkEvents(getElement(), DOM.getEventsSunk(getElement()) | Event.ONMOUSEDOWN );
 	}
 
@@ -68,19 +72,19 @@ public class GroupHyperlink extends Anchor {
 
 		MenuBar menuBar = new MenuBar(true);
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_ANY,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_ANY); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NONE,true,new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NONE); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		menuBar.addSeparator();		  
 		menuBar.addItem(CONDITIONS_OPERATOR_TEXT_NOT_ALL,true, new Command(){
-			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL);}});
+			public void execute() {popup.hide(); setText(CONDITIONS_OPERATOR_TEXT_NOT_ALL); itemSelectionListener.onItemSelected(this, getConditionsOperator(), true); }});
 
 		popup.setWidget(menuBar);
 	}

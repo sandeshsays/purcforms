@@ -3,6 +3,7 @@ package org.purc.purcforms.client.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.purc.purcforms.client.util.FormUtil;
@@ -22,28 +23,27 @@ import com.google.gwt.xml.client.Element;
  */
 public class ValidationRule implements Serializable{
 	
-	/**
-	 * Generated serialization ID.
-	 */
-	private static final long serialVersionUID = -6676725675026200474L;
-
 	/** The unique identifier of the question referenced by this validation rule. */
 	private int questionId = ModelConstants.NULL_ID;
 	
 	/** A list of conditions (Condition object) to be tested for a rule. 
 	 * E.g. age is greater than 4. etc
 	 */
-	private Vector<Condition> conditions;
+	private Vector conditions;
 	
 	
 	/** The validation rule name. */
 	private String errorMessage;
 	
 	/** Operator for combining more than one condition. (And, Or) only these two for now. */
-	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_NULL;
+	private int conditionsOperator = ModelConstants.CONDITIONS_OPERATOR_AND;
 	
 	/** The form to which the validation rule belongs. */
 	private FormDef formDef;
+	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
+	
 	
 	/** Constructs a rule object ready to be initialized. */
 	public ValidationRule(FormDef formDef){
@@ -62,6 +62,7 @@ public class ValidationRule implements Serializable{
 		setConditionsOperator(validationRule.getConditionsOperator());
 		copyConditions(validationRule.getConditions());
 		setFormDef(new FormDef(validationRule.getFormDef(),false));
+		this.xpathExpression = validationRule.xpathExpression;
 	}
 	
 	/** Construct a Rule object from parameters. 
@@ -71,17 +72,17 @@ public class ValidationRule implements Serializable{
 	 * @param action
 	 * @param actionTargets
 	 */
-	public ValidationRule(int questionId, Vector<Condition> conditions , String errorMessage) {
+	public ValidationRule(int questionId, Vector conditions , String errorMessage) {
 		setQuestionId(questionId);
 		setConditions(conditions);
 		setErrorMessage(errorMessage);
 	}
 
-	public Vector<Condition> getConditions() {
+	public Vector getConditions() {
 		return conditions;
 	}
 
-	public void setConditions(Vector<Condition> conditions) {
+	public void setConditions(Vector conditions) {
 		this.conditions = conditions;
 	}
 
@@ -131,7 +132,7 @@ public class ValidationRule implements Serializable{
 
 	public void addCondition(Condition condition){
 		if(conditions == null)
-			conditions = new Vector<Condition>();
+			conditions = new Vector();
 		conditions.add(condition);
 	}
 	
@@ -145,6 +146,7 @@ public class ValidationRule implements Serializable{
 		for(int i=0; i<conditions.size(); i++){
 			Condition cond = (Condition)conditions.elementAt(i);
 			if(cond.getId() == condition.getId()){
+				//cond.removeBindingChangeListeners(); //TODO This is buggy.
 				conditions.remove(i);
 				conditions.add(condition);
 				break;
@@ -153,6 +155,7 @@ public class ValidationRule implements Serializable{
 	}
 	
 	public void removeCondition(Condition condition){
+		condition.removeBindingChangeListeners();
 		conditions.remove(condition);
 	}
 	
@@ -201,8 +204,8 @@ public class ValidationRule implements Serializable{
 		return false;
 	}
 	
-	private void copyConditions(Vector<Condition> conditions){
-		this.conditions = new Vector<Condition>();
+	private void copyConditions(Vector conditions){
+		this.conditions = new Vector();
 		for(int i=0; i<conditions.size(); i++)
 			this.conditions.addElement(new Condition((Condition)conditions.elementAt(i)));
 	}
@@ -212,17 +215,26 @@ public class ValidationRule implements Serializable{
 	}
 
 	//TODO This should be smarter
-	public byte getMaxValue(FormDef formDef){
+	public int getMaxValue(FormDef formDef){
 		if(conditions == null || conditions.size() == 0)
-			return 127;
-		String value = ((Condition)conditions.get(0)).getValue(formDef);
+			return 0;
+		
+		Condition condition = getConditionAt(0);
+		String value = condition.getValue(formDef);
 		if(value == null || value.trim().length() == 0)
-			return 127;
+			return 0;
+		
 		try{
-			return Byte.parseByte(value);
+			if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL || condition.getOperator() == ModelConstants.OPERATOR_LESS_EQUAL)
+				return Integer.parseInt(value);
+			else if(condition.getOperator() == ModelConstants.OPERATOR_LESS)
+				return Integer.parseInt(value) - 1;
+			
+			return 9999999;
 		}
-		catch(Exception ex){}
-		return 127;
+		catch(Exception ex){
+			return 0;
+		}
 	}
 	
 	public void updateConditionValue(String origValue, String newValue){
@@ -237,16 +249,28 @@ public class ValidationRule implements Serializable{
 	 * @param formDef the definition object to which this rule belongs.
 	 * @param parentNode the parent node for the locale xpath expressions document.
 	 */
-	public void buildLanguageNodes(FormDef formDef, Element parentNode){
+	public void buildLanguageNodes(FormDef formDef, Element parentNode, Map<String, String> changedXpaths){
 		QuestionDef questionDef = formDef.getQuestion(questionId);
 		if(questionDef == null || questionDef.getBindNode() == null)
 			return;
 		
 		Element node = formDef.getDoc().createElement(XformConstants.NODE_NAME_TEXT);
 		String xpath = FormUtil.getNodePath(questionDef.getBindNode());
+		
+		if(FormUtil.isJavaRosaSaveFormat() && xpath.startsWith("model[@id='"))
+			xpath = "html/head/" + xpath;
+		
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_ID+"='"+ questionDef.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID)+"']";
 		xpath += "[@"+XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE+"]";
 		node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+		
+		//Store the old xpath expression for localization processing which identifies us by the previous value.
+		if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
+			node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+			changedXpaths.put(this.xpathExpression, xpath);
+		}
+		this.xpathExpression = xpath;
+		
 		node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, errorMessage);
 		parentNode.appendChild(node);
 	}

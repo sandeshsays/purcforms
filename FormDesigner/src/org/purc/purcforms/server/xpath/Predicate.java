@@ -16,14 +16,9 @@ import org.w3c.dom.Element;
  */
 public class Predicate  implements Serializable 
 {
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	Vector<Object> resultSet;
+	Vector resultSet;
 
-	Predicate(Vector<Object> inNodeSet, String predicateExpr)
+	Predicate(Vector inNodeSet, String predicateExpr)
 	{
 		int nodeIndex = -1;
 		
@@ -31,7 +26,7 @@ public class Predicate  implements Serializable
 			resultSet = inNodeSet;
 			return;
 		} else //we need to parse predicateExpr
-			resultSet = new Vector<Object>();
+			resultSet = new Vector();
 		//check if this predicate is just a logical condition or a complete XPath query.
 		//for now we support only logical conditions
 		/*If it is a complete XPath expression
@@ -66,7 +61,7 @@ public class Predicate  implements Serializable
 		Member member1 = new Member(new String(predicateExpr.toCharArray(), 0, index));
 		Member member2 = new Member(new String(predicateExpr.toCharArray(), index+1, predicateExpr.length()-index-1));
 
-		for(Enumeration<Object> e = inNodeSet.elements(); e.hasMoreElements(); ) {
+		for(Enumeration e = inNodeSet.elements(); e.hasMoreElements(); ) {
 			Object obj = e.nextElement();
 			
 			if(operation.equals("="))
@@ -116,7 +111,7 @@ public class Predicate  implements Serializable
 		}
 	}
 		
-	public Vector<Object> getResult()
+	public Vector getResult()
 	{
 		return resultSet;
 	}//getResult

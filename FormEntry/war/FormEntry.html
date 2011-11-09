@@ -58,6 +58,9 @@
     <div id="showModelXmlTab" style="visibility:hidden;">1</div>
     <div id="showJavaScriptTab" style="visibility:hidden;">1</div>
     <div id="allowBindEdit" style="visibility:hidden;">1</div>
+    <div id="combineFormOnSave" style="visibility:hidden;">1</div>
+    <div id="rebuildBindings" style="visibility:hidden;">0</div>
+    <div id="readOnly" style="visibility:hidden;">false</div>
     
     <div id="constraintMessageAttributeName" style="visibility:hidden;">message</div>
     <div id="gpsTypeName" style="visibility:hidden;">xsd:string</div>
@@ -163,6 +166,8 @@
     	    	isNotInList: "is not in list",
     	    	startsWith: "starts with",
     	    	doesNotStartWith: "does not start with",
+    	    	endsWith: "ends with",
+    	    	doesNotEndWith: "does not end with",
     	    	contains: "contains",
     	    	doesNotContain: "does not contain",
     	    	isBetween: "is between",
@@ -353,7 +358,8 @@
            		calculation: "Calculation",
            		id: "ID",
            		formKey: "Form Key",
-           		filterField: "Filter Field"
+           		filterField: "Filter Field",
+           		rebuildBindings: "Rebuild Bindings"
  		  };
 
     	  function isUserAuthenticated(){
@@ -371,6 +377,14 @@
 
 		  function initialize(){
 
+		  }
+
+		  function getQuestionBinding(id, pos){
+			  return null;
+		  }
+
+		  function getOptionBinding(id, pos){
+			  return null;
 		  }
 		  
     </script>

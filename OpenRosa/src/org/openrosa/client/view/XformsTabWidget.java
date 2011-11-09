@@ -116,7 +116,5 @@ public class XformsTabWidget extends Composite {
 		window.hide();
 	}
 	
-	public boolean isVisible(){
-		return window.isVisible();
-	}
+	
 }

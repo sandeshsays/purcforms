@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.view;
 
 import org.purc.purcforms.client.Context;
+import org.purc.purcforms.client.cmd.ChangedFieldCmd;
 import org.purc.purcforms.client.controller.IFormActionListener;
 import org.purc.purcforms.client.controller.IFormChangeListener;
 import org.purc.purcforms.client.controller.IFormSelectionListener;
@@ -14,7 +15,6 @@ import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.RepeatQtnsDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
-import org.purc.purcforms.client.view.helper.PropertiesViewHelper;
 import org.purc.purcforms.client.widget.DescTemplateWidget;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -37,13 +37,14 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
 
 /**
@@ -53,7 +54,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author daniel
  *
  */
-public class PropertiesView extends Composite implements IFormSelectionListener,ItemSelectionListener{
+public class PropertiesView extends Composite implements IFormSelectionListener, ItemSelectionListener{
 
 	/** List box index for no selected data type. */
 	private static final byte DT_INDEX_NONE = -1;
@@ -102,7 +103,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** List box index for gps data type. */
 	private static final byte DT_INDEX_GPS = 14;
-	
+
 	/** List box index for barcode data type. */
 	private static final byte DT_INDEX_BARCODE = 15;
 
@@ -138,7 +139,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** Widget for setting the description template property. */
 	private TextBox txtDescTemplate = new TextBox();
-	
+
 	private Label lblDescTemplate;
 
 	private TextBox txtCalculation = new TextBox();
@@ -147,7 +148,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private DescTemplateWidget btnDescTemplate; // = new Button("Create/Edit");
 
 	private DescTemplateWidget btnCalculation;
-	
+
 	/** Widget for setting the form key property. */
 	private TextBox txtFormKey = new TextBox();
 
@@ -158,23 +159,27 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private IFormChangeListener formChangeListener;
 
 	/** Widget for defining skip rules. */
-	private SkipRulesView skipRulesView = new SkipRulesView();
+	private SkipRulesView skipRulesView = new SkipRulesView(this);
 
 	/** Widget for defining validation rules. */
-	private ValidationRulesView validationRulesView = new ValidationRulesView();
+	private ValidationRulesView validationRulesView = new ValidationRulesView(this);
 
 	/** Widget for defining dynamic selection lists. */
-	private DynamicListsView dynamicListsView = new DynamicListsView();
+	private DynamicListsView dynamicListsView = new DynamicListsView(this);
 
 	/** Listener to form action events. */
 	private IFormActionListener formActionListener;
+	
+	DecoratedTabPanel tabs;
+
+	private String beforeChangeText;
 
 
 	/**
 	 * Creates a new instance of the properties view widget.
 	 */
 	public PropertiesView(){
-
+		
 		btnDescTemplate = new DescTemplateWidget(this);
 		btnCalculation = new DescTemplateWidget(this);
 
@@ -188,7 +193,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		table.setWidget(7, 0, new Label(LocaleText.get("required")));
 		table.setWidget(8, 0, new Label(LocaleText.get("defaultValue")));
 		table.setWidget(9, 0, new Label(LocaleText.get("calculation")));
-		
+
 		lblDescTemplate = new Label(LocaleText.get("descriptionTemplate"));
 		table.setWidget(10, 0, lblDescTemplate);
 		table.setWidget(11, 0, new Label(LocaleText.get("formKey")));
@@ -218,7 +223,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		FormUtil.maximizeWidget(txtDescTemplate);
 		FormUtil.maximizeWidget(panel);
 		table.setWidget(10, 1, panel);
-		
+
 		table.setWidget(11, 1, txtFormKey);
 
 		table.setStyleName("cw-FlexTable");
@@ -246,7 +251,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		table.setWidth("100%");
 		cellFormatter.setWidth(0, 0, "20%");
 		//cellFormatter.setColSpan(0, 0, 2);
-		
+
 		//cellFormatter.setWidth(9, 0, "20"+PurcConstants.UNITS);
 		//cellFormatter.setWidth(9, 1, "20"+PurcConstants.UNITS);
 
@@ -261,7 +266,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		verticalPanel.setSpacing(5);
 		verticalPanel.add(table);
 
-		DecoratedTabPanel tabs = new DecoratedTabPanel();
+		tabs = new DecoratedTabPanel();
 		tabs.add(skipRulesView, LocaleText.get("skipLogic"));
 		tabs.add(validationRulesView, LocaleText.get("validationLogic"));
 		tabs.add(dynamicListsView, LocaleText.get("dynamicLists"));
@@ -302,59 +307,75 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		//Check boxes.k
 		chkVisible.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				((QuestionDef)propertiesObj).setVisible(chkVisible.getValue() == true);
-				formChangeListener.onFormItemChanged(propertiesObj);
+				boolean visible = chkVisible.getValue();
+				((QuestionDef)propertiesObj).setVisible(visible);
+				formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_VISIBLE, String.valueOf(!visible), true);
 			}
 		});
 
 		chkEnabled.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				((QuestionDef)propertiesObj).setEnabled(chkEnabled.getValue() == true);
-				formChangeListener.onFormItemChanged(propertiesObj);
+				boolean enabled = chkEnabled.getValue();
+				((QuestionDef)propertiesObj).setEnabled(enabled);
+				formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_ENABLED, String.valueOf(!enabled), true);
 			}
 		});
 
 		chkLocked.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				((QuestionDef)propertiesObj).setLocked(chkLocked.getValue() == true);
-				formChangeListener.onFormItemChanged(propertiesObj);
+				boolean locked = chkLocked.getValue();
+				((QuestionDef)propertiesObj).setLocked(locked);
+				formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_LOCKED, String.valueOf(!locked), true);
 			}
 		});
 
 		chkRequired.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				((QuestionDef)propertiesObj).setRequired(chkRequired.getValue() == true);
-				formChangeListener.onFormItemChanged(propertiesObj);
+				boolean required = chkRequired.getValue();
+				((QuestionDef)propertiesObj).setRequired(required);
+				formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_REQUIRED, String.valueOf(!required), true);
 			}
 		});
 
 		//Text boxes.
 		txtDefaultValue.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				if(checkDefaultValueAgainstQuestionType()){
-					updateDefaultValue();
-				}
+				updateDefaultValue(true);
+				beforeChangeText = null;
 			}
 		});
 		txtDefaultValue.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				if(checkDefaultValueAgainstQuestionType()){
-					updateDefaultValue();
+
+				if(beforeChangeText == null){
+					beforeChangeText = ((QuestionDef)propertiesObj).getDefaultValue();
+
+					if(beforeChangeText == null)
+						beforeChangeText = "";
 				}
-				else{
-					Window.alert(LocaleText.get("invalidDefaultValueForQuestionType"));
-				}
+
+				updateDefaultValue(false);
 			}
 		});
 
 		txtHelpText.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateHelpText();
+				updateHelpText(true);
+
+				beforeChangeText = null;
 			}
 		});
 		txtHelpText.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				updateHelpText();
+
+				if(beforeChangeText == null){
+					beforeChangeText = ((QuestionDef)propertiesObj).getHelpText();
+
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
+				updateHelpText(false);
 			}
 		});
 
@@ -372,11 +393,27 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		txtBinding.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateBinding();
+				updateBinding(true);
+
+				beforeChangeText = null;
 			}
 		});
 		txtBinding.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
+
+				if(beforeChangeText == null){
+					
+					if(propertiesObj instanceof FormDef)
+						beforeChangeText = ((FormDef)propertiesObj).getBinding();
+					else if(propertiesObj instanceof QuestionDef)
+						beforeChangeText = ((QuestionDef)propertiesObj).getBinding();
+					else if(propertiesObj instanceof OptionDef)
+						beforeChangeText = ((OptionDef)propertiesObj).getBinding();
+
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
 				String s = txtBinding.getText();
 
 				s = s.replace("%", "");
@@ -390,7 +427,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				s = s.replace("#", "");
 
 				txtBinding.setText(s);
-				updateBinding();
+				updateBinding(false);
 			}
 		});
 
@@ -433,14 +470,28 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		txtText.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				String orgText = getSelObjetOriginalText();
-				updateText();
+				updateText(true);
 				updateSelObjBinding(orgText);
+
+				beforeChangeText = null;
 			}
 		});
 		txtText.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
 				String orgText = getSelObjetOriginalText();
-				updateText();
+
+				if(beforeChangeText == null){
+					
+					if(propertiesObj instanceof PageDef)
+						orgText = ((PageDef)propertiesObj).getName();
+					
+					beforeChangeText = orgText;
+					
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
+				updateText(false);
 				updateSelObjBinding(orgText);
 			}
 		});
@@ -460,23 +511,35 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		txtDescTemplate.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateDescTemplate();
+				updateDescTemplate(true);
+
+				beforeChangeText = null;
 			}
 		});
 		txtDescTemplate.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				updateDescTemplate();
+
+				if(beforeChangeText == null){
+					beforeChangeText = ((FormDef)propertiesObj).getDescriptionTemplate();
+					
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
+				updateDescTemplate(false);
 			}
 		});
 
 		txtCalculation.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateCalculation();
+				updateCalculation(true);
+
+				beforeChangeText = null;
 			}
 		});
 		txtCalculation.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				updateCalculation();
+				updateCalculation(false);
 			}
 		});
 
@@ -504,15 +567,25 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				}
 			}
 		});
-		
+
 		txtFormKey.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateFormKey();
+				updateFormKey(true);
+
+				beforeChangeText = null;
 			}
 		});
 		txtFormKey.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
-				updateFormKey();
+
+				if(beforeChangeText == null){
+					beforeChangeText = ((FormDef)propertiesObj).getFormKey();
+					
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
+				updateFormKey(false);
 			}
 		});
 	}
@@ -524,6 +597,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return ((QuestionDef)propertiesObj).getText();
 		else if(propertiesObj instanceof OptionDef )
 			return ((OptionDef)propertiesObj).getText();
+		
 		return null;
 	}
 
@@ -537,16 +611,16 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		if(propertiesObj != null && Context.allowBindEdit() && !Context.isStructureReadOnly()){
 			String text = getTextWithoutDecTemplate(txtText.getText().trim());
 			String name = FormDesignerUtil.getXmlTagName(text);
-			if(propertiesObj instanceof FormDef && ((FormDef)propertiesObj).getBinding().equals(orgTextDefBinding) /*startsWith("newform")*/){
-				((FormDef)propertiesObj).setVariableName(name);
+			if(propertiesObj instanceof FormDef && ((FormDef)propertiesObj).getBinding().equals(orgTextDefBinding)){
+				((FormDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
-			else if(propertiesObj instanceof QuestionDef && ((QuestionDef)propertiesObj).getBinding().equals(orgTextDefBinding) /*startsWith("question")*/){
-				((QuestionDef)propertiesObj).setVariableName(name);
+			else if(propertiesObj instanceof QuestionDef && ((QuestionDef)propertiesObj).getBinding().equals(orgTextDefBinding)){
+				((QuestionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
-			else if(propertiesObj instanceof OptionDef && ((OptionDef)propertiesObj).getVariableName().equals(orgTextDefBinding) /*.startsWith("option")*/){
-				((OptionDef)propertiesObj).setVariableName(name);
+			else if(propertiesObj instanceof OptionDef && ((OptionDef)propertiesObj).getBinding().equals(orgTextDefBinding)){
+				((OptionDef)propertiesObj).setBinding(name);
 				txtBinding.setText(name);
 			}
 		}
@@ -558,7 +632,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @param text the text to parse.
 	 * @return the text without the description template.
 	 */
-	private String getTextWithoutDecTemplate(String text){
+	public static String getTextWithoutDecTemplate(String text){
 		if(text.contains("${")){
 			if(text.indexOf("}$") < text.length() - 2)
 				text = text.substring(0,text.indexOf("${")) + text.substring(text.indexOf("}$") + 2);
@@ -568,6 +642,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		return text;
 	}
 
+
 	/**
 	 * Checks if a given character is allowed to begin an xml node name.
 	 * 
@@ -575,7 +650,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @return true if is allowed, else false.
 	 */
 	private boolean isAllowedXmlNodeNameStartChar(char keyCode){
-		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || isControlChar(keyCode));
+		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || FormUtil.isControlChar(keyCode));
 	}
 
 	/**
@@ -589,28 +664,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	}
 
 	/**
-	 * Check if a character is a control character. Examples of control characters are
-	 * ALT, CTRL, ESCAPE, DELETE, SHIFT, HOME, PAGE_UP, BACKSPACE, ENTER, TAB, LEFT, and more.
-	 * 
-	 * @param keyCode the character code.
-	 * @return true if yes, else false.
-	 */
-	private boolean isControlChar(char keyCode){
-		int code = keyCode;
-		return (code == KeyCodes.KEY_ALT || code == KeyCodes.KEY_BACKSPACE ||
-				code == KeyCodes.KEY_CTRL || code == KeyCodes.KEY_DELETE ||
-				code == KeyCodes.KEY_DOWN || code == KeyCodes.KEY_END ||
-				code == KeyCodes.KEY_ENTER || code == KeyCodes.KEY_ESCAPE ||
-				code == KeyCodes.KEY_HOME || code == KeyCodes.KEY_LEFT ||
-				code == KeyCodes.KEY_PAGEDOWN || code == KeyCodes.KEY_PAGEUP ||
-				code == KeyCodes.KEY_RIGHT || code == KeyCodes.KEY_SHIFT ||
-				code == KeyCodes.KEY_TAB || code == KeyCodes.KEY_UP);
-	}
-
-	/**
 	 * Updates the selected object with the new text as typed by the user.
 	 */
-	private void updateText(){
+	private void updateText(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
@@ -623,33 +679,36 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		else if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setName(txtText.getText());
 
-		formChangeListener.onFormItemChanged(propertiesObj);
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_TEXT, beforeChangeText, changeComplete);
 	}
-	
-	private void updateFormKey(){
+
+
+	private void updateFormKey(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
 		if(propertiesObj instanceof FormDef)
 			((FormDef)propertiesObj).setFormKey(txtFormKey.getText());
 
-		formChangeListener.onFormItemChanged(propertiesObj);
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_FORM_KEY, beforeChangeText, changeComplete);
 	}
-	
+
+
 	/**
 	 * Updates the selected object with the new description template as typed by the user.
 	 */
-	private void updateDescTemplate(){
+	private void updateDescTemplate(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
 		else if(propertiesObj instanceof FormDef){
 			((FormDef)propertiesObj).setDescriptionTemplate(txtDescTemplate.getText());
-			formChangeListener.onFormItemChanged(propertiesObj);
+			formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_DESCRIPTION_TEMPLATE, beforeChangeText, changeComplete);
 		}
 	}
 
-	private void updateCalculation(){
+
+	private void updateCalculation(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
@@ -657,10 +716,11 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		Context.getFormDef().updateCalculation((QuestionDef)propertiesObj, txtCalculation.getText());
 	}
 
+
 	/**
 	 * Updates the selected object with the new binding as typed by the user.
 	 */
-	private void updateBinding(){
+	private void updateBinding(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
@@ -668,11 +728,11 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			return;
 
 		if(propertiesObj instanceof QuestionDef)
-			((QuestionDef)propertiesObj).setVariableName(txtBinding.getText());
+			((QuestionDef)propertiesObj).setBinding(txtBinding.getText());
 		else if(propertiesObj instanceof OptionDef)
-			((OptionDef)propertiesObj).setVariableName(txtBinding.getText());
+			((OptionDef)propertiesObj).setBinding(txtBinding.getText());
 		else if(propertiesObj instanceof FormDef)
-			((FormDef)propertiesObj).setVariableName(txtBinding.getText());
+			((FormDef)propertiesObj).setBinding(txtBinding.getText());
 		else if(propertiesObj instanceof PageDef){
 			try{
 				((PageDef)propertiesObj).setPageNo(Integer.parseInt(txtBinding.getText()));
@@ -681,58 +741,29 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 		}
 
-		formChangeListener.onFormItemChanged(propertiesObj);
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_BINDING, beforeChangeText, changeComplete);
 	}
 
 	/**
 	 * Updates the selected object with the new help text as typed by the user.
 	 */
-	private void updateHelpText(){
+	private void updateHelpText(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
 
 		((QuestionDef)propertiesObj).setHelpText(txtHelpText.getText());
-		formChangeListener.onFormItemChanged(propertiesObj);
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_HELP_TEXT, beforeChangeText, changeComplete);
 	}
 
 	/**
 	 * Updates the selected object with the new default value as typed by the user.
 	 */
-	private void updateDefaultValue(){
+	private void updateDefaultValue(boolean changeComplete){
 		if(propertiesObj == null)
 			return;
-		
+
 		((QuestionDef)propertiesObj).setDefaultValue(txtDefaultValue.getText());
-		formChangeListener.onFormItemChanged(propertiesObj);
-	}
-	
-	/**
-	 * Checks if the value entered for Default Value matches the selected Question Data Type.
-	 * 
-	 * @return True if and only if the entered value is in sync with the Question Data Type.
-	 */
-	private boolean checkDefaultValueAgainstQuestionType(){
-		
-		String defaultValue = txtDefaultValue.getText();
-		QuestionDef questionDef = (QuestionDef) propertiesObj;
-		
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC && 
-				!PropertiesViewHelper.isDefaultValueNumeric(defaultValue)){
-			
-			txtDefaultValue.setText("");
-			return false;
-		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL &&
-				!PropertiesViewHelper.isDefaultValueDecimal(defaultValue)){
-			txtDefaultValue.setText("");
-			return false;
-		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN &&
-				!PropertiesViewHelper.isDefaultValueBoolean(defaultValue)){			
-			txtDefaultValue.setText("");
-			return false;
-		}
-		return true;
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_DEFAULT_VALUE, beforeChangeText, changeComplete);
 	}
 
 	/**
@@ -741,10 +772,15 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private void updateDataType(){
 		if(propertiesObj == null)
 			return;
+		
+		QuestionDef questionDef = (QuestionDef)propertiesObj;
+		
+		int dataType = getSelectedDataType();
+		if(questionDef.getDataType() == dataType)
+			return;
 
 		boolean deleteKids = false;
 		int index = cbDataType.getSelectedIndex();
-		QuestionDef questionDef = (QuestionDef)propertiesObj;
 		if((questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) &&
 				!(index == DT_INDEX_SINGLE_SELECT || index == DT_INDEX_MULTIPLE_SELECT)){
@@ -765,11 +801,73 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			deleteKids = true;
 		}
 
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
+			deleteKids = true;
+		
 		//cbDataType.setSelectedIndex(index);
-		setQuestionDataType((QuestionDef)propertiesObj);
-		formChangeListener.onFormItemChanged(propertiesObj);
+		String oldValue = String.valueOf(questionDef.getDataType());
+		setQuestionDataType(questionDef, dataType);
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_TYPE, oldValue, true);
+
 		if(deleteKids)
 			formChangeListener.onDeleteChildren(propertiesObj);
+		
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
+			selectDynamicListsTab();
+	}
+	
+	private int getSelectedDataType(){
+		int dataType = QuestionDef.QTN_TYPE_TEXT;
+
+		switch(cbDataType.getSelectedIndex()){
+		case DT_INDEX_NUMBER:
+			dataType = QuestionDef.QTN_TYPE_NUMERIC;
+			break;
+		case DT_INDEX_DECIMAL:
+			dataType = QuestionDef.QTN_TYPE_DECIMAL;
+			break;
+		case DT_INDEX_DATE:
+			dataType = QuestionDef.QTN_TYPE_DATE;
+			break;
+		case DT_INDEX_TIME:
+			dataType = QuestionDef.QTN_TYPE_TIME;
+			break;
+		case DT_INDEX_DATE_TIME:
+			dataType = QuestionDef.QTN_TYPE_DATE_TIME;
+			break;
+		case DT_INDEX_BOOLEAN:
+			dataType = QuestionDef.QTN_TYPE_BOOLEAN;
+			break;
+		case DT_INDEX_SINGLE_SELECT:
+			dataType = QuestionDef.QTN_TYPE_LIST_EXCLUSIVE;
+			break;
+		case DT_INDEX_MULTIPLE_SELECT:
+			dataType = QuestionDef.QTN_TYPE_LIST_MULTIPLE;
+			break;
+		case DT_INDEX_REPEAT:
+			dataType = QuestionDef.QTN_TYPE_REPEAT;
+			break;
+		case DT_INDEX_IMAGE:
+			dataType = QuestionDef.QTN_TYPE_IMAGE;
+			break;
+		case DT_INDEX_VIDEO:
+			dataType = QuestionDef.QTN_TYPE_VIDEO;
+			break;
+		case DT_INDEX_AUDIO:
+			dataType = QuestionDef.QTN_TYPE_AUDIO;
+			break;
+		case DT_INDEX_SINGLE_SELECT_DYNAMIC:
+			dataType = QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC;
+			break;
+		case DT_INDEX_GPS:
+			dataType = QuestionDef.QTN_TYPE_GPS;
+			break;
+		case DT_INDEX_BARCODE:
+			dataType = QuestionDef.QTN_TYPE_BARCODE;
+			break;
+		}
+		
+		return dataType;
 	}
 
 	/**
@@ -777,73 +875,10 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * in the type selection list box widget.
 	 * 
 	 * @param questionDef the question definition object.
+	 * @param dataType the data type to set.
 	 */
-	private void setQuestionDataType(QuestionDef questionDef){
-		int dataType = QuestionDef.QTN_TYPE_TEXT;
-
-		switch(cbDataType.getSelectedIndex()){
-		case DT_INDEX_NUMBER:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_NUMERIC;
-			break;
-		case DT_INDEX_DECIMAL:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_DECIMAL;
-			break;
-		case DT_INDEX_DATE:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_DATE;
-			break;
-		case DT_INDEX_TIME:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_TIME;
-			break;
-		case DT_INDEX_DATE_TIME:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_DATE_TIME;
-			break;
-		case DT_INDEX_BOOLEAN:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_BOOLEAN;
-			break;
-		case DT_INDEX_SINGLE_SELECT:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_LIST_EXCLUSIVE;
-			break;
-		case DT_INDEX_MULTIPLE_SELECT:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_LIST_MULTIPLE;
-			break;
-		case DT_INDEX_REPEAT:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_REPEAT;
-			break;
-		case DT_INDEX_IMAGE:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_IMAGE;
-			break;
-		case DT_INDEX_VIDEO:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_VIDEO;
-			break;
-		case DT_INDEX_AUDIO:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_AUDIO;
-			break;
-		case DT_INDEX_SINGLE_SELECT_DYNAMIC:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC;
-			break;
-		case DT_INDEX_GPS:
-			txtDefaultValue.setEnabled(true);
-			dataType = QuestionDef.QTN_TYPE_GPS;
-			break;
-		case DT_INDEX_BARCODE:
-			txtDefaultValue.setEnabled(false);
-			dataType = QuestionDef.QTN_TYPE_BARCODE;
-			break;
-		}
-
+	private void setQuestionDataType(QuestionDef questionDef, int dataType){
+	
 		if(dataType == QuestionDef.QTN_TYPE_REPEAT && 
 				questionDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT)
 			questionDef.setRepeatQtnsDef(new RepeatQtnsDef(questionDef));
@@ -863,6 +898,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 */
 	public void setFormChangeListener(IFormChangeListener formChangeListener){
 		this.formChangeListener = formChangeListener;
+		skipRulesView.setFormChangeListener(formChangeListener);
+		validationRulesView.setFormChangeListener(formChangeListener);
+		dynamicListsView.setFormChangeListener(formChangeListener);
 	}
 
 	/**
@@ -885,7 +923,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		txtDescTemplate.setText(formDef.getDescriptionTemplate());
 		btnDescTemplate.setFormDef(formDef);
-		
+
 		btnCalculation.setFormDef(formDef);
 	}
 
@@ -931,7 +969,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		chkRequired.setValue(questionDef.isRequired());
 
 		setDataType(questionDef.getDataType());
-		
+
 		String calculationExpression = null;
 		Calculation calculation = Context.getFormDef().getCalculation(questionDef);
 		if(calculation != null)
@@ -963,7 +1001,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		btnCalculation.setEnabled(false);
 
 		txtText.setText(optionDef.getText());
-		txtBinding.setText(optionDef.getVariableName());
+		txtBinding.setText(optionDef.getBinding());
 		//skipRulesView.updateSkipRule();
 	}
 
@@ -1035,27 +1073,21 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			break;
 		case QuestionDef.QTN_TYPE_IMAGE:
 			index = DT_INDEX_IMAGE;
-			txtDefaultValue.setEnabled(false);
 			break;
 		case QuestionDef.QTN_TYPE_VIDEO:
 			index = DT_INDEX_VIDEO;
-			txtDefaultValue.setEnabled(false);
 			break;
 		case QuestionDef.QTN_TYPE_AUDIO:
 			index = DT_INDEX_AUDIO;
-			txtDefaultValue.setEnabled(false);
 			break;
 		case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC:
 			index = DT_INDEX_SINGLE_SELECT_DYNAMIC;
-			txtDefaultValue.setEnabled(false);
 			break;
 		case QuestionDef.QTN_TYPE_GPS:
 			index = DT_INDEX_GPS;
-			txtDefaultValue.setEnabled(false);
 			break;
 		case QuestionDef.QTN_TYPE_BARCODE:
 			index = DT_INDEX_BARCODE;
-			txtDefaultValue.setEnabled(false);
 			break;
 		}
 
@@ -1083,8 +1115,11 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormSelectionListener#onFormItemSelected(java.lang.Object)
 	 */
-	public void onFormItemSelected(Object formItem) {
+	public void onFormItemSelected(Object formItem, TreeItem treeItem) {
 		propertiesObj = formItem;
+		skipRulesView.onFormItemSelected(treeItem);
+		validationRulesView.onFormItemSelected(treeItem);
+		dynamicListsView.onFormItemSelected(treeItem);
 
 		clearProperties();
 
@@ -1095,9 +1130,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			//txtDescTemplate.setVisible(false);
 			//btnDescTemplate.setVisible(false);
 			enableDescriptionTemplate(false);
-			
+
 			txtBinding.setEnabled(false);
-			
+
 			return;
 		}
 
@@ -1147,26 +1182,26 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender == btnDescTemplate){
-			
+
 			item = "${" + item + "}$";
-			
+
 			if(propertiesObj instanceof QuestionDef){
 				txtText.setText(txtText.getText() + " " + txtDescTemplate.getText() + item);
-				updateText();
+				updateText(true);
 				txtText.setFocus(true);
 			}
 			else{
 				txtDescTemplate.setText(txtDescTemplate.getText() + item);
-				updateDescTemplate(); //Added for IE which does not properly throw change events for the desc template textbox
+				updateDescTemplate(true); //Added for IE which does not properly throw change events for the desc template textbox
 				txtDescTemplate.setFocus(true);
 			}
 		}
 		else if(sender == btnCalculation){
 			assert(propertiesObj instanceof QuestionDef);
 			txtCalculation.setText(txtCalculation.getText() + item);
-			updateCalculation(); //Added for IE which does not properly throw change events for the desc template textbox
+			updateCalculation(true); //Added for IE which does not properly throw change events for the desc template textbox
 			txtCalculation.setFocus(true);
 		}
 	}
@@ -1219,19 +1254,31 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 		}
 	}
-	
+
 	private void enableDescriptionTemplate(boolean enable){
 		//txtDescTemplate.setVisible(enable);
 		btnDescTemplate.setEnabled(enable);
 		//txtDescTemplate.getParent().setVisible(enable);
 		//lblDescTemplate.setVisible(enable);
-		
+
 		FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
 		cellFormatter.setVisible(10, 0, enable);
 		cellFormatter.setVisible(10, 1, enable);
-		
+
 		//form key
 		cellFormatter.setVisible(11, 0, enable);
 		cellFormatter.setVisible(11, 1, enable);
+	}
+	
+	public void selectSkipRulesTab(){
+		tabs.selectTab(0);
+	}
+	
+	public void selectValidationRulesTab(){
+		tabs.selectTab(1);
+	}
+	
+	public void selectDynamicListsTab(){
+		tabs.selectTab(2);
 	}
 }

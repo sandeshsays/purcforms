@@ -339,7 +339,7 @@ public class FormsTreeView extends com.extjs.gxt.ui.client.widget.Composite impl
 	 */
 	private void fireFormItemSelected(Object formItem){
 		for(int i=0; i<formSelectionListeners.size(); i++)
-			formSelectionListeners.get(i).onFormItemSelected(formItem);
+			formSelectionListeners.get(i).onFormItemSelected(formItem, null);
 	}
 
 	public void loadForm(FormDef formDef,boolean select, boolean langRefresh){
@@ -1130,7 +1130,7 @@ public class FormsTreeView extends com.extjs.gxt.ui.client.widget.Composite impl
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormChangeListener#onFormItemChanged(java.lang.Object)
 	 */
-	public Object onFormItemChanged(Object formItem) {
+	public Object onFormItemChanged(Object formItem, byte property, String oldValue, boolean changeComplete) {
 		TreeModelItem item = (TreeModelItem)treePanel.getSelectionModel().getSelectedItem();
 		if(item == null)
 			return formItem; //How can this happen?
@@ -1737,5 +1737,9 @@ public class FormsTreeView extends com.extjs.gxt.ui.client.widget.Composite impl
 			imageResource = images.drafts();
 		
 		return AbstractImagePrototype.create(imageResource);
+	}
+	
+	public void rebuildBindings(){
+		
 	}
 }

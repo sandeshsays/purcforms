@@ -438,4 +438,12 @@ public class FormDesignerWidget extends Composite{
 	public void removeJavaScriptTab(){
 		centerPanel.removeJavaScriptSourceTab();
 	}
+	
+	public void removeDesignSurfaceTab(){
+		centerPanel.removeDesignSurfaceTab();
+	}
+	
+	public void removePreviewTab(){
+		centerPanel.removePreviewTab();
+	}
 }

@@ -1352,4 +1352,16 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 		return true;
 	}
+	
+	public void rebuildBindings(){
+		
+	}
+	
+	public void undo(){
+		
+	}
+	
+	public void redo(){
+		
+	}
 }

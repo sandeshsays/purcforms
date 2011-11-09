@@ -24,7 +24,7 @@ public class XhtmlBuilder {
 	private XhtmlBuilder(){
 
 	}
-	
+
 	/**
 	 * Converts a form definition object to an XHTML document object.
 	 * 
@@ -69,10 +69,10 @@ public class XhtmlBuilder {
 		XformBuilder.buildXform(formDef,doc,bodyNode,modelNode);
 
 		XformUtil.copyModel(prevdoc,doc);
-		
+
 		return doc;
 	}
-	
+
 	/**
 	 * Converts a form definition object to XHTML.
 	 * 
@@ -80,13 +80,22 @@ public class XhtmlBuilder {
 	 * @return the xhtml.
 	 */
 	public static String fromFormDef2Xhtml(FormDef formDef){
+		Document prevDoc = formDef.getDoc();
 		Document doc = fromFormDef2XhtmlDoc(formDef);
 		formDef.setDoc(doc);
 		formDef.setXformsNode(doc.getDocumentElement());
-		
+
 		if(FormUtil.isJavaRosaSaveFormat())
 			ItextBuilder.build(formDef);
 		
+		Element modelNode = formDef.getModelNode();
+		if(modelNode != null && prevDoc != null){
+			String prefix = modelNode.getPrefix();
+			String ns = prevDoc.getDocumentElement().getNamespaceURI();
+			if(ns != null && ns.trim().length() > 0)
+				doc.getDocumentElement().setAttribute("xmlns:" + prefix, ns);
+		}
+
 		return XmlUtil.fromDoc2String(doc);
 	}
 }

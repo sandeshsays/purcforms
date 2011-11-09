@@ -1,12 +1,17 @@
 package org.purc.purcforms.client.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.purc.purcforms.client.listener.BindingChangeListener;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.xforms.UiElementBuilder;
 import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 
@@ -20,11 +25,6 @@ import com.google.gwt.xml.client.Element;
  */
 public class OptionDef implements Serializable {
 	
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = 6011207697283921703L;
-
 	/** The numeric unique identifier of an answer option. */
 	private int id = ModelConstants.NULL_ID;
 	
@@ -48,7 +48,12 @@ public class OptionDef implements Serializable {
 	
 	/** The question to which this option belongs. */
 	private QuestionDef parent;
-
+	
+	private List<BindingChangeListener> bindingChangeListeners;
+	
+	/** The xpath expression pointing to the corresponding node in the xforms document. */
+	private String xpathExpression;
+	
 	
 	/** Constructs the answer option definition object where
 	 * initialization parameters are not supplied. */
@@ -61,7 +66,8 @@ public class OptionDef implements Serializable {
 		 this(parent);
 		 setId(optionDef.getId());
 		 setText(optionDef.getText());
-		 setVariableName(optionDef.getVariableName());
+		 setBinding(optionDef.getBinding());
+		 this.xpathExpression = optionDef.xpathExpression;
 		 //setParent(parent /*optionDef.getParent()*/);
 	}
 	
@@ -75,7 +81,7 @@ public class OptionDef implements Serializable {
 		this(parent);
 		setId(id);
 		setText(text);
-		setVariableName(variableName);
+		setBinding(variableName);
 	}
 	
 	public int getId() {
@@ -94,11 +100,17 @@ public class OptionDef implements Serializable {
 		this.text = text;
 	}
 	
-	public String getVariableName() {
+	public String getBinding() {
 		return variableName;
 	}
 	
-	public void setVariableName(String variableName) {
+	public void setBinding(String variableName) {
+		
+		if(bindingChangeListeners != null){
+			for(BindingChangeListener bindingChangeListener : bindingChangeListeners)
+				bindingChangeListener.onBindingChanged(this, this.variableName, variableName);
+		}
+		
 		this.variableName = variableName;
 	}
 
@@ -183,7 +195,7 @@ public class OptionDef implements Serializable {
      * @param doc the locale document.
      * @param parentNode
      */
-    public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentNode){
+    public void buildLanguageNodes(String parentXpath, com.google.gwt.xml.client.Document doc, Element parentNode, Map<String, String> changedXpaths){
     	if(labelNode != null && controlNode != null){
     		String xpath = parentXpath + "/" + FormUtil.getNodeName(controlNode);
     		
@@ -200,8 +212,31 @@ public class OptionDef implements Serializable {
 			
     		Element node = doc.createElement(XformConstants.NODE_NAME_TEXT);
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_XPATH, xpath);
+			
+			//Store the old xpath expression for localization processing which identifies us by the previous value.
+			if(this.xpathExpression != null && !xpath.equalsIgnoreCase(this.xpathExpression)){
+				node.setAttribute(XformConstants.ATTRIBUTE_NAME_PREV_XPATH, this.xpathExpression);
+				changedXpaths.put(this.xpathExpression, xpath);
+			}
+			this.xpathExpression = xpath;
+			
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_VALUE, text);
 			parentNode.appendChild(node);
 		}
+    }
+    
+    public void addBindingChangeListener(BindingChangeListener bindingChangeListener){
+    	if(bindingChangeListeners == null)
+    		bindingChangeListeners = new ArrayList<BindingChangeListener>();
+    	
+    	if(!bindingChangeListeners.contains(bindingChangeListener))
+    		bindingChangeListeners.add(bindingChangeListener);
+    }
+    
+    public void removeBindingChangeListener(BindingChangeListener bindingChangeListener){
+    	if(bindingChangeListeners == null)
+    		return;
+    	
+    	bindingChangeListeners.remove(bindingChangeListener);
     }
 }

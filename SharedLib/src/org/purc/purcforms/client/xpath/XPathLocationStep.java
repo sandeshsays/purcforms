@@ -12,12 +12,7 @@ import com.google.gwt.xml.client.Node;
  */
 //TODO: descendant axis doesn't work
 
-public class XPathLocationStep implements Serializable {
-	/**
-	 * Generated serialization ID.
-	 */
-	private static final long serialVersionUID = 2652817312061137794L;
-	
+public class XPathLocationStep implements Serializable{
 	String axis = null;
 	String nodeTest = null;
 	String nodePrefix = null;
@@ -106,9 +101,8 @@ public class XPathLocationStep implements Serializable {
 	 * is needed here: to the result vector I only add Element-s or String. This
 	 * is not correct. I should only add Node-s
 	 */
-	public Vector<?> getResult(Vector<Node> contextNodeSet, Vector<Object> resultNodeSet) {
-		
-		Vector<Object> outputNodeSet = resultNodeSet;
+	public Vector getResult(Vector contextNodeSet, Vector resultNodeSet) {
+		Vector outputNodeSet = resultNodeSet;
 		int nodeCount = contextNodeSet.size();
 		int i = 0;
 
@@ -145,11 +139,12 @@ public class XPathLocationStep implements Serializable {
 							outputNodeSet.addElement(childNode.getChildNodes().item(0).getNodeValue());
 
 						if (axis.equals("descendant")) {
-							Vector<?> descendants = null;
+							Vector descendants = null;
 							descendants = getMatchingDescendants(childNode);
 
 							for (int k = 0; k < descendants.size(); k++)
-								outputNodeSet.addElement(descendants.elementAt(k));
+								outputNodeSet.addElement(descendants
+										.elementAt(k));
 						}
 					} else if (node.getChildNodes().item(j).getNodeType() == Node.TEXT_NODE) {
 						if (nodeTest.equals("text()"))
@@ -187,7 +182,8 @@ public class XPathLocationStep implements Serializable {
 			if (nodeTest.equals("/")) {
 				Object startNode = null;
 				// find first element in the contextNodeSet
-				for (Enumeration<Node> nodes = contextNodeSet.elements(); nodes.hasMoreElements();) {
+				for (Enumeration nodes = contextNodeSet.elements(); nodes
+				.hasMoreElements();) {
 					startNode = nodes.nextElement();
 					if (startNode instanceof Element)
 						break;
@@ -215,21 +211,22 @@ public class XPathLocationStep implements Serializable {
 				}
 			} else if (nodeTest.equals(".")) {
 				// simply copy the input vector
-				for (Enumeration<?> enumeration = contextNodeSet.elements(); enumeration
+				for (Enumeration enumeration = contextNodeSet.elements(); enumeration
 				.hasMoreElements();)
 					outputNodeSet.addElement(enumeration.nextElement());
 			}
 		}
 
 		if (predicate != null) {
-			Predicate predicateEvaluator = new Predicate(outputNodeSet, predicate);
+			Predicate predicateEvaluator = new Predicate(outputNodeSet,
+					predicate);
 			outputNodeSet = predicateEvaluator.getResult();
 		}
 		return outputNodeSet;
 	}
 
-	private Vector<?> getMatchingDescendants(Node node) {
-		Vector<Node> matchingDescendants = new Vector<Node>();
+	private Vector getMatchingDescendants(Node node) {
+		Vector matchingDescendants = new Vector();
 		int childCount = node.getChildNodes().getLength();
 
 		for (int j = 0; j < childCount; j++) {
@@ -244,7 +241,7 @@ public class XPathLocationStep implements Serializable {
 
 				Node[] moreDescendants = null;
 
-				Vector<?> tmp = getMatchingDescendants(childNode);
+				Vector tmp = getMatchingDescendants(childNode);
 
 				moreDescendants = new Node[tmp.size()];
 				tmp.copyInto(moreDescendants);

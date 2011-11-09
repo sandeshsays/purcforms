@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.purc.purcforms.client.util.FormUtil;
@@ -24,11 +25,6 @@ import com.google.gwt.xml.client.Element;
  *
  */
 public class DynamicOptionDef  implements Serializable{
-
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = 5333695709493711857L;
 
 	/** The question whose values are determined by or dependent on the answer of another 
 	 * (parent) question. In other wards this question must be of type Single Select Dynamic.
@@ -179,7 +175,7 @@ public class DynamicOptionDef  implements Serializable{
 	 * @param nextOptionId the option id value.
 	 */
 	public void setNextOptionId(int nextOptionId) {
-		DynamicOptionDef.nextOptionId = nextOptionId;
+		this.nextOptionId = nextOptionId;
 	}
 
 	/**
@@ -313,7 +309,7 @@ public class DynamicOptionDef  implements Serializable{
 	 * @return the option.
 	 */
 	private OptionDef getOptionWithText(List<OptionDef> options, String text){
-		List<OptionDef> list = (List<OptionDef>)options;
+		List list = (List)options;
 		for(int i=0; i<list.size(); i++){
 			OptionDef optionDef = (OptionDef)list.get(i);
 			if(optionDef.getText().equals(text))
@@ -330,10 +326,10 @@ public class DynamicOptionDef  implements Serializable{
 	 * @return the option.
 	 */
 	private OptionDef getOptionWithValue(List<OptionDef> options, String value){
-		List<OptionDef> list = (List<OptionDef>)options;
+		List list = (List)options;
 		for(int i=0; i<list.size(); i++){
 			OptionDef optionDef = (OptionDef)list.get(i);
-			if(optionDef.getVariableName().equals(value))
+			if(optionDef.getBinding().equals(value))
 				return optionDef;
 		}
 		return null;
@@ -366,7 +362,7 @@ public class DynamicOptionDef  implements Serializable{
 	 * @return the option.
 	 */
 	private OptionDef getOptionWithId(List<OptionDef> options, int id){
-		List<OptionDef> list = (List<OptionDef>)options;
+		List list = (List)options;
 		for(int i=0; i<list.size(); i++){
 			OptionDef optionDef = (OptionDef)list.get(i);
 			if(optionDef.getId() == id)
@@ -381,7 +377,7 @@ public class DynamicOptionDef  implements Serializable{
 	 * @param formDef the form definition object that this object belongs to.
 	 * @param parentLangNode the parent language node we are building onto.
 	 */
-	public void buildLanguageNodes(FormDef formDef, Element parentLangNode){
+	public void buildLanguageNodes(FormDef formDef, Element parentLangNode, Map<String, String> changedXpaths){
 		if(parentToChildOptions == null)
 			return;
 		
@@ -406,7 +402,7 @@ public class DynamicOptionDef  implements Serializable{
 		while(iterator.hasNext()){
 			List<OptionDef> list = iterator.next().getValue();
 			for(int index = 0; index < list.size(); index++)
-				list.get(index).buildLanguageNodes(xpath,formDef.getDoc(), parentLangNode);
+				list.get(index).buildLanguageNodes(xpath,formDef.getDoc(), parentLangNode, changedXpaths);
 		}
 	}	
 	
@@ -424,6 +420,9 @@ public class DynamicOptionDef  implements Serializable{
 	 * 
 	 */
 	public void refresh(FormDef dstFormDef, FormDef srcFormDef,DynamicOptionDef newDynOptionDef, DynamicOptionDef srcDynOptionDef, QuestionDef newParentQtnDef, QuestionDef oldParentQtnDef, QuestionDef oldChildQtnDef, QuestionDef newChildQtnDef){
+		if(srcDynOptionDef.getParentToChildOptions() == null)
+			return;
+		
 		parentToChildOptions = new HashMap<Integer,List<OptionDef>>();
 
 		Iterator<Entry<Integer,List<OptionDef>>> iterator = srcDynOptionDef.getParentToChildOptions().entrySet().iterator();
@@ -434,7 +433,7 @@ public class DynamicOptionDef  implements Serializable{
 			if(optionDef == null)
 				continue; //how can this be????.
 			
-			optionDef = newParentQtnDef.getOptionWithValue(optionDef.getVariableName());
+			optionDef = newParentQtnDef.getOptionWithValue(optionDef.getBinding());
 			if(optionDef == null)
 				continue; //possibly option deleted.
 			
@@ -450,7 +449,7 @@ public class DynamicOptionDef  implements Serializable{
 		for(int index = 0; index < list.size(); index++){
 			OptionDef oldOptionDef = list.get(index);
 			
-			OptionDef newOptionDef = newParentQtnDef.getOptionWithValue(oldOptionDef.getVariableName());
+			OptionDef newOptionDef = newParentQtnDef.getOptionWithValue(oldOptionDef.getBinding());
 			if(newOptionDef == null){
 				//We do not want to lose options we had created before refresh.
 				//The user should manually delete them after a refresh, if they don't want them.

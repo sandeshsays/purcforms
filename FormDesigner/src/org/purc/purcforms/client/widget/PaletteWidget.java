@@ -4,6 +4,7 @@ import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.FormsTreeView.Images;
 
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
+import com.google.gwt.event.dom.client.HasAllTouchHandlers;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -16,6 +17,14 @@ import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.MouseWheelEvent;
 import com.google.gwt.event.dom.client.MouseWheelHandler;
+import com.google.gwt.event.dom.client.TouchCancelEvent;
+import com.google.gwt.event.dom.client.TouchCancelHandler;
+import com.google.gwt.event.dom.client.TouchEndEvent;
+import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.TouchMoveEvent;
+import com.google.gwt.event.dom.client.TouchMoveHandler;
+import com.google.gwt.event.dom.client.TouchStartEvent;
+import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -31,7 +40,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
  * @author daniel
  *
  */
-public class PaletteWidget extends Composite implements HasAllMouseHandlers{
+public class PaletteWidget extends Composite implements HasAllMouseHandlers, HasAllTouchHandlers{
 
 	/** The name of the widget. e.g TextBox, CheckBox, Label,Button etc */
 	private String name;
@@ -80,6 +89,21 @@ public class PaletteWidget extends Composite implements HasAllMouseHandlers{
 		return addDomHandler(handler, MouseWheelEvent.getType());
 	}
 
+	public HandlerRegistration addTouchStartHandler(TouchStartHandler handler) {
+		return addDomHandler(handler, TouchStartEvent.getType());
+	}
+	
+	public HandlerRegistration addTouchMoveHandler(TouchMoveHandler handler) {
+		return addDomHandler(handler, TouchMoveEvent.getType());
+	}
+	
+	public HandlerRegistration addTouchEndHandler(TouchEndHandler handler) {
+		return addDomHandler(handler, TouchEndEvent.getType());
+	}
+	
+	public HandlerRegistration addTouchCancelHandler(TouchCancelHandler handler) {
+		return addDomHandler(handler, TouchCancelEvent.getType());
+	}
 
 	/**
 	 * Gets the name of the widget.

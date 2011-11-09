@@ -9,6 +9,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.ValidationRule;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Element;
 
@@ -38,10 +39,10 @@ public class ConstraintParser {
 	 * @param constraints the map of constraint attribute values keyed by their 
 	 * 					  question definition objects.
 	 */
-	public static void addValidationRules(FormDef formDef, HashMap<QuestionDef, ?> constraints){
-		Vector<ValidationRule> rules = new Vector<ValidationRule>();
+	public static void addValidationRules(FormDef formDef, HashMap constraints){
+		Vector rules = new Vector();
 
-		Iterator<QuestionDef> keys = constraints.keySet().iterator();
+		Iterator keys = constraints.keySet().iterator();
 		//int id = 0;
 		while(keys.hasNext()){
 			QuestionDef qtn = (QuestionDef)keys.next();
@@ -64,6 +65,12 @@ public class ConstraintParser {
 	 */
 	private static ValidationRule buildValidationRule(FormDef formDef, int questionId, String constraint){
 
+		if(constraint.startsWith("("))
+			constraint = constraint.substring(1);
+		
+		if(constraint.endsWith(")") && !QuestionDef.isDateFunction(constraint))
+			constraint = constraint.substring(0, constraint.length() - 1);
+		
 		ValidationRule validationRule = new ValidationRule(questionId,formDef);
 		validationRule.setConditions(getValidationRuleConditions(formDef,constraint,questionId));
 		validationRule.setConditionsOperator(XformParserUtil.getConditionsOperator(constraint));
@@ -72,8 +79,13 @@ public class ConstraintParser {
 		Element node = questionDef.getBindNode();
 		if(node == null)
 			validationRule.setErrorMessage("");
-		else
-			validationRule.setErrorMessage(node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE));
+		else{
+			String message = node.getAttribute(XformConstants.ATTRIBUTE_NAME_CONSTRAINT_MESSAGE);
+			if(message == null) //could have been loaded in a format opposite to the one we are using. 
+				message = node.getAttribute(FormUtil.isJavaRosaSaveFormat() ? "message" : "jr:constraintMsg");
+			
+			validationRule.setErrorMessage(message);
+		}
 
 		// If the validation rule has no conditions, then its as good as no rule at all.
 		if(validationRule.getConditions() == null || validationRule.getConditions().size() == 0)
@@ -90,9 +102,9 @@ public class ConstraintParser {
 	 * @param questionId the identifier of the question which is the target of the validation rule.
 	 * @return the conditions list.
 	 */
-	private static Vector<Condition> getValidationRuleConditions(FormDef formDef, String constraint, int questionId){
-		Vector<Condition> conditions = new Vector<Condition>();
-		Vector<?> list = XpathParser.getConditionsOperatorTokens(constraint);
+	private static Vector getValidationRuleConditions(FormDef formDef, String constraint, int questionId){
+		Vector conditions = new Vector();
+		Vector list = XpathParser.getConditionsOperatorTokens(constraint);
 
 		Condition condition  = new Condition();
 		for(int i=0; i<list.size(); i++){
@@ -100,6 +112,39 @@ public class ConstraintParser {
 			if(condition != null)
 				conditions.add(condition);
 		}
+		
+		
+		//TODO Commented out because of being buggy when form is refreshed
+		//Preserve the between operator
+		/*if( (constraint.contains(" and ") && constraint.contains(">") && constraint.contains("<") ) &&
+				(conditions.size() == 2 || (conditions.size() == 3 && XformParserUtil.getConditionsOperator(constraint) == ModelConstants.CONDITIONS_OPERATOR_OR)) ){
+			
+			condition  = new Condition();
+			condition.setId(questionId);
+			condition.setOperator(ModelConstants.OPERATOR_BETWEEN);
+			condition.setQuestionId(questionId);
+			if(constraint.contains("length(.)") || constraint.contains("count(.)"))
+				condition.setFunction(ModelConstants.FUNCTION_LENGTH);
+			
+			condition.setValue(((Condition)conditions.get(0)).getValue());
+			condition.setSecondValue(((Condition)conditions.get(1)).getValue());
+			
+			//This is just for the designer
+			if(condition.getValue().startsWith(formDef.getBinding() + "/"))
+				condition.setValueQtnDef(formDef.getQuestion(condition.getValue().substring(condition.getValue().indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(formDef.getQuestion(questionId));
+			
+			Condition cond = null;
+			if(conditions.size() == 3)
+				cond = (Condition)conditions.get(2);
+			
+			conditions.clear();
+			conditions.add(condition);
+			
+			if(cond != null)
+				conditions.add(cond);
+		}*/
 
 		return conditions;
 	}
@@ -151,16 +196,29 @@ public class ConstraintParser {
 			//This is just for the designer
 			if(value.startsWith(formDef.getBinding() + "/"))
 				condition.setValueQtnDef(formDef.getQuestion(value.substring(value.indexOf('/')+1)));
+			else
+				condition.setBindingChangeListener(questionDef);
 
 			if(condition.getOperator() == ModelConstants.OPERATOR_NULL)
 				return null; //no operator set hence making the condition invalid
 		}
+		else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
+			condition.setOperator(ModelConstants.OPERATOR_IS_NOT_NULL); //must be != ''
 		else
-			condition.setOperator(ModelConstants.OPERATOR_IS_NULL);
+			condition.setOperator(ModelConstants.OPERATOR_IS_NULL); //must be = ''
 
-		if(constraint.contains("length(.)") || constraint.contains("count(.)"))
+		if(constraint.contains("length(.)") || constraint.contains("count-selected(.)"))
 			condition.setFunction(ModelConstants.FUNCTION_LENGTH);
-
+		else{
+			//correct back the contains and not contain operators for multiple selects.
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+				if(condition.getOperator() == ModelConstants.OPERATOR_EQUAL)
+					condition.setOperator(ModelConstants.OPERATOR_CONTAINS);
+				else if(condition.getOperator() == ModelConstants.OPERATOR_NOT_EQUAL)
+					condition.setOperator(ModelConstants.OPERATOR_NOT_CONTAIN);
+			}
+		}
+		
 		return condition;
 	}
 }

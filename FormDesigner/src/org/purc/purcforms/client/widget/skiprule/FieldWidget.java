@@ -11,12 +11,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 
 
@@ -47,7 +46,7 @@ public class FieldWidget extends Composite{
 	private TextBox txtField = new TextBox();
 
 	/** The widget to display the selected question text when not in selection mode. */
-	private Anchor fieldHyperlink;
+	private Hyperlink fieldHyperlink;
 
 	/** The listener for item selection events. */
 	private ItemSelectionListener itemSelectionListener;
@@ -83,7 +82,7 @@ public class FieldWidget extends Composite{
 	}
 
 	private void setupWidgets(){
-		fieldHyperlink = new Anchor("", "#"); //Field 1
+		fieldHyperlink = new Hyperlink("",""); //Field 1
 
 		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.add(fieldHyperlink);
@@ -113,8 +112,8 @@ public class FieldWidget extends Composite{
 			}
 		});*/
 
-		sgstField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstField.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				stopSelection();
 			}
 		});
@@ -134,7 +133,7 @@ public class FieldWidget extends Composite{
 		horizontalPanel.add(fieldHyperlink);
 		QuestionDef qtn = formDef.getQuestionWithText(txtField.getText());
 		if(qtn != null)
-			itemSelectionListener.onItemSelected(this,qtn);
+			itemSelectionListener.onItemSelected(this, qtn, true);
 	}
 
 	private void setupPopup(){
@@ -147,8 +146,8 @@ public class FieldWidget extends Composite{
 		sgstField = new SuggestBox(oracle,txtField);
 		selectFirstQuestion();
 
-		sgstField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>(){
-			public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event){
+		sgstField.addSelectionHandler(new SelectionHandler(){
+			public void onSelection(SelectionEvent event){
 				stopSelection();
 			}
 		});
@@ -162,7 +161,7 @@ public class FieldWidget extends Composite{
 
 	public void selectQuestion(QuestionDef questionDef){
 		fieldHyperlink.setText(questionDef.getText());
-		itemSelectionListener.onItemSelected(this, questionDef);
+		itemSelectionListener.onItemSelected(this, questionDef, false);
 	}
 
 	private void selectFirstQuestion(){
@@ -172,7 +171,10 @@ public class FieldWidget extends Composite{
 		}
 	}
 
-	private boolean selectFirstQuestion(Vector<QuestionDef> questions){
+	private boolean selectFirstQuestion(Vector questions){
+		if(questions == null)
+			return false;
+		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
 

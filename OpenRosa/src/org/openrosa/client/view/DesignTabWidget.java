@@ -7,7 +7,6 @@ import org.openrosa.client.controller.FormDesignerController;
 import org.openrosa.client.controller.IFileListener;
 import org.openrosa.client.model.FormDef;
 import org.purc.purcforms.client.controller.IFormSelectionListener;
-import org.purc.purcforms.client.util.FormUtil;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -18,6 +17,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TreeItem;
 
 
 /**
@@ -202,8 +202,8 @@ public class DesignTabWidget extends Composite implements IFormSelectionListener
 		this.formSelectionListeners.add(formSelectionListener);
 	}
 	
-	public void onFormItemSelected(Object formItem){
+	public void onFormItemSelected(Object formItem, TreeItem item){
 		for(int i=0; i<formSelectionListeners.size(); i++)
-			formSelectionListeners.get(i).onFormItemSelected(formItem);
+			formSelectionListeners.get(i).onFormItemSelected(formItem, item);
 	}
 }

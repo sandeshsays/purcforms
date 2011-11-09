@@ -58,7 +58,6 @@ public class FormDownloadController implements LoginInfoListener{
 					url = Utils.urlAppendNamePassword(url, FormEntryContext.getUserName(), FormEntryContext.getPassword());
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,URL.encode(url));
-				//builder.setHeader("Access-Control-Allow-Origin", "http://open-data-kit.appspot.com/formList");
 				try{
 					builder.sendRequest(null, new RequestCallback(){
 						public void onResponseReceived(Request request, Response response){

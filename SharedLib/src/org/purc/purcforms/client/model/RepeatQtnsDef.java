@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.model;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Vector;
 
 import com.google.gwt.xml.client.Document;
@@ -16,13 +17,8 @@ import com.google.gwt.xml.client.Element;
  */
 public class RepeatQtnsDef implements Serializable {
 	
-	/**
-	 * Generated serialization ID
-	 */
-	private static final long serialVersionUID = -7562277749723371726L;
-
 	/** A list of questions (QuestionDef objects) on a repeat questions row. */
-	private Vector<QuestionDef> questions;
+	private Vector questions;
 	
 	/** Reference to the parent question. */
 	private QuestionDef qtnDef;
@@ -49,7 +45,7 @@ public class RepeatQtnsDef implements Serializable {
 		setQtnDef(qtnDef);
 	}
 	
-	public RepeatQtnsDef(QuestionDef qtnDef, Vector<QuestionDef> questions) {
+	public RepeatQtnsDef(QuestionDef qtnDef,Vector questions) {
 		this(qtnDef);
 		setQuestions(questions);
 	}
@@ -62,7 +58,7 @@ public class RepeatQtnsDef implements Serializable {
 		this.qtnDef = qtnDef;
 	}
 
-	public Vector<QuestionDef> getQuestions() {
+	public Vector getQuestions() {
 		return questions;
 	}
 	
@@ -73,14 +69,21 @@ public class RepeatQtnsDef implements Serializable {
 	}
 
 	public void addQuestion(QuestionDef qtn){
-		if(questions == null)
-			questions = new Vector<QuestionDef>();
-		
-		//qtn.setId((byte)(questions.size()+1)); id should be set somewhere else
-		questions.addElement(qtn);
+		addQuestion(qtn, null);
 	}
 	
-	public void removeQuestion(QuestionDef qtnDef, FormDef formDef){
+	public void addQuestion(QuestionDef qtn, QuestionDef refQtn){
+		if(questions == null)
+			questions = new Vector();
+		
+		//qtn.setId((byte)(questions.size()+1)); id should be set somewhere else
+		if(refQtn == null)
+			questions.addElement(qtn);
+		else
+			questions.add(questions.indexOf(refQtn) + 1, qtn);
+	}
+	
+	public boolean removeQuestion(QuestionDef qtnDef, FormDef formDef){
 		if(qtnDef.getControlNode() != null && qtnDef.getControlNode().getParentNode() != null)
 			qtnDef.getControlNode().getParentNode().removeChild(qtnDef.getControlNode());
 		if(qtnDef.getDataNode() != null && qtnDef.getDataNode().getParentNode() != null)
@@ -91,10 +94,10 @@ public class RepeatQtnsDef implements Serializable {
 		if(formDef != null)
 			formDef.removeQtnFromRules(qtnDef);
 		
-		questions.removeElement(qtnDef);
+		return questions.removeElement(qtnDef);
 	}
 	
-	public void setQuestions(Vector<QuestionDef> questions) {
+	public void setQuestions(Vector questions) {
 		this.questions = questions;
 	}
 	
@@ -127,13 +130,13 @@ public class RepeatQtnsDef implements Serializable {
 		return questions.size();
 	}
 	
-	private void copyQuestions(Vector<QuestionDef> questions){
+	private void copyQuestions(Vector questions){
 		if(questions == null)
 			return;
 		
-		this.questions = new Vector<QuestionDef>();
+		this.questions = new Vector();
 		for(int i=0; i<questions.size(); i++)
-			this.questions.addElement(new QuestionDef((QuestionDef)questions.elementAt(i), qtnDef));
+			this.questions.addElement(new QuestionDef((QuestionDef)questions.elementAt(i),qtnDef));
 	}
 	
 	public void moveQuestionUp(QuestionDef questionDef){		
@@ -150,7 +153,7 @@ public class RepeatQtnsDef implements Serializable {
 		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
-			questionDef.updateDoc(doc,xformsNode,formDef,qtnDef.getDataNode(),modelNode,qtnDef.getControlNode(),false,withData,orgFormVarName);
+			questionDef.updateDoc(doc,xformsNode,formDef,qtnDef.getDataNode(),modelNode,qtnDef.getControlNode(), true /*false*/ ,withData,orgFormVarName, qtnDef.getBinding());
 		}
 	}
 	
@@ -166,7 +169,21 @@ public class RepeatQtnsDef implements Serializable {
 		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef def = (QuestionDef)questions.elementAt(i);
-			if(def.getBinding().equals(varName))
+			if(def.getBinding().equals(varName) || ("/" + def.getBinding()).equals(varName))
+				return def;
+		}
+		
+		//only do this if the above fails
+		for(int i=0; i<questions.size(); i++){
+			QuestionDef def = (QuestionDef)questions.elementAt(i);
+			if((qtnDef.getBinding() + "/" + varName).equals(def.getBinding()) )
+				return def;
+		}
+		
+		//only do this if the above fails
+		for(int i=0; i<questions.size(); i++){
+			QuestionDef def = (QuestionDef)questions.elementAt(i);
+			if((qtnDef.getBinding() + "/" + def.getBinding()).equals(varName) )
 				return def;
 		}
 		
@@ -186,7 +203,7 @@ public class RepeatQtnsDef implements Serializable {
 	}
 	
 	public void refresh(RepeatQtnsDef pepeatQtnsDef){
-		Vector<QuestionDef> questions2 = pepeatQtnsDef.getQuestions();
+		Vector questions2 = pepeatQtnsDef.getQuestions();
 		if(questions == null || questions2 == null)
 			return;
 		
@@ -235,11 +252,11 @@ public class RepeatQtnsDef implements Serializable {
 		return maxRows;
 	}
 	
-	public void buildLanguageNodes(String parentXpath,com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode){
+	public void buildLanguageNodes(String parentXpath,com.google.gwt.xml.client.Document doc, Element parentXformNode, Element parentLangNode, Map<String, String> changedXpaths){
 		if(questions == null)
 			return;
 
 		for(int i=0; i<questions.size(); i++)
-			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode);
+			((QuestionDef)questions.elementAt(i)).buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode, changedXpaths);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.purc.purcforms.client.cmd.CommandHistory;
 import org.purc.purcforms.client.controller.ILocaleListChangeListener;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.Locale;
@@ -41,10 +42,10 @@ public class Context {
 	public static final byte MODE_XFORMS_SOURCE = 4;
 	
 	/** The default locale key. */
-	private static Locale defaultLocale = new Locale("en","English");
+	private static Locale defaultLocale; //= new Locale("en","English");
 	
 	/** The current locale. */
-	private static Locale locale = defaultLocale;
+	private static Locale locale; // = defaultLocale;
 	
 	/** A list of supported locales. */
 	private static List<Locale> locales = new ArrayList<Locale>();
@@ -76,7 +77,12 @@ public class Context {
 	 * key and text, where locale key is the value map key and text is the value map value.
 	 */
 	private static HashMap<Integer,HashMap<String,String>> languageText = new HashMap<Integer,HashMap<String,String>>();
-
+	
+	private static CommandHistory commandHistory = new CommandHistory();
+	
+	private static CenterPanel centerPanel;
+	private static LeftPanel leftPanel;
+	
 	
 	/**
 	 * Sets the default locale.
@@ -103,6 +109,7 @@ public class Context {
 	 */
 	public static void setLocale(Locale locale){
 		Context.locale = locale;
+		FormUtil.localeKey = locale.getKey();
 	}
 	
 	/**
@@ -137,7 +144,7 @@ public class Context {
 	 * 
 	 * @return true if in localization mode, else false.
 	 */
-	public static boolean inLocalizationMode(){
+	public static boolean inLocalizationMode(){	
 		return !defaultLocale.getKey().equalsIgnoreCase(locale.getKey());
 	}
 	
@@ -250,5 +257,25 @@ public class Context {
 	
 	public static HashMap<Integer,HashMap<String,String>> getLanguageText(){
 		return languageText;
+	}
+	
+	public static CommandHistory getCommandHistory(){
+		return commandHistory;
+	}
+	
+	public static void setCenterPanel(CenterPanel centerPanel){
+		Context.centerPanel = centerPanel;
+	}
+	
+	public static CenterPanel getCenterPanel(){
+		return centerPanel;
+	}
+	
+	public static void setLeftPanel(LeftPanel leftPanel){
+		Context.leftPanel = leftPanel;
+	}
+	
+	public static LeftPanel getLeftPanel(){
+		return leftPanel;
 	}
 }

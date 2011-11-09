@@ -110,8 +110,8 @@ public class XformBuilderUtil {
 	public static Element fromVariableName2Node(Document doc, String variableName,FormDef formDef,Element formNode){
 		//Some bindings may already be pointing to existing nodes. So just return that.
 		XPathExpression xpls = new XPathExpression(formDef.getDataNode(), variableName);
-		Vector<?> result = xpls.getResult();
-		for (Enumeration<?> e = result.elements(); e.hasMoreElements();) {
+		Vector result = xpls.getResult();
+		for (Enumeration e = result.elements(); e.hasMoreElements();) {
 			Object obj = e.nextElement();
 			if (obj instanceof Element)
 				return (Element) obj;
@@ -180,10 +180,10 @@ public class XformBuilderUtil {
 		String id = variableName;
 
 		if(!isRepeatKid && variableName.contains("/")){
-			/*if(variableName.indexOf('/') == variableName.lastIndexOf('/'))
+			if(variableName.indexOf('/') == variableName.lastIndexOf('/'))
 				id = variableName.substring(variableName.lastIndexOf('/')+1); //as one / eg encounter/encounter.encounter_datetime
 			else
-				id = variableName.substring(variableName.indexOf('/')+1,variableName.lastIndexOf('/')); //has two / eg obs/method_of_delivery/value*/
+				id = variableName.substring(variableName.indexOf('/')+1,variableName.lastIndexOf('/')); //has two / eg obs/method_of_delivery/value
 			
 			id = FormUtil.getXmlTagName(id);
 		}
@@ -214,6 +214,10 @@ public class XformBuilderUtil {
 		else if(operator == ModelConstants.OPERATOR_IS_NOT_NULL)
 			return isPositiveAction(action) ? "!=" : "=";
 		else if(operator == ModelConstants.OPERATOR_IS_NULL)
+			return isPositiveAction(action) ? "=" : "!=";
+		else if(operator == ModelConstants.OPERATOR_NOT_CONTAIN)
+			return isPositiveAction(action) ? "!=" : "=";
+		else if(operator == ModelConstants.OPERATOR_CONTAINS)
 			return isPositiveAction(action) ? "=" : "!=";
 		
 		return "=";

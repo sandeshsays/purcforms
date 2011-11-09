@@ -186,11 +186,11 @@ public class OperatorHyperlink extends Hyperlink implements ItemSelectionListene
 	/**
 	 * @see org.purc.purcforms.client.controller.ItemSelectionListener#onItemSelected(Object, Object)
 	 */
-	public void onItemSelected(Object sender, Object item) {
+	public void onItemSelected(Object sender, Object item, boolean userAction) {
 		if(sender instanceof SelectItemCommand){
 			popup.hide();
 			setText((String)item);
-			itemSelectionListener.onItemSelected(this, fromOperatorText2Value((String)item));
+			itemSelectionListener.onItemSelected(this, fromOperatorText2Value((String)item), userAction);
 		}
 	}
 	
