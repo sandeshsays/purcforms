@@ -230,6 +230,18 @@ public class UiElementBuilder {
 				}
 			}
 		}
+		else {
+            RepeatQtnsDef repeatQtnsDef = qtnDef.getRepeatQtnsDef();
+            if (repeatQtnsDef.size() > 0) {
+                Element repeatNode =  doc.createElement(XformConstants.NODE_NAME_REPEAT);
+                repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND, id);
+                qtnDef.getControlNode().appendChild(repeatNode);
+                inputNode.appendChild(repeatNode);
+                for (int i = 0; i < repeatQtnsDef.size() ; i++) {
+                    createQuestion(qtnDef, (QuestionDef)repeatQtnsDef.getQuestionAt(i), repeatNode, qtnDef.getDataNode(), modelNode, formDef, doc);
+                }
+            }
+        }
 	}
 
 

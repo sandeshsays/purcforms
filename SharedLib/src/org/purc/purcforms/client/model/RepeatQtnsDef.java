@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -167,29 +168,54 @@ public class RepeatQtnsDef implements Serializable {
 		if(varName == null || questions == null)
 			return null;
 		
-		for(int i=0; i<questions.size(); i++){
-			QuestionDef def = (QuestionDef)questions.elementAt(i);
-			if(def.getBinding().equals(varName) || ("/" + def.getBinding()).equals(varName))
-				return def;
-		}
-		
-		//only do this if the above fails
-		for(int i=0; i<questions.size(); i++){
-			QuestionDef def = (QuestionDef)questions.elementAt(i);
-			if((qtnDef.getBinding() + "/" + varName).equals(def.getBinding()) )
-				return def;
-		}
-		
-		//only do this if the above fails
-		for(int i=0; i<questions.size(); i++){
-			QuestionDef def = (QuestionDef)questions.elementAt(i);
-			if((qtnDef.getBinding() + "/" + def.getBinding()).equals(varName) )
-				return def;
-		}
-		
-		return null;
+		ArrayList<QuestionDef> allQuestions = getAllQuestions();
+        if (allQuestions != null && allQuestions.size() > 0) {
+            for (QuestionDef question : allQuestions) {
+                if (question.getBinding().equals(varName)) {
+                    return question;
+                }
+            }
+        }
+        return null;    
 	}
 	
+	/**
+     * Gets all questions of this Repeat.
+     * question including any nested 
+     * child questions
+     */
+    public ArrayList<QuestionDef> getAllQuestions() {
+        ArrayList<QuestionDef> allQuestions = new ArrayList<QuestionDef>();
+        for (int i = 0; i < questions.size(); i++) {
+            QuestionDef question = (QuestionDef)questions.elementAt(i);
+            addChildQuestion(allQuestions, question);
+        }
+        return allQuestions;
+    }
+    
+    /**
+     * Given a question, add it to the list of questions.
+     * and if it is a repeat type, add its child questions too
+     * @param list
+     *     the list of current questions.
+     * @param question
+     *     the current question to be queried for child questions if any.
+     * @return the updated list of questions.
+     */
+    public ArrayList<QuestionDef> addChildQuestion(ArrayList<QuestionDef> list, QuestionDef question) {
+        list.add(question);
+        if (question.getDataType() == QuestionDef.QTN_TYPE_REPEAT) {
+            Vector qtns = question.getRepeatQtnsDef().getQuestions();
+            if (qtns != null && qtns.size() > 0) {
+                for (int i = 0; i < qtns.size(); i++) {
+                    QuestionDef qtn = (QuestionDef)qtns.get(i);
+                    addChildQuestion(list, qtn);
+                }
+            }
+        }
+        return list;
+    }
+    
 	public QuestionDef getQuestionWithText(String text){
 		if(text == null || questions == null)
 			return null;
