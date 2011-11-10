@@ -1,5 +1,7 @@
 package org.purc.purcforms.client.xforms;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.purc.purcforms.client.model.FormDef;
@@ -39,6 +41,9 @@ public class UiElementBuilder {
 			
 			if(!nodeset.startsWith("/"))
 				nodeset = "/" + nodeset;
+			
+			if (parentBinding != null && !qtn.getBinding().contains("/") && qtn.getParent() instanceof QuestionDef)
+                nodeset = "/" + formDef.getBinding() + "/" + createPathString(getBindingPathForRepeatQtn(qtn, new ArrayList<String>())) + "/" + qtn.getBinding();
 			
 			if(!nodeset.startsWith("/" + formDef.getBinding() + "/"))
 				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
@@ -348,4 +353,24 @@ public class UiElementBuilder {
 			qtn.setHintNode(hintNode);
 		}
 	}
+	
+	private static ArrayList<String> getBindingPathForRepeatQtn(QuestionDef qtn, ArrayList<String> parentPath) {
+        ArrayList<String> path = parentPath;    
+        if (qtn.getParent() instanceof QuestionDef) {
+            QuestionDef parentQtn = (QuestionDef)qtn.getParent();
+            path.add(parentQtn.getBinding());
+            getBindingPathForRepeatQtn(parentQtn, path);                
+        }       
+        return path;
+    }
+    
+    private static String createPathString(ArrayList<String> pathList) {
+        String pathString = "";
+        Collections.reverse(pathList);
+        for (int i = 0; i < pathList.size(); i++) {
+            pathString = pathString + pathList.get(i)+ "/";     
+        }
+        pathString = pathString.substring(0, pathString.lastIndexOf('/'));
+        return pathString;
+    }
 }

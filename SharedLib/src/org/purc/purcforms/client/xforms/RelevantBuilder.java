@@ -106,12 +106,7 @@ public class RelevantBuilder {
 		QuestionDef questionDef = formDef.getQuestion(condition.getQuestionId());
 		if(questionDef != null){
 			relevant = questionDef.getBinding();
-			if(!relevant.contains(formDef.getBinding())){
-				if(questionDef.getParent() != null && questionDef.getParent() instanceof QuestionDef)
-					relevant = "/" + formDef.getBinding() + "/" + ((QuestionDef)questionDef.getParent()).getBinding() + "/" + questionDef.getBinding();
-				else
-					relevant = "/" + formDef.getBinding() + "/" + questionDef.getBinding();
-			}
+			relevant = getFullPath(questionDef, formDef, questionDef.getBinding());
 
 			String value = " '" + condition.getValue() + "'";
 			if(condition.getValue() != null && condition.getValue().trim().length() > 0){
@@ -148,4 +143,16 @@ public class RelevantBuilder {
 		}
 		return relevant;
 	}
+	
+	private static String getFullPath(QuestionDef questionDef, FormDef formDef, String questionBinding) {
+        String fullPath = null;
+        if (questionDef.getParent() instanceof QuestionDef) {
+            QuestionDef parentQuestion = (QuestionDef)questionDef.getParent();
+            fullPath = getFullPath(parentQuestion, formDef, parentQuestion.getBinding());
+        }
+        else {
+            fullPath = "/" + formDef.getBinding();
+        }
+        return fullPath + "/" + questionBinding;
+    }
 }
