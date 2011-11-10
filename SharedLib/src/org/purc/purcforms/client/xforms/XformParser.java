@@ -867,21 +867,26 @@ public class XformParser {
                 varName = (String)id2VarNameMap.get(grandParent.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) != null ? grandParent.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) : grandParent.getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET));
                 
                 QuestionDef rptQtnDef = formDef.getQuestion(varName);
-                if (rptQtnDef == null && varName.startsWith("/" + formDef.getBinding() + "/")) {
+                if(rptQtnDef == null && varName.startsWith("/" + formDef.getBinding() + "/")){
                     varName = varName.substring(varName.indexOf('/', 1) + 1);
                     rptQtnDef = formDef.getQuestion(varName);
                 }
                 
-                qtn.setId(getNextQuestionId());
-                rptQtnDef.addRepeatQtnsDef(qtn);
+                if(qtn.getId() ==  ModelConstants.NULL_ID){
+                    qtn.setId(getNextQuestionId());
+                }
 
                 //We do not want the bind node to be removed from the document as we remove the question
                 Element bindNode = qtn.getBindNode();
                 qtn.setBindNode(null);
-                //without setting this to null, the control node would be removed from the xml in the removeQuestion call that follows
+                
+                //without setting this to null, the control node will be removed from the xml 
                 qtn.setControlNode(null); 
                 //This should be before the data and control nodes are set because it removed them.
                 formDef.removeQuestion(qtn);
+                
+                //should add after the above call
+                rptQtnDef.addRepeatQtnsDef(qtn);
 
                 //TODO repeat kind bind node is no longer the control node.
                 //qtn.setBindNode(child);
@@ -890,15 +895,12 @@ public class XformParser {
                 
                 //Repeat bindings should not include parent portions
                 //TODO The portion after the && is a real hack and should go away.
-                if (qtn.getBinding().startsWith(varName + "/") && qtn.getBinding().indexOf('/') == qtn.getBinding().lastIndexOf('/'))
+                if(qtn.getBinding().startsWith(varName + "/") && qtn.getBinding().indexOf('/') == qtn.getBinding().lastIndexOf('/'))
                     qtn.setBinding(qtn.getBinding().substring(varName.length() + 1));
 
                 //Remove repeat question constraint if any
                 XformParserUtil.replaceConstraintQtn(constraints,qtn);
             }
-
-			questionDef = qtn;
-			parseElement(formDef, child, id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
 		}
 
 		return questionDef;

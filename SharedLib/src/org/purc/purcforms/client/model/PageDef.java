@@ -340,9 +340,9 @@ public class PageDef implements Serializable{
 			formDef.removeQtnFromDynamicLists(qtnDef);
 		}
 
-		/*if(qtnDef.getParent() instanceof QuestionDef)
+		if(qtnDef.getParent() instanceof QuestionDef)
 			return ((QuestionDef)qtnDef.getParent()).getRepeatQtnsDef().removeQuestion(qtnDef, formDef);
-		else*/
+		else
 			return questions.removeElement(qtnDef);
 	}
 
