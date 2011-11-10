@@ -898,9 +898,12 @@ public class XformParser {
                 if(qtn.getBinding().startsWith(varName + "/") && qtn.getBinding().indexOf('/') == qtn.getBinding().lastIndexOf('/'))
                     qtn.setBinding(qtn.getBinding().substring(varName.length() + 1));
 
-                //Remove repeat question constraint if any
-                XformParserUtil.replaceConstraintQtn(constraints,qtn);
-            }
+				//Remove repeat question constraint if any
+				XformParserUtil.replaceConstraintQtn(constraints,qtn);
+			}
+
+			questionDef = qtn;
+			parseElement(formDef, child, id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
 		}
 
 		return questionDef;
