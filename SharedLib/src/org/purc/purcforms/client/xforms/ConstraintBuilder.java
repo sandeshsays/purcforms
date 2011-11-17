@@ -98,7 +98,16 @@ public class ConstraintBuilder {
 
 		QuestionDef questionDef = formDef.getQuestion(condition.getQuestionId());
 		if(questionDef != null){			
-			String value = " '" + condition.getValue() + "'";
+			String value = condition.getValue();
+			
+			if(condition.getValueQtnDef() != null){
+				//Check if form binding has changed and update it.
+				if(value.endsWith("/" + condition.getValueQtnDef().getBinding()) && !value.startsWith(formDef.getBinding() + "/")){
+					condition.setValue(formDef.getBinding() + "/" + condition.getValueQtnDef().getBinding());
+				}
+			}
+			
+			value = " '" + condition.getValue() + "'";
 			
 			if(condition.getValue() != null && condition.getValue().trim().length() > 0){
 				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || 
