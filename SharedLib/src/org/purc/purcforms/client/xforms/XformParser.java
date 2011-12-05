@@ -841,8 +841,11 @@ public class XformParser {
 
 				//We do not want the bind node to be removed from the document as we remove the question
 				Element bindNode = qtn.getBindNode();
+				Element dataNode = qtn.getDataNode();
 				qtn.setBindNode(null);
+				qtn.setDataNode(null);
 				
+				//Remove from current parent (PageDef) before setting to another parent (RepeatQtnDef)
 				//This should be before the data and control nodes are set because it removed them.
 				formDef.removeQuestion(qtn);
 				
@@ -852,6 +855,7 @@ public class XformParser {
 				//TODO repeat kind bind node is no longer the control node.
 				//qtn.setBindNode(child);
 				qtn.setBindNode(bindNode);
+				qtn.setDataNode(dataNode);
 				qtn.setControlNode(child);
 				
 				//Repeat bindings should not include parent portions
