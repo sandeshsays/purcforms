@@ -1090,7 +1090,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 							answer = FormUtil.evaluateStringExpression(calcExpression);
 						}
 						catch(Throwable ex){
-							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
+							try{
+								answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
+							}
+							catch(Throwable e){
+								//Just ignore
+							}
 						}
 					}
 				}
