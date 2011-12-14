@@ -1,6 +1,8 @@
 package org.purc.purcforms.client.cmd;
 
+import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.locale.LocaleText;
+import org.purc.purcforms.client.model.Calculation;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
@@ -108,6 +110,9 @@ public class ChangedFieldCmd implements ICommand {
 		case PROPERTY_DEFAULT_VALUE:
 			setDefaultValue(field, value);
 			break;
+		case PROPERTY_CALCULATION:
+			setCalculationValue(field, value);
+			break;
 		case PROPERTY_DESCRIPTION_TEMPLATE:
 			setDescriptionTemplateValue(field, value);
 			break;
@@ -177,6 +182,15 @@ public class ChangedFieldCmd implements ICommand {
 		if(field instanceof QuestionDef){
 			oldValue = ((QuestionDef)field).getDefaultValue();
 			((QuestionDef)field).setDefaultValue(value);
+		}
+	}
+	
+	private void setCalculationValue(Object field, String value){
+		if(field instanceof QuestionDef){
+			FormDef formDef = ((QuestionDef)field).getParentFormDef();
+			Calculation calculation = formDef.getCalculation((QuestionDef)field);
+			oldValue = calculation.getCalculateExpression();
+			Context.getFormDef().updateCalculation((QuestionDef)field, value);
 		}
 	}
 

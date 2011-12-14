@@ -539,6 +539,16 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		});
 		txtCalculation.addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
+				
+				if(beforeChangeText == null){
+					Calculation calculation = Context.getFormDef().getCalculation((QuestionDef)propertiesObj);
+					if(calculation != null)
+						beforeChangeText = calculation.getCalculateExpression();
+					
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+						
 				updateCalculation(false);
 			}
 		});
@@ -714,6 +724,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 		assert(propertiesObj instanceof QuestionDef);
 		Context.getFormDef().updateCalculation((QuestionDef)propertiesObj, txtCalculation.getText());
+		
+		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_CALCULATION, beforeChangeText, changeComplete);
 	}
 
 
