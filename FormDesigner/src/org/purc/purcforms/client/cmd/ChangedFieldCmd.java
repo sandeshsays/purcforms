@@ -189,7 +189,13 @@ public class ChangedFieldCmd implements ICommand {
 		if(field instanceof QuestionDef){
 			FormDef formDef = ((QuestionDef)field).getParentFormDef();
 			Calculation calculation = formDef.getCalculation((QuestionDef)field);
-			oldValue = calculation.getCalculateExpression();
+			if(calculation != null){
+				oldValue = calculation.getCalculateExpression();
+			}
+			else{
+				oldValue = null;
+			}
+			
 			Context.getFormDef().updateCalculation((QuestionDef)field, value);
 		}
 	}
