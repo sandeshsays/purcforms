@@ -165,7 +165,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(widget instanceof DatePickerEx){
 			((DatePickerEx)widget).addBlurHandler(new BlurHandler(){
 				public void onBlur(BlurEvent event){
-					((DatePickerEx)widget).selectAll();
+					//This line is commented out because it makes focus stay on date widget
+					//and never move, even after trying to tab away (on Chrome and Safari)
+					//((DatePickerEx)widget).selectAll();
 				}
 			});
 		}
