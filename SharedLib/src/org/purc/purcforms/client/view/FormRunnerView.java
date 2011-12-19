@@ -26,6 +26,7 @@ import org.purc.purcforms.client.widget.DatePickerEx;
 import org.purc.purcforms.client.widget.DatePickerWidget;
 import org.purc.purcforms.client.widget.DateTimeWidget;
 import org.purc.purcforms.client.widget.EditListener;
+import org.purc.purcforms.client.widget.EnabledChangeListener;
 import org.purc.purcforms.client.widget.ListBoxWidget;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
 import org.purc.purcforms.client.widget.RuntimeGroupWidget;
@@ -83,7 +84,7 @@ import com.google.gwt.xml.client.XMLParser;
  * @author daniel
  *
  */
-public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener, QuestionChangeListener, WidgetListener{
+public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener, QuestionChangeListener, WidgetListener, EnabledChangeListener{
 
 	private final char FIELD_SEPARATOR = '|'; //TODO These may need to be changed.
 	private final char RECORD_SEPARATOR = '$';
@@ -389,7 +390,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(firstPageText == null)
 				firstPageText = node.getAttribute("Text");
 
-			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this, null));
+			WidgetEx.loadLabelProperties(node, new RuntimeWidgetWrapper(tabs.getTabBar(),images.error(),this, null, this));
 
 			setWidth(node.getAttribute(WidgetEx.WIDGET_PROPERTY_WIDTH));
 			setHeight(node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEIGHT));
@@ -625,7 +626,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, this, this, repeated);
+			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, this, this, repeated, this);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			//((RuntimeGroupWidget)widget).setTabIndex(tabIndex);
 			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
@@ -670,7 +671,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			return tabIndex;
 
 		if(!wrapperSet){
-			wrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null);
+			wrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null, this);
 
 			if(parentWrapper != null){ //Check box or radio button
 				if(!parentWrapper.getQuestionDef().isVisible())
@@ -850,7 +851,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(parentWrapper == null){
 			QuestionDef qtn = formDef.getQuestion(parentBinding);
 			if(qtn != null){
-				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null);
+				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(), this, null, this);
 				parentWrapper.setQuestionDef(qtn,true);
 				parentBindingWidgetMap.put(parentBinding, parentWrapper);
 				//selectedPanel.add(parentWrapper);		//will be added by the caller		
@@ -1061,51 +1062,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(widgets != null){
 
 			for(RuntimeWidgetWrapper widget : widgets){
-				Calculation calculation = questionDef.getParentFormDef().getCalculation(widget.getQuestionDef());
-				//String calcExpression = calculation.getCalculateExpression();
-				String calcExpression = replaceCalcExpression(calculation.getCalculateExpression(),widget.getQuestionDef()); //calcExpression.replace(binding, answer);
-
-				int type = widget.getQuestionDef().getDataType();
-				String answer = calcExpression;
-
-				if(calcExpression != null /*&& calculation.getCalculateExpression().trim().indexOf(' ') > 0*/){
-					if(type == QuestionDef.QTN_TYPE_NUMERIC){
-						try{
-							answer = ""+FormUtil.evaluateIntExpression(calcExpression);
-						}
-						catch(Throwable ex){
-							answer = FormUtil.evaluateStringExpression(calcExpression);
-						}
-					}
-					else if(type == QuestionDef.QTN_TYPE_DECIMAL){
-						try{
-							answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
-						}
-						catch(Throwable ex){
-							answer = FormUtil.evaluateStringExpression(calcExpression);
-						}
-					}
-					else{
-						try{
-							answer = FormUtil.evaluateStringExpression(calcExpression);
-						}
-						catch(Throwable ex){
-							try{
-								answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
-							}
-							catch(Throwable e){
-								//Just ignore
-							}
-						}
-					}
-				}
-
-				if(answer != null && "NaN".equalsIgnoreCase(answer))
-					answer = null;
-
-				widget.setAnswer(answer);
-				widget.isValid(false); //TODO May need to fire change event instead
-				onValueChanged(widget);
+				doWidgetCalculation(widget, questionDef);
 			}
 		}
 
@@ -1476,7 +1433,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onEnabledChanged(QuestionDef, boolean)
 	 */
-	public void onEnabledChanged(QuestionDef sender,boolean enabled){
+	public void onEnabledChanged(QuestionDef sender, boolean enabled){	
 		List<CheckBox> list = checkBoxGroupMap.get(sender);
 		if(list == null)
 			return;
@@ -2133,5 +2090,63 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		
 		return pos2;
+	}
+	
+	private void doWidgetCalculation(RuntimeWidgetWrapper widget, QuestionDef questionDef){
+		Calculation calculation = questionDef.getParentFormDef().getCalculation(widget.getQuestionDef());
+		//String calcExpression = calculation.getCalculateExpression();
+		String calcExpression = replaceCalcExpression(calculation.getCalculateExpression(),widget.getQuestionDef()); //calcExpression.replace(binding, answer);
+
+		int type = widget.getQuestionDef().getDataType();
+		String answer = calcExpression;
+
+		if(calcExpression != null /*&& calculation.getCalculateExpression().trim().indexOf(' ') > 0*/){
+			if(type == QuestionDef.QTN_TYPE_NUMERIC){
+				try{
+					answer = ""+FormUtil.evaluateIntExpression(calcExpression);
+				}
+				catch(Throwable ex){
+					answer = FormUtil.evaluateStringExpression(calcExpression);
+				}
+			}
+			else if(type == QuestionDef.QTN_TYPE_DECIMAL){
+				try{
+					answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
+				}
+				catch(Throwable ex){
+					answer = FormUtil.evaluateStringExpression(calcExpression);
+				}
+			}
+			else{
+				try{
+					answer = FormUtil.evaluateStringExpression(calcExpression);
+				}
+				catch(Throwable ex){
+					try{
+						answer = ""+FormUtil.evaluateDoubleExpression(calcExpression);
+					}
+					catch(Throwable e){
+						//Just ignore
+					}
+				}
+			}
+		}
+
+		if(answer != null && "NaN".equalsIgnoreCase(answer))
+			answer = null;
+
+		widget.setAnswer(answer);
+		widget.isValid(false); //TODO May need to fire change event instead
+		onValueChanged(widget);
+	}
+	
+	public void onEnabledChanged(RuntimeWidgetWrapper widget, boolean enabled){
+		if(!enabled || widget.getQuestionDef() == null)
+			return;
+		
+		Calculation calculation = widget.getQuestionDef().getParentFormDef().getCalculation(widget.getQuestionDef());
+		if(calculation != null){
+			doWidgetCalculation(widget, widget.getQuestionDef());
+		}
 	}
 }

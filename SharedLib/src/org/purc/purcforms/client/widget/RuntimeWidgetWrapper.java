@@ -69,6 +69,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	
 	/** Listener to widget events like hinding showing, etc. */
 	protected WidgetListener widgetListener;
+	
+	protected EnabledChangeListener enabledListener;
 
 	private ImageResource errorImageProto;
 
@@ -110,7 +112,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 	}
 
-	public RuntimeWidgetWrapper(Widget widget, ImageResource errorImageProto, EditListener editListener, WidgetListener widgetListener){
+	public RuntimeWidgetWrapper(Widget widget, ImageResource errorImageProto, EditListener editListener, WidgetListener widgetListener, EnabledChangeListener enabledListener){
 		this.widget = widget;
 
 		if(!(widget instanceof TabBar)){
@@ -118,6 +120,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			this.errorImage = FormUtil.createImage(errorImageProto);
 			this.editListener = editListener;
 			this.widgetListener = widgetListener;
+			this.enabledListener = enabledListener;
 
 			panel.add(widget);
 			initWidget(panel);
@@ -1244,6 +1247,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			clearValue();
 
 		setEnabled(enabled);
+		
+		if(enabledListener != null)
+			enabledListener.onEnabledChanged(this, enabled);
 	}
 
 	/**

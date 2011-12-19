@@ -63,6 +63,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private HashMap<String,RuntimeWidgetWrapper> widgetMap = new HashMap<String,RuntimeWidgetWrapper>();
 	private EditListener editListener;
 	private WidgetListener widgetListener;
+	private EnabledChangeListener enabledListener;
 	private FlexTable table;
 	private List<RuntimeWidgetWrapper> buttons = new ArrayList<RuntimeWidgetWrapper>();
 	private List<RuntimeWidgetWrapper> widgets = new ArrayList<RuntimeWidgetWrapper>();
@@ -94,13 +95,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
 
 
-	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated){
+	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated, EnabledChangeListener enabledListener){
 		this.images = images;
 		this.formDef = formDef;
 		this.repeatQtnsDef = repeatQtnsDef;
 		this.editListener = editListener;
 		this.widgetListener = widgetListener;
 		this.isRepeated = isRepeated;
+		this.enabledListener = enabledListener;
 
 		if(isRepeated){
 			table = new FlexTable();
@@ -129,7 +131,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				qtn = formDef.getQuestion(parentBinding);
 
 			if(qtn != null){
-				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(),editListener, widgetListener);
+				parentWrapper = new RuntimeWidgetWrapper(widget, images.error(),editListener, widgetListener, enabledListener);
 				parentWrapper.setQuestionDef(qtn,true);
 				widgetMap.put(parentBinding, parentWrapper);
 				//addWidget(parentWrapper); //Misplaces first widget (with tabindex > 0) of a group (CheckBox and RadioButtons)
@@ -461,7 +463,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, editListener, widgetListener, repeated);
+			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, editListener, widgetListener, repeated, enabledListener);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			/*getLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
 			getLabelText(((RuntimeGroupWidget)widget).getLabelText());
@@ -478,7 +480,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			return tabIndex;
 
 		if(!wrapperSet){
-			wrapper = new RuntimeWidgetWrapper(widget, images.error(), editListener, widgetListener);
+			wrapper = new RuntimeWidgetWrapper(widget, images.error(), editListener, widgetListener, enabledListener);
 
 			if(parentWrapper != null){ //Check box or radio button
 				if(!parentWrapper.getQuestionDef().isVisible())
