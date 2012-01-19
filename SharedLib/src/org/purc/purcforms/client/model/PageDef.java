@@ -753,23 +753,26 @@ public class PageDef implements Serializable{
 
 			orderedQtns.add(questionDef); //add the question in the order it was before the refresh.
 
-			
-			//Preserve the previous question ordering even in the xforms document nodes.
-			int newIndex = ((List)questions).indexOf(questionDef);
-			
-			int tempIndex = index - missingQtns.size();
-			if(newIndex < ((List)questions).size()){
-				if(tempIndex != newIndex){
-					if(newIndex < tempIndex){
-						while(newIndex < tempIndex){
-							moveQuestionDown(questionDef);
-							newIndex++;
+			//Only move up or down if question really exists.
+			if(questions.indexOf(questionDef) >= 0) {
+				
+				//Preserve the previous question ordering even in the xforms document nodes.
+				int newIndex = ((List)questions).indexOf(questionDef);
+				
+				int tempIndex = index - missingQtns.size();
+				if(newIndex < ((List)questions).size()){
+					if(tempIndex != newIndex){
+						if(newIndex < tempIndex){
+							while(newIndex < tempIndex){
+								moveQuestionDown(questionDef);
+								newIndex++;
+							}
 						}
-					}
-					else{
-						while(newIndex > tempIndex){
-							moveQuestionUp(questionDef);
-							newIndex--;
+						else{
+							while(newIndex > tempIndex){
+								moveQuestionUp(questionDef);
+								newIndex--;
+							}
 						}
 					}
 				}
