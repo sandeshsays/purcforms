@@ -866,7 +866,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			setDataNode(copyWidget,newRepeatDataNode,copyWidget.getBinding(),false, parentRptBinding);
 
 			//For now we do not allow default values for repeat kids to simplify implementation.
-			copyWidget.getQuestionDef().setDefaultValue(null);
+			Element node = copyWidget.getQuestionDef().getDataNode();
+			if(!(node != null && "false()".equals(node.getAttribute("default")))){
+				copyWidget.getQuestionDef().setDefaultValue(null);
+			}
 
 			//Loading widget from here instead of in getPreparedWidget because setDataNode may clear default values			
 			copyWidget.loadQuestion();
@@ -938,7 +941,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			setDataNode(copyWidget,dataNode,copyWidget.getBinding(),true, ((QuestionDef)mainWidget.getQuestionDef().getParent()).getBinding());
 			
 			//For now we do not allow default values for repeat kids to simplify implementation.
-			copyWidget.getQuestionDef().setDefaultValue(null);
+			Element node = copyWidget.getQuestionDef().getDataNode();
+			if(!(node != null && "false()".equals(node.getAttribute("default")))){
+				copyWidget.getQuestionDef().setDefaultValue(null);
+			}
 
 			//Loading widget from here instead of in getPreparedWidget because setDataNode may clear default values			
 			copyWidget.loadQuestion();
