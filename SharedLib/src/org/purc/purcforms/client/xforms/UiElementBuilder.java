@@ -46,6 +46,13 @@ public class UiElementBuilder {
 		else{
 			id = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 			nodeset = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET);
+			
+			//Without this, converting from purcforms to JR format may produce attributes
+			//like bind=""
+			if((id == null || id.trim().length() == 0) && qtn.getControlNode() != null){
+				id = qtn.getControlNode().getAttribute(XformConstants.ATTRIBUTE_NAME_BIND);
+				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
+			}
 		}
 		
 		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id);
