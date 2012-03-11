@@ -297,6 +297,9 @@ public class XformUtil {
 	 * @return the instance data node.
 	 */
 	public static Element getInstanceDataNode(Element element){
+		if(element == null)
+			return null;
+		
 		int numOfEntries = element.getChildNodes().getLength();
 		for (int i = 0; i < numOfEntries; i++) {
 			if (element.getChildNodes().item(i).getNodeType() == Node.ELEMENT_NODE) 
