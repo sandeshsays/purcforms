@@ -994,7 +994,11 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	private Element getParentNodeWithName(Node node, String name){
 		Element parentNode = (Element)node.getParentNode();
-		if(node.getNodeName().equalsIgnoreCase(name))
+		String nodeName = node.getNodeName();
+		if(nodeName.startsWith("xf:")){//caters for xforms from other conversions
+			nodeName = nodeName.substring(3);
+		}
+		if(nodeName.equalsIgnoreCase(name))
 			return parentNode;
 		else if(name.contains("/")) //TODO This needs to be well tested such that we do not introduce bugs.
 			return parentNode;
