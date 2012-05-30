@@ -756,6 +756,13 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.deleteSelectedItem();	
 	}
+	
+	public void addToDesignSurface(Object item) {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.addToDesignSurface(item);
+		else
+			tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#copyItem()

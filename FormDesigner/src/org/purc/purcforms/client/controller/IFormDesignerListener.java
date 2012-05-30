@@ -163,4 +163,6 @@ public interface IFormDesignerListener extends IFormActionListener{
 	
 	public void undo();
 	public void redo();
+	
+	public void addToDesignSurface(Object item);
 }

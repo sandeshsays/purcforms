@@ -183,6 +183,10 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 		else
 			centerPanel.deleteSelectedItem();
 	}
+	
+	public void addToDesignSurface(Object item) {
+		centerPanel.addToDesignSurface(item);
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#moveItemDown()

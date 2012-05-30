@@ -823,7 +823,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param questions the list of questions.
 	 */
 	private void loadQuestions(List<QuestionDef> questions){
-		loadQuestions(questions,20,0,tabs.getTabBar().getTabCount() == 1,false, null);
+		loadQuestions(questions, 20, 20, 0,tabs.getTabBar().getTabCount() == 1,false, null);
 	}
 
 	/**
@@ -833,16 +833,17 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param questions the list of questions.
 	 * @param pageName the name of the page.
 	 * @param startY the y coordinate to start at.
+	 * @param startX the x coordinate to start at.
 	 * @param tabIndex the tabIndex to start from.
 	 * @param submitCancelBtns set to true to add the submit and cancel buttons
 	 * @param select set to true to select all the created widgets.
 	 */
-	private void loadQuestions(List<QuestionDef> questions, int startY, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
+	private void loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
 		if(questions == null)
 			return;
 		
 		int maxX = 0, max = 999999; //FormUtil.convertDimensionToInt(sHeight) - 0 + 150; //40; No longer adding submit button on every page
-		x = 20;
+		x = startX;
 		y = startY;
 
 		x += selectedPanel.getAbsoluteLeft();
@@ -1305,10 +1306,68 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			//Load the new questions onto the design surface for the current page.
 			if(newQuestions.size() > 0){
-				loadQuestions(newQuestions,getLowestWidgetYPos() + 20,selectedPanel.getWidgetCount(),false, true, commands);
+				loadQuestions(newQuestions,getLowestWidgetYPos() + 20, 20, selectedPanel.getWidgetCount(),false, true, commands);
 				format();
 				clearSelection();
 			}
+		}
+
+		if(commands.size() > 0)
+			Context.getCommandHistory().add(commands);
+	}
+	
+	public void addToDesignSurface(Object item) {
+		
+		if(!(item instanceof QuestionDef))
+			return;
+		
+		clearSelection();
+		
+		//Create list of bindings for widgets that are already loaded on the design surface.
+		HashMap<String, DesignWidgetWrapper> bindings = new HashMap<String, DesignWidgetWrapper>();
+		HashMap<String, DesignWidgetWrapper> labels = new HashMap<String, DesignWidgetWrapper>();
+		for(int i=0; i<dragControllers.size(); i++){
+			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
+			fillWidgetBindings(panel, bindings, labels);
+		}
+		
+		QuestionDef questionDef  = (QuestionDef)item;
+		if(bindings.containsKey(questionDef.getBinding())){
+			Widget widget = bindings.get(questionDef.getBinding());
+			selectedDragController.selectWidget(widget);
+			
+			//select the label too
+			if(labels.containsKey(questionDef.getBinding()))
+				selectedDragController.selectWidget(labels.get(questionDef.getBinding()));
+			
+			ScrollPanel scrollPanel = (ScrollPanel)getParent();
+			//((ScrollPanel)getParent()).ensureVisible(widget);
+			com.google.gwt.dom.client.Element scrollElement = scrollPanel.getElement();
+			com.google.gwt.dom.client.Element widgetElement = widget.getElement();
+		    int realOffsetTop = 0;
+		    int realOffsetLeft = 0;
+		    while (widgetElement != null && (widgetElement != scrollElement)) {
+		      realOffsetTop += widgetElement.getOffsetTop();
+		      realOffsetLeft += widgetElement.getOffsetLeft();
+		      widgetElement = widgetElement.getOffsetParent();
+		    }
+
+		    scrollPanel.setScrollPosition(realOffsetTop - scrollElement.getOffsetHeight() / 2);
+		    scrollPanel.setHorizontalScrollPosition(realOffsetLeft - scrollElement.getOffsetWidth() / 2);
+			
+			return;
+		}
+		
+		CommandList commands = new CommandList(this);
+
+		List<QuestionDef> newQuestions = new ArrayList<QuestionDef>();
+		newQuestions.add(questionDef);
+		
+		//Load the new questions onto the design surface for the current page.
+		if(newQuestions.size() > 0){
+			loadQuestions(newQuestions, getLowestWidgetYPos() + 20 /* y*/, /*x*/ 20, selectedPanel.getWidgetCount(),false, true, commands);
+			format();
+			clearSelection();
 		}
 
 		if(commands.size() > 0)
@@ -1339,6 +1398,35 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
 				fillBindings(((DesignGroupWidget)widget.getWrappedWidget()).getPanel(),bindings);
+		}
+	}
+	
+	/**
+	 * Fills bindings for loaded widgets in a given panel.
+	 * 
+	 * @param panel the panel.
+	 * @param bindings the map of bindings. Made a map instead of list for only easy of search with key.
+	 */
+	private void fillWidgetBindings(AbsolutePanel panel, HashMap<String, DesignWidgetWrapper> bindings, HashMap<String, DesignWidgetWrapper> labels){
+		if(panel.getWidgetIndex(rubberBand) > -1)
+			panel.remove(rubberBand);
+
+		for(int index = 0; index < panel.getWidgetCount(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)panel.getWidget(index);
+
+			String binding = widget.getParentBinding();
+			if(binding == null)
+				binding = widget.getBinding();
+			bindings.put(binding, widget); //Could possibly put widget as value.
+			
+			//When a widget is deleted, it is reloaded on refresh even if its label still exists.
+			if(widget.getWrappedWidget() instanceof Label) {
+				labels.put(binding, widget); 
+				continue;
+			}
+
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+				fillWidgetBindings(((DesignGroupWidget)widget.getWrappedWidget()).getPanel(), bindings, labels);
 		}
 	}
 

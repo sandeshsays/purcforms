@@ -230,6 +230,10 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			menuBar.addSeparator();		  
 			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.refresh(),LocaleText.get("refresh")),true,new Command(){
 				public void execute() {popup.hide(); refreshItem();}});
+			
+			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(), LocaleText.get("designSurface")),true,new Command(){
+				public void execute() {popup.hide(); addToDesignSurface();}});
 
 			if(FormUtil.rebuildBindings()){
 				menuBar.addSeparator();	
@@ -1226,6 +1230,25 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			return;
 
 		formDesignerListener.refresh(this);
+	}
+	
+	public void addToDesignSurface() {
+		if(inReadOnlyMode())
+			return;
+		
+		TreeItem item = tree.getSelectedItem();
+
+		//Check if there is any selection.
+		if(item == null)
+			return;
+
+		TreeItem parent = item.getParentItem();
+
+		//We don't deal with root node
+		if(parent == null)
+			return;
+		
+		formDesignerListener.addToDesignSurface(item.getUserObject());
 	}
 
 	/**
