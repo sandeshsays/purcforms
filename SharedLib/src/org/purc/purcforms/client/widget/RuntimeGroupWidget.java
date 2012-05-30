@@ -399,7 +399,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL)){
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			if(text == null) 
-				text = "No Label Text";
+				text = "";
 			widget = new Label(text);
 
 			int pos1 = text.indexOf("${");
