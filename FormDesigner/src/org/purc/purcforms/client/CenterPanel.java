@@ -760,8 +760,12 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public void addToDesignSurface(Object item) {
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.addToDesignSurface(item);
-		else
+		else {
 			tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
+			
+			if(designSurfaceView.hasWidgets())
+				designSurfaceView.addToDesignSurface(item);
+		}
 	}
 
 	/**

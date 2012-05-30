@@ -838,9 +838,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param submitCancelBtns set to true to add the submit and cancel buttons
 	 * @param select set to true to select all the created widgets.
 	 */
-	private void loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
+	private DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
 		if(questions == null)
-			return;
+			return null;
 		
 		int maxX = 0, max = 999999; //FormUtil.convertDimensionToInt(sHeight) - 0 + 150; //40; No longer adding submit button on every page
 		x = startX;
@@ -849,7 +849,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		x += selectedPanel.getAbsoluteLeft();
 		y += selectedPanel.getAbsoluteTop();
 
-		DesignWidgetWrapper widgetWrapper = null;
+		DesignWidgetWrapper widgetWrapper = null, labelWidgetWrapper = null;
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.get(i);
 
@@ -866,7 +866,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				continue;
 
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE)){
-				widgetWrapper = addNewLabel(questionDef.getText(),false);
+				labelWidgetWrapper = widgetWrapper = addNewLabel(questionDef.getText(),false);
 				widgetWrapper.setBinding(questionDef.getBinding());
 				widgetWrapper.setTitle(questionDef.getText());
 
@@ -983,6 +983,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			maxX = 900;
 		if(FormUtil.convertDimensionToInt(getWidth()) < maxX)
 			setWidth(maxX + PurcConstants.UNITS);
+		
+		return widgetWrapper != null ? widgetWrapper : labelWidgetWrapper;
 	}
 
 
@@ -1318,7 +1320,12 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	
 	public void addToDesignSurface(Object item) {
 		
-		if(!(item instanceof QuestionDef))
+		QuestionDef questionDef =  null;
+		if(item instanceof QuestionDef)
+			questionDef  = (QuestionDef)item;
+		else if(item instanceof OptionDef)
+			questionDef  = ((OptionDef)item).getParent();
+		else
 			return;
 		
 		clearSelection();
@@ -1330,8 +1337,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
 			fillWidgetBindings(panel, bindings, labels);
 		}
-		
-		QuestionDef questionDef  = (QuestionDef)item;
+		 
 		if(bindings.containsKey(questionDef.getBinding())){
 			Widget widget = bindings.get(questionDef.getBinding());
 			selectedDragController.selectWidget(widget);
@@ -1340,21 +1346,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			if(labels.containsKey(questionDef.getBinding()))
 				selectedDragController.selectWidget(labels.get(questionDef.getBinding()));
 			
-			ScrollPanel scrollPanel = (ScrollPanel)getParent();
-			//((ScrollPanel)getParent()).ensureVisible(widget);
-			com.google.gwt.dom.client.Element scrollElement = scrollPanel.getElement();
-			com.google.gwt.dom.client.Element widgetElement = widget.getElement();
-		    int realOffsetTop = 0;
-		    int realOffsetLeft = 0;
-		    while (widgetElement != null && (widgetElement != scrollElement)) {
-		      realOffsetTop += widgetElement.getOffsetTop();
-		      realOffsetLeft += widgetElement.getOffsetLeft();
-		      widgetElement = widgetElement.getOffsetParent();
-		    }
-
-		    scrollPanel.setScrollPosition(realOffsetTop - scrollElement.getOffsetHeight() / 2);
-		    scrollPanel.setHorizontalScrollPosition(realOffsetLeft - scrollElement.getOffsetWidth() / 2);
-			
+			ensureVisible(widget);
 			return;
 		}
 		
@@ -1365,13 +1357,30 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		
 		//Load the new questions onto the design surface for the current page.
 		if(newQuestions.size() > 0){
-			loadQuestions(newQuestions, getLowestWidgetYPos() + 20 /* y*/, /*x*/ 20, selectedPanel.getWidgetCount(),false, true, commands);
+			DesignWidgetWrapper widget = loadQuestions(newQuestions, getLowestWidgetYPos() + 20 /* y*/, /*x*/ 20, selectedPanel.getWidgetCount(),false, true, commands);
 			format();
-			clearSelection();
+			ensureVisible(widget);
 		}
 
 		if(commands.size() > 0)
 			Context.getCommandHistory().add(commands);
+	}
+	
+	private void ensureVisible(Widget widget) {
+		ScrollPanel scrollPanel = (ScrollPanel)getParent();
+		//((ScrollPanel)getParent()).ensureVisible(widget);
+		com.google.gwt.dom.client.Element scrollElement = scrollPanel.getElement();
+		com.google.gwt.dom.client.Element widgetElement = widget.getElement();
+	    int realOffsetTop = 0;
+	    int realOffsetLeft = 0;
+	    while (widgetElement != null && (widgetElement != scrollElement)) {
+	      realOffsetTop += widgetElement.getOffsetTop();
+	      realOffsetLeft += widgetElement.getOffsetLeft();
+	      widgetElement = widgetElement.getOffsetParent();
+	    }
+
+	    scrollPanel.setScrollPosition(realOffsetTop - scrollElement.getOffsetHeight() / 2);
+	    scrollPanel.setHorizontalScrollPosition(realOffsetLeft - scrollElement.getOffsetWidth() / 2);
 	}
 
 	/**
@@ -1414,9 +1423,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		for(int index = 0; index < panel.getWidgetCount(); index++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)panel.getWidget(index);
 
-			String binding = widget.getParentBinding();
-			if(binding == null)
-				binding = widget.getBinding();
+			String binding = widget.getBinding();
 			bindings.put(binding, widget); //Could possibly put widget as value.
 			
 			//When a widget is deleted, it is reloaded on refresh even if its label still exists.
