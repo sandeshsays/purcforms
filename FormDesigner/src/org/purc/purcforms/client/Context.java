@@ -83,6 +83,8 @@ public class Context {
 	private static CenterPanel centerPanel;
 	private static LeftPanel leftPanel;
 	
+	private static Object selectedItem;
+	
 	
 	/**
 	 * Sets the default locale.
@@ -137,6 +139,24 @@ public class Context {
 	 */
 	public static void setFormDef(FormDef formDef) {
 		Context.formDef = formDef;
+	}
+	
+	/**
+	 * Gets the form item that has focus.
+	 * 
+	 * @return the form item (FormDef, PageDef, QuestionDef, or OptionDef).
+	 */
+	public static Object getSelectedItem() {
+		return selectedItem;
+	}
+
+	/**
+	 * Sets the form item that has focus.
+	 * 
+	 * @param item the form item (FormDef, PageDef, QuestionDef, or OptionDef).
+	 */
+	public static void setSelectedItem(Object item) {
+		Context.selectedItem = item;
 	}
 
 	/**

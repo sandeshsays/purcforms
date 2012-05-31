@@ -23,6 +23,7 @@ import org.purc.purcforms.client.view.LocalesDialog;
 import org.purc.purcforms.client.view.LoginDialog;
 import org.purc.purcforms.client.view.OpenFileDialog;
 import org.purc.purcforms.client.view.SaveFileDialog;
+import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.xforms.PurcFormBuilder;
 import org.purc.purcforms.client.xforms.XformBuilder;
 import org.purc.purcforms.client.xforms.XformParser;
@@ -184,8 +185,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			centerPanel.deleteSelectedItem();
 	}
 	
-	public void addToDesignSurface(Object item) {
-		centerPanel.addToDesignSurface(item);
+	public DesignWidgetWrapper addToDesignSurface(Object item) {
+		return centerPanel.addToDesignSurface(item);
 	}
 
 	/**

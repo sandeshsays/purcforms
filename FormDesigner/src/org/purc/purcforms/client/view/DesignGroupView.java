@@ -2507,4 +2507,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		return false;
 	}
+	
+	/**
+	 * Adds a new widget, for the selected form field, to the selected page.
+	 * 
+	 * @param select set to true to automatically select the new widget.
+	 * @return the newly added widget.s
+	 */
+	protected DesignWidgetWrapper addSelectedFormField(boolean select){
+		return null;
+	}
 }

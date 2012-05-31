@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.controller;
 
 import org.purc.purcforms.client.model.Locale;
+import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
 import com.google.gwt.user.client.Event;
 
@@ -164,5 +165,5 @@ public interface IFormDesignerListener extends IFormActionListener{
 	public void undo();
 	public void redo();
 	
-	public void addToDesignSurface(Object item);
+	public DesignWidgetWrapper addToDesignSurface(Object item);
 }

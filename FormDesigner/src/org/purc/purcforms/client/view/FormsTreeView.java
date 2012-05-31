@@ -297,7 +297,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		//Should not call this more than once for the same selected item.
 		if(!optimize || item != this.item){
-			Context.setFormDef(FormDef.getFormDef(item.getUserObject()));
+			Context.setSelectedItem(item.getUserObject());
+			Context.setFormDef(FormDef.getFormDef(Context.getSelectedItem()));
 			formDef = Context.getFormDef();
 
 			fireFormItemSelected(item.getUserObject(), item);

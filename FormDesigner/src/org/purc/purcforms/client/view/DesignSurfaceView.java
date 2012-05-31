@@ -28,6 +28,7 @@ import org.purc.purcforms.client.widget.DateTimeWidget;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
+import org.purc.purcforms.client.widget.TextBoxWidget;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
 import org.purc.purcforms.client.xforms.XformConstants;
@@ -271,6 +272,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {popup.hide(); ;}});*/
 
 		menuBar.addItem("     "+LocaleText.get("addWidget"),addControlMenu);
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("selectedFormField")),true,new Command(){
+			public void execute() {popup.hide(); addSelectedFormField(true);}});
 
 		//if(selectedDragController.isAnyWidgetSelected()){
 		deleteWidgetsSeparator = menuBar.addSeparator();
@@ -842,6 +846,12 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		if(questions == null)
 			return null;
 		
+		boolean adjustSize = !(x == startX && y == startY);
+		if(!adjustSize){
+			startY = startY - selectedPanel.getAbsoluteTop();
+			startX = startX - selectedPanel.getAbsoluteLeft();
+		}
+			
 		int maxX = 0, max = 999999; //FormUtil.convertDimensionToInt(sHeight) - 0 + 150; //40; No longer adding submit button on every page
 		x = startX;
 		y = startY;
@@ -977,11 +987,12 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		y += ((ScrollPanel)getParent()).getScrollPosition();
 
-		setHeight(y+40+PurcConstants.UNITS);
+		if(adjustSize)
+			setHeight(y+40+PurcConstants.UNITS);
 
 		if(maxX < 900)
 			maxX = 900;
-		if(FormUtil.convertDimensionToInt(getWidth()) < maxX)
+		if(adjustSize && FormUtil.convertDimensionToInt(getWidth()) < maxX)
 			setWidth(maxX + PurcConstants.UNITS);
 		
 		return widgetWrapper != null ? widgetWrapper : labelWidgetWrapper;
@@ -1318,7 +1329,14 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			Context.getCommandHistory().add(commands);
 	}
 	
-	public void addToDesignSurface(Object item) {
+	public DesignWidgetWrapper addToDesignSurface(Object item) {
+		return addToDesignSurface(item, getLowestWidgetYPos() + 20, 20);
+	}
+	
+	public DesignWidgetWrapper addToDesignSurface(Object item, int y, int x) {
+		
+		if(item == null)
+			return null;
 		
 		QuestionDef questionDef =  null;
 		if(item instanceof QuestionDef)
@@ -1326,7 +1344,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		else if(item instanceof OptionDef)
 			questionDef  = ((OptionDef)item).getParent();
 		else
-			return;
+			return null;
 		
 		clearSelection();
 		
@@ -1347,7 +1365,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				selectedDragController.selectWidget(labels.get(questionDef.getBinding()));
 			
 			ensureVisible(widget);
-			return;
+			return null;
 		}
 		
 		CommandList commands = new CommandList(this);
@@ -1356,14 +1374,17 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		newQuestions.add(questionDef);
 		
 		//Load the new questions onto the design surface for the current page.
+		DesignWidgetWrapper widget = null;
 		if(newQuestions.size() > 0){
-			DesignWidgetWrapper widget = loadQuestions(newQuestions, getLowestWidgetYPos() + 20 /* y*/, /*x*/ 20, selectedPanel.getWidgetCount(),false, true, commands);
+			widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands);
 			format();
 			ensureVisible(widget);
 		}
 
 		if(commands.size() > 0)
 			Context.getCommandHistory().add(commands);
+		
+		return widget;
 	}
 	
 	private void ensureVisible(Widget widget) {
@@ -1580,5 +1601,15 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	
 	public ScrollPanel getScrollPanel(){
 		return (ScrollPanel)getParent();
+	}
+	
+	/**
+	 * Adds a new widget, for the selected form field, to the selected page.
+	 * 
+	 * @param select set to true to automatically select the new widget.
+	 * @return the newly added widget.s
+	 */
+	protected DesignWidgetWrapper addSelectedFormField(boolean select){
+		return addToDesignSurface(Context.getSelectedItem(), y, x);
 	}
 }

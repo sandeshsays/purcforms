@@ -23,6 +23,7 @@ import org.purc.purcforms.client.util.LanguageUtil;
 import org.purc.purcforms.client.view.DesignSurfaceView;
 import org.purc.purcforms.client.view.PreviewView;
 import org.purc.purcforms.client.view.PropertiesView;
+import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
@@ -757,15 +758,17 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			designSurfaceView.deleteSelectedItem();	
 	}
 	
-	public void addToDesignSurface(Object item) {
+	public DesignWidgetWrapper addToDesignSurface(Object item) {
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
-			designSurfaceView.addToDesignSurface(item);
+			return designSurfaceView.addToDesignSurface(item);
 		else {
 			tabs.selectTab(SELECTED_INDEX_DESIGN_SURFACE);
 			
 			if(designSurfaceView.hasWidgets())
-				designSurfaceView.addToDesignSurface(item);
+				return designSurfaceView.addToDesignSurface(item);
 		}
+		
+		return null;
 	}
 
 	/**
