@@ -1217,8 +1217,8 @@ public class FormUtil {
 		swapChars.put("<", "lt");
 		swapChars.put(">", "gt");
 		swapChars.put("=", "eq");
-		swapChars.put("/", "slash");
-		swapChars.put("\\\\", "backslash");
+		swapChars.put("/", "_"); //slash
+		swapChars.put("\\\\", "__"); //backslash
 
 		s = s.replace("'", "");
 

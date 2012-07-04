@@ -6,6 +6,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.model.RepeatQtnsDef;
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -51,6 +52,10 @@ public class UiElementBuilder {
 			//like bind=""
 			if((id == null || id.trim().length() == 0) && qtn.getControlNode() != null){
 				id = qtn.getControlNode().getAttribute(XformConstants.ATTRIBUTE_NAME_BIND);
+				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
+			}
+			else if((id == null || id.trim().length() == 0) && qtn.getControlNode() == null){
+				id = FormUtil.getXmlTagName(qtn.getBinding());
 				nodeset = "/" + formDef.getBinding() + "/" + qtn.getBinding();
 			}
 		}
