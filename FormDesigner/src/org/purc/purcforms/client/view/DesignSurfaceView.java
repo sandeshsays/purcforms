@@ -1376,7 +1376,11 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		//Load the new questions onto the design surface for the current page.
 		DesignWidgetWrapper widget = null;
 		if(newQuestions.size() > 0){
+			boolean visible = questionDef.isVisible();
+			questionDef.setVisible(true);
 			widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands);
+			questionDef.setVisible(visible);
+			
 			format();
 			ensureVisible(widget);
 		}
