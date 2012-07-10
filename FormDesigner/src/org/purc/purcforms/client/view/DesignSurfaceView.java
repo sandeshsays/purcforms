@@ -28,7 +28,6 @@ import org.purc.purcforms.client.widget.DateTimeWidget;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
-import org.purc.purcforms.client.widget.TextBoxWidget;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
 import org.purc.purcforms.client.xforms.XformConstants;
@@ -291,7 +290,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {
 				popup.hide(); 
 				selectedTabIndex++;
-				DesignWidgetWrapper widget = addNewTab(null, selectedTabIndex, true);
+				DesignWidgetWrapper widget = addNewTab(LocaleText.get("page") + (selectedTabIndex + 1), selectedTabIndex, true);
 				Context.getCommandHistory().add(new InsertTabCmd(widget, selectedTabIndex, widget.getText(), widget.getLayoutNode(), (DesignSurfaceView)widget.getWidgetSelectionListener()));
 			}});
 
