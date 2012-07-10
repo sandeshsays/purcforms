@@ -298,7 +298,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteTab")),true, new Command(){
 			public void execute() {
 				popup.hide(); 
-				String name = pageWidgets.remove(selectedTabIndex).getText();
+				String name = pageWidgets.get(selectedTabIndex).getText();
 				DesignWidgetWrapper widget = deleteTab();
 				if(widget != null)
 					Context.getCommandHistory().add(new InsertTabCmd(widget, selectedTabIndex, name, widget.getLayoutNode(), (DesignSurfaceView)widget.getWidgetSelectionListener()));
