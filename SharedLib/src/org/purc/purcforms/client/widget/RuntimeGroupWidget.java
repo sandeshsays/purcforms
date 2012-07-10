@@ -591,7 +591,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if(loadWidget)
 			wrapper.loadQuestion();
 
-		wrapper.setExternalSourceDisplayValue();
+		//wrapper.setExternalSourceDisplayValue();
 
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_HEIGHT);
 		if(value != null && value.trim().length() > 0)
