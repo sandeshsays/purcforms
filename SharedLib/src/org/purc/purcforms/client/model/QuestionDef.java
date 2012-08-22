@@ -85,10 +85,11 @@ public class QuestionDef implements Serializable{
 	private String binding = ModelConstants.EMPTY_STRING;
 
 	/** The allowed set of values (OptionDef) for an answer of the question. 
-	 * This also holds repeat sets of questions (RepeatQtnsDef) for the QTN_TYPE_REPEAT.
+	 * This also holds repeat sets of questions (RepeatQtnsDef) for the QTN_TYPE_REPEAT 
+	 * or (GroupQtnsDef) for the QTN_TYPE_GROUP.
 	 * This is an optimization aspect to prevent storing these guys differently as 
 	 * they can't both happen at the same time. The internal storage implementation of these
-	 * repeats is hidden from the user by means of getRepeatQtnsDef() and setRepeatQtnsDef().
+	 * repeats is hidden from the user by means of getGroupQtnsDef() and setGroupQtnsDef().
 	 */
 	private Object options;
 
@@ -147,6 +148,9 @@ public class QuestionDef implements Serializable{
 
 	/** Question with barcode cordinates. */
 	public static final int QTN_TYPE_BARCODE = 16;
+	
+	/** Question thats serves as a group. */
+	public static final int QTN_TYPE_GROUP = 17;
 
 	/** The xforms model data node into which this question will feed its answer. */
 	private Element dataNode;
@@ -207,7 +211,9 @@ public class QuestionDef implements Serializable{
 		if(getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			copyQuestionOptions(questionDef.getOptions());
 		else if(getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-			this.options = new RepeatQtnsDef(questionDef.getRepeatQtnsDef());
+			this.options = new RepeatQtnsDef(questionDef.getGroupQtnsDef());
+		else if(getDataType() == QuestionDef.QTN_TYPE_GROUP)
+			this.options = new GroupQtnsDef(questionDef.getGroupQtnsDef());
 	}
 
 	public QuestionDef(int id,String text,  int type, String variableName,Object parent) {
@@ -398,6 +404,14 @@ public class QuestionDef implements Serializable{
 	public int getDataType() {
 		return dataType;
 	}
+	
+	public boolean isGroupQtnsDef() {
+		return dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_GROUP;
+	}
+	
+	public boolean isRepeatQtnDef() {
+		return dataType == QuestionDef.QTN_TYPE_REPEAT;
+	}
 
 	public void setDataType(int dataType) {
 		boolean changed = this.dataType != dataType;
@@ -569,20 +583,20 @@ public class QuestionDef implements Serializable{
 		if(setAsParent)
 			optionDef.setParent(this);
 	}
-
-	public RepeatQtnsDef getRepeatQtnsDef(){
-		return (RepeatQtnsDef)options;
+	
+	public GroupQtnsDef getGroupQtnsDef(){
+		return (GroupQtnsDef)options;
 	}
-
-	public void addRepeatQtnsDef(QuestionDef qtn){
+	
+	public void addGroupQtnsDef(QuestionDef qtn){
 		if(options == null)
-			options = new RepeatQtnsDef(qtn);
-		((RepeatQtnsDef)options).addQuestion(qtn);
+			options = new GroupQtnsDef(qtn);
+		((GroupQtnsDef)options).addQuestion(qtn);
 		qtn.setParent(this);
 	}
 
-	public void setRepeatQtnsDef(RepeatQtnsDef repeatQtnsDef){
-		options = repeatQtnsDef;
+	public void setGroupQtnsDef(GroupQtnsDef groupQtnsDef){
+		options = groupQtnsDef;
 	}
 
 	public String toString() {
@@ -745,7 +759,7 @@ public class QuestionDef implements Serializable{
 				}
 			}
 
-			if(dataType != QuestionDef.QTN_TYPE_REPEAT)
+			if(!isGroupQtnsDef())
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(dataType,node));
 			if(node.getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET) != null)
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_NODESET,binding);
@@ -815,10 +829,10 @@ public class QuestionDef implements Serializable{
 				moveOptionNodesUp(optionDef,getRefOption(optns,newOptns,currentIndex /*currentIndex+1*/));
 			}
 		}
-		else if(getDataType() == QuestionDef.QTN_TYPE_REPEAT){
-			getRepeatQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
+		else if(isGroupQtnsDef()){
+			getGroupQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
 
-			if(controlNode != null)
+			if(controlNode != null && getDataType() == QuestionDef.QTN_TYPE_REPEAT)
 				((Element)controlNode.getParentNode()).setAttribute(XformConstants.ATTRIBUTE_NAME_ID, binding);
 
 			if(!withData && dataNode != null){
@@ -920,7 +934,7 @@ public class QuestionDef implements Serializable{
 		}
 		else{
 			//TODO Check to see that this does not remove child model node of repeats
-			if(dataNode != null && dataType != QuestionDef.QTN_TYPE_REPEAT){
+			if(dataNode != null && !isGroupQtnsDef()){
 				if(binding.contains("@"))
 					updateAttributeValue(formNode,"");
 				else{
@@ -946,7 +960,7 @@ public class QuestionDef implements Serializable{
 		String xpath = binding;		
 		Element elem = formNode; //(Element)formNode.getParentNode();
 
-		if(dataType != QuestionDef.QTN_TYPE_REPEAT){
+		if(!isGroupQtnsDef()){
 			//xpath = new String(xpath.toCharArray(), 1, xpath.length()-1);
 			int pos = xpath.lastIndexOf('@'); String attributeName = null;
 			if(pos > 0){
@@ -982,9 +996,9 @@ public class QuestionDef implements Serializable{
 
 		String name = dataNode.getNodeName();
 		if(name.equals(binding)){ //equalsIgnoreCase was bug because our xpath lib is case sensitive
-			if(dataType != QuestionDef.QTN_TYPE_REPEAT)
+			if(!isGroupQtnsDef())
 				return;
-			if(dataType == QuestionDef.QTN_TYPE_REPEAT && formDef.getBinding().equals(dataNode.getParentNode().getNodeName()))
+			if(isGroupQtnsDef() && formDef.getBinding().equals(dataNode.getParentNode().getNodeName()))
 				return;
 		}
 
@@ -1071,8 +1085,8 @@ public class QuestionDef implements Serializable{
 			controlNode.setAttribute(XformConstants.ATTRIBUTE_NAME_REF,id);
 		}
 
-		if(dataType == QuestionDef.QTN_TYPE_REPEAT)
-			getRepeatQtnsDef().updateDataNodes(dataNode);
+		if(isGroupQtnsDef())
+			getGroupQtnsDef().updateDataNodes(dataNode);
 
 		formDef.updateRuleConditionValue(orgFormVarName+"/"+name, formDef.getBinding()+"/"+binding);
 	}
@@ -1309,8 +1323,8 @@ public class QuestionDef implements Serializable{
 			}
 
 		}
-		else if(dataType == QuestionDef.QTN_TYPE_REPEAT && questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-			getRepeatQtnsDef().refresh(questionDef.getRepeatQtnsDef()); //TODO Finish this
+		else if(isGroupQtnsDef() && questionDef.isGroupQtnsDef())
+			getGroupQtnsDef().refresh(questionDef.getGroupQtnsDef()); //TODO Finish this
 	}
 
 
@@ -1489,8 +1503,8 @@ public class QuestionDef implements Serializable{
 
 		dataNode = (Element)result.elementAt(0);
 
-		if(dataType == QuestionDef.QTN_TYPE_REPEAT)
-			getRepeatQtnsDef().updateDataNodes(dataNode);
+		if(isGroupQtnsDef())
+			getGroupQtnsDef().updateDataNodes(dataNode);
 	}
 
 	/**
@@ -1507,7 +1521,7 @@ public class QuestionDef implements Serializable{
 
 		String xpath = parentXpath + FormUtil.getNodePath(controlNode,parentXformNode);
 
-		if(dataType == QuestionDef.QTN_TYPE_REPEAT){
+		if(isGroupQtnsDef()){
 			Element parent = (Element)controlNode.getParentNode();
 			xpath = parentXpath + FormUtil.getNodePath(parent,parentXformNode);
 
@@ -1558,8 +1572,8 @@ public class QuestionDef implements Serializable{
 			parentLangNode.appendChild(node);
 		}
 
-		if(dataType == QuestionDef.QTN_TYPE_REPEAT)
-			getRepeatQtnsDef().buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode, changedXpaths);
+		if(isGroupQtnsDef())
+			getGroupQtnsDef().buildLanguageNodes(parentXpath,doc,parentXformNode,parentLangNode, changedXpaths);
 
 		if(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
 			if(options != null){

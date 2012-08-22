@@ -220,9 +220,9 @@ public class PageDef implements Serializable{
 			if(varName.equals(def.getBinding()))
 				return def;
 
-			//Without this, then we have not validation and skip rules in repeat questions.
-			if(def.getDataType() == QuestionDef.QTN_TYPE_REPEAT && def.getRepeatQtnsDef() != null){
-				def = def.getRepeatQtnsDef().getQuestion(varName);
+			//Without this, then we have not validation and skip rules in group questions.
+			if(def.isGroupQtnsDef() && def.getGroupQtnsDef() != null){
+				def = def.getGroupQtnsDef().getQuestion(varName);
 				if(def != null)
 					return def;
 			}
@@ -279,8 +279,8 @@ public class PageDef implements Serializable{
 				return def;
 
 			//Without this, then we have not validation and skip rules in repeat questions.
-			if(def.getDataType() == QuestionDef.QTN_TYPE_REPEAT && def.getRepeatQtnsDef() != null){
-				def = def.getRepeatQtnsDef().getQuestion(id);
+			if(def.isGroupQtnsDef() && def.getGroupQtnsDef() != null){
+				def = def.getGroupQtnsDef().getQuestion(id);
 				if(def != null)
 					return def;
 			}
@@ -319,7 +319,7 @@ public class PageDef implements Serializable{
 	 */
 	public boolean removeQuestion(QuestionDef qtnDef, FormDef formDef){
 		if(qtnDef.getControlNode() != null && qtnDef.getControlNode().getParentNode() != null){
-			if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			if(qtnDef.isRepeatQtnDef())
 				qtnDef.getControlNode().getParentNode().getParentNode().removeChild(qtnDef.getControlNode().getParentNode());
 			else
 				qtnDef.getControlNode().getParentNode().removeChild(qtnDef.getControlNode());
@@ -332,8 +332,13 @@ public class PageDef implements Serializable{
 		}
 		
 		//for bindings we are safe to delete regardless of the level of nesting.
-		if(qtnDef.getBindNode() != null && qtnDef.getBindNode().getParentNode() != null)
+		if(qtnDef.getBindNode() != null && qtnDef.getBindNode().getParentNode() != null) {
 			qtnDef.getBindNode().getParentNode().removeChild(qtnDef.getBindNode());
+			
+			if(qtnDef.isGroupQtnsDef()) {
+				qtnDef.getGroupQtnsDef().removeBindNodes();
+			}
+		}
 
 		if(formDef != null){
 			formDef.removeQtnFromRules(qtnDef);
@@ -341,7 +346,7 @@ public class PageDef implements Serializable{
 		}
 
 		if(qtnDef.getParent() instanceof QuestionDef)
-			return ((QuestionDef)qtnDef.getParent()).getRepeatQtnsDef().removeQuestion(qtnDef, formDef);
+			return ((QuestionDef)qtnDef.getParent()).getGroupQtnsDef().removeQuestion(qtnDef, formDef);
 		else
 			return questions.removeElement(qtnDef);
 	}
@@ -395,7 +400,7 @@ public class PageDef implements Serializable{
 		//Not relying on group node because some forms have no groups
 		Element controlNode = questionDef.getControlNode();
 		Element parentNode = controlNode != null ? (Element)controlNode.getParentNode() : null;
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT && controlNode != null){
+		if(questionDef.isRepeatQtnDef() && controlNode != null){
 			controlNode = (Element)controlNode.getParentNode();
 			parentNode = (Element)parentNode.getParentNode();
 		}
@@ -428,7 +433,7 @@ public class PageDef implements Serializable{
 				QuestionDef qtnDef = (QuestionDef)list.get(i);
 				if(qtnDef.getControlNode() != null && parentNode != null){
 					Node sibNode = qtnDef.getControlNode();
-					if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+					if(qtnDef.isRepeatQtnDef())
 						sibNode = sibNode.getParentNode();
 					parentNode.insertBefore(controlNode, sibNode);
 				}
@@ -470,7 +475,7 @@ public class PageDef implements Serializable{
 		//Not relying on group node because some forms have no groups
 		Element controlNode = questionDef.getControlNode();
 		Element parentNode = controlNode != null ? (Element)controlNode.getParentNode() : null;
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT && controlNode != null){
+		if(questionDef.isRepeatQtnDef() && controlNode != null){
 			controlNode = (Element)controlNode.getParentNode();
 			parentNode = (Element)parentNode.getParentNode();
 		}
@@ -508,7 +513,7 @@ public class PageDef implements Serializable{
 					QuestionDef qtnDef = getNextSavedQuestion(list,i); //(QuestionDef)list.get(i);
 					if(qtnDef.getControlNode() != null){
 						Node sibNode = qtnDef.getControlNode();
-						if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+						if(qtnDef.isRepeatQtnDef())
 							sibNode = sibNode.getParentNode();
 						parentNode.insertBefore(controlNode, sibNode);
 					}
@@ -522,7 +527,7 @@ public class PageDef implements Serializable{
 							parentDataNode.removeChild(questionDef.getDataNode());
 
 							if(qtnDef.getDataNode() != null){
-								if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT && qtnDef.getBinding().contains("/"))
+								if(qtnDef.isRepeatQtnDef() && qtnDef.getBinding().contains("/"))
 									parentDataNode.insertBefore(questionDef.getDataNode(), qtnDef.getDataNode().getParentNode());
 								else
 									parentDataNode.insertBefore(questionDef.getDataNode(), qtnDef.getDataNode());
@@ -719,8 +724,8 @@ public class PageDef implements Serializable{
 			//if(questionDef.getText().equals(text)) //Some text may have description template and we do not want to consider it when comparing question text.
 			if(questionDef.getDisplayText().equals(text))
 				return questionDef;
-			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){ //TODO Need to make sure this new addition does not introduce bugs
-				questionDef = questionDef.getRepeatQtnsDef().getQuestionWithText(text);
+			else if(questionDef.isGroupQtnsDef()){ //TODO Need to make sure this new addition does not introduce bugs
+				questionDef = questionDef.getGroupQtnsDef().getQuestionWithText(text);
 				if(questionDef != null)
 					return questionDef;
 			}
@@ -816,7 +821,7 @@ public class PageDef implements Serializable{
 		//Not relying on group node because some forms have no groups
 		Element controlNode = questionDef.getControlNode();
 		Element parentNode = controlNode != null ? (Element)controlNode.getParentNode() : null;
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT && controlNode != null){
+		if(questionDef.isRepeatQtnDef() && controlNode != null){
 			controlNode = (Element)controlNode.getParentNode();
 			parentNode = (Element)parentNode.getParentNode();
 		}
@@ -832,7 +837,7 @@ public class PageDef implements Serializable{
 
 		if(refQuestionDef.getControlNode() != null){
 			Node sibNode = refQuestionDef.getControlNode();
-			if(refQuestionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			if(refQuestionDef.isRepeatQtnDef())
 				sibNode = sibNode.getParentNode();
 			parentNode.insertBefore(controlNode, sibNode);
 		}

@@ -84,7 +84,7 @@ public class FunctionHyperlink extends Hyperlink implements ItemSelectionListene
 		
 		MenuBar menuBar = new MenuBar(true);
 		
-		if(dataType != QuestionDef.QTN_TYPE_REPEAT){
+		if(!(dataType == QuestionDef.QTN_TYPE_REPEAT)){
 			menuBar.addItem(FUNCTION_TEXT_VALUE,true, new SelectItemCommand(FUNCTION_TEXT_VALUE,this));
 			count += 1;
 		}

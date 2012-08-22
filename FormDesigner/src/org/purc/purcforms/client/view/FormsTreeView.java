@@ -18,11 +18,11 @@ import org.purc.purcforms.client.controller.IFormDesignerListener;
 import org.purc.purcforms.client.controller.IFormSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
-import org.purc.purcforms.client.model.RepeatQtnsDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.widget.CompositeTreeItem;
@@ -469,8 +469,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			addImageItem(questionRoot, QuestionDef.TRUE_DISPLAY_VALUE, images.markRead(),null,null);
 			addImageItem(questionRoot, QuestionDef.FALSE_DISPLAY_VALUE, images.markRead(),null,null);
 		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-			loadQuestions(questionDef.getRepeatQtnsDef().getQuestions(),questionRoot);
+		else if(questionDef.isGroupQtnsDef())
+			loadQuestions(questionDef.getGroupQtnsDef().getQuestions(),questionRoot);
 
 		return questionRoot;
 	}
@@ -608,7 +608,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		if(userObj instanceof QuestionDef){
 			if(parentUserObj instanceof QuestionDef)
-				((QuestionDef)parentUserObj).getRepeatQtnsDef().removeQuestion((QuestionDef)userObj,formDef);
+				((QuestionDef)parentUserObj).getGroupQtnsDef().removeQuestion((QuestionDef)userObj,formDef);
 			else
 				((PageDef)parentUserObj).removeQuestion((QuestionDef)userObj,formDef);			
 		}
@@ -767,7 +767,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			if(obj instanceof OptionDef)
 				((QuestionDef)parentUserObj).addOption((OptionDef)obj, (OptionDef)refObj);
 			else
-				((QuestionDef)parentUserObj).getRepeatQtnsDef().addQuestion((QuestionDef)obj, (QuestionDef)refObj);
+				((QuestionDef)parentUserObj).getGroupQtnsDef().addQuestion((QuestionDef)obj, (QuestionDef)refObj);
 		}
 		else if(parentUserObj instanceof PageDef)
 			((PageDef)parentUserObj).addQuestion((QuestionDef)obj, (QuestionDef)refObj);
@@ -828,7 +828,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		Object userObj = item.getUserObject();
 		if(userObj instanceof PageDef || 
-				(userObj instanceof QuestionDef && ((QuestionDef)userObj).getDataType() ==  QuestionDef.QTN_TYPE_REPEAT) ){
+				(userObj instanceof QuestionDef && ((QuestionDef)userObj).isGroupQtnsDef()) ){
 
 			int id = ++nextQuestionId;
 			String binding = FormDesignerUtil.getQtnBinding(id, getNextQuestionPos(userObj));
@@ -935,7 +935,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(userObj instanceof QuestionDef && parentObj instanceof PageDef)
 			((PageDef)parentObj).moveQuestionUp((QuestionDef)userObj);
 		else if(userObj instanceof QuestionDef && parentObj instanceof QuestionDef)
-			((QuestionDef)parentObj).getRepeatQtnsDef().moveQuestionUp((QuestionDef)userObj);
+			((QuestionDef)parentObj).getGroupQtnsDef().moveQuestionUp((QuestionDef)userObj);
 		else if(userObj instanceof PageDef)
 			((FormDef)parentObj).movePageUp((PageDef)userObj);
 		else if(userObj instanceof OptionDef)
@@ -950,7 +950,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(userObj instanceof QuestionDef && parentObj instanceof PageDef)
 			((PageDef)parentObj).moveQuestionDown((QuestionDef)userObj);
 		else if(userObj instanceof QuestionDef && parentObj instanceof QuestionDef)
-			((QuestionDef)parentObj).getRepeatQtnsDef().moveQuestionDown((QuestionDef)userObj);
+			((QuestionDef)parentObj).getGroupQtnsDef().moveQuestionDown((QuestionDef)userObj);
 		else if(userObj instanceof PageDef)
 			((FormDef)parentObj).movePageDown((PageDef)userObj);
 		else if(userObj instanceof OptionDef)
@@ -1141,7 +1141,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 			questionDef.setId(item.getChildCount()+1);
 
-			boolean pasteNextToQuestion = (userObj instanceof QuestionDef && ((QuestionDef)userObj).getDataType() != QuestionDef.QTN_TYPE_REPEAT);
+			boolean pasteNextToQuestion = (userObj instanceof QuestionDef && !((QuestionDef)userObj).isGroupQtnsDef());
 
 			item = loadQuestion(questionDef, (pasteNextToQuestion ? item : null), (pasteNextToQuestion ? item.getParentItem() : item));
 
@@ -1159,8 +1159,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				((PageDef)((QuestionDef)userObj).getParent()).addQuestion(questionDef, (QuestionDef)userObj);
 				//moveItems = true;
 			}
-			else
-				((QuestionDef)userObj).getRepeatQtnsDef().addQuestion(questionDef);
+			else if(((QuestionDef)userObj).isGroupQtnsDef())
+				((QuestionDef)userObj).getGroupQtnsDef().addQuestion(questionDef);
 		}
 		else if(clipboardItem instanceof PageDef){		
 			//Pages can be pasted only as kids of forms, or just next to each other.
@@ -1348,7 +1348,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			else
 				bindings.put(variableName, questionDef);
 
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
+			if(questionDef.isGroupQtnsDef()){
 				if(!isValidQuestionList(child,bindings))
 					return false;
 			}
@@ -1484,8 +1484,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(FormUtil.rebuildBindings()){
 			if(parentObj instanceof QuestionDef){
 				QuestionDef parentQuestionDef = (QuestionDef)parentObj;
-				if(parentQuestionDef != null && parentQuestionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-					return parentQuestionDef.getId() + parentQuestionDef.getRepeatQtnsDef().getQuestionsCount() + 1;
+				if(parentQuestionDef != null && parentQuestionDef.isGroupQtnsDef())
+					return parentQuestionDef.getId() + parentQuestionDef.getGroupQtnsDef().getQuestionsCount() + 1;
 			}
 			
 			return formDef.getQuestionCount() + 1;
@@ -1553,13 +1553,13 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				optionDef.setBinding(FormDesignerUtil.getOptnBinding(optionDef.getId(), index + 1));
 			}
 		}
-		else if(dataType == QuestionDef.QTN_TYPE_REPEAT){
-			RepeatQtnsDef repeatQtnsDef = questionDef.getRepeatQtnsDef();
-			if(repeatQtnsDef == null)
+		else if(questionDef.isGroupQtnsDef()){
+			GroupQtnsDef groupQtnsDef = questionDef.getGroupQtnsDef();
+			if(groupQtnsDef == null)
 				return;
 
-			for(int index = 0; index < repeatQtnsDef.getQuestionsCount(); index++)
-				rebuildQuestionBindings(Integer.parseInt(questionDef.getBinding().substring(8)) + index + 1, repeatQtnsDef.getQuestionAt(index));
+			for(int index = 0; index < groupQtnsDef.getQuestionsCount(); index++)
+				rebuildQuestionBindings(Integer.parseInt(questionDef.getBinding().substring(8)) + index + 1, groupQtnsDef.getQuestionAt(index));
 		}
 	}
 	

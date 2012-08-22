@@ -12,6 +12,7 @@ import org.purc.purcforms.client.controller.QuestionChangeListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
@@ -59,7 +60,7 @@ import com.google.gwt.xml.client.NodeList;
 public class RuntimeGroupWidget extends Composite implements OpenFileDialogEventListener,QuestionChangeListener{
 
 	private final Images images;
-	private RepeatQtnsDef repeatQtnsDef;
+	private GroupQtnsDef groupQtnsDef;
 	private HashMap<String,RuntimeWidgetWrapper> widgetMap = new HashMap<String,RuntimeWidgetWrapper>();
 	private EditListener editListener;
 	private WidgetListener widgetListener;
@@ -95,10 +96,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
 
 
-	public RuntimeGroupWidget(Images images,FormDef formDef,RepeatQtnsDef repeatQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated, EnabledChangeListener enabledListener){
+	public RuntimeGroupWidget(Images images,FormDef formDef,GroupQtnsDef groupQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated, EnabledChangeListener enabledListener){
 		this.images = images;
 		this.formDef = formDef;
-		this.repeatQtnsDef = repeatQtnsDef;
+		this.groupQtnsDef = groupQtnsDef;
 		this.editListener = editListener;
 		this.widgetListener = widgetListener;
 		this.isRepeated = isRepeated;
@@ -125,8 +126,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		RuntimeWidgetWrapper parentWrapper = widgetMap.get(parentBinding);
 		if(parentWrapper == null){
 			QuestionDef qtn = null;
-			if(repeatQtnsDef != null)
-				qtn = repeatQtnsDef.getQuestion(parentBinding);
+			if(groupQtnsDef != null)
+				qtn = groupQtnsDef.getQuestion(parentBinding);
 			else
 				qtn = formDef.getQuestion(parentBinding);
 
@@ -193,6 +194,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			DeferredCommand.addCommand(new Command() {
 				public void execute() {
+					if(widgets.size() == 0)
+						return;
+					
 					RuntimeWidgetWrapper widget = widgets.get(0);
 					if(!(widget.getQuestionDef() == null || widget.getQuestionDef().getDataNode() == null)){
 						/*Element dataNode = (Element)widget.getQuestionDef().getDataNode().getParentNode();
@@ -239,6 +243,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 
 	private PushButton addDeleteButton(int row){
+		if(row == -1)
+			return null;
+		
 		PushButton btn = new PushButton(LocaleText.get("deleteItem"));
 		btn.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
@@ -309,8 +316,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		String parentBinding = node.getAttribute(WidgetEx.WIDGET_PROPERTY_PARENTBINDING);
 
 		if(isRepeated){
-			if(binding != null && binding.trim().length() > 0 && repeatQtnsDef != null){
-				questionDef = repeatQtnsDef.getQuestion(binding);
+			if(binding != null && binding.trim().length() > 0 && groupQtnsDef != null){
+				questionDef = groupQtnsDef.getQuestion(binding);
 				if(questionDef != null)
 					questionDef.setAnswer(questionDef.getDefaultValue()); //Just incase we are refreshing and had already set the answer
 			}
@@ -454,16 +461,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				((HTML)widget).setVisible(false);
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
-			RepeatQtnsDef repeatQtnsDef = null;
+			GroupQtnsDef groupQtnsDef = null;
 			if(questionDef != null)
-				repeatQtnsDef = questionDef.getRepeatQtnsDef();
+				groupQtnsDef = questionDef.getGroupQtnsDef();
 
 			boolean repeated = false;
 			String value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_REPEATED);
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, editListener, widgetListener, repeated, enabledListener);
+			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, editListener, widgetListener, repeated, enabledListener);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			/*getLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
 			getLabelText(((RuntimeGroupWidget)widget).getLabelText());
@@ -707,7 +714,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).nextPage();
 		else if(binding.equalsIgnoreCase("prevPage"))
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).prevPage();
-		else if(repeatQtnsDef != null){
+		else if(groupQtnsDef != null && groupQtnsDef instanceof RepeatQtnsDef){
 			if(binding.equalsIgnoreCase("addnew")){
 				RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)getParent().getParent();
 				int y = getHeightInt();
@@ -1123,8 +1130,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 
-		if(repeatQtnsDef != null)
-			repeatQtnsDef.getQtnDef().setAnswer(getRowCount()+"");
+		if(groupQtnsDef != null)
+			groupQtnsDef.getQtnDef().setAnswer(getRowCount()+"");
 	}
 
 	public int getRowCount(){

@@ -9,6 +9,7 @@ import org.purc.purcforms.client.controller.ItemSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Calculation;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
@@ -106,6 +107,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** List box index for barcode data type. */
 	private static final byte DT_INDEX_BARCODE = 15;
+	
+	/** List box index for barcode data type. */
+	private static final byte DT_INDEX_GROUP = 16;
 
 	/** Table used for organising widgets in a table format. */
 	private FlexTable table = new FlexTable();
@@ -244,6 +248,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		cbDataType.addItem(LocaleText.get("qtnTypeSingleSelectDynamic"));
 		cbDataType.addItem(LocaleText.get("qtnTypeGPS"));
 		cbDataType.addItem(LocaleText.get("qtnTypeBarcode"));
+		cbDataType.addItem(LocaleText.get("qtnTypeGroup"));
 
 		FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
 		cellFormatter.setHorizontalAlignment(15, 1, HasHorizontalAlignment.ALIGN_CENTER);
@@ -877,6 +882,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		case DT_INDEX_BARCODE:
 			dataType = QuestionDef.QTN_TYPE_BARCODE;
 			break;
+		case DT_INDEX_GROUP:
+			dataType = QuestionDef.QTN_TYPE_GROUP;
+			break;
 		}
 		
 		return dataType;
@@ -892,8 +900,13 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	private void setQuestionDataType(QuestionDef questionDef, int dataType){
 	
 		if(dataType == QuestionDef.QTN_TYPE_REPEAT && 
-				questionDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT)
-			questionDef.setRepeatQtnsDef(new RepeatQtnsDef(questionDef));
+				questionDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT) {
+			questionDef.setGroupQtnsDef(new RepeatQtnsDef(questionDef));
+		}
+		else if(dataType == QuestionDef.QTN_TYPE_GROUP && 
+				questionDef.getDataType() != QuestionDef.QTN_TYPE_GROUP) {
+			questionDef.setGroupQtnsDef(new GroupQtnsDef(questionDef));
+		}
 
 		questionDef.setDataType(dataType);
 
@@ -1100,6 +1113,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			break;
 		case QuestionDef.QTN_TYPE_BARCODE:
 			index = DT_INDEX_BARCODE;
+			break;
+		case QuestionDef.QTN_TYPE_GROUP:
+			index = DT_INDEX_GROUP;
 			break;
 		}
 

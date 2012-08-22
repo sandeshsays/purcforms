@@ -3,9 +3,9 @@ package org.purc.purcforms.client.xforms;
 import java.util.List;
 
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
-import org.purc.purcforms.client.model.RepeatQtnsDef;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Document;
@@ -63,7 +63,7 @@ public class UiElementBuilder {
 		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, id);
 		bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_NODESET, nodeset);
 
-		if(qtn.getDataType() != QuestionDef.QTN_TYPE_REPEAT)
+		if(!qtn.isGroupQtnsDef())
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(qtn.getDataType(),bindNode));	
 		if(qtn.isRequired())
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED, XformConstants.XPATH_VALUE_TRUE);
@@ -138,7 +138,7 @@ public class UiElementBuilder {
 
 		addHelpTextNode(qtn,doc,uiNode,null);
 
-		if(qtn.getDataType() != QuestionDef.QTN_TYPE_REPEAT){
+		if(!qtn.isGroupQtnsDef()){
 			if(qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
 				qtn.setFirstOptionNode(ItemsetBuilder.createDynamicOptionDefNode(doc,uiNode));
 			else{
@@ -153,15 +153,22 @@ public class UiElementBuilder {
 				}
 			}
 		}
-		else{
+		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT) {
 			Element repeatNode =  doc.createElement(XformConstants.NODE_NAME_REPEAT);
 			repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND, id);
 			uiNode.appendChild(repeatNode);
 			qtn.setControlNode(repeatNode);
 
-			RepeatQtnsDef rptQtns = qtn.getRepeatQtnsDef();
+			GroupQtnsDef rptQtns = qtn.getGroupQtnsDef();
 			for(int j=0; j<rptQtns.size(); j++)
 				createQuestion(qtn, rptQtns.getQuestionAt(j), repeatNode, dataNode, modelNode, formDef, doc);
+		}
+		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_GROUP) {
+			qtn.setControlNode(uiNode);
+
+			GroupQtnsDef grpQtns = qtn.getGroupQtnsDef();
+			for(int j=0; j<grpQtns.size(); j++)
+				createQuestion(qtn, grpQtns.getQuestionAt(j), uiNode, dataNode, modelNode, formDef, doc);
 		}
 	}
 
@@ -231,7 +238,7 @@ public class UiElementBuilder {
 
 		addHelpTextNode(qtnDef,doc,inputNode,null);
 
-		if(qtnDef.getDataType() != QuestionDef.QTN_TYPE_REPEAT){
+		if(!qtnDef.isGroupQtnsDef()){
 			List options = qtnDef.getOptions();
 			if(options != null && options.size() > 0){
 				for(int index=0; index<options.size(); index++){
@@ -241,6 +248,21 @@ public class UiElementBuilder {
 						qtnDef.setFirstOptionNode(itemNode);
 				}
 			}
+		}
+		else if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT) {
+			Element repeatNode =  doc.createElement(XformConstants.NODE_NAME_REPEAT);
+			repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND, id);
+			inputNode.appendChild(repeatNode);
+			qtnDef.setControlNode(repeatNode);
+
+			GroupQtnsDef rptQtns = qtnDef.getGroupQtnsDef();
+			for(int j=0; j<rptQtns.size(); j++)
+				createQuestion(qtnDef, rptQtns.getQuestionAt(j), repeatNode, dataNode, modelNode, formDef, doc);
+		}
+		else if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_GROUP) {
+			GroupQtnsDef grpQtns = qtnDef.getGroupQtnsDef();
+			for(int j=0; j<grpQtns.size(); j++)
+				createQuestion(qtnDef, grpQtns.getQuestionAt(j), inputNode, dataNode, modelNode, formDef, doc);
 		}
 	}
 
@@ -263,7 +285,7 @@ public class UiElementBuilder {
 			name = XformConstants.NODE_NAME_SELECT1;
 		else if(type == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			name = XformConstants.NODE_NAME_SELECT;
-		else if(type == QuestionDef.QTN_TYPE_REPEAT)
+		else if(qtnDef.isGroupQtnsDef())
 			name = XformConstants.NODE_NAME_GROUP;
 		else if(type == QuestionDef.QTN_TYPE_IMAGE || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_VIDEO)
 			name = XformConstants.NODE_NAME_UPLOAD;
@@ -272,7 +294,7 @@ public class UiElementBuilder {
 			id = XformBuilderUtil.getBindIdFromVariableName(qtnDef.getBinding(), isRepeatKid);
 		
 		Element node = doc.createElement(name);
-		if(type != QuestionDef.QTN_TYPE_REPEAT)
+		if(!qtnDef.isGroupQtnsDef())
 			node.setAttribute(bindAttributeName, id);
 		else
 			node.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, qtnDef.getBinding());

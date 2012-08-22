@@ -178,8 +178,8 @@ public class FieldWidget extends Composite{
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
 
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-				selectFirstQuestion(questionDef.getRepeatQtnsDef().getQuestions());
+			if(questionDef.isGroupQtnsDef())
+				selectFirstQuestion(questionDef.getGroupQtnsDef().getQuestions());
 			else{
 				if(forDynamicOptions){
 					if(questionDef == dynamicQuestionDef)

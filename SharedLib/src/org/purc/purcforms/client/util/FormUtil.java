@@ -148,6 +148,9 @@ public class FormUtil {
 
 	/** The default font size, in pixels, used by the form designer. */
 	private static String defaultFontSize;
+	
+	/** The default back ground color used by the group box's header. */
+	private static String defaultGroupBoxHeaderBgColor;
 
 	/** Flag determining whether to append the entity id to the url 
 	 * we go to after a form submission. eg ........?patientId=13
@@ -503,6 +506,10 @@ public class FormUtil {
 		defaultFontSize = getDivValue("defaultFontSize");
 		if(defaultFontSize == null || defaultFontSize.trim().length() == 0)
 			defaultFontSize = "16";
+		
+		defaultGroupBoxHeaderBgColor = getDivValue("defaultGroupBoxHeaderBgColor");
+		if(defaultGroupBoxHeaderBgColor == null || defaultGroupBoxHeaderBgColor.trim().length() == 0)
+			defaultGroupBoxHeaderBgColor = "#8FABC7";
 
 		String s = getDivValue("appendEntityIdAfterSubmit");
 		if(s == null || s.trim().length() == 0)
@@ -862,6 +869,10 @@ public class FormUtil {
 	public static String getDefaultFontSize(){
 		return defaultFontSize + PurcConstants.UNITS;
 	}
+	
+	public static String getDefaultGroupBoxHeaderBgColor(){
+		return defaultGroupBoxHeaderBgColor;
+	}
 
 	public static boolean appendEntityIdAfterSubmit(){
 		return appendEntityIdAfterSubmit;
@@ -919,7 +930,7 @@ public class FormUtil {
 		//This check is a temporary workaround for firefox 3.5 which
 		//throws this error on certain mouse moves which i have not
 		//yet got the exact cause for.
-		if(!(s != null && (s.contains("(NS_ERROR_DOM_NOT_SUPPORTED_ERR):") || s.contains("(Error): Permission denied for")))){
+		if(!(s != null && (s.contains("(NS_ERROR_DOM_NOT_SUPPORTED_ERR):") || s.contains("(Error): Permission denied ")))){
 			ErrorDialog dialogBox = new ErrorDialog();
 			dialogBox.setText(LocaleText.get("unexpectedFailure"));
 			dialogBox.setErrorMessage(s);

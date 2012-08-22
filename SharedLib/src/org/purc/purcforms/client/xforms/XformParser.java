@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import org.purc.purcforms.client.model.Calculation;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
@@ -294,7 +295,7 @@ public class XformParser {
 			}
 			//else if (tagname.equals(NODE_NAME_GROUP) || tagname.equals(NODE_NAME_GROUP_MINUS_PREFIX)){
 			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
-				parseGroupElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
+				questionDef = parseGroupElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
 			}
 			//else if(tagname.equals(NODE_NAME_INSTANCE)||tagname.equals(NODE_NAME_INSTANCE_MINUS_PREFIX)) {
 			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_INSTANCE_MINUS_PREFIX)){
@@ -304,7 +305,7 @@ public class XformParser {
 			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_BIND_MINUS_PREFIX)){
 				QuestionDef qtn = parseBindElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns);
 
-				if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+				if(qtn.isGroupQtnsDef())
 					questionDef = qtn;
 			} 
 			//else if (tagname.equals(NODE_NAME_INPUT) || tagname.equals(NODE_NAME_SELECT1) || tagname.equals(NODE_NAME_SELECT) || tagname.equals(NODE_NAME_REPEAT)
@@ -313,9 +314,46 @@ public class XformParser {
 					XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_SELECT_MINUS_PREFIX) || XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX) ||
 					XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_UPLOAD_MINUS_PREFIX)){
 
+				QuestionDef prevQuestionDef = questionDef;
 				NodeContext nodeContext = new NodeContext(label, hint, value, labelNode, hintNode, valueNode);
 				questionDef = parseUiElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns,nodeContext);
 
+				if(prevQuestionDef != null && questionDef != null && prevQuestionDef.getDataType() == QuestionDef.QTN_TYPE_GROUP && prevQuestionDef.getLabelNode() == null){
+					
+					//We do not want the bind node to be removed from the document as we remove the question
+					/*Element bindNode = questionDef.getBindNode();
+					Element dataNode = questionDef.getDataNode();
+					Element controlNode = questionDef.getControlNode();
+					questionDef.setBindNode(null);
+					questionDef.setDataNode(null);
+					questionDef.setControlNode(null);*/
+					
+					//Remove from current parent (PageDef) before setting to another parent (GroupQtnDef)
+					//This should be before the data and control nodes are set because it removed them.
+					//TODO This throws a ClassCastException
+					//((PageDef)questionDef.getParent()).removeQuestion(questionDef, formDef);
+					
+					//should add after the above call
+					//prevQuestionDef.addGroupQtnsDef(questionDef);
+
+					//TODO repeat kind bind node is no longer the control node.
+					//qtn.setBindNode(child);
+					/*questionDef.setBindNode(bindNode);
+					questionDef.setDataNode(dataNode);
+					questionDef.setControlNode(controlNode);*/
+					
+					prevQuestionDef.setLabelNode(labelNode);
+					prevQuestionDef.setHintNode(hintNode);
+					//prevQuestionDef.setDataNode(valueNode); This is already set
+					prevQuestionDef.setText(label);
+					prevQuestionDef.setHelpText(hint);
+					
+					//Group bindings should not include parent portions
+					//TODO The portion after the && is a real hack and should go away.
+					//if(questionDef.getBinding().startsWith(prevQuestionDef.getBinding() + "/") && questionDef.getBinding().indexOf('/') == questionDef.getBinding().lastIndexOf('/'))
+					//	questionDef.setBinding(questionDef.getBinding().substring(prevQuestionDef.getBinding().length() + 1));
+				}
+				
 				label = nodeContext.getLabel();
 				hint = nodeContext.getHint();
 				value = nodeContext.getValue();
@@ -433,9 +471,12 @@ public class XformParser {
 				setQuestionDataNode(questionDef,formDef,parentQtn);
 			}
 			else if(XmlUtil.nodeNameEquals(nodeContext.getLabelNode().getParentNode().getNodeName(), XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
-				PageDef pageDef = formDef.setPageName(nodeContext.getLabel());
-				pageDef.setLabelNode(nodeContext.getLabelNode());
-				pageDef.setPageNo(getNextPageNo());
+				//Check if it is really a page instead of group question type
+				if(!XmlUtil.nodeNameEquals(nodeContext.getLabelNode().getParentNode().getParentNode().getNodeName(), XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
+					PageDef pageDef = formDef.setPageName(nodeContext.getLabel());
+					pageDef.setLabelNode(nodeContext.getLabelNode());
+					pageDef.setPageNo(getNextPageNo());
+				}
 			}
 		}
 		else if(!nodeContext.getLabel().equals("") && questionDef == null){
@@ -524,7 +565,7 @@ public class XformParser {
 		for(int i=0; i<repeats.size(); i++){
 			QuestionDef rptQtn = (QuestionDef)repeats.get(i);
 			if(qtn.getBinding().contains(rptQtn.getBinding())){
-				RepeatQtnsDef rptQtnsDef = rptQtn.getRepeatQtnsDef();
+				GroupQtnsDef groupQtnsDef = rptQtn.getGroupQtnsDef();
 				//rptQtnsDef.addQuestion(qtn); //TODO This is temporarily removed to solve the wiered problem list bug
 				String varname = qtn.getBinding().substring(rptQtn.getBinding().length()+1);
 				//varname = varname.substring(0, varname.indexOf('/'));
@@ -649,7 +690,7 @@ public class XformParser {
 	 * @param orphanDynOptionQns a list of dynamic option definition questions who parent
 	 *                           questions have not yet been parsed.
 	 */
-	private static void parseGroupElement(FormDef formDef, Element child, HashMap id2VarNameMap,QuestionDef questionDef,HashMap relevants,Vector repeatQtns, HashMap rptKidMap, int currentPageNo,QuestionDef parentQtn, HashMap constraints, List<QuestionDef> orphanDynOptionQns){
+	private static QuestionDef parseGroupElement(FormDef formDef, Element child, HashMap id2VarNameMap,QuestionDef questionDef,HashMap relevants,Vector repeatQtns, HashMap rptKidMap, int currentPageNo,QuestionDef parentQtn, HashMap constraints, List<QuestionDef> orphanDynOptionQns){
 		
 		int pageNo = XformParser.currentPageNo;
 		
@@ -662,7 +703,7 @@ public class XformParser {
 				NodeList nodes = child.getElementsByTagName(XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX);
 				if(nodes != null && nodes.getLength() > 0){
 					parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,/*currentPageNo*/ pageNo, parentQtn,constraints,orphanDynOptionQns);
-					return;
+					return questionDef;
 				}
 					
 				formDef.addPage();
@@ -671,10 +712,71 @@ public class XformParser {
 			}
 			formDef.setPageGroupNode((Element)child);
 		}
+		else if(XmlUtil.nodeNameEquals(parentName, XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)) {
+			NodeList nodes = child.getElementsByTagName(XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX);
+			if(nodes == null || nodes.getLength() == 0){
+				/*NodeContext nodeContext = new NodeContext(label, hint, value, labelNode, hintNode, valueNode);
+				questionDef = parseUiElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,currentPageNo,parentQtn,constraints,orphanDynOptionQns,nodeContext);
+
+				label = nodeContext.getLabel();
+				hint = nodeContext.getHint();
+				value = nodeContext.getValue();
+				labelNode = nodeContext.getLabelNode();
+				hintNode = nodeContext.getHintNode();
+				valueNode = nodeContext.getValueNode();*/
+				
+				String binding = child.getAttribute("id");
+				questionDef = formDef.getQuestion(binding);
+				if(questionDef == null)
+					questionDef = formDef.getQuestion((String)id2VarNameMap.get(binding));
+				
+				questionDef.setDataType(QuestionDef.QTN_TYPE_GROUP);
+				GroupQtnsDef groupQtnsDef = new GroupQtnsDef(questionDef);
+				questionDef.setGroupQtnsDef(groupQtnsDef);
+				questionDef.setControlNode(child);
+				setQuestionDataNode(questionDef, formDef, parentQtn);
+				
+				binding = ((Element)child.getParentNode()).getAttribute("id");
+				QuestionDef parentQtnDef = formDef.getQuestion(binding);
+				if(parentQtnDef != null && parentQtnDef.getDataType() == QuestionDef.QTN_TYPE_GROUP) {
+					//We do not want the bind node to be removed from the document as we remove the question
+					Element bindNode = questionDef.getBindNode();
+					Element dataNode = questionDef.getDataNode();
+					Element controlNode = questionDef.getControlNode();
+					questionDef.setBindNode(null);
+					questionDef.setDataNode(null);
+					questionDef.setControlNode(null);
+					
+					//Remove from current parent (PageDef) before setting to another parent (RepeatQtnDef)
+					//This should be before the data and control nodes are set because it removed them.
+					formDef.removeQuestion(questionDef);
+					
+					//should add after the above call
+					parentQtnDef.addGroupQtnsDef(questionDef);
+
+					//TODO repeat kind bind node is no longer the control node.
+					//qtn.setBindNode(child);
+					questionDef.setBindNode(bindNode);
+					questionDef.setDataNode(dataNode);
+					questionDef.setControlNode(controlNode);
+					
+					//Repeat bindings should not include parent portions
+					//TODO The portion after the && is a real hack and should go away.
+					if(questionDef.getBinding().startsWith(binding + "/") && questionDef.getBinding().indexOf('/') == questionDef.getBinding().lastIndexOf('/'))
+						questionDef.setBinding(questionDef.getBinding().substring(binding.length() + 1));
+				}
+				
+				parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,/*currentPageNo*/ pageNo, parentQtn,constraints,orphanDynOptionQns);
+				return questionDef;
+			}
+		}
+		
 		parseElement(formDef, child,id2VarNameMap,questionDef,relevants,repeatQtns,rptKidMap,/*currentPageNo*/ pageNo, parentQtn,constraints,orphanDynOptionQns);
 		
 		if(questionDef != null)
 			XformParser.currentPageNo = pageNo;
+		
+		return questionDef;
 	}
 
 
@@ -732,7 +834,15 @@ public class XformParser {
 
 		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
 			RepeatQtnsDef repeatQtnsDef = new RepeatQtnsDef(qtn);
-			qtn.setRepeatQtnsDef(repeatQtnsDef);
+			qtn.setGroupQtnsDef(repeatQtnsDef);
+			repeatQtns.addElement(qtn);
+
+			//questionDef = qtn;
+		}
+		
+		if(qtn.getDataType() == QuestionDef.QTN_TYPE_GROUP){
+			GroupQtnsDef groupQtnsDef = new GroupQtnsDef(qtn);
+			qtn.setGroupQtnsDef(groupQtnsDef);
 			repeatQtns.addElement(qtn);
 
 			//questionDef = qtn;
@@ -799,7 +909,26 @@ public class XformParser {
 				qtn.setDataType(QuestionDef.QTN_TYPE_REPEAT);
 				qtn.setText(nodeContext.getLabel());
 				qtn.setHelpText(nodeContext.getHint());
-				qtn.setRepeatQtnsDef(new RepeatQtnsDef(qtn));
+				qtn.setGroupQtnsDef(new RepeatQtnsDef(qtn));
+				formDef.moveQuestion2Page(qtn, currentPageNo, formDef);
+
+				nodeContext.setLabel("");
+				nodeContext.setHint("");
+
+				qtn.setLabelNode(nodeContext.getLabelNode());
+				qtn.setHintNode(nodeContext.getHintNode());
+
+				qtn.setControlNode(child);
+				int pageNo = currentPageNo;
+				if(pageNo == 0) pageNo = 1; //Xform may not have groups for pages.
+				setQuestionDataNode(qtn,formDef,parentQtn);
+				parentQtn = qtn;
+			}
+			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_GROUP_MINUS_PREFIX) && !nodeContext.getLabel().equals("")){
+				qtn.setDataType(QuestionDef.QTN_TYPE_GROUP);
+				qtn.setText(nodeContext.getLabel());
+				qtn.setHelpText(nodeContext.getHint());
+				qtn.setGroupQtnsDef(new GroupQtnsDef(qtn));
 				formDef.moveQuestion2Page(qtn, currentPageNo, formDef);
 
 				nodeContext.setLabel("");
@@ -850,7 +979,7 @@ public class XformParser {
 				formDef.removeQuestion(qtn);
 				
 				//should add after the above call
-				rptQtnDef.addRepeatQtnsDef(qtn);
+				rptQtnDef.addGroupQtnsDef(qtn);
 
 				//TODO repeat kind bind node is no longer the control node.
 				//qtn.setBindNode(child);
@@ -865,6 +994,57 @@ public class XformParser {
 
 				//Remove repeat question constraint if any
 				XformParserUtil.replaceConstraintQtn(constraints,qtn);
+			}
+			else if(XmlUtil.nodeNameEquals(parent.getNodeName(),XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
+				//ensure that this does not contain a repeat node
+				//NodeList nodes = child.getElementsByTagName(XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX);
+				//if(nodes != null && nodes.getLength() > 0) {
+				if(!XmlUtil.nodeNameEquals(child.getNodeName(),XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX)){
+					varName = (String)id2VarNameMap.get(parent.getAttribute(XformConstants.ATTRIBUTE_NAME_ID));
+					if(varName != null) {
+						QuestionDef groupQtnDef = formDef.getQuestion(varName);
+						if(groupQtnDef == null && varName.startsWith("/" + formDef.getBinding() + "/")){
+							varName = varName.substring(varName.indexOf('/', 1) + 1);
+							groupQtnDef = formDef.getQuestion(varName);
+						}
+						
+						//TODO what if the parent is not a PageDef????
+						//((PageDef)groupQtnDef.getParent()).addQuestion(groupQtnDef);
+						
+						if(qtn.getId() ==  ModelConstants.NULL_ID){
+							qtn.setId(getNextQuestionId());
+						}
+		
+						//We do not want the bind node to be removed from the document as we remove the question
+						Element bindNode = qtn.getBindNode();
+						Element dataNode = qtn.getDataNode();
+						qtn.setBindNode(null);
+						qtn.setDataNode(null);
+						
+						//Remove from current parent (PageDef) before setting to another parent (RepeatQtnDef)
+						//This should be before the data and control nodes are set because it removed them.
+						formDef.removeQuestion(qtn);
+						
+						groupQtnDef.setDataType(QuestionDef.QTN_TYPE_GROUP);
+						
+						//should add after the above call
+						groupQtnDef.addGroupQtnsDef(qtn);
+		
+						//TODO repeat kind bind node is no longer the control node.
+						//qtn.setBindNode(child);
+						qtn.setBindNode(bindNode);
+						qtn.setDataNode(dataNode);
+						qtn.setControlNode(child);
+						
+						//Repeat bindings should not include parent portions
+						//TODO The portion after the && is a real hack and should go away.
+						if(qtn.getBinding().startsWith(groupQtnDef.getBinding() + "/") && qtn.getBinding().indexOf('/') == qtn.getBinding().lastIndexOf('/'))
+							qtn.setBinding(qtn.getBinding().substring(groupQtnDef.getBinding().length() + 1));
+		
+						//Remove repeat question constraint if any
+						XformParserUtil.replaceConstraintQtn(constraints,qtn);
+					}
+				}
 			}
 
 			questionDef = qtn;
@@ -900,10 +1080,12 @@ public class XformParser {
 			if(questionDef != null && true /*child.getChildNodes().getLength() != 0*/)
 				questionDef.setText(getText(child));
 		}
-		//else if(parentName.equalsIgnoreCase(NODE_NAME_GROUP)||parentName.equalsIgnoreCase(NODE_NAME_GROUP_MINUS_PREFIX)){
 		else if(XmlUtil.nodeNameEquals(parentName,XformConstants.NODE_NAME_GROUP_MINUS_PREFIX)){
+			//if(questionDef != null && true /*child.getChildNodes().getLength() != 0*/)
+			//	questionDef.setText(getText(child));
+			
 			if(true /*child.getChildNodes().getLength() != 0*/){
-				nodeContext.setLabel(getText(child));
+				nodeContext.setLabel(getText(child)); //questionDef.setText(child.getChildNodes().item(0).getNodeValue().trim());
 				nodeContext.setLabelNode(child);
 			}
 		}

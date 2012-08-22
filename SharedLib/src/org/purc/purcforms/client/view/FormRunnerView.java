@@ -14,10 +14,10 @@ import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Calculation;
 import org.purc.purcforms.client.model.DynamicOptionDef;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.GroupQtnsDef;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
-import org.purc.purcforms.client.model.RepeatQtnsDef;
 import org.purc.purcforms.client.model.SkipRule;
 import org.purc.purcforms.client.model.ValidationRule;
 import org.purc.purcforms.client.util.FormUtil;
@@ -617,16 +617,16 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			}
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
-			RepeatQtnsDef repeatQtnsDef = null;
+			GroupQtnsDef groupQtnsDef = null;
 			if(questionDef != null)
-				repeatQtnsDef = questionDef.getRepeatQtnsDef();
+				groupQtnsDef = questionDef.getGroupQtnsDef();
 
 			boolean repeated = false;
 			String value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_REPEATED);
 			if(value != null && value.trim().length() > 0)
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
-			widget = new RuntimeGroupWidget(images, formDef, repeatQtnsDef, this, this, repeated, this);
+			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, this, this, repeated, this);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 			//((RuntimeGroupWidget)widget).setTabIndex(tabIndex);
 			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());

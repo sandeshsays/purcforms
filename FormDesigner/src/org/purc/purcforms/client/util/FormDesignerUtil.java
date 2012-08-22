@@ -129,8 +129,8 @@ public class FormDesignerUtil {
 
 			//TODO Allowed for now since repeat questions will have ids which cant be equal to
 			//those of parents. But test this to ensure it does not bring in bugs.
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
-				loadQuestions(includeBinding, questionDef.getRepeatQtnsDef().getQuestions(),refQuestion,oracle,dynamicOptions,sameTypesOnly, parentQuestionDef); //TODO These have different id sets and hence we are leaving them out for now
+			if(questionDef.isGroupQtnsDef())
+				loadQuestions(includeBinding, questionDef.getGroupQtnsDef().getQuestions(),refQuestion,oracle,dynamicOptions,sameTypesOnly, parentQuestionDef); //TODO These have different id sets and hence we are leaving them out for now
 		}
 	}
 

@@ -867,14 +867,15 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				; //continue;
 
 			int type = questionDef.getDataType();
-			if(type == QuestionDef.QTN_TYPE_REPEAT && questionDef.getRepeatQtnsDef().getQuestions() == null)
+			if(questionDef.isGroupQtnsDef() && questionDef.getGroupQtnsDef().getQuestions() == null)
 				continue;
-
+			
 			//Provide a way of the user turning off some widgets not to be displayed.
 			if(!questionDef.isVisible() && (questionDef.getDefaultValue() == null || questionDef.getDefaultValue().trim().length() == 0))
 				continue;
 
-			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE)){
+			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE
+					|| type == QuestionDef.QTN_TYPE_GROUP)){
 				labelWidgetWrapper = widgetWrapper = addNewLabel(questionDef.getText(),false);
 				widgetWrapper.setBinding(questionDef.getBinding());
 				widgetWrapper.setTitle(questionDef.getText());
@@ -913,6 +914,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
 				widgetWrapper = addNewRepeatSet(questionDef, false, commands);
+			else if(type == QuestionDef.QTN_TYPE_GROUP)
+				widgetWrapper = addNewGroupSet(questionDef, false, commands);
 			else if(type == QuestionDef.QTN_TYPE_IMAGE)
 				widgetWrapper = addNewPictureSection(questionDef.getBinding(),questionDef.getText(),false);
 			else if(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO)
@@ -1055,7 +1058,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		x = 35 + selectedPanel.getAbsoluteLeft();
 		y += 25;
 
-		Vector questions = questionDef.getRepeatQtnsDef().getQuestions();
+		Vector questions = questionDef.getGroupQtnsDef().getQuestions();
 		if(questions == null)
 			return addNewTextBox(select); //TODO Bug here
 		for(int index = 0; index < questions.size(); index++){
@@ -1156,6 +1159,153 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			widget.setWidthInt(265);
 		else
 			widget.setWidthInt((questions.size() * 205)+15);
+		return widget;
+	}
+	
+	/**
+	 * Adds a new group set of widgets.
+	 * 
+	 * @param questionDef the group question whose widgets we are adding.
+	 * @param select set to true to select the group widget after adding it.
+	 * @return the added group widget.
+	 */
+	protected DesignWidgetWrapper addNewGroupSet(QuestionDef questionDef, boolean select, CommandList commands){
+		x = 35 + selectedPanel.getAbsoluteLeft();
+		//y += 25;
+
+		Vector questions = questionDef.getGroupQtnsDef().getQuestions();
+		if(questions == null)
+			return addNewTextBox(select); //TODO Bug here
+
+		x = 20 + selectedPanel.getAbsoluteLeft();
+		//y += 25;
+		DesignWidgetWrapper widget = addNewGroupBox(select);
+		DesignWidgetWrapper headerLabel = ((DesignGroupWidget)widget.getWrappedWidget()).getHeaderLabel();
+		headerLabel.setText(questionDef.getText());
+
+		FormDesignerDragController selDragController = selectedDragController;
+		AbsolutePanel absPanel = selectedPanel;
+		PopupPanel wgpopup = widgetPopup;
+		WidgetSelectionListener wgSelectionListener = currentWidgetSelectionListener;
+		currentWidgetSelectionListener = (DesignGroupWidget)widget.getWrappedWidget();
+
+		int oldY = y;
+		y = x = 10;
+
+		selectedDragController = widget.getDragController();
+		selectedPanel = widget.getPanel();
+		widgetPopup = widget.getWidgetPopup();
+
+		//y = x = 10;
+		x += selectedPanel.getAbsoluteLeft();
+		y += selectedPanel.getAbsoluteTop() + headerLabel.getHeightInt();
+
+		int oldX = x, oldHeight = 0, widestValue = 0;
+		y -= 10;
+		DesignWidgetWrapper widgetWrapper = null;
+		for(int index = 0; index < questions.size(); index++){
+			QuestionDef qtn = (QuestionDef)questions.get(index);
+			if(oldY > 0)
+				y += oldHeight + 10;
+			
+			int type = qtn.getDataType();
+			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE
+					|| type == QuestionDef.QTN_TYPE_GROUP)){
+				/*labelWidgetWrapper = */widgetWrapper = addNewLabel(qtn.getText(),false);
+				widgetWrapper.setBinding(qtn.getBinding());
+				widgetWrapper.setTitle(qtn.getText());
+
+				if(select)
+					selectedDragController.selectWidget(widgetWrapper);
+
+				if(commands != null)
+					commands.add(new InsertWidgetCmd(widgetWrapper, widgetWrapper.getLayoutNode(), this));
+			}
+
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
+				widgetWrapper.setFontWeight("bold");
+				widgetWrapper.setFontStyle("italic");
+			}
+
+			widgetWrapper = null;
+
+			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE))
+				x += (qtn.getText().length() * 10);
+			
+			if(qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
+					qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
+				widgetWrapper = addNewDropdownList(false);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_DATE)
+				widgetWrapper = addNewDatePicker(false);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_DATE_TIME)
+				widgetWrapper = addNewDateTimeWidget(false);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_TIME)
+				widgetWrapper = addNewTimeWidget(false);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+				widgetWrapper = addNewCheckBoxSet(qtn, true, index);
+				index += qtn.getOptions().size();
+			}
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
+				widgetWrapper = addNewDropdownList(false);
+			else if(type == QuestionDef.QTN_TYPE_REPEAT)
+				widgetWrapper = addNewRepeatSet(qtn, false, commands);
+			else if(type == QuestionDef.QTN_TYPE_GROUP)
+				widgetWrapper = addNewGroupSet(qtn, false, commands);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_IMAGE) 
+				widgetWrapper = addNewPictureSection(qtn.getBinding(), qtn.getText(), false);
+			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_VIDEO ||
+					qtn.getDataType() == QuestionDef.QTN_TYPE_AUDIO)
+				widgetWrapper = addNewVideoAudioSection(null,qtn.getText(),select);
+			else
+				widgetWrapper = addNewTextBox(select);
+
+			if(widgetWrapper != null){//addNewCheckBoxSet returns null
+				widgetWrapper.setBinding(qtn.getBinding());
+				widgetWrapper.setQuestionDef(qtn);
+				widgetWrapper.setTitle(qtn.getText());
+				widgetWrapper.setTabIndex(index + 1);
+			}
+			else {
+				//Must have called addNewCheckBoxSet
+				//and so this should be the last added checkbox
+				y += 20; //Add some space below a set of checkboxes
+				widgetWrapper = (DesignWidgetWrapper)selectedPanel.getWidget(selectedPanel.getWidgetCount() - 1);
+			}
+			
+			x = oldX;
+			oldHeight = widgetWrapper.getHeightInt();
+			
+			int right = widgetWrapper.getAbsoluteLeft() + widgetWrapper.getWidthInt();
+			if(right > widestValue)
+				widestValue = right;
+		}
+
+		widget.setHeightInt((y - widget.getAbsoluteTop()) + widgetWrapper.getHeightInt() + 10);
+		
+		selectedDragController.clearSelection();
+
+		selectedDragController = selDragController;
+		selectedPanel = absPanel;
+		widgetPopup = wgpopup;
+		currentWidgetSelectionListener = wgSelectionListener;
+
+		y = oldY;
+		//y += 90; //130; //25;
+		if(widget.getWidgetSelectionListener() == this)
+			y += widget.getHeightInt() - 20;
+
+		((DesignGroupWidget)widget.getWrappedWidget()).selectAll();
+		((DesignGroupWidget)widget.getWrappedWidget()).format();
+		
+		int right = widget.getAbsoluteLeft() + widget.getWidthInt();
+		if(widestValue > right) 
+			widget.setWidthInt(widget.getWidthInt() + (widestValue - right) + 20);
+			
+		/*if(questions.size() == 1)
+			widget.setWidthInt(265);
+		else
+			widget.setWidthInt((questions.size() * 205)+15);*/
+		
 		return widget;
 	}
 
