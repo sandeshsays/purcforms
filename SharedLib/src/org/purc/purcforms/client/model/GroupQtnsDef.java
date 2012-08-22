@@ -1,8 +1,11 @@
 package org.purc.purcforms.client.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -210,25 +213,76 @@ public class GroupQtnsDef implements Serializable {
 			return;
 		
 		Vector<QuestionDef> orderedQtns = new Vector<QuestionDef>();
+		Vector<QuestionDef> missingQtns = new Vector<QuestionDef>();
 		
 		for(int index = 0; index < questions2.size(); index++){
 			QuestionDef qtn = (QuestionDef)questions2.get(index);
 			QuestionDef questionDef = getQuestion(qtn.getBinding());
-			if(questionDef != null){
-				questionDef.refresh(qtn);
+			if(questionDef == null){
+				missingQtns.add(qtn);
+				continue; //Possibly this question was deleted on server
+			}
+			
+			questionDef.refresh(qtn);
+			
+			if (FormUtil.maintainOrderingOnRefresh()) {
 				orderedQtns.add(questionDef); //add the question in the order it was before the refresh.
+	
+				//Only move up or down if question really exists.
+				if(questions.indexOf(questionDef) >= 0) {
+					
+					//Preserve the previous question ordering even in the xforms document nodes.
+					int newIndex = ((List)questions).indexOf(questionDef);
+					
+					int tempIndex = index - missingQtns.size();
+					if(newIndex < ((List)questions).size()){
+						if(tempIndex != newIndex){
+							if(newIndex < tempIndex){
+								while(newIndex < tempIndex){
+									moveQuestionDown(questionDef);
+									newIndex++;
+								}
+							}
+							else{
+								while(newIndex > tempIndex){
+									moveQuestionUp(questionDef);
+									newIndex--;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		
-		//now add the new questions which have just been added by refresh.
-		int count = questions.size();
-		for(int index = 0; index < count; index++){
-			QuestionDef questionDef = getQuestionAt(index);
-			if(groupQtnsDef.getQuestion(questionDef.getBinding()) == null)
-				orderedQtns.add(questionDef);
+		if (FormUtil.maintainOrderingOnRefresh()) {
+			//now add the new questions which have just been added by refresh.
+			int count = questions.size();
+			for(int index = 0; index < count; index++){
+				QuestionDef questionDef = getQuestionAt(index);
+				if(groupQtnsDef.getQuestion(questionDef.getBinding()) == null)
+					orderedQtns.add(questionDef);
+			}
+			
+			//Now add the missing questions. Possibly they were added by user and not existing in the
+			//original server side form.
+			for(int index = 0; index < missingQtns.size(); index++){
+				QuestionDef qtnDef = missingQtns.get(index);
+				orderedQtns.add(new QuestionDef(qtnDef, this));
+				orderedQtns.get(orderedQtns.size() - 1).setId(orderedQtns.size() + index + 1);
+			}
+			
+			questions = orderedQtns;
 		}
-		
-		questions = orderedQtns;
+		else {
+			//Now add the missing questions. Possibly they were added by user and not existing in the
+			//original server side form.
+			for(int index = 0; index < missingQtns.size(); index++){
+				QuestionDef qtnDef = missingQtns.get(index);
+				questions.add(new QuestionDef(qtnDef, this));
+				((QuestionDef)questions.get(questions.size() - 1)).setId(questions.size() + index + 1);
+			}
+		}
 	}
 	
 	

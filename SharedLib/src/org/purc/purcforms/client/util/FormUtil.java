@@ -118,6 +118,7 @@ public class FormUtil {
 	private static boolean rebuildBindings = false;
 	private static boolean readOnlyMode = false;
 	private static boolean overwriteValidationsOnRefresh = false;
+	private static boolean maintainOrderingOnRefresh = true;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -577,6 +578,12 @@ public class FormUtil {
 			if("1".equals(s) || "true".equals(s))
 				overwriteValidationsOnRefresh = true;
 		}
+		
+		s = getDivValue("maintainOrderingOnRefresh");
+		if(s != null && s.trim().length() > 0){
+			if("0".equals(s) || "false".equals(s))
+				maintainOrderingOnRefresh = false;
+		}
 
 		retrieveUrlParameters();
 	}
@@ -896,6 +903,10 @@ public class FormUtil {
 
 	public static boolean overwriteValidationsOnRefresh(){
 		return overwriteValidationsOnRefresh;
+	}
+	
+	public static boolean maintainOrderingOnRefresh(){
+		return maintainOrderingOnRefresh;
 	}
 	
 	public static boolean isReadOnlyMode(){

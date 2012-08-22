@@ -1350,11 +1350,6 @@ public class QuestionDef implements Serializable{
 		List options2 = questionDef.getOptions();
 		if(options == null || options2 == null)
 			return;
-
-		if(getText().equals("MODE OF TRANSPORT OF ARRIVAL AT HOSPITAL") ||
-				getText().equals("During the most recent hospital visit for this illness/clinician, what means of transport did [NAME] use to arrive at the hospital?")){
-			options.toString();
-		}
 		
 		Vector<OptionDef> orderedOptns = new Vector<OptionDef>();
 		Vector<OptionDef> missingOptns = new Vector<OptionDef>();
@@ -1369,68 +1364,73 @@ public class QuestionDef implements Serializable{
 			
 			optionDef.setText(optn.getText());
 
-			orderedOptns.add(optionDef); //add the option in the order it was before the refresh.
-			
-			
-			//Preserve the previous option ordering even in the xforms document nodes.
-			int newIndex = ((List)options).indexOf(optionDef);
-			
-			int tempIndex = index - missingOptns.size();
-			if(newIndex < ((List)options).size()){
-				if(tempIndex != newIndex){
-					if(newIndex < tempIndex){
-						while(newIndex < tempIndex){
-							moveOptionDown(optionDef);
-							newIndex++;
+			if (FormUtil.maintainOrderingOnRefresh()) {
+				orderedOptns.add(optionDef); //add the option in the order it was before the refresh.
+				
+				//Preserve the previous option ordering even in the xforms document nodes.
+				int newIndex = ((List)options).indexOf(optionDef);
+				
+				int tempIndex = index - missingOptns.size();
+				if(newIndex < ((List)options).size()){
+					if(tempIndex != newIndex){
+						if(newIndex < tempIndex){
+							while(newIndex < tempIndex){
+								moveOptionDown(optionDef);
+								newIndex++;
+							}
 						}
-					}
-					else{
-						while(newIndex > tempIndex){
-							moveOptionUp(optionDef);
-							newIndex--;
+						else{
+							while(newIndex > tempIndex){
+								moveOptionUp(optionDef);
+								newIndex--;
+							}
 						}
 					}
 				}
 			}
-
-			/*int index1 = this.getOptionIndex(optn.getVariableName());
-			if(index != index1 && index1 != -1 && index < this.getOptionCount() - 1){
-				((List)this.getOptions()).remove(optionDef);
-				((List)this.getOptions()).set(index, optionDef);
-			}*/
 		}
 
-		int oldCount = questionDef.getOptionCount();
-		
-		//now add the new options which have just been added by refresh.
-		int count = getOptionCount();
-		for(int index = 0; index < count; index++){
-			OptionDef optionDef = getOptionAt(index);
-			if(questionDef.getOptionWithValue(optionDef.getBinding()) == null){
-				
-				//TODO Make sure this is not buggy.
-				//If before refresh number of options is the same as the new number,
-				//then we preserve the old option text and binding by replacing new
-				//ones with the old values.
-				if(oldCount == count){
-					//Commented out because its really buggy. When provider id changes, it adds duplicate and with same old id.
-					/*OptionDef optnDef = questionDef.getOptionAt(index);
-					optionDef.setBinding(optnDef.getBinding());
-					optionDef.setText(optnDef.getText());*/
+		if (FormUtil.maintainOrderingOnRefresh()) {
+			int oldCount = questionDef.getOptionCount();
+			
+			//now add the new options which have just been added by refresh.
+			int count = getOptionCount();
+			for(int index = 0; index < count; index++){
+				OptionDef optionDef = getOptionAt(index);
+				if(questionDef.getOptionWithValue(optionDef.getBinding()) == null){
+					
+					//TODO Make sure this is not buggy.
+					//If before refresh number of options is the same as the new number,
+					//then we preserve the old option text and binding by replacing new
+					//ones with the old values.
+					if(oldCount == count){
+						//Commented out because its really buggy. When provider id changes, it adds duplicate and with same old id.
+						/*OptionDef optnDef = questionDef.getOptionAt(index);
+						optionDef.setBinding(optnDef.getBinding());
+						optionDef.setText(optnDef.getText());*/
+					}
+					
+					orderedOptns.add(optionDef);
 				}
-				
-				orderedOptns.add(optionDef);
+			}
+			
+			//Now add the missing options. Possibly they were added by user and not existing in the
+			//original server side form.
+			for(int index = 0; index < missingOptns.size(); index++){
+				OptionDef optnDef = missingOptns.get(index);
+				orderedOptns.add(new OptionDef((orderedOptns.size() + index + 1), optnDef.getText(), optnDef.getBinding(), this));
+			}
+	
+			options = orderedOptns;
+		}
+		else {
+			//Now add the missing options. Possibly they were added by user and not existing in the
+			//original server side form.
+			for(int index = 0; index < missingOptns.size(); index++){
+				OptionDef optnDef = missingOptns.get(index);
+				((List)options).add(new OptionDef((((List)options).size() + index + 1), optnDef.getText(), optnDef.getBinding(), this));
 			}
 		}
-		
-		//Now add the missing options. Possibly they were added by user and not existing in the
-		//original server side form.
-		for(int index = 0; index < missingOptns.size(); index++){
-			OptionDef optnDef = missingOptns.get(index);
-			orderedOptns.add(new OptionDef((orderedOptns.size() + index + 1), optnDef.getText(), optnDef.getBinding(), this));
-		}
-
-		options = orderedOptns;
 	}
 
 	/**
