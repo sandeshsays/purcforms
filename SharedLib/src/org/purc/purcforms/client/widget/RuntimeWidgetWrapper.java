@@ -80,8 +80,6 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	/** The widget's validation rule. */
 	private ValidationRule validationRule;
 
-	private static int id = 0;
-
 	/**
 	 * Creates a copy of the widget.
 	 * 
@@ -1151,6 +1149,15 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	 * @return true if answered, else false.
 	 */
 	public boolean isAnswered(){
+		if(externalSource != null && externalSource.trim().length() > 0 ){
+			if(panel.getWidgetCount() > 1){
+				Widget wid = panel.getWidget(1);
+				if(wid instanceof Label){
+					questionDef.setAnswer(((Label)wid).getText());
+				}
+			}
+		}
+		
 		return getAnswer() != null && getAnswer().toString().trim().length() > 0;
 	}
 
