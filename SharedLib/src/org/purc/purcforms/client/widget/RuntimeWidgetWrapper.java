@@ -825,8 +825,22 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			OptionDef optionDef = questionDef.getOptionWithText(((TextBox)widget).getText());
 			if(optionDef != null)
 				questionDef.setAnswer(optionDef.getBinding());
-			else
+			else {
 				questionDef.setAnswer(null);
+				
+				if(externalSource != null && externalSource.trim().length() > 0 ){
+					String answer = getTextBoxAnswer();
+					if(panel.getWidgetCount() > 1 && answer != null && answer.trim().length() > 0){
+						Widget wid = panel.getWidget(1);
+						if(wid instanceof Label){
+							answer = ((Label)wid).getText();
+							optionDef = questionDef.getOptionWithValue(answer);
+							if(optionDef != null)
+								questionDef.setAnswer(optionDef.getBinding());
+						}
+					}
+				}
+			}
 
 			//Fire fox clears default values when the widget is disabled. So put it as the answer manually.
 			if(defaultValue != null && defaultValue.trim().length() > 0 && !((TextBox)widget).isEnabled()){
@@ -847,37 +861,6 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						answer = ((Label)wid).getText();
 					}
 				}
-				
-				/*if(panel.getWidgetCount() > 1 ){
-					Window.alert("before removing");
-					com.google.gwt.user.client.Element elem = panel.getWidget(1).getElement();
-					Window.alert("yayayya");
-					Element parent = DOM.getParent(elem);
-					Window.alert("just about=" + parent.getChildCount());
-					parent.removeChild(parent.getChild(0));
-					Window.alert("just about");
-					parent.appendChild(widget.getElement());
-					
-					//panel.remove(1);
-					Window.alert("removed");
-				}
-				else{
-					Window.alert("NOT removed =" + panel.getWidgetCount());
-					for(int index = 0; index < panel.getWidgetCount(); index++){
-						Widget w = panel.getWidget(index);
-						String s = "NODE";
-						if(w instanceof TextBox)
-							s = "TEXTBOX = " + ((TextBox)w).getText();
-						else if(w instanceof Label)
-							s = "LABEL = " + ((Label)w).getText();
-						else if(w instanceof Image)
-							s = "IMAGE";
-						
-						Window.alert(s);
-						
-						((TextBox)widget).setFocus(true);
-					}
-				}*/
 			}
 
 			questionDef.setAnswer(answer);
