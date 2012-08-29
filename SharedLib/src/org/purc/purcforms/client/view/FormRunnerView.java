@@ -450,7 +450,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		selectedPanel.setHeight(sHeight);
 		selectedTabIndex = tabs.getWidgetCount() - 1;
 		tabs.selectTab(selectedTabIndex);
-
+		
+		DOM.setStyleAttribute(tabs.getDeckPanel().getElement(), "borderColor", FormUtil.getDefaultGroupBoxHeaderBgColor());
+		
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {
 				//onWindowResized(Window.getClientWidth(), Window.getClientHeight());
