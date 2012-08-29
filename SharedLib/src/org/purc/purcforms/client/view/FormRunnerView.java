@@ -214,6 +214,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public FormRunnerView(/*Images images*/){
 		//this.images = images;
 
+		DOM.setStyleAttribute(tabs.getDeckPanel().getElement(), "borderColor", FormUtil.getDefaultGroupBoxHeaderBgColor());
 		FormUtil.maximizeWidget(tabs);
 
 		initWidget(tabs);
@@ -450,8 +451,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		selectedPanel.setHeight(sHeight);
 		selectedTabIndex = tabs.getWidgetCount() - 1;
 		tabs.selectTab(selectedTabIndex);
-		
-		DOM.setStyleAttribute(tabs.getDeckPanel().getElement(), "borderColor", FormUtil.getDefaultGroupBoxHeaderBgColor());
 		
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {
