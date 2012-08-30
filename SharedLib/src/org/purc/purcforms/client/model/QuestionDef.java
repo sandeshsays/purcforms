@@ -938,9 +938,11 @@ public class QuestionDef implements Serializable{
 				if(binding.contains("@"))
 					updateAttributeValue(formNode,"");
 				else{
-					NodeList childNodes = dataNode.getChildNodes();
-					while(childNodes.getLength() > 0)
-						dataNode.removeChild(childNodes.item(0));
+					if(!(parent instanceof QuestionDef && ((QuestionDef)parent).isGroupQtnsDef())) {
+						NodeList childNodes = dataNode.getChildNodes();
+						while(childNodes.getLength() > 0)
+							dataNode.removeChild(childNodes.item(0));
+					}
 				}
 			}
 		}
