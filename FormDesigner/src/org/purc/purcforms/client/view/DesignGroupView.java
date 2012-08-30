@@ -2183,6 +2183,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		DesignWidgetWrapper headerLabel = addNewLabel("Header Label", false);
 		headerLabel.setBackgroundColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		widget.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 		DOM.setStyleAttribute(headerLabel.getElement(), "width","100%");
 		headerLabel.setTextAlign("center");
 		selectedDragController.makeNotDraggable(headerLabel);
@@ -2361,6 +2362,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		x = selectedPanel.getAbsoluteLeft();
 		DesignWidgetWrapper headerLabel = addNewLabel(text != null ? text : "Picture", false);
 		headerLabel.setBackgroundColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		widget.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 		DOM.setStyleAttribute(headerLabel.getElement(), "width","100%");
 		headerLabel.setTextAlign("center");
 		selectedDragController.makeNotDraggable(headerLabel);
@@ -2457,6 +2459,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		x = selectedPanel.getAbsoluteLeft();
 		DesignWidgetWrapper headerLabel = addNewLabel(text != null ? text : LocaleText.get("recording"), false);
 		headerLabel.setBackgroundColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		widget.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 		DOM.setStyleAttribute(headerLabel.getElement(), "width","100%");
 		headerLabel.setTextAlign("center");
 		selectedDragController.makeNotDraggable(headerLabel);
