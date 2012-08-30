@@ -170,6 +170,8 @@ public class FormUtil {
 	 */
 	private static boolean showSubmitSuccessMsg = false;
 	
+	private static boolean formatXml = true;
+	
 	private static HashMap<String, String> decimalSeparators = new HashMap<String, String>();
 
 	/** The dialog used to show all progress messages. */
@@ -332,6 +334,9 @@ public class FormUtil {
 		if(xmlContent == null)
 			return null;
 
+		if(!formatXml())
+			return xmlContent;
+		
 		return formatXmlPrivate(formatXmlPrivate(xmlContent));
 	}
 
@@ -584,6 +589,10 @@ public class FormUtil {
 			if("0".equals(s) || "false".equals(s))
 				maintainOrderingOnRefresh = false;
 		}
+		
+		s = getDivValue("formatXml");
+		if("0".equals(s) || "false".equals(s))
+			formatXml = false;
 
 		retrieveUrlParameters();
 	}
@@ -893,6 +902,10 @@ public class FormUtil {
 		return showSubmitSuccessMsg;
 	}
 
+	public static boolean formatXml(){
+		return formatXml;
+	}
+	
 	public static boolean combineFormOnSave(){
 		return combineFormOnSave;
 	}
