@@ -2221,6 +2221,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		DesignWidgetWrapper widget = addNewWidget(repeat,select);
 		widget.setRepeated(true);
+		widget.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 
 		FormDesignerDragController selDragController = selectedDragController;
 		AbsolutePanel absPanel = selectedPanel;
