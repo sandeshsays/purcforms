@@ -874,7 +874,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			//For now we do not allow default values for repeat kids to simplify implementation.
 			Element node = copyWidget.getQuestionDef().getDataNode();
-			if(!(node != null && "false()".equals(node.getAttribute("default")))){
+			if(!(hasDefaultValue(node))){
 				copyWidget.getQuestionDef().setDefaultValue(null);
 			}
 
@@ -949,7 +949,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			
 			//For now we do not allow default values for repeat kids to simplify implementation.
 			Element node = copyWidget.getQuestionDef().getDataNode();
-			if(!(node != null && "false()".equals(node.getAttribute("default")))){
+			if(!(hasDefaultValue(node))){
 				copyWidget.getQuestionDef().setDefaultValue(null);
 			}
 
@@ -1556,5 +1556,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	
 	private boolean hasEqualOperator(ValidationRule validationRule){
 		return validationRule.getConditionAt(0).getOperator() == ModelConstants.OPERATOR_EQUAL;
+	}
+	
+	private boolean hasDefaultValue(Element node) {
+		return hasDefaultWithFalseValue(node) || hasDefaultWithFalseValue((Element)node.getParentNode());
+	}
+	
+	private boolean hasDefaultWithFalseValue(Element node){
+		if(node != null && "false()".equals(node.getAttribute("default")))
+			return true;
+		
+		return false;
 	}
 }
