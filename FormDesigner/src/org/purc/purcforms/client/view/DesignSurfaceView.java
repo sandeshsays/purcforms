@@ -119,6 +119,15 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true, new Command(){
 			public void execute() {widgetPopup.hide(); deleteWidgets();}});
+		
+		
+		menuBar.addSeparator();	
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("lockWidgets")),true, new Command(){
+			public void execute() {widgetPopup.hide(); lockWidgets();}});
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("unLockWidgets")),true, new Command(){
+			public void execute() {widgetPopup.hide(); unLockWidgets();}});
+		
 
 		menuBar.addSeparator(); //LocaleText.get("??????")?????????
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("changeWidgetH")),true, new Command(){
@@ -320,7 +329,11 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addSeparator();	
 		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("lockWidgets")),true, new Command(){
 			public void execute() {popup.hide(); lockWidgets();}});
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("unLockWidgets")),true, new Command(){
+			public void execute() {popup.hide(); unLockWidgets();}});
 
+		menuBar.addSeparator();	
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectAll")),true, new Command(){
 			public void execute() {popup.hide(); selectAll();}});
 

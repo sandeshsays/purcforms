@@ -1180,7 +1180,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		pasteSeparator.setVisible(visible);
 		pasteMenu.setVisible(visible); 
 
-		lockWidgetsMenu.setHTML(FormDesignerUtil.createHeaderHTML(images.add(),Context.getLockWidgets() ? LocaleText.get("unLockWidgets") : LocaleText.get("lockWidgets")));
+		//lockWidgetsMenu.setHTML(FormDesignerUtil.createHeaderHTML(images.add(),Context.getLockWidgets() ? LocaleText.get("unLockWidgets") : LocaleText.get("lockWidgets")));
 	}
 
 	/**
@@ -2487,10 +2487,20 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 
 	protected void lockWidgets(){
-		Context.setLockWidgets(!Context.getLockWidgets());
+		//Context.setLockWidgets(!Context.getLockWidgets());
+		lockUnlockWidgets(true);
+	}
+	
+	protected void unLockWidgets(){
+		lockUnlockWidgets(false);
 	}
 
-
+	private void lockUnlockWidgets(boolean lock) {
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			((DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i)).setLocked(lock);
+		}
+	}
+	
 	public boolean onWidgetPropertyChanged(byte property, String value){
 		if(WidgetPropertySetter.setProperty(property, selectedDragController, value))
 			return true;

@@ -259,7 +259,7 @@ public class FormDesignerDragController extends AbstractDragController{
 
 
 		if(!Context.getLockWidgets()){
-			if(context.draggable instanceof DesignWidgetWrapper){
+			if(context.draggable instanceof DesignWidgetWrapper && !((DesignWidgetWrapper)context.draggable).isLocked()) {
 				/*DesignWidgetWrapper wrapper = (DesignWidgetWrapper)context.draggable;
 
 			String s = "";
@@ -309,9 +309,14 @@ public class FormDesignerDragController extends AbstractDragController{
 				}
 			}
 			else{
-				//DOM.setStyleAttribute(movablePanel.getElement(),"cursor","crosshair");
-				DOM.setStyleAttribute(movablePanel.getElement(), "cursor", "pointer");
-				DOMUtil.fastSetElementPosition(movablePanel.getElement(), desiredLeft, desiredTop);
+				if(context.draggable instanceof DesignWidgetWrapper && ((DesignWidgetWrapper)context.draggable).isLocked()) {
+					//locked design widget wrapper
+				}
+				else {
+					//DOM.setStyleAttribute(movablePanel.getElement(),"cursor","crosshair");
+					DOM.setStyleAttribute(movablePanel.getElement(), "cursor", "pointer");
+					DOMUtil.fastSetElementPosition(movablePanel.getElement(), desiredLeft, desiredTop);
+				}
 			}
 		}
 

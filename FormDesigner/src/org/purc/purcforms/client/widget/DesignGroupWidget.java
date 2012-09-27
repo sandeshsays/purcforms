@@ -80,6 +80,13 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true, new Command(){
 			public void execute() {widgetPopup.hide(); deleteWidgets();}});
+		
+		menuBar.addSeparator();	
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("lockWidgets")),true, new Command(){
+			public void execute() {widgetPopup.hide(); lockWidgets();}});
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("unLockWidgets")),true, new Command(){
+			public void execute() {widgetPopup.hide(); unLockWidgets();}});
 
 		menuBar.addSeparator(); //LocaleText.get("??????")?????????
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("changeWidgetH")),true, new Command(){

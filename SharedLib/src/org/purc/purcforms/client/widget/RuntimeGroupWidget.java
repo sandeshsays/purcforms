@@ -1559,7 +1559,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 	
 	private boolean hasDefaultValue(Element node) {
-		return hasDefaultWithFalseValue(node) || hasDefaultWithFalseValue((Element)node.getParentNode());
+		return hasDefaultWithFalseValue(node) /*|| hasDefaultWithFalseValue((Element)node.getParentNode())*/;
 	}
 	
 	private boolean hasDefaultWithFalseValue(Element node){

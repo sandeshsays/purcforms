@@ -69,7 +69,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	private WidgetSelectionListener widgetSelectionListener;
 	private PopupPanel popup;
 	private Element layoutNode;
-
+	private boolean locked;
 
 	public DesignWidgetWrapper(DesignWidgetWrapper designWidgetWrapper,Images images){
 		super(designWidgetWrapper);
@@ -968,6 +968,14 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public void refreshPosition(){
 		setTop(getTop());
 		setLeft(getLeft());
+	}
+
+	public boolean isLocked() {
+		return locked;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
 	}
 	
 	/*public void setForeColor(String color){

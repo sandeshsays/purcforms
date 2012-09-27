@@ -20,6 +20,9 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 
 	static class Draggable {
 
+		public int x;
+		public int y;
+		
 		public int desiredX;
 
 		public int desiredY;
@@ -40,6 +43,11 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			this.widget = widget;
 			offsetWidth = widget.getOffsetWidth();
 			offsetHeight = widget.getOffsetHeight();
+			
+			if(widget instanceof DesignWidgetWrapper){
+				x = ((DesignWidgetWrapper)widget).getLeftInt();
+				y = ((DesignWidgetWrapper)widget).getTopInt();
+			}
 		}
 	}
 
@@ -84,12 +92,20 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 
 	@Override
 	public void onDrop(DragContext context) {
+		boolean lockedWidgetFound = false;
 		for (Draggable draggable : draggableList) {
 			if(draggable.widget instanceof DesignWidgetWrapper){
 				draggable.positioner.removeFromParent();
-				dropTarget.add(draggable.widget, draggable.desiredX, draggable.desiredY);
-				//dropTarget.add(draggable.widget, draggable.widget.getAbsoluteLeft(), draggable.widget.getAbsoluteTop());
-				//dropTarget.add(draggable.widget, context.desiredDraggableX, context.desiredDraggableY);
+				
+				if(!((DesignWidgetWrapper)draggable.widget).isLocked() && !lockedWidgetFound) {
+					dropTarget.add(draggable.widget, draggable.desiredX, draggable.desiredY);
+					//dropTarget.add(draggable.widget, draggable.widget.getAbsoluteLeft(), draggable.widget.getAbsoluteTop());
+					//dropTarget.add(draggable.widget, context.desiredDraggableX, context.desiredDraggableY);
+				}
+				else {
+					lockedWidgetFound = true;
+					dropTarget.add(draggable.widget, draggable.x, draggable.y);
+				}
 			}
 			else if(dragDropListener != null)
 				dragDropListener.onDrop(draggable.widget,context.mouseX,context.mouseY);
