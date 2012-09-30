@@ -178,3 +178,8 @@ body, html {
     height: auto;
     width: auto;
 }
+
+.gwt-Label::selection { background: transparent; }
+.gwt-Label::-moz-selection { background: transparent; }
+.gwt-Button::selection { background: transparent; }
+.gwt-Button::-moz-selection { background: transparent; }
