@@ -3168,6 +3168,22 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return addToDesignSurface(item, getLowestWidgetYPos() + 20, 20);
 	}
 	
+	private DesignSurfaceView getDesignSurfaceView() {
+		Widget widget = this;
+		while (!(widget instanceof DesignSurfaceView)){
+			widget = widget.getParent();
+		}
+		
+		return (DesignSurfaceView)widget;
+	}
+	
+	public void fillWidgetBindings(HashMap<String, DesignWidgetWrapper> bindings, HashMap<String, DesignWidgetWrapper> labels) {
+		for(int i=0; i<dragControllers.size(); i++){
+			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
+			fillWidgetBindings(panel, bindings, labels);
+		}
+	}
+	
 	public DesignWidgetWrapper addToDesignSurface(Object item, int y, int x) {
 		
 		if(item == null)
@@ -3186,10 +3202,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String, DesignWidgetWrapper> bindings = new HashMap<String, DesignWidgetWrapper>();
 		HashMap<String, DesignWidgetWrapper> labels = new HashMap<String, DesignWidgetWrapper>();
-		for(int i=0; i<dragControllers.size(); i++){
-			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
-			fillWidgetBindings(panel, bindings, labels);
-		}
+		getDesignSurfaceView().fillWidgetBindings(bindings, labels);
 		 
 		if(bindings.containsKey(questionDef.getBinding())){
 			Widget widget = bindings.get(questionDef.getBinding());
