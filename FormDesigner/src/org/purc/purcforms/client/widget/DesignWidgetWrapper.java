@@ -12,6 +12,7 @@ import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 import org.purc.purcforms.client.xforms.XformConstants;
 
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
@@ -745,12 +746,18 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public FormDesignerDragController getDragController(){
 		if(widget instanceof DesignGroupWidget)
 			return ((DesignGroupWidget)widget).getDragController();
+		else if(widget instanceof GridDesignGroupWidget)
+			return ((GridDesignGroupWidget)widget).getDragController();
+		
 		return null;
 	}
 
 	public AbsolutePanel getPanel(){
 		if(widget instanceof DesignGroupWidget)
 			return ((DesignGroupWidget)widget).getPanel();
+		else if(widget instanceof GridDesignGroupWidget)
+			return ((GridDesignGroupWidget)widget).getPanel();
+		
 		return null;
 	}
 

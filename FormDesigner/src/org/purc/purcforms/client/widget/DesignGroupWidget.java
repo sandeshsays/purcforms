@@ -63,6 +63,7 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 
 		initPanel();
 		initWidget(selectedPanel);
+		dragControllers.add(0, selectedDragController);
 
 		addStyleName("getting-started-label2");
 
@@ -219,6 +220,9 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 		    	public void execute() {popup.hide(); ;}});*/
 
 		menuBar.addItem("   "+LocaleText.get("addWidget"),addControlMenu);
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("selectedFormField")),true,new Command(){
+			public void execute() {popup.hide(); addSelectedFormField(true);}});
 
 		//if(selectedDragController.isAnyWidgetSelected()){
 		deleteWidgetsSeparator = menuBar.addSeparator();
