@@ -64,6 +64,7 @@ public class GridDesignGroupWidget extends DesignGroupView implements DragDropLi
 
 		this.widgetPopupMenuListener = widgetPopupMenuListener;
 
+		selectedPanel = new GridPanel(100, 20, 500, 200, true);
 		initPanel();
 		initWidget(selectedPanel);
 
@@ -463,5 +464,9 @@ public class GridDesignGroupWidget extends DesignGroupView implements DragDropLi
 	public void setHeaderLabel(DesignWidgetWrapper headerLabel){
 		this.headerLabel = headerLabel;
 		this.headerLabel.setPopupPanel(null);
+	}
+	
+	public void resizeGrid(int width, int height){
+		((GridPanel)selectedPanel).resizeGrid(width, height);
 	}
 }
