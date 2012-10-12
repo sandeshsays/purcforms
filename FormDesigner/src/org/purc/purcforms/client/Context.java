@@ -85,7 +85,6 @@ public class Context {
 	
 	private static Object selectedItem;
 	
-	
 	/**
 	 * Sets the default locale.
 	 * 

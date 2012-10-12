@@ -37,6 +37,7 @@ import org.purc.purcforms.client.widget.PaletteWidget;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
 import org.purc.purcforms.client.widget.TextBoxWidget;
 import org.purc.purcforms.client.widget.TimeWidget;
+import org.purc.purcforms.client.widget.TreeItemWidget;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
@@ -317,8 +318,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 	private void tryUnregisterDropController(DesignWidgetWrapper widget){
-		if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+		if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
 			PaletteView.unRegisterDropController(((DesignGroupWidget)widget.getWrappedWidget()).getDragController().getFormDesignerDropController());
+			FormsTreeView.unRegisterDropController(((DesignGroupWidget)widget.getWrappedWidget()).getDragController().getFormDesignerDropController());
+		}
 	}
 
 	private void updateClipboardLeftMostPos(){
@@ -1509,11 +1512,22 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 	public DesignWidgetWrapper onDrop(Widget widget,int x, int y){
+		if(widget instanceof PaletteWidget || widget instanceof TreeItemWidget){
+			this.x = x;
+			this.y = y;
+		}
+		
+		if(widget instanceof PaletteWidget)
+			return onDropWidgetFromPalette(widget, x, y);
+		else if(widget instanceof TreeItemWidget)
+			addToDesignSurface(Context.getSelectedItem(), y, x);
+		
+		return null;
+	}
+	
+	public DesignWidgetWrapper onDropWidgetFromPalette(Widget widget,int x, int y){
 		if(!(widget instanceof PaletteWidget))
 			return null;
-
-		this.x = x;
-		this.y = y;
 
 		String text = ((PaletteWidget)widget).getName();
 
@@ -1598,6 +1612,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		// Don't forget to register each DropController with a DragController
 		selectedDragController.registerDropController(dropController);
 		PaletteView.registerDropController(dropController);
+		FormsTreeView.registerDropController(dropController);
 
 		initEditWidget();
 	}
@@ -3184,6 +3199,16 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 	}
 	
+	public FormDesignerDragController getWidgetDragController(DesignWidgetWrapper widget){
+		for(int i=0; i<dragControllers.size(); i++){
+			FormDesignerDragController dragController = dragControllers.elementAt(i);
+			if(dragController.getBoundaryPanel().getWidgetIndex(widget) > -1)
+				return dragController;
+		}
+		
+		return null;
+	}
+	
 	public DesignWidgetWrapper addToDesignSurface(Object item, int y, int x) {
 		
 		if(item == null)
@@ -3198,6 +3223,12 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return null;
 		
 		clearSelection();
+		clearGroupBoxSelection();
+		if(widgetSelectionListener instanceof DesignSurfaceView){
+			((DesignSurfaceView)widgetSelectionListener).clearSelection();
+			if(selectedDragController.getSelectedWidgetCount() == 1)
+				((DesignSurfaceView)widgetSelectionListener).clearGroupBoxSelection();
+		}
 		
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String, DesignWidgetWrapper> bindings = new HashMap<String, DesignWidgetWrapper>();
@@ -3205,13 +3236,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		getDesignSurfaceView().fillWidgetBindings(bindings, labels);
 		 
 		if(bindings.containsKey(questionDef.getBinding())){
-			Widget widget = bindings.get(questionDef.getBinding());
-			selectedDragController.selectWidget(widget);
+			DesignWidgetWrapper widget = bindings.get(questionDef.getBinding());
+			FormDesignerDragController dragController = getWidgetDragController(widget);
+			dragController.selectWidget(widget);
 			
 			//select the label too
 			if(labels.containsKey(questionDef.getBinding()))
-				selectedDragController.selectWidget(labels.get(questionDef.getBinding()));
+				dragController.selectWidget(labels.get(questionDef.getBinding()));
 			
+			tabs.selectTab(dragControllers.indexOf(dragController));
 			ensureVisible(widget);
 			return null;
 		}

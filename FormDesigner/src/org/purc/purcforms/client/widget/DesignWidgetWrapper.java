@@ -1062,4 +1062,18 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		if(widget instanceof TabBar)
 			setTabStyle("borderColor", borderColor);
 	}*/
+	
+	public void setWidthInt(long width){
+		super.setWidthInt(width);
+		
+		if(widget instanceof GridDesignGroupWidget)
+			((GridDesignGroupWidget)widget).resizeGrid((int)width, this.getHeightInt());
+	}
+
+	public void setHeight(long height){
+		super.setHeightInt(height);
+		
+		if(widget instanceof GridDesignGroupWidget)
+			((GridDesignGroupWidget)widget).resizeGrid(getWidthInt(), (int)height);
+	}
 }

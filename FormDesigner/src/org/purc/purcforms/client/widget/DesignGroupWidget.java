@@ -401,11 +401,12 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 	 * @see org.purc.purcforms.client.controller.DragDropListener#onDrop(Widget, int, int)
 	 */
 	public DesignWidgetWrapper onDrop(Widget widget,int x, int y){
-		if(!(widget instanceof PaletteWidget))
-			return null;
-
+		
 		DesignWidgetWrapper retWidget = super.onDrop(widget, x, y);
 
+		if(!(widget instanceof PaletteWidget))
+			return null;
+		
 		String text = ((PaletteWidget)widget).getName();
 
 		if(text.equals(LocaleText.get("picture")))

@@ -12,6 +12,7 @@ import org.purc.purcforms.client.cmd.ChangedFieldCmd;
 import org.purc.purcforms.client.cmd.DeleteFieldCmd;
 import org.purc.purcforms.client.cmd.InsertFieldCmd;
 import org.purc.purcforms.client.cmd.MoveFieldCmd;
+import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.IFormActionListener;
 import org.purc.purcforms.client.controller.IFormChangeListener;
 import org.purc.purcforms.client.controller.IFormDesignerListener;
@@ -28,6 +29,7 @@ import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.widget.CompositeTreeItem;
 import org.purc.purcforms.client.widget.TreeItemWidget;
 
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.dom.client.MouseUpEvent;
@@ -43,8 +45,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 
 
 /**
@@ -108,6 +112,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 	/** The listener to form designer global events. */
 	private IFormDesignerListener formDesignerListener;
+	
+	/** The DND drag controller. */
+	private static FormDesignerDragController dragController;
 
 
 	/**
@@ -120,6 +127,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		this.images = images;
 		this.formSelectionListeners.add(formSelectionListener);
+		
+		if(dragController == null)
+			initDnd();
 
 		tree = new Tree(images);
 
@@ -269,6 +279,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		TreeItem item = new CompositeTreeItem(new TreeItemWidget(imageProto, title, popup, this));
 		item.setUserObject(userObj);
 		item.setTitle(helpText);
+		
+		dragController.makeDraggable(item.getWidget());
+		
 		if(root != null){
 			if(inserAfterItem != null)
 				root.insertItem(item, inserAfterItem); //root.insertItem(root.getChildIndex(inserAfterItem) + 1, item);
@@ -1040,23 +1053,32 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	}
 	
 	private void updateTreeItemText(Object formItem, TreeItem item){
+		Widget widget = null;
+		
 		if(formItem instanceof QuestionDef){
 			QuestionDef questionDef = (QuestionDef)formItem;
-			item.setWidget(new TreeItemWidget(images.lookup(), questionDef.getDisplayText(),popup,this));
+			widget = new TreeItemWidget(images.lookup(), questionDef.getDisplayText(), popup, this);
+			item.setWidget(widget);
 			item.setTitle(questionDef.getHelpText());
 		}
 		else if(formItem instanceof OptionDef){
 			OptionDef optionDef = (OptionDef)formItem;
-			item.setWidget(new TreeItemWidget(images.markRead(), optionDef.getText(),popup,this));
+			widget = new TreeItemWidget(images.markRead(), optionDef.getText(), popup, this);
+			item.setWidget(widget);
 		}
 		else if(formItem instanceof PageDef){
 			PageDef pageDef = (PageDef)formItem;
-			item.setWidget(new TreeItemWidget(images.drafts(), pageDef.getName(),popup,this));
+			widget = new TreeItemWidget(images.drafts(), pageDef.getName(), popup, this);
+			item.setWidget(widget);
 		}
 		else if(formItem instanceof FormDef){
 			FormDef formDef = (FormDef)formItem;
-			item.setWidget(new TreeItemWidget(images.note(), formDef.getName(),popup,this));
+			widget = new TreeItemWidget(images.note(), formDef.getName(), popup, this);
+			item.setWidget(widget);
 		}
+		
+		if(widget != null)
+			dragController.makeDraggable(item.getWidget());
 
 		//After editing, the currently selected item is not highlighted and so this line fixes that problem.
 		((CompositeTreeItem)tree.getSelectedItem()).addSelectionStyle();
@@ -1572,5 +1594,41 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	
 	public void addRootItem(TreeItem item){
 		tree.addItem(item);
+	}
+	
+	/**
+	 * Sets up the DND drag controller.
+	 */
+	private static void initDnd(){
+		dragController = new FormDesignerDragController(RootPanel.get(), false, null);
+		dragController.setBehaviorMultipleSelection(false);
+		dragController.setBehaviorDragStartSensitivity(5);
+	}
+	
+	/**
+	 * Registers a drop controller for widgets from this palette.
+	 * 
+	 * @param dropController the drop controller to register.
+	 */
+	public static void registerDropController(DropController dropController) {
+		if(dragController == null)
+			initDnd();
+		dragController.registerDropController(dropController);
+	}
+	
+	/**
+	 * Removes a previously registered drop controller.
+	 * 
+	 * @param dropController the drop controller to un register.
+	 */
+	public static void unRegisterDropController(DropController dropController){
+		dragController.unregisterDropController(dropController);
+	}
+	
+	/**
+	 * Removes all registered drop controllers.
+	 */
+	public static void unRegisterAllDropControllers(){
+		dragController.unregisterAllDropControllers();
 	}
 }

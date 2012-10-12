@@ -13,6 +13,7 @@ import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.PaletteWidget;
+import org.purc.purcforms.client.widget.TreeItemWidget;
 
 import com.allen_sauer.gwt.dnd.client.AbstractDragController;
 import com.allen_sauer.gwt.dnd.client.DragContext;
@@ -434,8 +435,8 @@ public class FormDesignerDragController extends AbstractDragController{
 			for (Widget widget : context.selectedWidgets) {
 				Location location = widgetLocation.get(widget);
 
-				int relativeX = (widget instanceof PaletteWidget) ? (context.mouseX - widget.getAbsoluteLeft()) : location.getLeft()- draggableAbsoluteLeft;
-				int relativeY = (widget instanceof PaletteWidget) ? (context.mouseY - widget.getAbsoluteTop()) : location.getTop()- draggableAbsoluteTop;
+				int relativeX = (widget instanceof PaletteWidget || widget instanceof TreeItemWidget) ? (context.mouseX - widget.getAbsoluteLeft()) : location.getLeft() - draggableAbsoluteLeft;
+				int relativeY = (widget instanceof PaletteWidget || widget instanceof TreeItemWidget) ? (context.mouseY - widget.getAbsoluteTop()) : location.getTop() - draggableAbsoluteTop;
 
 				if(widget instanceof DesignWidgetWrapper)
 					container.add(widget, relativeX, relativeY);
@@ -582,6 +583,9 @@ public class FormDesignerDragController extends AbstractDragController{
 		for (Widget widget : context.selectedWidgets) {
 			SavedWidgetInfo info = savedWidgetInfoMap.get(widget);
 
+			if(info == null)
+				return; //must be a tree widget item.
+			
 			// TODO simplify after enhancement for issue 1112 provides InsertPanel
 			// interface
 			// http://code.google.com/p/google-web-toolkit/issues/detail?id=1112
@@ -646,6 +650,9 @@ public class FormDesignerDragController extends AbstractDragController{
 			} else if (info.initialDraggableParent instanceof SimplePanel) {
 				// save nothing
 			} else {
+				if(info.initialDraggableParent.getClass().getName().equals("com.google.gwt.user.client.ui.Tree"))
+					return;
+				
 				throw new RuntimeException(
 						"Unable to handle 'initialDraggableParent instanceof "
 						+ info.initialDraggableParent.getClass().getName()

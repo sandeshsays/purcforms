@@ -16,7 +16,6 @@ import org.purc.purcforms.client.controller.LayoutChangeListener;
 import org.purc.purcforms.client.controller.WidgetSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
-import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
@@ -489,6 +488,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		this.formDef = formDef;
 		
 		PaletteView.unRegisterAllDropControllers();
+		FormsTreeView.unRegisterAllDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
 
@@ -733,6 +733,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		FormDesignerDragController dragController = dragControllers.remove(selectedTabIndex);
 		PaletteView.unRegisterDropController(dragController.getFormDesignerDropController());
+		FormsTreeView.unRegisterDropController(dragController.getFormDesignerDropController());
 
 		tabs.remove(selectedTabIndex);
 		DesignWidgetWrapper widget = pageWidgets.remove(selectedTabIndex);
@@ -753,6 +754,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		this.formDef = formDef;
 
 		PaletteView.unRegisterAllDropControllers();
+		FormsTreeView.unRegisterAllDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
 
@@ -804,6 +806,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	public void setFormDef(FormDef formDef){	
 		if(this.formDef != formDef){
 			PaletteView.unRegisterAllDropControllers();
+			FormsTreeView.unRegisterAllDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
 			addNewTab(null, true);

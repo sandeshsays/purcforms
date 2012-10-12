@@ -9,7 +9,6 @@ import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractPositioningDropController;
 import com.allen_sauer.gwt.dnd.client.util.DOMUtil;
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -94,9 +93,8 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 	public void onDrop(DragContext context) {
 		boolean lockedWidgetFound = false;
 		for (Draggable draggable : draggableList) {
+			draggable.positioner.removeFromParent();
 			if(draggable.widget instanceof DesignWidgetWrapper){
-				draggable.positioner.removeFromParent();
-				
 				if(!((DesignWidgetWrapper)draggable.widget).isLocked() && !lockedWidgetFound) {
 					dropTarget.add(draggable.widget, draggable.desiredX, draggable.desiredY);
 					//dropTarget.add(draggable.widget, draggable.widget.getAbsoluteLeft(), draggable.widget.getAbsoluteTop());
