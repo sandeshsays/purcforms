@@ -182,7 +182,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			if(widget instanceof Label && "100%".equals(width) && getParent().getParent() instanceof DesignGroupWidget){
 				DesignGroupWidget designGroupWidget = (DesignGroupWidget)getParent().getParent();
 				if(designGroupWidget.getHeaderLabel() == this)
-					designGroupWidget.clearGroupBoxSelection();
+					designGroupWidget.getDesignSurfaceView().recursivelyClearGroupBoxSelection();
 			}
 			else if(widget instanceof DesignGroupWidget){
 				//When a group box is clicked anywhere outside a widget, deselect it to turn off the selection graying out

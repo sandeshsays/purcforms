@@ -1861,7 +1861,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	/**
 	 * Un selects all selected widgets, if any, in all group boxes on the current page.
 	 */
-	protected void recursivelyClearGroupBoxSelection(){
+	public void recursivelyClearGroupBoxSelection(){
 		clearSelection();
 		
 		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
@@ -3277,7 +3277,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return addToDesignSurface(item, getLowestWidgetYPos() + 20, 20);
 	}
 	
-	protected DesignSurfaceView getDesignSurfaceView() {
+	public DesignSurfaceView getDesignSurfaceView() {
 		Widget widget = this;
 		while (!(widget instanceof DesignSurfaceView)){
 			widget = widget.getParent();
