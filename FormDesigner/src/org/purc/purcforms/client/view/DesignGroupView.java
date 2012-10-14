@@ -3402,4 +3402,27 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 		return widget;
 	}
+	
+	/**
+	 * Gives a chance to child widgets to process keyboard events.
+	 * 
+	 * @param event the event object.
+	 * @return true if any child has handled the event, else false.
+	 */
+	protected boolean childHandleKeyDownEvent(Event event){
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			Widget widget = selectedPanel.getWidget(index);
+			if(!(widget instanceof DesignWidgetWrapper))
+				continue;
+			if(!(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof DesignGroupWidget))
+				continue;
+
+			if(((DesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).handleKeyDownEvent(event))
+				return true;
+			else if(((DesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).childHandleKeyDownEvent(event))
+				return true;
+		}
+
+		return false;
+	}
 }
