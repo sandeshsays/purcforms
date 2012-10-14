@@ -2596,7 +2596,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 
-	protected void lockWidgets(){
+	public void lockWidgets(){
 		//Context.setLockWidgets(!Context.getLockWidgets());
 		lockUnlockWidgets(true);
 	}
@@ -3277,7 +3277,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return addToDesignSurface(item, getLowestWidgetYPos() + 20, 20);
 	}
 	
-	private DesignSurfaceView getDesignSurfaceView() {
+	protected DesignSurfaceView getDesignSurfaceView() {
 		Widget widget = this;
 		while (!(widget instanceof DesignSurfaceView)){
 			widget = widget.getParent();

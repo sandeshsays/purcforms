@@ -253,18 +253,18 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 
 		final Widget widget = this;
 		parentCutMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true,new Command(){
-			public void execute() {popup.hide(); widgetPopupMenuListener.onCut(widget);}});
+			public void execute() {popup.hide(); getDesignSurfaceView().cutItem(); /*widgetPopupMenuListener.onCut(widget);*/}});
 
 		parentCopyMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.copy(),LocaleText.get("copy")),true,new Command(){
-			public void execute() {popup.hide(); widgetPopupMenuListener.onCopy(widget);}});
+			public void execute() {popup.hide(); getDesignSurfaceView().copyItem(); /*widgetPopupMenuListener.onCopy(widget);*/}});
 
 		parentDeleteWidgetMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true, new Command(){
-			public void execute() {popup.hide(); widgetPopupMenuListener.onDelete(widget);}});
+			public void execute() {popup.hide(); getDesignSurfaceView().deleteSelectedItem(); /*widgetPopupMenuListener.onDelete(widget);*/}});
 
 		menuBar.addSeparator();
 
 		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("lockWidgets")),true, new Command(){
-			public void execute() {popup.hide(); lockWidgets();}});
+			public void execute() {popup.hide(); getDesignSurfaceView().lockWidgets();}});
 
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectAll")),true, new Command(){
 			public void execute() {popup.hide(); selectAll();}});

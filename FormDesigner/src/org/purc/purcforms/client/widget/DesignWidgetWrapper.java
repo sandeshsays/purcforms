@@ -187,8 +187,10 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			else if(widget instanceof DesignGroupWidget){
 				//When a group box is clicked anywhere outside a widget, deselect it to turn off the selection graying out
 				//but reselect it such that its properties can be shown in the properties pane.
-				widgetSelectionListener.onWidgetSelected(null,false);
-				widgetSelectionListener.onWidgetSelected(this,false);
+				if((event.getButton() & Event.BUTTON_RIGHT) == 0) {//make sure its not right clicking
+					widgetSelectionListener.onWidgetSelected(null, false);
+				}
+				widgetSelectionListener.onWidgetSelected(this, false);
 			}
 
 		case Event.ONMOUSEUP:
