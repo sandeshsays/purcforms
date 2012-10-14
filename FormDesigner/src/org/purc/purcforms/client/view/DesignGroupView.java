@@ -506,17 +506,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			copyChildWidgets(true);
 	}
 
-	private void copyChildWidgets(boolean remove){
+	protected void copyChildWidgets(boolean remove){
 		if(selectedPanel.getWidgetIndex(rubberBand) > -1)
 			selectedPanel.remove(rubberBand);
+		
 		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
 			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
 				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
-				if(designGroupWidget.isAnyWidgetSelected()){
+				if(designGroupWidget.isAnyWidgetSelected())
 					designGroupWidget.copyWidgets(remove);
-					return;
-				}
+				else
+					designGroupWidget.copyChildWidgets(remove);
 			}
 		}
 	}
@@ -561,17 +562,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			deleteChildWidgets();
 	}
 	
-	private void deleteChildWidgets(){
+	protected void deleteChildWidgets(){
 		if(selectedPanel.getWidgetIndex(rubberBand) > -1)
 			selectedPanel.remove(rubberBand);
+		
 		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
 			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
 				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
-				if(designGroupWidget.isAnyWidgetSelected()){
+				if(designGroupWidget.isAnyWidgetSelected())
 					designGroupWidget.deleteSelectedItem();
-					return;
-				}
+				else
+					designGroupWidget.deleteChildWidgets();
 			}
 		}
 	}
