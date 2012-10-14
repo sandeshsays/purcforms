@@ -392,8 +392,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			selectedDragController.makeDraggable(widget);
 			selectedPanel.add(widget);
 
-			if(widget.getWrappedWidget() instanceof DesignGroupWidget && !widget.isRepeated())
-				selectedDragController.makeDraggable(widget,((DesignGroupWidget)widget.getWrappedWidget()).getHeaderLabel());
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget && !widget.isRepeated()) {
+				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
+				selectedDragController.makeDraggable(widget, designGroupWidget.getHeaderLabel());
+				designGroupWidget.makeHeaderLabelsDraggable();
+			}
 
 			if(widget.getPopupPanel() != widgetPopup){
 				if(afterContextMenu)
@@ -435,10 +438,29 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(commands.size() > 0)
 			Context.getCommandHistory().add(commands);
 	}
+	
+	protected void makeHeaderLabelsDraggable(){		
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			Widget currentWidget = selectedPanel.getWidget(index);
+			if(!(currentWidget instanceof DesignWidgetWrapper))
+				continue;
+			
+			DesignWidgetWrapper designWidgetWrapper = (DesignWidgetWrapper)currentWidget;
+			if(designWidgetWrapper.isRepeated())
+				continue;
+			
+			if(!(designWidgetWrapper.getWrappedWidget() instanceof DesignGroupWidget))
+				continue;
+			
+			DesignGroupWidget designGroupWidget = (DesignGroupWidget)designWidgetWrapper.getWrappedWidget();
+			selectedDragController.makeDraggable(currentWidget, designGroupWidget.getHeaderLabel());
+			designGroupWidget.makeHeaderLabelsDraggable();
+		}
+	}
 
 	protected boolean deleteWidgets(){
 		if(!Window.confirm(LocaleText.get("deleteWidgetPrompt")))
-			return true;
+			return false;
 
 		CommandList commands = new CommandList(this);
 
@@ -458,7 +480,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		Context.getCommandHistory().add(commands);
 
-		return false;
+		return true;
 	}
 
 	public void deleteWidget(DesignWidgetWrapper widget, AbsolutePanel panel){
@@ -535,6 +557,38 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void deleteSelectedItem() {
 		if(selectedDragController.isAnyWidgetSelected())
 			deleteWidgets();
+		else
+			deleteChildWidgets();
+	}
+	
+	private void deleteChildWidgets(){
+		if(selectedPanel.getWidgetIndex(rubberBand) > -1)
+			selectedPanel.remove(rubberBand);
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
+				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
+				if(designGroupWidget.isAnyWidgetSelected()){
+					designGroupWidget.deleteSelectedItem();
+					return;
+				}
+			}
+		}
+	}
+	
+	public boolean isAnyChildWidgetSelected(){
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
+				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
+				if(designGroupWidget.isAnyWidgetSelected())
+					return true;
+				else
+					return designGroupWidget.isAnyChildWidgetSelected();
+			}
+		}
+		
+		return false;
 	}
 
 	/**
@@ -1193,6 +1247,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		boolean visible = false;
 		if(selectedDragController.isAnyWidgetSelected())
 			visible = true;
+		else
+			visible = isAnyChildWidgetSelected();
+		
 		deleteWidgetsSeparator.setVisible(visible);
 		deleteWidgetsMenu.setVisible(visible);
 

@@ -365,9 +365,12 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 		for(int i=0; i<selectedPanel.getWidgetCount(); i++){
 			if(selectedPanel.getWidget(i) instanceof DesignWidgetWrapper){
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(i);
-				selectedPanel.setWidgetPosition(widget,widget.getLeftInt(),widget.getTopInt());
+				selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
 				widget.setWidth(widget.getWidth());
 				widget.setHeight(widget.getHeight());
+				
+				if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+					((DesignGroupWidget)widget.getWrappedWidget()).setWidgetPosition();
 			}
 		}
 	}

@@ -112,7 +112,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {widgetPopup.hide(); copyWidgets(false);}});
 
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true, new Command(){
-			public void execute() {widgetPopup.hide(); deleteWidgets();}});
+			public void execute() {widgetPopup.hide(); deleteSelectedItem();}});
 		
 		
 		menuBar.addSeparator();	
@@ -281,7 +281,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		//if(selectedDragController.isAnyWidgetSelected()){
 		deleteWidgetsSeparator = menuBar.addSeparator();
 		deleteWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteSelected")),true,new Command(){
-			public void execute() {popup.hide(); deleteWidgets();}});
+			public void execute() {popup.hide(); deleteSelectedItem();}});
 
 		groupWidgetsSeparator = menuBar.addSeparator();
 		groupWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("groupWidgets")),true,new Command(){
@@ -704,7 +704,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		if(tabs.getTabBar().getTabCount() == 1 && selectedPanel != null && selectedPanel.getWidgetCount() == 0)
 			layoutChangeListener.onLayoutChanged(null);
 
-		return true;
+		return false;
 	}
 
 	/**
