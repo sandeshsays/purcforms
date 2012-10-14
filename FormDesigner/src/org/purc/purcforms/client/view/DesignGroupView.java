@@ -204,7 +204,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				if(widgetSelectionListener instanceof DesignSurfaceView){
 					((DesignSurfaceView)widgetSelectionListener).clearSelection();
 					if(selectedDragController.getSelectedWidgetCount() == 1)
-						((DesignSurfaceView)widgetSelectionListener).clearGroupBoxSelection();
+						((DesignSurfaceView)widgetSelectionListener).recursivelyClearGroupBoxSelection();
 
 					//if(!multipleSel && selectedDragController.getSelectedWidgetCount() == 1)
 					//	selectedDragController.clearSelection();
@@ -217,7 +217,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				//TODO Doesnt this slow us a bit?
 				if(widget instanceof DesignWidgetWrapper &&  ((DesignWidgetWrapper)widget).getWidgetSelectionListener() instanceof DesignSurfaceView){
 					if(!(selectedDragController.isWidgetSelected(widget) && selectedDragController.getSelectedWidgetCount() > 1)){
-						clearGroupBoxSelection();
+						recursivelyClearGroupBoxSelection();
 					}
 				}
 
@@ -319,8 +319,28 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 	private void tryUnregisterDropController(DesignWidgetWrapper widget){
 		if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
-			PaletteView.unRegisterDropController(((DesignGroupWidget)widget.getWrappedWidget()).getDragController().getFormDesignerDropController());
-			FormsTreeView.unRegisterDropController(((DesignGroupWidget)widget.getWrappedWidget()).getDragController().getFormDesignerDropController());
+			DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
+			
+			PaletteView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+			FormsTreeView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+			
+			designGroupWidget.unregisterDropControllers();
+		}
+	}
+	
+	public void unregisterDropControllers(){
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			Widget currentWidget = selectedPanel.getWidget(index);
+			if(!(currentWidget instanceof DesignWidgetWrapper))
+				continue;
+			if(!(((DesignWidgetWrapper)currentWidget).getWrappedWidget() instanceof DesignGroupWidget))
+				continue;
+			
+			DesignGroupWidget designGroupWidget = ((DesignGroupWidget)((DesignWidgetWrapper)currentWidget).getWrappedWidget());
+			PaletteView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+			FormsTreeView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+
+			designGroupWidget.unregisterDropControllers();
 		}
 	}
 
@@ -429,6 +449,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			if(widget.getLayoutNode() != null)
 				widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
+			
 			tryUnregisterDropController(widget);
 			selectedPanel.remove(widget);
 		}
@@ -444,6 +465,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Added only for support of undo redo. So should be refactored.
 		widget.refreshPosition();
 		selectPanel(panel);
+		tryUnregisterDropController(widget);
 		selectedPanel.remove(widget);
 		selectedDragController.clearSelection();
 	}
@@ -1752,7 +1774,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 					widgetSelectionListener.onWidgetSelected(this,event.getCtrlKey());
 				}
 
-				clearGroupBoxSelection();
+				recursivelyClearGroupBoxSelection();
 
 				if(!(this instanceof DesignGroupWidget && !"default".equals(DOM.getStyleAttribute(getElement(), "cursor"))))
 					startRubberBand(event);
@@ -1782,7 +1804,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	/**
 	 * Un selects all selected widgets, if any, in all group boxes on the current page.
 	 */
-	protected void clearGroupBoxSelection(){
+	protected void recursivelyClearGroupBoxSelection(){
+		clearSelection();
+		
 		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 			Widget wid = selectedPanel.getWidget(index);
 			if(!(wid instanceof DesignWidgetWrapper))
@@ -1793,6 +1817,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			if(selectedDragController.isWidgetSelected(wid))
 				selectedDragController.toggleSelection(wid);
+			else
+				((DesignGroupWidget)((DesignWidgetWrapper)wid).getWrappedWidget()).recursivelyClearGroupBoxSelection();
 		}
 	}
 
@@ -2187,6 +2213,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @return the new widget.
 	 */
 	protected DesignWidgetWrapper addNewGroupBox(boolean select){
+
+		getDesignSurfaceView().recursivelyClearGroupBoxSelection();
+		
 		DesignGroupWidget group = new DesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");
 		DOM.setStyleAttribute(group.getElement(), "height","200"+PurcConstants.UNITS);
@@ -2632,6 +2661,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 	}
 	
+	protected void ensureTabVisible(DesignWidgetWrapper widget, FormDesignerDragController dragController) {
+		if(this instanceof DesignSurfaceView)
+			tabs.selectTab(dragControllers.indexOf(dragController));
+		else 
+			ensureTabVisible();
+	}
+	
 	/**
 	 * Fills bindings for loaded widgets in a given panel.
 	 * 
@@ -2712,10 +2748,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param select set to true to select the repeat widget after adding it.
 	 * @return the added repeat widget.
 	 */
-	protected DesignWidgetWrapper addNewRepeatSet(QuestionDef questionDef, boolean select, CommandList commands){
-		x = 35 + selectedPanel.getAbsoluteLeft();
+	protected DesignWidgetWrapper addNewRepeatSet(QuestionDef questionDef, boolean select, CommandList commands, boolean useExistingPos){
+		if(!useExistingPos)
+			x = 35 + selectedPanel.getAbsoluteLeft();
+		
 		y += 25;
 
+		int oldX = x;
 		Vector questions = questionDef.getGroupQtnsDef().getQuestions();
 		if(questions == null)
 			return addNewTextBox(select); //TODO Bug here
@@ -2732,7 +2771,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				commands.add(new InsertWidgetCmd(label, label.getLayoutNode(), this));
 		}
 
-		x = 20 + selectedPanel.getAbsoluteLeft();
+		if(!useExistingPos)
+			x = 20 + selectedPanel.getAbsoluteLeft();
+		else
+			x = oldX;
+		
 		y += 25;
 		DesignWidgetWrapper widget = addNewRepeatSection(select);
 
@@ -2827,16 +2870,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param select set to true to select the group widget after adding it.
 	 * @return the added group widget.
 	 */
-	protected DesignWidgetWrapper addNewGroupSet(QuestionDef questionDef, boolean select, CommandList commands){
-		x = 35 + selectedPanel.getAbsoluteLeft();
-		//y += 25;
-
+	protected DesignWidgetWrapper addNewGroupSet(QuestionDef questionDef, boolean select, CommandList commands, boolean useExistingPos){
 		Vector questions = questionDef.getGroupQtnsDef().getQuestions();
 		if(questions == null)
 			return addNewTextBox(select); //TODO Bug here
 
-		x = 20 + selectedPanel.getAbsoluteLeft();
-		//y += 25;
+		if(!useExistingPos)
+			x = 20 + selectedPanel.getAbsoluteLeft();
+		
 		DesignWidgetWrapper widget = addNewGroupBox(select);
 		DesignWidgetWrapper headerLabel = ((DesignGroupWidget)widget.getWrappedWidget()).getHeaderLabel();
 		headerLabel.setText(questionDef.getText());
@@ -2854,7 +2895,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		selectedPanel = widget.getPanel();
 		widgetPopup = widget.getWidgetPopup();
 
-		//y = x = 10;
 		x += selectedPanel.getAbsoluteLeft();
 		y += selectedPanel.getAbsoluteTop() + headerLabel.getHeightInt();
 
@@ -2906,9 +2946,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
-				widgetWrapper = addNewRepeatSet(qtn, false, commands);
+				widgetWrapper = addNewRepeatSet(qtn, false, commands, useExistingPos);
 			else if(type == QuestionDef.QTN_TYPE_GROUP)
-				widgetWrapper = addNewGroupSet(qtn, false, commands);
+				widgetWrapper = addNewGroupSet(qtn, false, commands, useExistingPos);
 			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_IMAGE) 
 				widgetWrapper = addNewPictureSection(qtn.getBinding(), qtn.getText(), false);
 			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_VIDEO ||
@@ -2948,7 +2988,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		currentWidgetSelectionListener = wgSelectionListener;
 
 		y = oldY;
-		//y += 90; //130; //25;
+		
 		if(widget.getWidgetSelectionListener() == this)
 			y += widget.getHeightInt() - 20;
 
@@ -2958,11 +2998,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		int right = widget.getAbsoluteLeft() + widget.getWidthInt();
 		if(widestValue > right) 
 			widget.setWidthInt(widget.getWidthInt() + (widestValue - right) + 20);
-			
-		/*if(questions.size() == 1)
-			widget.setWidthInt(265);
-		else
-			widget.setWidthInt((questions.size() * 205)+15);*/
 		
 		return widget;
 	}
@@ -3019,7 +3054,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param submitCancelBtns set to true to add the submit and cancel buttons
 	 * @param select set to true to select all the created widgets.
 	 */
-	protected DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands){
+	protected DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands, boolean useExistingPos){
 		if(questions == null)
 			return null;
 		
@@ -3072,8 +3107,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			widgetWrapper = null;
 
-			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE))
-				x += (questionDef.getText().length() * 10);
+			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE)){
+				if(!useExistingPos)
+					x += (questionDef.getText().length() * 10);
+			}
 
 			if(type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 					type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
@@ -3091,9 +3128,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			else if(type == QuestionDef.QTN_TYPE_BOOLEAN)
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
-				widgetWrapper = addNewRepeatSet(questionDef, false, commands);
+				widgetWrapper = addNewRepeatSet(questionDef, false, commands, useExistingPos);
 			else if(type == QuestionDef.QTN_TYPE_GROUP)
-				widgetWrapper = addNewGroupSet(questionDef, false, commands);
+				widgetWrapper = addNewGroupSet(questionDef, false, commands, useExistingPos);
 			else if(type == QuestionDef.QTN_TYPE_IMAGE)
 				widgetWrapper = addNewPictureSection(questionDef.getBinding(),questionDef.getText(),false);
 			else if(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO)
@@ -3192,6 +3229,19 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return (DesignSurfaceView)widget;
 	}
 	
+	private void ensureTabVisible() {
+		DesignWidgetWrapper widgetWrapper = null;
+		Widget widget = this;
+		while (!(widget instanceof DesignSurfaceView)){
+			widget = widget.getParent();
+			if(widget instanceof DesignWidgetWrapper)
+				widgetWrapper = (DesignWidgetWrapper)widget;
+		}
+		
+		FormDesignerDragController dragController = ((DesignSurfaceView)widget).getWidgetDragController(widgetWrapper);
+		tabs.selectTab(dragControllers.indexOf(dragController));
+	}
+	
 	public void fillWidgetBindings(HashMap<String, DesignWidgetWrapper> bindings, HashMap<String, DesignWidgetWrapper> labels) {
 		for(int i=0; i<dragControllers.size(); i++){
 			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
@@ -3206,6 +3256,24 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				return dragController;
 		}
 		
+		//Now look through group boxes
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			Widget currentWidget = selectedPanel.getWidget(index);
+			if(!(currentWidget instanceof DesignWidgetWrapper))
+				continue;
+			if(!(((DesignWidgetWrapper)currentWidget).getWrappedWidget() instanceof DesignGroupWidget))
+				continue;
+			
+			DesignGroupWidget designGroupWidget = ((DesignGroupWidget)((DesignWidgetWrapper)currentWidget).getWrappedWidget());
+			if(designGroupWidget.containsWidget(widget))
+				return designGroupWidget.getDragController();
+			
+			FormDesignerDragController dragController = designGroupWidget.getWidgetDragController(widget);
+			if(dragController != null)
+				return dragController;
+		}
+		
+		assert(false); //how can a widget have no drag controller????
 		return null;
 	}
 	
@@ -3222,13 +3290,12 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		else
 			return null;
 		
-		clearSelection();
-		clearGroupBoxSelection();
-		if(widgetSelectionListener instanceof DesignSurfaceView){
+		getDesignSurfaceView().recursivelyClearGroupBoxSelection();
+		/*if(widgetSelectionListener instanceof DesignSurfaceView){
 			((DesignSurfaceView)widgetSelectionListener).clearSelection();
 			if(selectedDragController.getSelectedWidgetCount() == 1)
 				((DesignSurfaceView)widgetSelectionListener).clearGroupBoxSelection();
-		}
+		}*/
 		
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String, DesignWidgetWrapper> bindings = new HashMap<String, DesignWidgetWrapper>();
@@ -3237,15 +3304,22 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		 
 		if(bindings.containsKey(questionDef.getBinding())){
 			DesignWidgetWrapper widget = bindings.get(questionDef.getBinding());
-			FormDesignerDragController dragController = getWidgetDragController(widget);
-			dragController.selectWidget(widget);
+			FormDesignerDragController dragController = getDesignSurfaceView().getWidgetDragController(widget);
+			if(dragController != null){
+				dragController.selectWidget(widget);
+				
+				//select the label too
+				if(labels.containsKey(questionDef.getBinding()))
+					dragController.selectWidget(labels.get(questionDef.getBinding()));
+				
+				ensureTabVisible(widget, dragController);
+				ensureVisible(widget);
+			}
+			else {
+				//Can this really happen???
+				assert(false);
+			}
 			
-			//select the label too
-			if(labels.containsKey(questionDef.getBinding()))
-				dragController.selectWidget(labels.get(questionDef.getBinding()));
-			
-			tabs.selectTab(dragControllers.indexOf(dragController));
-			ensureVisible(widget);
 			return null;
 		}
 		
@@ -3259,7 +3333,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(newQuestions.size() > 0){
 			boolean visible = questionDef.isVisible();
 			questionDef.setVisible(true);
-			widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands);
+			widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, true);
 			questionDef.setVisible(visible);
 			
 			format();

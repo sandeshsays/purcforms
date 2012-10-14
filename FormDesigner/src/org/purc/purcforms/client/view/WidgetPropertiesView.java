@@ -1357,7 +1357,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					else if(value != null && value.equals("submit") && this.widget.getWrappedWidget() instanceof Button)
 						txtBinding.setText(value);
 					else
-						txtBinding.setText(null);
+						txtBinding.setText(this.widget.getBinding());
+						
+						//txtBinding.setText(null);
 				}
 				else
 					txtBinding.setText(null);
@@ -1388,8 +1390,10 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 								(this.widget.getWrappedWidget() instanceof Label || this.widget.getWrappedWidget() instanceof Hyperlink) ||
 								"search".equalsIgnoreCase(value) || this.widget.getWrappedWidget() instanceof TabBar)
 							txtBinding.setText(value);
-						else
-							txtBinding.setText(null);
+						else {
+							//txtBinding.setText(null);
+							txtBinding.setText(this.widget.getBinding());
+						}
 					}
 				}
 				else if(!(this.widget.getWrappedWidget() instanceof TabBar || this.widget.getWrappedWidget() instanceof Label))

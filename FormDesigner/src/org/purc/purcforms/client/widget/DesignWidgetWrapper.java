@@ -550,7 +550,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		value = getBinding();
 		if(value == null || value.trim().length() == 0)	{
 			//Widgets should have unique bindings to get unique xpath expressions for locale translation
-			setBinding("LEFT"+getLeft()+"TOP"+getTop());
+			setGroupBoxBinding();
 			value = getBinding();
 		}
 		node.setAttribute(WidgetEx.WIDGET_PROPERTY_BINDING, value);
@@ -591,7 +591,9 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			((DesignGroupWidget)widget).buildLayoutXml(node, doc);
 
 			if(!isRepeated()){
-				setBinding("LEFT"+getLeft()+"TOP"+getTop());
+				if(binding == null || binding.trim().length() == 0) //Do we really need this check???
+					setGroupBoxBinding();
+				
 				node.setAttribute(WidgetEx.WIDGET_PROPERTY_BINDING, binding);
 				DesignWidgetWrapper headerLabel = ((DesignGroupWidget)widget).getHeaderLabel();
 				if(headerLabel != null)
@@ -1075,5 +1077,10 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		
 		if(widget instanceof GridDesignGroupWidget)
 			((GridDesignGroupWidget)widget).resizeGrid(getWidthInt(), (int)height);
+	}
+	
+	private void setGroupBoxBinding() {
+		if(!(binding != null && binding.startsWith("LEFT"+getLeft()+"TOP"+getTop()+ "-")))
+			setBinding("LEFT"+getLeft()+"TOP"+getTop()+ "-" + getBinding());
 	}
 }

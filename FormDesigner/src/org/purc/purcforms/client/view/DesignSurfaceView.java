@@ -491,6 +491,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormsTreeView.unRegisterAllDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
+		dragControllers.clear();
 
 		if(xml == null || xml.trim().length() == 0){
 			addNewTab(null, true);
@@ -734,6 +735,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormDesignerDragController dragController = dragControllers.remove(selectedTabIndex);
 		PaletteView.unRegisterDropController(dragController.getFormDesignerDropController());
 		FormsTreeView.unRegisterDropController(dragController.getFormDesignerDropController());
+		
+		dragControllers.remove(dragController);
 
 		tabs.remove(selectedTabIndex);
 		DesignWidgetWrapper widget = pageWidgets.remove(selectedTabIndex);
@@ -757,6 +760,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormsTreeView.unRegisterAllDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
+		dragControllers.clear();
 
 		Vector pages = formDef.getPages();
 		if(pages != null){
@@ -795,7 +799,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @param questions the list of questions.
 	 */
 	private void loadQuestions(List<QuestionDef> questions){
-		loadQuestions(questions, 20, 20, 0,tabs.getTabBar().getTabCount() == 1,false, null);
+		loadQuestions(questions, 20, 20, 0,tabs.getTabBar().getTabCount() == 1,false, null, false);
 	}
 
 	/**
@@ -809,6 +813,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			FormsTreeView.unRegisterAllDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
+			dragControllers.clear();
 			addNewTab(null, true);
 		}
 
@@ -936,7 +941,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 			//Load the new questions onto the design surface for the current page.
 			if(newQuestions.size() > 0){
-				loadQuestions(newQuestions,getLowestWidgetYPos() + 20, 20, selectedPanel.getWidgetCount(),false, true, commands);
+				loadQuestions(newQuestions,getLowestWidgetYPos() + 20, 20, selectedPanel.getWidgetCount(),false, true, commands, false);
 				format();
 				clearSelection();
 			}
@@ -1024,7 +1029,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 					selectedDragController.selectWidget(widget);
 				}
 
-				clearGroupBoxSelection();
+				recursivelyClearGroupBoxSelection();
 			}
 			else{
 
