@@ -203,7 +203,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			String s = ((DesignWidgetWrapper)widget).getWidth();
 			if(!"100%".equals(s)){
 				if(widgetSelectionListener instanceof DesignSurfaceView){
-					((DesignSurfaceView)widgetSelectionListener).clearSelection();
+					//((DesignSurfaceView)widgetSelectionListener).clearSelection();
 					if(selectedDragController.getSelectedWidgetCount() == 1)
 						//Commented out because it made widgets, in more than two nested group boxes, un movable
 						;//((DesignSurfaceView)widgetSelectionListener).clearSelection(); //recursivelyClearGroupBoxSelection();
