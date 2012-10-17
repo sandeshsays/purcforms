@@ -327,8 +327,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 
-		selectedDragController = dragControllers.elementAt(selectedTabIndex);
-		selectedPanel = selectedDragController.getBoundaryPanel();
+		//selectedDragController = dragControllers.elementAt(selectedTabIndex);
+		//selectedPanel = selectedDragController.getBoundaryPanel();
 
 		widgetSelectionListener.onWidgetSelected(getSelPageDesignWidget(),false);
 	}
@@ -468,6 +468,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		
 		PaletteView.unRegisterAllDropControllers();
 		FormsTreeView.unRegisterAllDropControllers();
+		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
 		dragControllers.clear();
@@ -737,6 +738,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		PaletteView.unRegisterAllDropControllers();
 		FormsTreeView.unRegisterAllDropControllers();
+		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
 		dragControllers.clear();
@@ -790,6 +792,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		if(this.formDef != formDef){
 			PaletteView.unRegisterAllDropControllers();
 			FormsTreeView.unRegisterAllDropControllers();
+			FormDesignerDragController.unregisterDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
 			dragControllers.clear();

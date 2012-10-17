@@ -12,6 +12,7 @@ import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
+import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 import org.purc.purcforms.client.xforms.XformConstants;
 
@@ -71,6 +72,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	private PopupPanel popup;
 	private Element layoutNode;
 	private boolean locked;
+	private AbsolutePanel prevPanel;
 
 	public DesignWidgetWrapper(DesignWidgetWrapper designWidgetWrapper,Images images){
 		super(designWidgetWrapper);
@@ -1084,5 +1086,29 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	private void setGroupBoxBinding() {
 		if(!(binding != null && binding.startsWith("LEFT"+getLeft()+"TOP"+getTop()+ "-")))
 			setBinding("LEFT"+getLeft()+"TOP"+getTop()+ "-" + getBinding());
+	}
+	
+	public AbsolutePanel getPrevPanel() {
+		return prevPanel;
+	}
+	
+	public DesignGroupView getPrevView(){
+		Widget view = prevPanel.getParent();
+		while(!(view instanceof DesignGroupView))
+			view = view.getParent();
+		
+		return (DesignGroupView)view;
+	}
+	
+	public void storePrevPanel() {
+		this.prevPanel = (AbsolutePanel)getParent();
+	}
+	
+	public DesignGroupView getView(){
+		Widget view = getParent();
+		while(!(view instanceof DesignGroupView))
+			view = view.getParent();
+		
+		return (DesignGroupView)view;
 	}
 }

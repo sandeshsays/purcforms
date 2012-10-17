@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
+import com.allen_sauer.gwt.dnd.client.AbstractDragController;
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractPositioningDropController;
 import com.allen_sauer.gwt.dnd.client.util.DOMUtil;
@@ -135,6 +136,8 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			draggable.relativeY = widget.getAbsoluteTop() - draggableAbsoluteTop;
 			draggableList.add(draggable);
 		}
+		
+		//((AbstractDragController) context.dragController).resetCache();
 	}
 
 	@Override

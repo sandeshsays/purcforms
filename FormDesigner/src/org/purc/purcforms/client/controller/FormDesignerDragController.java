@@ -111,7 +111,16 @@ public class FormDesignerDragController extends AbstractDragController{
 	private HashMap<Widget, SavedWidgetInfo> savedWidgetInfoMap;
 
 	private DragDropListener dragDropListener;
+	
+	private static FormDesignerDragController instance;
 
+	public static FormDesignerDragController getInstance(AbsolutePanel boundaryPanel, boolean allowDroppingOnBoundaryPanel, DragDropListener dragDropListener){
+		if(instance == null) {
+			instance = new FormDesignerDragController(boundaryPanel, allowDroppingOnBoundaryPanel, dragDropListener);
+		}
+		return instance;
+	}
+	
 	/**
 	 * Create a new pickup-and-move style drag controller. Allows widgets or a
 	 * suitable proxy to be temporarily picked up and moved around the specified
@@ -554,6 +563,10 @@ public class FormDesignerDragController extends AbstractDragController{
 	public void registerDropController(DropController dropController) {
 		dropControllerList.add(dropController);
 	}
+	
+	public List<DropController> getDropControllers() {
+		return dropControllerList;
+	}
 
 	public DropController getFormDesignerDropController() {
 		if(dropControllerList == null)
@@ -640,6 +653,7 @@ public class FormDesignerDragController extends AbstractDragController{
 				if(widget instanceof DesignWidgetWrapper){
 					info.width = ((DesignWidgetWrapper)widget).getWidthInt();
 					info.height = ((DesignWidgetWrapper)widget).getHeightInt();
+					((DesignWidgetWrapper)widget).storePrevPanel();
 				}
 			} else if (info.initialDraggableParent instanceof HorizontalPanel) {
 				info.initialDraggableIndex = ((HorizontalPanel) info.initialDraggableParent).getWidgetIndex(widget);
@@ -751,5 +765,9 @@ public class FormDesignerDragController extends AbstractDragController{
 		}
 
 		return false;
+	}
+	
+	public static void unregisterDropControllers() {
+		instance.unregisterAllDropControllers();
 	}
 }

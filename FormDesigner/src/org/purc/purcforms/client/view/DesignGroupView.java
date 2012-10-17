@@ -60,6 +60,7 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -1672,7 +1673,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		//Create a DragController for each logical area where a set of draggable
 		// widgets and drop targets will be allowed to interact with one another.
-		selectedDragController = new FormDesignerDragController(selectedPanel, false,this);
+		selectedDragController = FormDesignerDragController.getInstance(RootPanel.get(), false, this);
 
 		// Positioner is always constrained to the boundary panel
 		// Use 'true' to also constrain the draggable or drag proxy to the boundary panel
@@ -1689,7 +1690,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		// create a DropController for each drop target on which draggable widgets
 		// can be dropped
-		DropController dropController =  new FormDesignerDropController(selectedPanel,this);
+		DropController dropController =  new FormDesignerDropController(selectedPanel, this);
 
 		// Don't forget to register each DropController with a DragController
 		selectedDragController.registerDropController(dropController);
@@ -2315,8 +2316,17 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Without this, widgets in this box cant use Ctrl + A in edit mode and also
 		//edited text is not automatically selected.
 		widget.removeStyleName("dragdrop-handle");
+		
+		//registerDropControllers(selectedDragController, widget.getDragController());
+		//registerDropControllers(widget.getDragController(), selectedDragController);
 
 		return widget;
+	}
+	
+	private void registerDropControllers(FormDesignerDragController selectedDragController, FormDesignerDragController dragController){
+		List<DropController> dropControllers = dragController.getDropControllers();
+		for (DropController dropController : dropControllers)
+			selectedDragController.registerDropController(dropController);
 	}
 
 	/**
@@ -2739,7 +2749,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			panel.remove(rubberBand);
 
 		for(int index = 0; index < panel.getWidgetCount(); index++){
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)panel.getWidget(index);
+			Widget wid = panel.getWidget(index);
+			/*if(!(wid instanceof DesignWidgetWrapper)) {
+				panel.remove(wid);
+				continue;
+			}*/
+			
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
 
 			String binding = widget.getBinding();
 			bindings.put(binding, widget); //Could possibly put widget as value.
