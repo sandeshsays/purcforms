@@ -774,4 +774,8 @@ public class FormDesignerDragController extends AbstractDragController{
 	public static void unRegisterDropController(DropController dropController) {
 		instance.unregisterDropController(dropController);
 	}
+	
+	public static FormDesignerDragController getInstance() {
+		return instance;
+	}
 }

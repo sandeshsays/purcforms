@@ -11,6 +11,7 @@ import org.purc.purcforms.client.cmd.CommandList;
 import org.purc.purcforms.client.cmd.InsertTabCmd;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
+import org.purc.purcforms.client.controller.FormDesignerDropController;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.controller.LayoutChangeListener;
 import org.purc.purcforms.client.controller.WidgetSelectionListener;
@@ -29,6 +30,7 @@ import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
 import org.purc.purcforms.client.xforms.XformConstants;
 
+import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Command;
@@ -169,7 +171,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		super.initPanel();
 
-		dragControllers.add(tabs.getWidgetCount()-1,selectedDragController);
+		tabDropControllers.add(tabs.getWidgetCount()-1, dropController);
 		panel.setHeight(sHeight);
 
 		//This is needed for IE
@@ -329,6 +331,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		//selectedDragController = dragControllers.elementAt(selectedTabIndex);
 		//selectedPanel = selectedDragController.getBoundaryPanel();
+		selectedPanel = (AbsolutePanel)tabDropControllers.get(selectedTabIndex).getDropTarget();
 
 		widgetSelectionListener.onWidgetSelected(getSelPageDesignWidget(),false);
 	}
@@ -471,7 +474,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
-		dragControllers.clear();
+		//dragControllers.clear();
 
 		if(xml == null || xml.trim().length() == 0){
 			addNewTab(null, true);
@@ -712,14 +715,14 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	public DesignWidgetWrapper deleteTab(int index){
 		selectedTabIndex = index;
 
-		FormDesignerDragController dragController = dragControllers.remove(selectedTabIndex);
+		FormDesignerDropController dropController = tabDropControllers.remove(selectedTabIndex);
 		
 		//TODO Need to check for this has multiple drop controllers
-		PaletteView.unRegisterDropController(dragController.getFormDesignerDropController());
-		FormsTreeView.unRegisterDropController(dragController.getFormDesignerDropController());
-		FormDesignerDragController.unRegisterDropController(dragController.getFormDesignerDropController());
+		PaletteView.unRegisterDropController(dropController);
+		FormsTreeView.unRegisterDropController(dropController);
+		FormDesignerDragController.unRegisterDropController(dropController);
 		
-		dragControllers.remove(dragController);
+		tabDropControllers.remove(dropController);
 
 		tabs.remove(selectedTabIndex);
 		DesignWidgetWrapper widget = pageWidgets.remove(selectedTabIndex);
@@ -744,7 +747,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
-		dragControllers.clear();
+		//dragControllers.clear();
 
 		Vector pages = formDef.getPages();
 		if(pages != null){
@@ -798,7 +801,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			FormDesignerDragController.unregisterDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
-			dragControllers.clear();
+			//dragControllers.clear();
 			addNewTab(null, true);
 		}
 
@@ -905,9 +908,12 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String,String> bindings = new HashMap<String, String>();
-		for(int i=0; i<dragControllers.size(); i++){
-			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
-			fillBindings(panel, bindings);
+		List<DropController> dropControllers = FormDesignerDragController.getInstance().getDropControllers();
+		for(int i=0; i<dropControllers.size(); i++){
+			Widget dropTarget = dropControllers.get(i).getDropTarget();
+			if(!(dropTarget instanceof AbsolutePanel))
+				continue;
+			fillBindings((AbsolutePanel)dropTarget, bindings);
 		}
 
 		//Load the new questions onto the design surface for all pages.
@@ -1095,13 +1101,14 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		
 		tabs.selectTab(index);
 
-		selectedDragController = dragControllers.elementAt(index);
-		selectedPanel = selectedDragController.getBoundaryPanel();
+		//selectedDragController = dragControllers.elementAt(index);
+		//selectedPanel = selectedDragController.getBoundaryPanel();
 	}
 
 	public void clearSelection(){
-		for(int i=0; i<dragControllers.size(); i++)
-			dragControllers.elementAt(i).clearSelection();
+		FormDesignerDragController.getInstance().clearSelection();
+		/*for(int i=0; i<dragControllers.size(); i++)
+			dragControllers.elementAt(i).clearSelection();*/
 	}
 	
 	protected void ensureVisible(Widget widget) {

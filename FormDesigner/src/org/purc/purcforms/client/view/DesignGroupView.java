@@ -145,7 +145,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 
 	/** List of drag controllers. */
-	protected Vector<FormDesignerDragController> dragControllers = new Vector<FormDesignerDragController>();
+	protected Vector<FormDesignerDropController> tabDropControllers = new Vector<FormDesignerDropController>();
 
 	/**
 	 * Creates a new instance of the design surface.
@@ -2735,11 +2735,16 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 	}
 	
-	protected void ensureTabVisible(DesignWidgetWrapper widget, FormDesignerDragController dragController) {
-		if(this instanceof DesignSurfaceView)
-			tabs.selectTab(dragControllers.indexOf(dragController));
-		else 
-			ensureTabVisible();
+	protected void ensureTabVisible(DesignWidgetWrapper widgetWrapper) {
+		Widget widget = widgetWrapper.getParent();
+		while (!(widget instanceof DesignSurfaceView)){
+			widget = widget.getParent();
+			if(widget instanceof DesignWidgetWrapper)
+				widgetWrapper = (DesignWidgetWrapper)widget;
+		}
+		
+		FormDesignerDropController dropController = ((DesignSurfaceView)widget).getWidgetDropController(widgetWrapper);
+		tabs.selectTab(tabDropControllers.indexOf(dropController));
 	}
 	
 	/**
@@ -2754,10 +2759,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		for(int index = 0; index < panel.getWidgetCount(); index++){
 			Widget wid = panel.getWidget(index);
-			/*if(!(wid instanceof DesignWidgetWrapper)) {
+			if(!(wid instanceof DesignWidgetWrapper)) {
 				panel.remove(wid);
 				continue;
-			}*/
+			}
 			
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
 
@@ -3309,51 +3314,27 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return (DesignSurfaceView)widget;
 	}
 	
-	private void ensureTabVisible() {
-		DesignWidgetWrapper widgetWrapper = null;
-		Widget widget = this;
-		while (!(widget instanceof DesignSurfaceView)){
-			widget = widget.getParent();
-			if(widget instanceof DesignWidgetWrapper)
-				widgetWrapper = (DesignWidgetWrapper)widget;
-		}
-		
-		FormDesignerDragController dragController = ((DesignSurfaceView)widget).getWidgetDragController(widgetWrapper);
-		tabs.selectTab(dragControllers.indexOf(dragController));
-	}
-	
 	public void fillWidgetBindings(HashMap<String, DesignWidgetWrapper> bindings, HashMap<String, DesignWidgetWrapper> labels) {
-		for(int i=0; i<dragControllers.size(); i++){
-			AbsolutePanel panel = dragControllers.elementAt(i).getBoundaryPanel();
-			fillWidgetBindings(panel, bindings, labels);
+		List<DropController> dropControllers = FormDesignerDragController.getInstance().getDropControllers();
+		for(int i=0; i<dropControllers.size(); i++){
+			Widget dropTarget = dropControllers.get(i).getDropTarget();
+			if(!(dropTarget instanceof AbsolutePanel))
+				continue;
+			fillWidgetBindings((AbsolutePanel)dropTarget, bindings, labels);
 		}
 	}
 	
-	public FormDesignerDragController getWidgetDragController(DesignWidgetWrapper widget){
-		for(int i=0; i<dragControllers.size(); i++){
-			FormDesignerDragController dragController = dragControllers.elementAt(i);
-			if(dragController.getBoundaryPanel().getWidgetIndex(widget) > -1)
-				return dragController;
+	public FormDesignerDropController getWidgetDropController(DesignWidgetWrapper widget){
+		for(int i=0; i<tabDropControllers.size(); i++){
+			FormDesignerDropController dropController = tabDropControllers.get(i);
+			Widget dropTarget = dropController.getDropTarget();
+			if(!(dropTarget instanceof AbsolutePanel))
+				continue;
+			if(((AbsolutePanel)dropTarget).getWidgetIndex(widget) > -1)
+				return dropController;
 		}
 		
-		//Now look through group boxes
-		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
-			Widget currentWidget = selectedPanel.getWidget(index);
-			if(!(currentWidget instanceof DesignWidgetWrapper))
-				continue;
-			if(!(((DesignWidgetWrapper)currentWidget).getWrappedWidget() instanceof DesignGroupWidget))
-				continue;
-			
-			DesignGroupWidget designGroupWidget = ((DesignGroupWidget)((DesignWidgetWrapper)currentWidget).getWrappedWidget());
-			if(designGroupWidget.containsWidget(widget))
-				return designGroupWidget.getDragController();
-			
-			FormDesignerDragController dragController = designGroupWidget.getWidgetDragController(widget);
-			if(dragController != null)
-				return dragController;
-		}
-		
-		assert(false); //how can a widget have no drag controller????
+		assert(false); //how can a widget have no drop controller????
 		return null;
 	}
 	
@@ -3384,7 +3365,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		 
 		if(bindings.containsKey(questionDef.getBinding())){
 			DesignWidgetWrapper widget = bindings.get(questionDef.getBinding());
-			FormDesignerDragController dragController = getDesignSurfaceView().getWidgetDragController(widget);
+			FormDesignerDragController dragController = FormDesignerDragController.getInstance();//getDesignSurfaceView().getWidgetDragController(widget);
 			if(dragController != null){
 				dragController.selectWidget(widget);
 				
@@ -3392,7 +3373,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				if(labels.containsKey(questionDef.getBinding()))
 					dragController.selectWidget(labels.get(questionDef.getBinding()));
 				
-				ensureTabVisible(widget, dragController);
+				ensureTabVisible(widget);
 				ensureVisible(widget);
 			}
 			else {

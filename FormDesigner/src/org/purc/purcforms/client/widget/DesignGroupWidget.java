@@ -65,7 +65,7 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 
 		initPanel();
 		initWidget(selectedPanel);
-		dragControllers.add(0, selectedDragController);
+		//dragControllers.add(0, selectedDragController);
 
 		addStyleName("getting-started-label2");
 
