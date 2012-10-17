@@ -298,15 +298,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			}
 
 			if(remove){ //cut{
-
+				DesignGroupView view = widget.getView();
 				if(storeHistory)
-					commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+					commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), view));
 
 				if(commandsParam != null)
-					commandsParam.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+					commandsParam.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), view));
 
 				tryUnregisterDropController(widget);
-				selectedPanel.remove(widget);
+				view.remove(widget);
 			}
 			else{ //copy
 				widget = new DesignWidgetWrapper(widget,images);
@@ -473,13 +473,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
 
-			commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), this));
+			DesignGroupView view = widget.getView();
+			commands.add(new DeleteWidgetCmd(widget, widget.getLayoutNode(), view));
 
 			if(widget.getLayoutNode() != null)
 				widget.getLayoutNode().getParentNode().removeChild(widget.getLayoutNode());
 			
 			tryUnregisterDropController(widget);
-			selectedPanel.remove(widget);
+			view.remove(widget);
 		}
 
 		selectedDragController.clearSelection();
@@ -501,31 +502,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void copyItem() {
 		if(selectedDragController.isAnyWidgetSelected())
 			copyWidgets(false);
-		else
-			copyChildWidgets(false);
 	}
 
 	public void cutItem() {
 		if(selectedDragController.isAnyWidgetSelected())
 			cutWidgets();
-		else
-			copyChildWidgets(true);
-	}
-
-	protected void copyChildWidgets(boolean remove){
-		if(selectedPanel.getWidgetIndex(rubberBand) > -1)
-			selectedPanel.remove(rubberBand);
-		
-		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
-			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
-				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
-				if(designGroupWidget.isAnyWidgetSelected())
-					designGroupWidget.copyWidgets(remove);
-				else
-					designGroupWidget.copyChildWidgets(remove);
-			}
-		}
 	}
 
 	public void pasteItem(){
@@ -564,24 +545,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void deleteSelectedItem() {
 		if(selectedDragController.isAnyWidgetSelected())
 			deleteWidgets();
-		else
-			deleteChildWidgets();
-	}
-	
-	protected void deleteChildWidgets(){
-		if(selectedPanel.getWidgetIndex(rubberBand) > -1)
-			selectedPanel.remove(rubberBand);
-		
-		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
-			if(widget.getWrappedWidget() instanceof DesignGroupWidget){
-				DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
-				if(designGroupWidget.isAnyWidgetSelected())
-					designGroupWidget.deleteSelectedItem();
-				else
-					designGroupWidget.deleteChildWidgets();
-			}
-		}
 	}
 	
 	public boolean isAnyChildWidgetSelected(){
@@ -3428,5 +3391,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		return false;
+	}
+	
+	public boolean remove(DesignWidgetWrapper widget){
+		return selectedPanel.remove(widget);
 	}
 }
