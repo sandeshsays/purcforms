@@ -713,8 +713,11 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		selectedTabIndex = index;
 
 		FormDesignerDragController dragController = dragControllers.remove(selectedTabIndex);
+		
+		//TODO Need to check for this has multiple drop controllers
 		PaletteView.unRegisterDropController(dragController.getFormDesignerDropController());
 		FormsTreeView.unRegisterDropController(dragController.getFormDesignerDropController());
+		FormDesignerDragController.unRegisterDropController(dragController.getFormDesignerDropController());
 		
 		dragControllers.remove(dragController);
 

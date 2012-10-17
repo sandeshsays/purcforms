@@ -4,6 +4,7 @@ import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
+import org.purc.purcforms.client.controller.FormDesignerDropController;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.controller.WidgetSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
@@ -473,5 +474,9 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 	
 	public FormDesignerDragController getDragController(){
 		return selectedDragController;
+	}
+	
+	public FormDesignerDropController getDropController(){
+		return dropController;
 	}
 }

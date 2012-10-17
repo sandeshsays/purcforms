@@ -116,6 +116,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	protected AbsolutePanel selectedPanel = new AbsolutePanel();
 	protected FormDesignerDragController selectedDragController;
 	protected WidgetSelectionListener widgetSelectionListener;
+	protected FormDesignerDropController dropController;
 
 	/** The rubber band widget for multiple widget selection. */
 	protected Label rubberBand = new Label(""); //HTML("<DIV ID='rubberBand'></DIV>");
@@ -323,8 +324,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
 			DesignGroupWidget designGroupWidget = (DesignGroupWidget)widget.getWrappedWidget();
 			
-			PaletteView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
-			FormsTreeView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+			PaletteView.unRegisterDropController(designGroupWidget.getDropController());
+			FormsTreeView.unRegisterDropController(designGroupWidget.getDropController());
+			FormDesignerDragController.unRegisterDropController(designGroupWidget.getDropController());
 			
 			designGroupWidget.unregisterDropControllers();
 		}
@@ -339,8 +341,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				continue;
 			
 			DesignGroupWidget designGroupWidget = ((DesignGroupWidget)((DesignWidgetWrapper)currentWidget).getWrappedWidget());
-			PaletteView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
-			FormsTreeView.unRegisterDropController(designGroupWidget.getDragController().getFormDesignerDropController());
+			
+			PaletteView.unRegisterDropController(designGroupWidget.getDropController());
+			FormsTreeView.unRegisterDropController(designGroupWidget.getDropController());
+			FormDesignerDragController.unRegisterDropController(designGroupWidget.getDropController());
 
 			designGroupWidget.unregisterDropControllers();
 		}
@@ -1690,7 +1694,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		// create a DropController for each drop target on which draggable widgets
 		// can be dropped
-		DropController dropController =  new FormDesignerDropController(selectedPanel, this);
+		dropController =  new FormDesignerDropController(selectedPanel, this);
 
 		// Don't forget to register each DropController with a DragController
 		selectedDragController.registerDropController(dropController);
