@@ -2713,7 +2713,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 		
 		FormDesignerDropController dropController = ((DesignSurfaceView)widget).getWidgetDropController(widgetWrapper);
-		tabs.selectTab(tabDropControllers.indexOf(dropController));
+		((DesignSurfaceView)widget).selectTab(dropController);
 	}
 	
 	/**

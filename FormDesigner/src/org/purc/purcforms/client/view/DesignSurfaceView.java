@@ -474,7 +474,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
-		//dragControllers.clear();
+		tabDropControllers.clear();
 
 		if(xml == null || xml.trim().length() == 0){
 			addNewTab(null, true);
@@ -747,7 +747,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		FormDesignerDragController.unregisterDropControllers();
 		tabs.clear();
 		pageWidgets.clear();
-		//dragControllers.clear();
+		tabDropControllers.clear();
 
 		Vector pages = formDef.getPages();
 		if(pages != null){
@@ -801,7 +801,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			FormDesignerDragController.unregisterDropControllers();
 			tabs.clear();
 			pageWidgets.clear();
-			//dragControllers.clear();
+			tabDropControllers.clear();
 			addNewTab(null, true);
 		}
 
@@ -1130,5 +1130,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	
 	public ScrollPanel getScrollPanel(){
 		return (ScrollPanel)getParent();
+	}
+	
+	public void selectTab(FormDesignerDropController dropController){
+		tabs.selectTab(tabDropControllers.indexOf(dropController));
 	}
 }
