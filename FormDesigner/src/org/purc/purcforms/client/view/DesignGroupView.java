@@ -136,6 +136,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	/** The text box widget for inline label editing. */
 	protected TextBox txtEdit = new TextBox();
 	protected DesignWidgetWrapper editWidget;
+	
+	protected static DesignGroupView labelEditView;
 
 	/** The selection rubber band height in pixels. */
 	protected String rubberBandHeight;
@@ -195,6 +197,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Right clicking on a widget when we have more than one item selected should not turn off selection.
 		if(multipleSel && selectedDragController.getSelectedWidgetCount() > 1)
 			return;
+		
+		if(labelEditView != null) {
+			labelEditView.stopLabelEdit(false);
+			labelEditView = null;
+		}
 
 		if(widget == null){
 			if(!(selectedDragController.getSelectedWidgetCount() > 1))
@@ -934,7 +941,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		String s = event.getTarget().getClassName();
 		s.toString();
 		if(!event.getCtrlKey() && !isTextBoxFocus(event)){
-			if(selectedDragController.getSelectedWidgetCount() == 1 /*||
+			if(selectedDragController.getSelectedWidgetCount() == 1 && selectedPanel.getWidgetIndex(selectedDragController.getSelectedWidgetAt(0)) > -1 /*||
 					(selectedDragController.getSelectedWidgetCount() == 0 && this instanceof DesignGroupWidget)*/){
 				stopLabelEdit(false);
 
@@ -963,6 +970,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 						selectedDragController.clearSelection();
 						editWidget.startEditMode(txtEdit);
+						labelEditView = this;
 						return true;
 					}
 					else if(editWidget.getWrappedWidget() instanceof DesignGroupWidget){
@@ -978,6 +986,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 						((DesignGroupWidget)editWidget.getWrappedWidget()).clearSelection();
 						selectedDragController.clearSelection();
 						headerLabel.startEditMode(txtEdit);
+						labelEditView = this;
 						return true;
 					}
 					else
@@ -1745,6 +1754,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			}*/
 			editWidget = null;
 		}
+		else if(labelEditView != null) {
+			labelEditView.stopLabelEdit(select);
+		}
+		
+		labelEditView = null;
 	}
 
 	@Override
