@@ -248,6 +248,12 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(((DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i)).getWrappedWidget() instanceof DesignGroupWidget)
 				return; //We do not allow nested group boxes
 		}*/
+		
+		DesignWidgetWrapper designWidgetWrapper = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(0);
+		if(this.selectedPanel.getWidgetIndex(designWidgetWrapper) < 0){
+			designWidgetWrapper.getView().groupWidgets();
+			return; //cannot group within a view which is not the parent.
+		}
 
 		CommandList commands = new CommandList(this);
 
