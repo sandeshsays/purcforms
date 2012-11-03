@@ -4,12 +4,15 @@ import java.util.ArrayList;
 
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 
 import com.allen_sauer.gwt.dnd.client.AbstractDragController;
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractPositioningDropController;
 import com.allen_sauer.gwt.dnd.client.util.DOMUtil;
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -97,7 +100,24 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			draggable.positioner.removeFromParent();
 			if(draggable.widget instanceof DesignWidgetWrapper){
 				if(!((DesignWidgetWrapper)draggable.widget).isLocked() && !lockedWidgetFound) {
-					dropTarget.add(draggable.widget, draggable.desiredX, draggable.desiredY);
+					
+					if(draggable.desiredX == 0 && "w-resize".equals(DOM.getStyleAttribute(((DesignWidgetWrapper)context.draggable).getWrappedWidget().getElement(), "cursor")) &&
+							((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof HorizontalGridLine) {
+						dropTarget.add(draggable.widget, context.mouseX - draggable.widget.getParent().getAbsoluteLeft(), draggable.desiredY);
+					}
+					else {
+						int x = draggable.desiredX;
+						int y = draggable.desiredY;
+						
+						Widget wrappedWidget = ((DesignWidgetWrapper)context.draggable).getWrappedWidget();
+						if(wrappedWidget instanceof HorizontalGridLine)
+							((DesignWidgetWrapper)context.draggable).getLeftInt();
+						else if(wrappedWidget instanceof VerticalGridLine)
+							((DesignWidgetWrapper)context.draggable).getTopInt();
+						
+						dropTarget.add(draggable.widget, x, y);
+					}
+					
 					//dropTarget.add(draggable.widget, draggable.widget.getAbsoluteLeft(), draggable.widget.getAbsoluteTop());
 					//dropTarget.add(draggable.widget, context.desiredDraggableX, context.desiredDraggableY);
 				}
@@ -137,7 +157,7 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 			draggableList.add(draggable);
 		}
 		
-		//((AbstractDragController) context.dragController).resetCache();
+		((AbstractDragController) context.dragController).resetCache();
 	}
 
 	@Override

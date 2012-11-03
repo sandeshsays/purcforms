@@ -2,6 +2,7 @@ package org.purc.purcforms.client.cmd;
 
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
@@ -41,6 +42,9 @@ public class ResizeWidgetCmd implements ICommand {
 		widget.setTopInt(widget.getTopInt() + y);
 		widget.setWidthInt(widget.getWidthInt() + width);
 		widget.setHeightInt(widget.getHeightInt() + height);
+		
+		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridDesignGroupWidget)
+			((GridDesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).resizeGrid(-width, -height, widget.getWidthInt(), widget.getHeightInt());
 
 		view.selectWidget(widget, panel);
 	}
@@ -50,6 +54,9 @@ public class ResizeWidgetCmd implements ICommand {
 		widget.setTopInt(widget.getTopInt() - y);
 		widget.setWidthInt(widget.getWidthInt() - width);
 		widget.setHeightInt(widget.getHeightInt() - height);
+		
+		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridDesignGroupWidget)
+			((GridDesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).resizeGrid(width, height, widget.getWidthInt(), widget.getHeightInt());
 		
 		view.selectWidget(widget, panel);
 	}

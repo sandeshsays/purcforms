@@ -14,6 +14,10 @@ import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.PaletteWidget;
 import org.purc.purcforms.client.widget.TreeItemWidget;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
+import org.purc.purcforms.client.widget.grid.GridLine;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 
 import com.allen_sauer.gwt.dnd.client.AbstractDragController;
 import com.allen_sauer.gwt.dnd.client.DragContext;
@@ -222,11 +226,34 @@ public class FormDesignerDragController extends AbstractDragController{
 					
 					for (Widget widget : context.selectedWidgets) {
 						SavedWidgetInfo info = savedWidgetInfoMap.get(widget);
-						int x = info.initialDraggableParentLocation.getLeft() - ((DesignWidgetWrapper)widget).getLeftInt();
-						int y = info.initialDraggableParentLocation.getTop() - ((DesignWidgetWrapper)widget).getTopInt();
+						int left = ((DesignWidgetWrapper)widget).getLeftInt();
+						int top = ((DesignWidgetWrapper)widget).getTopInt();
+						int x = info.initialDraggableParentLocation.getLeft() - left;
+						int y = info.initialDraggableParentLocation.getTop() - top;
 
-						if(Math.abs(x) > 0 || Math.abs(y) > 0)
+						if(Math.abs(x) > 0 || Math.abs(y) > 0) {
 							commands.add(new MoveWidgetCmd((DesignWidgetWrapper)widget, x, y, (DesignGroupView)dragDropListener));
+							
+							if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
+								DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
+								if(view instanceof GridDesignGroupWidget)
+									((GridDesignGroupWidget)view).moveLine(x, y, left, top); //()) getP(widthChange, heightChange, width, height);
+							}
+						}
+						else {
+							//TODO Investigate why we end up here
+							int width = ((DesignWidgetWrapper)widget).getWidthInt();
+							int height = ((DesignWidgetWrapper)widget).getHeightInt();
+							int widthChange = info.width - width;
+							int heightChange = info.height - height;
+
+							if(Math.abs(widthChange) > 0 || Math.abs(heightChange) > 0) {
+								commands.add(new ResizeWidgetCmd((DesignWidgetWrapper)widget, x, y, widthChange, heightChange, (DesignGroupView)dragDropListener));
+								
+								if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridDesignGroupWidget)
+									((GridDesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).resizeGrid(widthChange, heightChange, width, height);
+							}
+						}
 					}
 				}
 				else{
@@ -234,11 +261,17 @@ public class FormDesignerDragController extends AbstractDragController{
 						SavedWidgetInfo info = savedWidgetInfoMap.get(widget);
 						int x = info.initialDraggableParentLocation.getLeft() - ((DesignWidgetWrapper)widget).getLeftInt();
 						int y = info.initialDraggableParentLocation.getTop() - ((DesignWidgetWrapper)widget).getTopInt();
-						int width = info.width - ((DesignWidgetWrapper)widget).getWidthInt();
-						int height = info.height - ((DesignWidgetWrapper)widget).getHeightInt();
+						int width = ((DesignWidgetWrapper)widget).getWidthInt();
+						int height = ((DesignWidgetWrapper)widget).getHeightInt();
+						int widthChange = info.width - width;
+						int heightChange = info.height - height;
 
-						if(Math.abs(x) > 0 || Math.abs(y) > 0 || Math.abs(width) > 0 || Math.abs(height) > 0)
-							commands.add(new ResizeWidgetCmd((DesignWidgetWrapper)widget, x, y, width, height, (DesignGroupView)dragDropListener));
+						if(Math.abs(x) > 0 || Math.abs(y) > 0 || Math.abs(widthChange) > 0 || Math.abs(heightChange) > 0) {
+							commands.add(new ResizeWidgetCmd((DesignWidgetWrapper)widget, x, y, widthChange, heightChange, (DesignGroupView)dragDropListener));
+							
+							if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridDesignGroupWidget)
+								((GridDesignGroupWidget)((DesignWidgetWrapper)widget).getWrappedWidget()).resizeGrid(widthChange, heightChange, width, height);
+						}
 					}
 				}
 
@@ -315,7 +348,13 @@ public class FormDesignerDragController extends AbstractDragController{
 				}
 				else /*if(cursor.equalsIgnoreCase("move"))*/{
 					//if(!"100%".equals(((DesignWidgetWrapper)context.draggable).getWidth()))
-					DOMUtil.fastSetElementPosition(movablePanel.getElement(), desiredLeft, desiredTop);
+					Widget wrappedWidget = ((DesignWidgetWrapper)context.draggable).getWrappedWidget();
+					if(wrappedWidget instanceof HorizontalGridLine)
+						movablePanel.getElement().getStyle().setPropertyPx("top", desiredTop);
+					else if(wrappedWidget instanceof VerticalGridLine)
+						movablePanel.getElement().getStyle().setPropertyPx("left", desiredLeft);
+					else
+						DOMUtil.fastSetElementPosition(movablePanel.getElement(), desiredLeft, desiredTop);
 				}
 			}
 			else{
@@ -383,7 +422,7 @@ public class FormDesignerDragController extends AbstractDragController{
 
 	@Override
 	public void dragStart() {
-
+		
 		if(context.selectedWidgets.size() > 1 && isResizing()){
 			for (Widget widget : context.selectedWidgets) {
 				if(widget != context.draggable)

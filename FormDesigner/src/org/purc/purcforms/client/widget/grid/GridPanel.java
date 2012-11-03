@@ -1,274 +1,331 @@
 package org.purc.purcforms.client.widget.grid;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.WidgetCollection;
 
 public class GridPanel extends AbsolutePanel {
 
-	private int width;
-	private int height;
-	private int gridVertSize;
-	private int gridHorzSize;
-	private PickupDragController gridConstrainedDragController;
-	private PickupDragController unconstrainedDragController;
+	private WidgetCollection verticalLines = new WidgetCollection(this);
+	private WidgetCollection horizontalLines = new WidgetCollection(this);
 
-	public GridPanel(int gridVertSize, int gridHorzSize, int width, int height,
-			boolean dragAndDropEnabled) {
-		super();
-		this.width = width;
-		this.height = height;
-		/*
-		 * this.expresserCanvas = expresserCanvas; this.model = model;
-		 * eventManager = new EventManager(this);
-		 */
-		setGridSize(gridVertSize, gridHorzSize);
-		setPixelSize(width, height);
-		if (dragAndDropEnabled) {
-			enableDragAndDrop();
+	@Override
+	public void add(Widget w) {
+		if(isGridLine(w)) {
+			 // Detach new child.
+			w.removeFromParent();
+
+		    // Logical attach.
+			if(isVerticalLine(w))
+				verticalLines.add(w);
+			else
+				horizontalLines.add(w);
+
+		    // Physical attach.
+		    DOM.appendChild(getElement(), w.getElement());
+
+		    // Adopt.
+		    adopt(w);
 		}
-	}
-
-	private void enableDragAndDrop() {
-		gridConstrainedDragController = new PickupDragController(this, true);
-		GridConstrainedSelectionStyleDropController gridConstrainedDropController = new GridConstrainedSelectionStyleDropController(
-				this, gridVertSize, gridVertSize);
-		gridConstrainedDragController
-				.registerDropController(gridConstrainedDropController);
-		gridConstrainedDragController.setBehaviorMultipleSelection(true);
-		// dragController.setBehaviorConstrainedToBoundaryPanel(true);
-		unconstrainedDragController = new PickupDragController(this, true);
-		// ignore small movements to enable popup menus
-		gridConstrainedDragController.setBehaviorDragStartSensitivity(4);
-		unconstrainedDragController.setBehaviorDragStartSensitivity(4);
-	}
-
-	public void recomputePixelSize() {
-		setPixelSize(width, height);
-	}
-
-	public void setGridSize(int gridVertSize, int gridHorzSize) {
-		if (this.gridVertSize == gridVertSize) {
-			return;
+		else {
+			super.add(w);
 		}
-		
-		this.gridVertSize = gridVertSize;
-		this.gridHorzSize = gridHorzSize;
-		
-		drawGrid();
 	}
 	
-	public void resizeGrid(int width, int height){
-		this.width = width;
-		this.height = height;
-		
-		drawGrid();
+	@Override
+	public boolean remove(Widget w) {
+		if(isGridLine(w)) {
+			boolean removed = removeWidget(w);
+		    if (removed) {
+		      changeToStaticPositioning(w.getElement());
+		    }
+		    return removed;
+		}
+		else {
+			return super.remove(w);
+		}
 	}
 	
-	public void drawGrid(){
-		int widgetCount = getWidgetCount();
-		// count backwards since removing widgets as it runs
-		List<LocatedWidget> widgetsToPutBack = new ArrayList<LocatedWidget>();
-		for (int i = widgetCount - 1; i >= 0; i--) {
-			Widget widget = getWidget(i);
-			/*
-			 * if (widget instanceof ShapeView) { ((ShapeView)
-			 * widget).setGridSize(gridSize); }
-			 */// ????????????????????????
-			if (!(widget instanceof VerticalGridLine || widget instanceof HorizontalGridLine)) {
-				widgetsToPutBack.add(new LocatedWidget(widget, widget
-						.getAbsoluteLeft(), widget.getAbsoluteTop()));
-			}
-			if (widget instanceof GridLine) {
-				widget.removeFromParent();
-			}
-			// temporarily remove every one
-			// widget.removeFromParent();
+	public boolean removeWidget(Widget w) {
+	    // Validate.
+	    if (w.getParent() != this) {
+	      return false;
+	    }
+	    // Orphan.
+	    try {
+	      orphan(w);
+	    } finally {
+	      // Physical detach.
+	      Element elem = w.getElement();
+	      DOM.removeChild(DOM.getParent(elem), elem);
+	  
+	      // Logical detach.
+	      if(isVerticalLine(w)) {
+	    	  verticalLines.remove(w);
+	      }
+	      else
+	    	  horizontalLines.remove(w);
+	    }
+	    return true;
+	}
+	
+	private static void changeToStaticPositioning(Element elem) {
+	    DOM.setStyleAttribute(elem, "left", "");
+	    DOM.setStyleAttribute(elem, "top", "");
+	    DOM.setStyleAttribute(elem, "position", "");
+	}
+	
+	public void add(Widget w, int left, int top) {
+		if(isGridLine(w)) {
+			// In order to avoid the potential for a flicker effect, it is necessary
+		    // to set the position of the widget before adding it to the AbsolutePanel.
+		    // The Widget should be removed from its parent before any positional
+		    // changes are made to prevent flickering.
+		    w.removeFromParent();
+		    int beforeIndex = 0;
+		    if(isVerticalLine(w))
+		    	beforeIndex = verticalLines.size();
+		    else
+		    	beforeIndex = horizontalLines.size();
+		    
+		    String cursor = DOM.getStyleAttribute(((DesignWidgetWrapper)w).getWrappedWidget().getElement(), "cursor");
+		    if("e-resize".equals(cursor) || "w-resize".equals(cursor) || "n-resize".equals(cursor) || "s-resize".equals(cursor))
+		    	setWidgetPositionImpl(w, left, top);
+		    else
+		    	super.setWidgetPositionImpl(w, left, top);
+		    
+		    insert(w, beforeIndex);
+		    verifyPositionNotStatic(w);
 		}
-		setPixelSize(width, height);
-		//if (gridSize >= 10) {
-			addGridLines();
-		//}
-		// grid lines are always underneath other widgets
-		int canvasAbsoluteLeft = getAbsoluteLeft();
-		int canvasAbsoluteTop = getAbsoluteTop();
-		// put them back in the right z-order
-		int size = widgetsToPutBack.size();
-		for (int i = size - 1; i >= 0; i--) {
-			LocatedWidget locatedWidget = widgetsToPutBack.get(i);
-			add(locatedWidget.getWidget(), locatedWidget.getAbsoluteLeft()
-					- canvasAbsoluteLeft, locatedWidget.getAbsoluteTop()
-					- canvasAbsoluteTop);
+		else
+			super.add(w, left, top);
+	}
+	
+	protected void insert(Widget child, Element container, int beforeIndex,
+		      boolean domInsert) {
+		if(!isGridLine(child)){
+			super.insert(child, container, beforeIndex, domInsert);
+		}
+		else {
+		    // Validate index; adjust if the widget is already a child of this panel.
+		    beforeIndex = adjustIndex(child, beforeIndex);
+	
+		    // Detach new child.
+		    child.removeFromParent();
+	
+		    // Logical attach.
+	    	if(isVerticalLine(child)) {
+	    		verticalLines.insert(child, beforeIndex);
+	    		resizeVerticalLineToFit((DesignWidgetWrapper)child);
+	    	}
+		    else
+		    	horizontalLines.insert(child, beforeIndex);
+	
+		    // Physical attach.
+		    if (domInsert) {
+		      DOM.insertChild(container, child.getElement(), beforeIndex);
+		    } else {
+		      DOM.appendChild(container, child.getElement());
+		    }
+	
+		    // Adopt.
+		    adopt(child);
 		}
 	}
+	
+	private void verifyPositionNotStatic(Widget child) {
+	    // Only verify widget position in Development Mode
+	    if (GWT.isProdMode()) {
+	      return;
+	    }
 
-	protected void addGridLines() {
-		// draw the grid lines at gridSize-1 so that the tiles themselves
-		// can be from 0, 0 and have a size of gridSize-1
-		// int bottomLeftBlank = expresserCanvas.getRuleAreaHeight();
-		// int visibleHeight = height-bottomLeftBlank;
-		// if (visibleHeight < 1) {
-		// return;
-		// }
-		clear();
+	    // Non-visible or detached elements have no offsetParent
+	    if (child.getElement().getOffsetParent() == null) {
+	      return;
+	    }
+	    
+	    // Check if offsetParent == parent
+	    if (child.getElement().getOffsetParent() == getElement()) {
+	      return;
+	    }
+
+	    /*
+	     * When this AbsolutePanel is the document BODY, e.g. RootPanel.get(), then
+	     * no explicit position:relative is needed as children are already
+	     * positioned relative to their parent. For simplicity we test against
+	     * parent, not offsetParent, since in IE6+IE7 (but not IE8+) standards mode,
+	     * the offsetParent, for elements whose parent is the document BODY, is the
+	     * HTML element, not the BODY element.
+	     */
+	    if ("body".equals(getElement().getNodeName().toLowerCase())) {
+	      return;
+	    }
+
+	    /*
+	     * Warn the developer, but allow the execution to continue in case legacy
+	     * apps depend on broken CSS.
+	     */
+	    String className = getClass().getName();
+	    GWT.log("Warning: " + className + " descendants will be incorrectly "
+	        + "positioned, i.e. not relative to their parent element, when "
+	        + "'position:static', which is the CSS default, is in effect. One "
+	        + "possible fix is to call "
+	        + "'panel.getElement().getStyle().setPosition(Position.RELATIVE)'.",
+	        // Stack trace provides context for the developer
+	        new IllegalStateException(className
+	            + " is missing CSS 'position:{relative,absolute,fixed}'"));
+	}
+	
+	public boolean isVerticalLine(Widget w){
+		return ((DesignWidgetWrapper)w).getWrappedWidget() instanceof VerticalGridLine;
+	}
+	
+	public boolean isGridLine(Widget w){
+		return w instanceof DesignWidgetWrapper && ((DesignWidgetWrapper)w).getWrappedWidget() instanceof GridLine;
+	}
+	
+	public void resizeVerticalLineToFit(DesignWidgetWrapper verticalLine) {
+		int top = verticalLine.getTopInt();
+		int height = verticalLine.getHeightInt();
+		int bottom = top + height;
 		
-		for (int i = gridVertSize - 1; i < width; i += gridVertSize) {
-			add(new VerticalGridLine(height), i, 0);
-		}
-		for (int j = gridHorzSize - 1; j < height; j += gridHorzSize) {
-			add(new HorizontalGridLine(width), 0, j);
-		}
-	}
-
-	/**
-	 * called when canvas dimensions changed adjusts the length of existing grid
-	 * lines and removes or adds grid lines as needed
-	 * 
-	 * @param deltaHeight
-	 * @param deltaWidth
-	 */
-	protected void adjustGridLines(int newWidth, int newHeight) {
-		// this draws grid lines under the rule area -- not a problem
-		// and then when resized those lines are there
-		// int bottomLeftBlank = expresserCanvas.getRuleAreaHeight();
-		// int visibleHeight = newHeight-bottomLeftBlank;
-		// if (visibleHeight < 1) {
-		// return;
-		// }
-		// int maxLeft = newWidth+gridSize-1;
-		// int maxTop = newHeight+gridSize-1;
-		int widgetCount = getWidgetCount();
-		// count backwards since may remove some widgets here
-		for (int i = widgetCount - 1; i >= 0; i--) {
-			Widget widget = getWidget(i);
-			if (widget instanceof VerticalGridLine) {
-				if (getWidgetLeft(widget) >= newWidth) {
-					remove(widget);
-				} else {
-					widget.setHeight(newHeight + "px");
+		int prevDifTop = top - 20; //TODO Need not hard code the header label height
+		int prevDifBottom = getOffsetHeight() - bottom; // - 20;
+		for(Widget w : horizontalLines) {
+			int t = ((DesignWidgetWrapper)w).getTopInt();
+			
+			//check if line before our top
+			if(t <= top) {
+				int dif = top - t;
+				if(dif < prevDifTop) {
+					prevDifTop = dif; //closest so far from top
 				}
 			}
-			if (widget instanceof HorizontalGridLine) {
-				if (getWidgetTop(widget) >= newHeight) {
-					remove(widget);
-				} else {
-					widget.setWidth(newWidth + "px");
+			else if(t >= bottom) { //check if line after our bottom
+				int dif = t - bottom;
+				if(dif < prevDifBottom) {
+					prevDifBottom = dif; //closest so far from bottom
 				}
 			}
 		}
-		// add any additional grid lines needed
-		int firstX = (width / gridVertSize) * gridVertSize + gridVertSize - 1;
-		for (int i = firstX; i <= newWidth; i += gridVertSize) {
-			add(new VerticalGridLine(newHeight), i, 0);
+		
+		top = top - prevDifTop;
+		height = bottom + prevDifBottom - top;
+		
+		verticalLine.setTopInt(top);
+		verticalLine.setHeight(height);
+	}
+	
+	public void resizeHorizontalLineToFit(DesignWidgetWrapper horizontalLine) {
+		int left = horizontalLine.getLeftInt();
+		int width = horizontalLine.getWidthInt();
+		int right = left + width;
+		
+		int prevDifLeft = left; //distance from table left
+		int prevDifRight = getOffsetWidth() - right; //distance from table right
+		for(Widget w : verticalLines) {
+			int l = ((DesignWidgetWrapper)w).getLeftInt();
+			
+			//check if line before our left
+			if(l <= left) {
+				int dif = left - l;
+				if(dif < prevDifLeft) {
+					prevDifLeft = dif; //closest so far from left
+				}
+			}
+			else if(l >= right) { //check if line after our right
+				int dif = l - right;
+				if(dif < prevDifRight) {
+					prevDifRight = dif; //closest so far from right
+				}
+			}
 		}
-		int firstY = (height / gridVertSize) * gridVertSize + gridVertSize - 1;
-		for (int j = firstY; j <= newHeight; j += gridVertSize) {
-			add(new HorizontalGridLine(newWidth), 0, j);
+		
+		left = left - prevDifLeft;
+		width = right + prevDifRight - left;
+		
+		horizontalLine.setLeftInt(left);
+		horizontalLine.setWidthInt(width);
+	}
+	
+	@Override
+	protected void setWidgetPositionImpl(Widget w, int left, int top) {
+		super.setWidgetPositionImpl(w, left, top);
+		
+		if(isGridLine(w)) {
+			if(isVerticalLine(w))
+				resizeVerticalLineToFit((DesignWidgetWrapper)w);
+			else
+				resizeHorizontalLineToFit((DesignWidgetWrapper)w);
 		}
 	}
-
-	protected int nearestGridX(int x) {
-		return gridVertSize * (int) Math.round(((double) x) / gridVertSize);
-	}
-
-	protected int nearestGridY(int y) {
-		return gridVertSize * (int) Math.round(((double) y) / gridVertSize);
-	}
-
-	public PickupDragController getGridConstrainedDragController() {
-		return gridConstrainedDragController;
-	}
-
-	public int getGridSize() {
-		return gridVertSize;
-	}
-
-	private boolean centerInside(int widgetLeft, int widgetTop,
-			int widgetWidth, int widgetHeight, int rectangleLeft,
-			int rectangleTop, int rectangleWidth, int rectangleHeight) {
-		int widgetX = widgetLeft + widgetWidth / 2;
-		int widgetY = widgetTop + widgetHeight / 2;
-		int rectangleRight = rectangleLeft + rectangleWidth;
-		int rectangleBottom = rectangleTop + rectangleHeight;
-		return widgetX > rectangleLeft && widgetX < rectangleRight
-				&& widgetY > rectangleTop && widgetY < rectangleBottom;
-	}
-
-	public void clearSelection() {
-		gridConstrainedDragController.clearSelection();
-	}
-
-	public boolean containsShapeAt(int x, int y) {
-		int widgetCount = getWidgetCount();
-		for (int i = 0; i < widgetCount; i++) {
-			Widget widget = getWidget(i);
-
-			/*
-			 * if (widget instanceof DesignWidgetWrapper) { if
-			 * (((DesignWidgetWrapper) widget).contains(x, y)) { return true; }
-			 * }
-			 */
-
+	
+	public void resizeGrid(int widthChange, int heightChange, int width, int height) {
+		if(widthChange != 0) {
+			for(Widget w : horizontalLines) {
+				//((DesignWidgetWrapper)w).setWidthInt(((DesignWidgetWrapper)w).getWidthInt() - widthChange);
+				int value = ((DesignWidgetWrapper)w).getLeftInt() + ((DesignWidgetWrapper)w).getWidthInt();
+				value = getNewResizeValue(value, widthChange, width);
+				((DesignWidgetWrapper)w).setWidthInt(value - ((DesignWidgetWrapper)w).getLeftInt());
+			}
+			
+			for(Widget w : verticalLines) {
+				//((DesignWidgetWrapper)w).setLeftInt((int)(((DesignWidgetWrapper)w).getLeftInt() * ((double)width/(widthChange+width))));
+				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+			}
 		}
-		return false;
-	}
-
-	public Widget widgetContainingPoint(int x, int y) {
-		int widgetCount = getWidgetCount();
-		for (int i = 0; i < widgetCount; i++) {
-			Widget widget = getWidget(i);
-			if (widget instanceof GridLine) {
-				// grid lines aren't really objects -- just a way to draw the
-				// canvas
-				continue;
+		
+		if(heightChange != 0) {
+			for(Widget w : verticalLines) {
+				//((DesignWidgetWrapper)w).setHeight(((DesignWidgetWrapper)w).getHeightInt() - heightChange);
+				int value = ((DesignWidgetWrapper)w).getTopInt() + ((DesignWidgetWrapper)w).getHeightInt();
+				value = getNewResizeValue(value, heightChange, height);
+				((DesignWidgetWrapper)w).setHeightInt(value - ((DesignWidgetWrapper)w).getTopInt());
 			}
-			int left = widget.getAbsoluteLeft();
-			if (x < left) {
-				continue;
-			}
-			int right = left + widget.getOffsetWidth();
-			if (x > right) {
-				continue;
-			}
-			int top = widget.getAbsoluteTop();
-			if (y < top) {
-				continue;
-			}
-			int bottom = top + widget.getOffsetHeight();
-			if (y > bottom) {
-				continue;
-			}
-			return widget;
-		}
-		return null;
-	}
-
-	public PickupDragController getUnconstrainedDragController() {
-		return unconstrainedDragController;
-	}
-
-	public void moveAllBy(int deltaX, int deltaY) {
-		int widgetCount = getWidgetCount();
-		for (int i = 0; i < widgetCount; i++) {
-			Widget widget = getWidget(i);
-			if (widget instanceof DesignWidgetWrapper) {
-				int left = getWidgetLeft(widget) + deltaX;
-				int top = getWidgetTop(widget) + deltaY;
-				setWidgetPosition(widget, left, top);
+			
+			for(Widget w : horizontalLines) {
+				//((DesignWidgetWrapper)w).setTopInt((int)(((DesignWidgetWrapper)w).getTopInt() * ((double)height/(heightChange+height))));
+				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
 			}
 		}
 	}
-
-	public int getWidth() {
-		return width;
+	
+	private int getNewResizeValue(int value, int change, int newValue) {
+		return (int)(value * ((double)newValue/(change + newValue)));
 	}
-
-	public int getHeight() {
-		return height;
+	
+	public void moveLine(int xChange, int yChange, int newLeft, int newTop){
+		int oldX = xChange + newLeft;
+		int oldY = yChange + newTop;
+		if(xChange != 0){ //vertical line moved
+			for(Widget w : horizontalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int left = widget.getLeftInt();
+				if(left == oldX) {
+					widget.setLeftInt(newLeft);
+					widget.setWidthInt(widget.getWidthInt() + xChange);
+				}
+				else if((left + widget.getWidthInt()) == oldX) {
+					widget.setWidthInt(widget.getWidthInt() - xChange);
+				}
+			}
+		}
+		else if(yChange != 0){ //horizontal line moved
+			for(Widget w : verticalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int top = widget.getTopInt();
+				if(top == oldY) {
+					widget.setTopInt(newTop);
+					widget.setHeightInt(widget.getHeightInt() + yChange);
+				}
+				else if((top + widget.getHeightInt()) == oldY)
+					widget.setHeightInt(widget.getHeightInt() - yChange);
+			}
+		}
 	}
 }

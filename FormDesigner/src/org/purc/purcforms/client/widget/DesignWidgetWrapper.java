@@ -14,6 +14,9 @@ import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
+import org.purc.purcforms.client.widget.grid.GridLine;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
 
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
@@ -379,28 +382,46 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		int top = getTopInt();
 		int right = left + getWidthInt(); //element.getScrollWidth();
 		int bottom = top + getHeightInt(); //element.getScrollHeight();
-
-		//int incr = 3; //A smaller value than this does not resize, it instead moves.
-
-		if(y >= top-incr && y <= top+incr && (x >= right-incr && x <= right+incr))
-			return "ne-resize";
-		else if(y >= bottom-incr && y <= bottom+incr && (x >= right-incr && x <= right+incr))
-			return "se-resize";
-		else if(y >= top-incr && y <= top+incr && (x >= left-incr && x <= left+incr))
-			return "nw-resize";
-		else if(y >= bottom-incr && y <= bottom+incr && (x >= left-incr && x <= left+incr))
-			return "sw-resize";
-		else if(x >= right-incr && x <= right+incr)
-			return "e-resize";
-		else if(x >= left-incr && x <= left+incr)
-			return "w-resize";
-		else if(y >= top-incr && y <= top+incr)
-			return "n-resize";
-		else if(y >= bottom-incr && y <= bottom+incr)
-			return "s-resize";
-
-		if(widget instanceof DesignGroupWidget && !isRepeated())
-			return "default";
+		
+		int oldIncr = incr;
+		incr = 10;
+		if (widget instanceof HorizontalGridLine) {
+			if(x >= right-incr && x <= right+incr)
+				return "e-resize";
+			else if(x >= left-incr && x <= left+incr)
+				return "w-resize";
+		}
+		else if (widget instanceof VerticalGridLine) {
+			if(y >= top-incr && y <= top+incr)
+				return "n-resize";
+			else if(y >= bottom-incr && y <= bottom+incr)
+				return "s-resize";
+		}
+		else {
+			//int incr = 3; //A smaller value than this does not resize, it instead moves.
+	
+			incr = oldIncr;
+			
+			if(y >= top-incr && y <= top+incr && (x >= right-incr && x <= right+incr))
+				return "ne-resize";
+			else if(y >= bottom-incr && y <= bottom+incr && (x >= right-incr && x <= right+incr))
+				return "se-resize";
+			else if(y >= top-incr && y <= top+incr && (x >= left-incr && x <= left+incr))
+				return "nw-resize";
+			else if(y >= bottom-incr && y <= bottom+incr && (x >= left-incr && x <= left+incr))
+				return "sw-resize";
+			else if(x >= right-incr && x <= right+incr)
+				return "e-resize";
+			else if(x >= left-incr && x <= left+incr)
+				return "w-resize";
+			else if(y >= top-incr && y <= top+incr)
+				return "n-resize";
+			else if(y >= bottom-incr && y <= bottom+incr)
+				return "s-resize";
+	
+			if(widget instanceof DesignGroupWidget && !isRepeated())
+				return "default";
+		}
 
 		return "move";
 	}
@@ -1072,15 +1093,15 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	public void setWidthInt(long width){
 		super.setWidthInt(width);
 		
-		if(widget instanceof GridDesignGroupWidget)
-			((GridDesignGroupWidget)widget).resizeGrid((int)width, this.getHeightInt());
+		//if(widget instanceof GridDesignGroupWidget)
+		//	((GridDesignGroupWidget)widget).resizeGrid((int)width, this.getHeightInt());
 	}
 
 	public void setHeight(long height){
 		super.setHeightInt(height);
 		
-		if(widget instanceof GridDesignGroupWidget)
-			((GridDesignGroupWidget)widget).resizeGrid(getWidthInt(), (int)height);
+		//if(widget instanceof GridDesignGroupWidget)
+		//	((GridDesignGroupWidget)widget).resizeGrid(getWidthInt(), (int)height);
 	}
 	
 	private void setGroupBoxBinding() {

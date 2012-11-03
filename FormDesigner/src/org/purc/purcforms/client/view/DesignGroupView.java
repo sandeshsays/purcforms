@@ -39,6 +39,8 @@ import org.purc.purcforms.client.widget.TextBoxWidget;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.TreeItemWidget;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -1364,6 +1366,20 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		wrapper.setFontSize(FormUtil.getDefaultFontSize());
 		return wrapper;
 	}
+	
+	protected DesignWidgetWrapper addNewHorizontalLine(boolean select){
+		HorizontalGridLine line = new HorizontalGridLine(200);
+		DesignWidgetWrapper wrapper = addNewWidget(line, select);
+		//wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		return wrapper;
+	}
+	
+	protected DesignWidgetWrapper addNewVerticalLine(boolean select){
+		VerticalGridLine line = new VerticalGridLine(200);
+		DesignWidgetWrapper wrapper = addNewWidget(line, select);
+		//wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		return wrapper;
+	}
 
 	/**
 	 * Adds a new audio or video widget.
@@ -1597,6 +1613,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		String text = ((PaletteWidget)widget).getName();
 
 		DesignWidgetWrapper retWidget = null;
+		boolean resizeParent = true;
 
 		if(text.equals(LocaleText.get("label")))
 			retWidget = addNewLabel(LocaleText.get("label"),true);
@@ -1630,14 +1647,28 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			retWidget = addNewPicture(true);
 		else if(text.equals(LocaleText.get("table")))
 			retWidget = addNewTable(true);
+		else if(text.equals(LocaleText.get("horizontalLine"))) {
+			retWidget = addNewHorizontalLine(true);
+			resizeParent = false;
+		}
+		else if(text.equals(LocaleText.get("verticalLine"))) {
+			retWidget = addNewVerticalLine(true);
+			resizeParent = false;
+		}
 		/*else if(text.equals(LocaleText.get("searchServer")))
 			retWidget = addNewSearchServerWidget(null,null,true);*/
 
-		if(retWidget != null){
+		if(retWidget != null && resizeParent){
 			int height = FormUtil.convertDimensionToInt(getHeight());
 			int h = retWidget.getTopInt() + retWidget.getHeightInt();
-			if(height < h)
-				setHeight(height + (h-height)+10+PurcConstants.UNITS);
+			if(height < h) {
+				int newHeight = height + (h-height)+10;
+				setHeight(newHeight + PurcConstants.UNITS);
+				if(this instanceof DesignGroupView) {
+					DesignSurfaceView view = getDesignSurfaceView();
+					view.setHeight(FormUtil.convertDimensionToInt(view.getHeight()) + (newHeight - height) + PurcConstants.UNITS);
+				}
+			}
 
 			int width = FormUtil.convertDimensionToInt(getWidth());
 			int w = retWidget.getLeftInt() + retWidget.getWidthInt();
@@ -2309,12 +2340,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 		return widget;
 	}
-	
-	private void registerDropControllers(FormDesignerDragController selectedDragController, FormDesignerDragController dragController){
-		List<DropController> dropControllers = dragController.getDropControllers();
-		for (DropController dropController : dropControllers)
-			selectedDragController.registerDropController(dropController);
-	}
 
 	/**
 	 * Adds a new repeat section widget.
@@ -2660,7 +2685,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 
 		//Header label stuff
-		widget.setBorderStyle("dashed");
+		widget.setBorderStyle("solid");
 		AbsolutePanel panel = selectedPanel;
 		FormDesignerDragController dragController = selectedDragController;
 
