@@ -293,6 +293,16 @@ public class GridPanel extends AbsolutePanel {
 				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
 			}
 		}
+		
+		for(Widget w : getChildren()) {
+			if(widthChange != 0) {
+				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+			}
+			
+			if(heightChange != 0) {
+				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
+			}
+		}
 	}
 	
 	private int getNewResizeValue(int value, int change, int newValue) {
