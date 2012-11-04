@@ -2,6 +2,8 @@ package org.purc.purcforms.client.cmd;
 
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
+import org.purc.purcforms.client.widget.grid.GridLine;
 
 
 /**
@@ -35,6 +37,13 @@ public class MoveWidgetCmd implements ICommand {
 		widget.setTopInt(widget.getTopInt() + y);
 		
 		widget.getPrevPanel().add(widget, widget.getLeftInt(), widget.getTopInt());
+		
+		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
+			DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
+			if(view instanceof GridDesignGroupWidget)
+				((GridDesignGroupWidget)view).moveLine(-x, -y, widget.getLeftInt(), widget.getTopInt());
+		}
+
 		widget.getPrevView().selectWidget(widget, widget.getPrevPanel()/*panel*/);
 	}
 	
@@ -43,6 +52,13 @@ public class MoveWidgetCmd implements ICommand {
 		widget.setTopInt(widget.getTopInt() - y);
 		
 		view.getPanel().add(widget, widget.getLeftInt(), widget.getTopInt());
+		
+		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
+			DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
+			if(view instanceof GridDesignGroupWidget)
+				((GridDesignGroupWidget)view).moveLine(x, y, widget.getLeftInt(), widget.getTopInt());
+		}
+
 		view.selectWidget(widget, view.getPanel());
 	}
 	

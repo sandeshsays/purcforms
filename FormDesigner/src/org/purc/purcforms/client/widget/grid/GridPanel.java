@@ -324,6 +324,25 @@ public class GridPanel extends AbsolutePanel {
 					widget.setWidthInt(widget.getWidthInt() - xChange);
 				}
 			}
+			
+			//Now move text after the moved line
+			int nextLineX = getOffsetWidth();
+			for(Widget w : verticalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int left = widget.getLeftInt();
+				if(left > newLeft && left < nextLineX) {
+					nextLineX = left;
+				}
+			}
+			
+			if(nextLineX > 0) {
+				for(Widget w : getChildren()) {
+					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+					int left = widget.getLeftInt();
+					if(left > oldX && left < nextLineX)
+						widget.setLeftInt(left - xChange);
+				}
+			}
 		}
 		else if(yChange != 0){ //horizontal line moved
 			for(Widget w : verticalLines) {
