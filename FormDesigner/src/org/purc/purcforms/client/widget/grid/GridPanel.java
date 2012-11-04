@@ -113,7 +113,16 @@ public class GridPanel extends AbsolutePanel {
 		}
 		else {
 		    // Validate index; adjust if the widget is already a child of this panel.
-		    beforeIndex = adjustIndex(child, beforeIndex);
+		    //beforeIndex = adjustIndex(child, beforeIndex);
+			// Check to see if this widget is already a direct child.
+		    if (child.getParent() == this) {
+		      // If the Widget's previous position was left of the desired new position
+		      // shift the desired position left to reflect the removal
+		      int idx = isVerticalLine(child) ? verticalLines.indexOf(child) : horizontalLines.indexOf(child);
+		      if (idx < beforeIndex) {
+		        beforeIndex--;
+		      }
+		    }
 	
 		    // Detach new child.
 		    child.removeFromParent();
@@ -194,9 +203,16 @@ public class GridPanel extends AbsolutePanel {
 		int height = verticalLine.getHeightInt();
 		int bottom = top + height;
 		
+		int left = verticalLine.getLeftInt();
+		
 		int prevDifTop = top - 20; //TODO Need not hard code the header label height
 		int prevDifBottom = getOffsetHeight() - bottom; // - 20;
 		for(Widget w : horizontalLines) {
+			
+			int x = ((DesignWidgetWrapper)w).getLeftInt();
+			if(!(left >= x && left <= x + ((DesignWidgetWrapper)w).getWidthInt()))
+				continue; //horizontal line does not intersect us
+			
 			int t = ((DesignWidgetWrapper)w).getTopInt();
 			
 			//check if line before our top
@@ -226,9 +242,16 @@ public class GridPanel extends AbsolutePanel {
 		int width = horizontalLine.getWidthInt();
 		int right = left + width;
 		
+		int top = horizontalLine.getTopInt();
+		
 		int prevDifLeft = left; //distance from table left
 		int prevDifRight = getOffsetWidth() - right; //distance from table right
 		for(Widget w : verticalLines) {
+			
+			int y = ((DesignWidgetWrapper)w).getTopInt();
+			if(!(top >= y && top <= y + ((DesignWidgetWrapper)w).getHeightInt()))
+				continue; //vertical line does not intersect us
+			
 			int l = ((DesignWidgetWrapper)w).getLeftInt();
 			
 			//check if line before our left
@@ -295,12 +318,16 @@ public class GridPanel extends AbsolutePanel {
 		}
 		
 		for(Widget w : getChildren()) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if(widget.getWidth().equals("100%"))
+				continue; //header label widget
+			
 			if(widthChange != 0) {
-				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+				widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
 			}
 			
 			if(heightChange != 0) {
-				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
+				widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
 			}
 		}
 	}
@@ -312,7 +339,7 @@ public class GridPanel extends AbsolutePanel {
 	public void moveLine(int xChange, int yChange, int newLeft, int newTop){
 		int oldX = xChange + newLeft;
 		int oldY = yChange + newTop;
-		if(xChange != 0){ //vertical line moved
+		if(xChange != 0 && xChange != -1){ //vertical line moved
 			for(Widget w : horizontalLines) {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int left = widget.getLeftInt();
@@ -335,16 +362,17 @@ public class GridPanel extends AbsolutePanel {
 				}
 			}
 			
-			if(nextLineX > 0) {
-				for(Widget w : getChildren()) {
-					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-					int left = widget.getLeftInt();
-					if(left > oldX && left < nextLineX)
-						widget.setLeftInt(left - xChange);
-				}
+			for(Widget w : getChildren()) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				if(widget.getWidth().equals("100%"))
+					continue; //header label widget
+				
+				int left = widget.getLeftInt();
+				if(left > oldX && left < nextLineX)
+					widget.setLeftInt(left - xChange);
 			}
 		}
-		else if(yChange != 0){ //horizontal line moved
+		else if(yChange != 0 && yChange != -1){ //horizontal line moved
 			for(Widget w : verticalLines) {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int top = widget.getTopInt();
@@ -354,6 +382,26 @@ public class GridPanel extends AbsolutePanel {
 				}
 				else if((top + widget.getHeightInt()) == oldY)
 					widget.setHeightInt(widget.getHeightInt() - yChange);
+			}
+			
+			//Now move text after the moved line
+			int nextLineY = getOffsetHeight();
+			for(Widget w : horizontalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int top = widget.getTopInt();
+				if(top > newTop && top < nextLineY) {
+					nextLineY = top;
+				}
+			}
+
+			for(Widget w : getChildren()) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				if(widget.getWidth().equals("100%"))
+					continue; //header label widget
+				
+				int top = widget.getTopInt();
+				if(top > oldY && top < nextLineY)
+					widget.setTopInt(top - yChange);
 			}
 		}
 	}

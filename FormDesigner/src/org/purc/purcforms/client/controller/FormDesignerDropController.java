@@ -105,6 +105,10 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 							((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof HorizontalGridLine) {
 						dropTarget.add(draggable.widget, context.mouseX - draggable.widget.getParent().getAbsoluteLeft(), draggable.desiredY);
 					}
+					else if(draggable.desiredY == 18 && "n-resize".equals(DOM.getStyleAttribute(((DesignWidgetWrapper)context.draggable).getWrappedWidget().getElement(), "cursor")) &&
+							((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof VerticalGridLine) {
+						dropTarget.add(draggable.widget, draggable.desiredX, (context.mouseY - draggable.widget.getParent().getAbsoluteTop()) + 18);
+					}
 					else {
 						int x = draggable.desiredX;
 						int y = draggable.desiredY;
