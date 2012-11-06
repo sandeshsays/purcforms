@@ -291,28 +291,42 @@ public class GridPanel extends AbsolutePanel {
 	public void resizeGrid(int widthChange, int heightChange, int width, int height) {
 		if(widthChange != 0) {
 			for(Widget w : horizontalLines) {
-				//((DesignWidgetWrapper)w).setWidthInt(((DesignWidgetWrapper)w).getWidthInt() - widthChange);
-				int value = ((DesignWidgetWrapper)w).getLeftInt() + ((DesignWidgetWrapper)w).getWidthInt();
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int left = widget.getLeftInt();
+				
+				if(left > 0) {
+					left = getNewResizeValue(left, widthChange, width);
+					widget.setLeftInt(left);
+				}
+				
+				int value = left + widget.getWidthInt();
 				value = getNewResizeValue(value, widthChange, width);
-				((DesignWidgetWrapper)w).setWidthInt(value - ((DesignWidgetWrapper)w).getLeftInt());
+				widget.setWidthInt(value - left);
 			}
 			
 			for(Widget w : verticalLines) {
-				//((DesignWidgetWrapper)w).setLeftInt((int)(((DesignWidgetWrapper)w).getLeftInt() * ((double)width/(widthChange+width))));
 				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
 			}
 		}
 		
 		if(heightChange != 0) {
+			int labelHeight = getLabelHeight();
+			
 			for(Widget w : verticalLines) {
-				//((DesignWidgetWrapper)w).setHeight(((DesignWidgetWrapper)w).getHeightInt() - heightChange);
-				int value = ((DesignWidgetWrapper)w).getTopInt() + ((DesignWidgetWrapper)w).getHeightInt();
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int top = widget.getTopInt();
+				
+				if(top > labelHeight) {
+					top = getNewResizeValue(top, heightChange, height);
+					widget.setTopInt(top);
+				}
+				
+				int value = top+ widget.getHeightInt();
 				value = getNewResizeValue(value, heightChange, height);
-				((DesignWidgetWrapper)w).setHeightInt(value - ((DesignWidgetWrapper)w).getTopInt());
+				widget.setHeightInt(value - top);
 			}
 			
 			for(Widget w : horizontalLines) {
-				//((DesignWidgetWrapper)w).setTopInt((int)(((DesignWidgetWrapper)w).getTopInt() * ((double)height/(heightChange+height))));
 				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
 			}
 		}
@@ -404,6 +418,10 @@ public class GridPanel extends AbsolutePanel {
 					widget.setTopInt(top - yChange);
 			}
 		}
+	}
+	
+	public int getLabelHeight() {
+		return ((DesignWidgetWrapper)this.getWidget(0)).getHeightInt();
 	}
 	
 	public Widget getHorizontalWidget(int index) {
