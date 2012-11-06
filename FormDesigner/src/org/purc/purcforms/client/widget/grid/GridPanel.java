@@ -93,10 +93,10 @@ public class GridPanel extends AbsolutePanel {
 		    else
 		    	beforeIndex = horizontalLines.size();
 		    
-		    String cursor = DOM.getStyleAttribute(((DesignWidgetWrapper)w).getWrappedWidget().getElement(), "cursor");
+		    /*String cursor = DOM.getStyleAttribute(((DesignWidgetWrapper)w).getWrappedWidget().getElement(), "cursor");
 		    if("e-resize".equals(cursor) || "w-resize".equals(cursor) || "n-resize".equals(cursor) || "s-resize".equals(cursor))
 		    	setWidgetPositionImpl(w, left, top);
-		    else
+		    else*/
 		    	super.setWidgetPositionImpl(w, left, top);
 		    
 		    insert(w, beforeIndex);
@@ -132,8 +132,10 @@ public class GridPanel extends AbsolutePanel {
 	    		verticalLines.insert(child, beforeIndex);
 	    		resizeVerticalLineToFit((DesignWidgetWrapper)child);
 	    	}
-		    else
+		    else {
 		    	horizontalLines.insert(child, beforeIndex);
+		    	resizeHorizontalLineToFit((DesignWidgetWrapper)child);
+		    }
 	
 		    // Physical attach.
 		    if (domInsert) {

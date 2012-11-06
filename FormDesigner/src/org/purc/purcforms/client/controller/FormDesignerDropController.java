@@ -114,10 +114,12 @@ public class FormDesignerDropController extends AbstractPositioningDropControlle
 						int y = draggable.desiredY;
 						
 						Widget wrappedWidget = ((DesignWidgetWrapper)context.draggable).getWrappedWidget();
-						if(wrappedWidget instanceof HorizontalGridLine)
-							((DesignWidgetWrapper)context.draggable).getLeftInt();
-						else if(wrappedWidget instanceof VerticalGridLine)
-							((DesignWidgetWrapper)context.draggable).getTopInt();
+						if(wrappedWidget instanceof HorizontalGridLine) {
+							x = draggable.widget.getAbsoluteLeft() - dropTargetOffsetX + draggable.relativeX;
+						}
+						else if(wrappedWidget instanceof VerticalGridLine) {
+							y = draggable.widget.getAbsoluteTop() - dropTargetOffsetY + draggable.relativeY;
+						}
 						
 						dropTarget.add(draggable.widget, x, y);
 					}
