@@ -3289,10 +3289,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//The submit button is added only to the first tab such that we don't keep
 		//adding multiple submit buttons every time one refreshes the design surface
 		if(submitCancelBtns){
-			addSubmitButton(false);
+			addSubmitButton(false).setTabIndex(++tabIndex);
 
 			x += 200;
-			addCancelButton(false);
+			addCancelButton(false).setTabIndex(++tabIndex);
 		}
 
 		if (getParent() instanceof ScrollPanel)
