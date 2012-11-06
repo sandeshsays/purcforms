@@ -153,4 +153,8 @@ public class CommandHistory {
 			Context.getCenterPanel().selectPropertiesTab();
 		}
 	}
+	
+	public int getCommandCount(){
+		return undoCmds.size() + redoCmds.size();
+	}
 }

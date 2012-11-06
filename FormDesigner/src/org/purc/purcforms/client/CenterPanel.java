@@ -141,6 +141,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	/** Listener to form designer global events. */
 	private IFormDesignerListener formDesignerListener;
 
+	private int lastCommandCount = 0;
 
 	/**
 	 * Constructs a new center panel widget.
@@ -244,8 +245,10 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 
 		if(selectedTabIndex == SELECTED_INDEX_PREVIEW ){
 			if(formDef != null){
-				if(!previewView.isPreviewing())
+				if(!previewView.isPreviewing() || Context.getCommandHistory().getCommandCount() != lastCommandCount) {
+					lastCommandCount = Context.getCommandHistory().getCommandCount();
 					loadPreview();
+				}
 				else
 					previewView.moveToFirstWidget();
 			}
@@ -874,8 +877,10 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 * @see org.purc.purcforms.client.controller.IFormDesignerController#refresh()
 	 */
 	public void refresh(){
-		if(selectedTabIndex == SELECTED_INDEX_PREVIEW)
+		if(selectedTabIndex == SELECTED_INDEX_PREVIEW) {
+			lastCommandCount = Context.getCommandHistory().getCommandCount();
 			previewView.refresh(); //loadForm(formDef,designSurfaceView.getLayoutXml(),null);
+		}
 		else if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.refresh();
 	}
