@@ -405,4 +405,20 @@ public class GridPanel extends AbsolutePanel {
 			}
 		}
 	}
+	
+	public Widget getHorizontalWidget(int index) {
+	    return horizontalLines.get(index);
+	}
+
+	public int getHorizontalWidgetCount() {
+	    return horizontalLines.size();
+	}
+	
+	public Widget getVerticalWidget(int index) {
+	    return verticalLines.get(index);
+	}
+
+	public int getVerticalWidgetCount() {
+	    return verticalLines.size();
+	}
 }

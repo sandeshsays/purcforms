@@ -14,7 +14,6 @@ import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
-import org.purc.purcforms.client.widget.grid.GridLine;
 import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
 import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
@@ -467,6 +466,10 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			return WidgetEx.WIDGET_TYPE_TIME;
 		else if(widget instanceof TextBox)
 			return WidgetEx.WIDGET_TYPE_TEXTBOX;
+		else if(widget instanceof HorizontalGridLine)
+			return WidgetEx.WIDGET_TYPE_HORIZONTAL_LINE;
+		else if(widget instanceof VerticalGridLine)
+			return WidgetEx.WIDGET_TYPE_VERTICAL_LINE;
 		else if(widget instanceof Label)
 			return WidgetEx.WIDGET_TYPE_LABEL;
 		else if(widget instanceof Image){
@@ -477,6 +480,8 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		}
 		else if(widget instanceof Hyperlink)
 			return WidgetEx.WIDGET_TYPE_VIDEO_AUDIO;
+		else if(widget instanceof GridDesignGroupWidget)
+			return WidgetEx.WIDGET_TYPE_TABLE;
 		else if(widget instanceof DesignGroupWidget)
 			return WidgetEx.WIDGET_TYPE_GROUPBOX;
 		return null;

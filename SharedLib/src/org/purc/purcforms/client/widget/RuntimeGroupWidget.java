@@ -23,6 +23,8 @@ import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.FormRunnerView;
 import org.purc.purcforms.client.view.OpenFileDialog;
 import org.purc.purcforms.client.view.FormRunnerView.Images;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
 
@@ -403,6 +405,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				FormUtil.allowNumericOnly((TextBox)widget,questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL);
 			((TextBox)widget).setTabIndex(tabIndex);
 		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_HORIZONTAL_LINE)){
+			widget = new HorizontalGridLine(0);
+		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VERTICAL_LINE)){
+			widget = new VerticalGridLine(0);
+		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL)){
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			if(text == null) 
@@ -477,7 +485,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			getLabelReplaceText(((RuntimeGroupWidget)widget).getLabelReplaceText());
 			getCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());*/
 		}
-
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE)) {
+			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, editListener, widgetListener, false, enabledListener);
+			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
+		}
 		/*else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
 			//Not dealing with nested repeats
 			//widget = new RunTimeGroupWidget();

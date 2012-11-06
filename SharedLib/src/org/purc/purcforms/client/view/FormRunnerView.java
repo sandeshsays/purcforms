@@ -34,6 +34,8 @@ import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
 import org.purc.purcforms.client.widget.WidgetListener;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformBuilder;
 import org.purc.purcforms.client.xforms.XformParser;
 import org.purc.purcforms.client.xforms.XformUtil;
@@ -587,6 +589,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				FormUtil.allowNumericOnly((TextBox)widget,questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL);
 			((TextBox)widget).setTabIndex(tabIndex);
 		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_HORIZONTAL_LINE)){
+			widget = new HorizontalGridLine(0);
+		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VERTICAL_LINE)){
+			widget = new VerticalGridLine(0);
+		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL)){
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			widget = new Label(text);
@@ -636,6 +644,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			copyCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());
 			copyCalcWidgetMap(((RuntimeGroupWidget)widget).getCalcWidgetMap());
 			copyFiltDynOptWidgetMap(((RuntimeGroupWidget)widget).getFiltDynOptWidgetMap());
+		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE)) {
+			widget = new RuntimeGroupWidget(images, formDef, null, this, this, false, this);
+			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE)){
 			widget = new Image();

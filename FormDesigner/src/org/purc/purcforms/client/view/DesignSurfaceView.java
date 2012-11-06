@@ -28,6 +28,9 @@ import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
 import org.purc.purcforms.client.widget.TimeWidget;
 import org.purc.purcforms.client.widget.WidgetEx;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
 
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
@@ -576,10 +579,16 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			widget = new DateTimeWidget();
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TEXTBOX))
 			widget = new TextBox();
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_HORIZONTAL_LINE))
+			widget = new HorizontalGridLine(0);
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VERTICAL_LINE))
+			widget = new VerticalGridLine(0);
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL))
 			widget = new Label(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX) || s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION))
 			widget = new DesignGroupWidget(images,widgetPopupMenuListener);
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE))
+			widget = new GridDesignGroupWidget(images,widgetPopupMenuListener);
 		else
 			return null; 
 
