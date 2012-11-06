@@ -205,8 +205,8 @@ public class GridPanel extends AbsolutePanel {
 		
 		int left = verticalLine.getLeftInt();
 		
-		int prevDifTop = top - 20; //TODO Need not hard code the header label height
-		int prevDifBottom = getOffsetHeight() - bottom; // - 20;
+		int prevDifTop = top - getLabelHeight();
+		int prevDifBottom = getOffsetHeight() - bottom;
 		for(Widget w : horizontalLines) {
 			
 			int x = ((DesignWidgetWrapper)w).getLeftInt();
