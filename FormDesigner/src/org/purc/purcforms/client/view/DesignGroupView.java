@@ -1370,14 +1370,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	protected DesignWidgetWrapper addNewHorizontalLine(boolean select){
 		HorizontalGridLine line = new HorizontalGridLine(200);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
-		//wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		if(this instanceof GridDesignGroupWidget) {
+			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		}
 		return wrapper;
 	}
 	
 	protected DesignWidgetWrapper addNewVerticalLine(boolean select){
 		VerticalGridLine line = new VerticalGridLine(200);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
-		//wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		if(this instanceof GridDesignGroupWidget) {
+			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+		}
 		return wrapper;
 	}
 
