@@ -1695,7 +1695,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		// Positioner is always constrained to the boundary panel
 		// Use 'true' to also constrain the draggable or drag proxy to the boundary panel
 		//selectedDragController.setBehaviorConstrainedToBoundaryPanel(false);
-		selectedDragController.setBehaviorScrollIntoView(true);
+		selectedDragController.setBehaviorScrollIntoView(false);
 
 		// Allow multiple widgets to be selected at once using CTRL-click
 		selectedDragController.setBehaviorMultipleSelection(true);
