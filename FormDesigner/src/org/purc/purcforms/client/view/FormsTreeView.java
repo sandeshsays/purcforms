@@ -1388,6 +1388,13 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		Map<String,String> bindings = new HashMap<String,String>();
 
 		int count = parent.getChildCount();
+		if(count == 0 && FormUtil.isJavaRosaSaveFormat()){
+			setSelectedItem(parent);
+			QuestionDef questionDef = (QuestionDef)parent.getUserObject();
+			String questionTypeAndText = questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE? "Single Select Question: " : "Multiple Select Question ";
+			Window.alert(questionTypeAndText + questionDef.getText() + " has no options, please add atleast one!");
+			return false;
+		}
 		for(int index = 0; index < count; index++){
 			TreeItem child = parent.getChild(index);
 			OptionDef optionDef = (OptionDef)child.getUserObject();
