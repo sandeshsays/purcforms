@@ -370,7 +370,7 @@ public class GridPanel extends AbsolutePanel {
 					widget.setLeftInt(newLeft);
 					widget.setWidthInt(widget.getWidthInt() + xChange);
 				}
-				else if((left + widget.getWidthInt()) == oldX) {
+				else /*if((left + widget.getWidthInt()) == oldX)*/ {
 					widget.setWidthInt(widget.getWidthInt() - xChange);
 				}
 			}
@@ -412,8 +412,9 @@ public class GridPanel extends AbsolutePanel {
 					widget.setTopInt(newTop);
 					widget.setHeightInt(widget.getHeightInt() + yChange);
 				}
-				else if((top + widget.getHeightInt()) == oldY)
+				else /*if((top + widget.getHeightInt()) == oldY)*/ {
 					widget.setHeightInt(widget.getHeightInt() - yChange);
+				}
 			}
 			
 			//Now move text after the moved line
