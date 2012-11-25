@@ -385,23 +385,19 @@ public class GridPanel extends AbsolutePanel {
 				}
 				
 				//check if we are to move lines after
-				if(!DragContext.controlKeyPressed) {
-					if(left > oldX && left != newLeft) {
-						widget.setLeftInt(left - xChange);
-					}
+				if(left > oldX && left != newLeft) {
+					widget.setLeftInt(left - xChange);
 				}
 			}
 			
-			if(!DragContext.controlKeyPressed) {
-				for(Widget w : getChildren()) {
-					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-					if("100%".equals(widget.getWidth()))
-						continue; //header label widget
-					
-					int left = widget.getLeftInt();
-					if(left > oldX /*&& left < nextLineX*/)
-						widget.setLeftInt(left - xChange);
-				}
+			for(Widget w : getChildren()) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				if("100%".equals(widget.getWidth()))
+					continue; //header label widget
+				
+				int left = widget.getLeftInt();
+				if(left > oldX /*&& left < nextLineX*/)
+					widget.setLeftInt(left - xChange);
 			}
 		}
 		else if(yChange != 0 && yChange != -1){ //horizontal line moved
@@ -427,23 +423,19 @@ public class GridPanel extends AbsolutePanel {
 				}
 				
 				//check if we are to move lines below
-				if(!DragContext.controlKeyPressed) {
-					if(top > oldY && top != newTop) {
-						widget.setTopInt(top - yChange);
-					}
+				if(top > oldY && top != newTop) {
+					widget.setTopInt(top - yChange);
 				}
 			}
 
-			if(!DragContext.controlKeyPressed) {
-				for(Widget w : getChildren()) {
-					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-					if("100%".equals(widget.getWidth()))
-						continue; //header label widget
-					
-					int top = widget.getTopInt();
-					if(top > oldY /*&& top < nextLineY*/)
-						widget.setTopInt(top - yChange);
-				}
+			for(Widget w : getChildren()) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				if("100%".equals(widget.getWidth()))
+					continue; //header label widget
+				
+				int top = widget.getTopInt();
+				if(top > oldY /*&& top < nextLineY*/)
+					widget.setTopInt(top - yChange);
 			}
 		}
 	}

@@ -35,13 +35,15 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
 		//check if we are to expand table below or right
 		if(!DragContext.controlKeyPressed) {
-			if(yChange != 0 && yChange != -1) //horizontal line moved
+			if(yChange != 0 && yChange != -1) {//horizontal line moved
 				setHeight(getHeightInt() - yChange + PurcConstants.UNITS);
-			else if(xChange != 0 && xChange != -1) //vertical line moved
+			}
+			else if(xChange != 0 && xChange != -1) {//vertical line moved
 				setWidth(getWidthInt() - xChange + PurcConstants.UNITS);
+			}
+			
+			((GridPanel)selectedPanel).moveLine(xChange, yChange, newLeft, newTop);
 		}
-		
-		((GridPanel)selectedPanel).moveLine(xChange, yChange, newLeft, newTop);
 	}
 	
 	protected void initPanel(){
