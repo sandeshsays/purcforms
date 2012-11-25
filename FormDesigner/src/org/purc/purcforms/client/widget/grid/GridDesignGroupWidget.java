@@ -1,10 +1,13 @@
 package org.purc.purcforms.client.widget.grid;
 
+import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
+import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Element;
 
@@ -29,7 +32,15 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		((GridPanel)selectedPanel).resizeGrid(widthChange, heightChange, width, height);
 	}
 	
-	public void moveLine(int xChange, int yChange, int newLeft, int newTop){
+	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
+		//check if we are to expand table below or right
+		if(!DragContext.controlKeyPressed) {
+			if(yChange != 0 && yChange != -1) //horizontal line moved
+				setHeight(getHeightInt() - yChange + PurcConstants.UNITS);
+			else if(xChange != 0 && xChange != -1) //vertical line moved
+				setWidth(getWidthInt() - xChange + PurcConstants.UNITS);
+		}
+		
 		((GridPanel)selectedPanel).moveLine(xChange, yChange, newLeft, newTop);
 	}
 	
@@ -68,5 +79,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			Widget widget = gridPanel.getVerticalWidget(i);
 			((DesignWidgetWrapper)widget).buildLanguageXml(doc,parentNode, xpath);
 		}
+	}
+	
+	public int getWidthInt() {
+		return FormUtil.convertDimensionToInt(getWidth());
+	}
+	
+	public int getHeightInt() {
+		return FormUtil.convertDimensionToInt(getHeight());
 	}
 }

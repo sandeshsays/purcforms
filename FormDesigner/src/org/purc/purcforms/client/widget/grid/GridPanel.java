@@ -2,6 +2,7 @@ package org.purc.purcforms.client.widget.grid;
 
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -290,7 +291,7 @@ public class GridPanel extends AbsolutePanel {
 		}
 	}
 	
-	public void resizeGrid(int widthChange, int heightChange, int width, int height) {
+	public void resizeGrid(int widthChange, int heightChange, int width, int height) {		
 		if(widthChange != 0) {
 			for(Widget w : horizontalLines) {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
@@ -306,8 +307,10 @@ public class GridPanel extends AbsolutePanel {
 				widget.setWidthInt(value - left);
 			}
 			
-			for(Widget w : verticalLines) {
-				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+			if(!DragContext.controlKeyPressed) {
+				for(Widget w : verticalLines) {
+					((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+				}
 			}
 		}
 		
@@ -328,22 +331,26 @@ public class GridPanel extends AbsolutePanel {
 				widget.setHeightInt(value - top);
 			}
 			
-			for(Widget w : horizontalLines) {
-				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
+			if(!DragContext.controlKeyPressed) {
+				for(Widget w : horizontalLines) {
+					((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
+				}
 			}
 		}
 		
-		for(Widget w : getChildren()) {
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-			if(widget.getWidth().equals("100%"))
-				continue; //header label widget
-			
-			if(widthChange != 0) {
-				widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
-			}
-			
-			if(heightChange != 0) {
-				widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
+		if(!DragContext.controlKeyPressed) {
+			for(Widget w : getChildren()) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				if("100%".equals(widget.getWidth()))
+					continue; //header label widget
+				
+				if(widthChange != 0) {
+					widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
+				}
+				
+				if(heightChange != 0) {
+					widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
+				}
 			}
 		}
 	}
@@ -352,7 +359,7 @@ public class GridPanel extends AbsolutePanel {
 		return (int)(value * ((double)newValue/(change + newValue)));
 	}
 	
-	public void moveLine(int xChange, int yChange, int newLeft, int newTop){
+	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
 		int oldX = xChange + newLeft;
 		int oldY = yChange + newTop;
 		if(xChange != 0 && xChange != -1){ //vertical line moved
@@ -376,16 +383,25 @@ public class GridPanel extends AbsolutePanel {
 				if(left > newLeft && left < nextLineX) {
 					nextLineX = left;
 				}
+				
+				//check if we are to move lines after
+				if(!DragContext.controlKeyPressed) {
+					if(left > oldX && left != newLeft) {
+						widget.setLeftInt(left - xChange);
+					}
+				}
 			}
 			
-			for(Widget w : getChildren()) {
-				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-				if(widget.getWidth().equals("100%"))
-					continue; //header label widget
-				
-				int left = widget.getLeftInt();
-				if(left > oldX && left < nextLineX)
-					widget.setLeftInt(left - xChange);
+			if(!DragContext.controlKeyPressed) {
+				for(Widget w : getChildren()) {
+					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+					if("100%".equals(widget.getWidth()))
+						continue; //header label widget
+					
+					int left = widget.getLeftInt();
+					if(left > oldX /*&& left < nextLineX*/)
+						widget.setLeftInt(left - xChange);
+				}
 			}
 		}
 		else if(yChange != 0 && yChange != -1){ //horizontal line moved
@@ -408,16 +424,25 @@ public class GridPanel extends AbsolutePanel {
 				if(top > newTop && top < nextLineY) {
 					nextLineY = top;
 				}
+				
+				//check if we are to move lines below
+				if(!DragContext.controlKeyPressed) {
+					if(top > oldY && top != newTop) {
+						widget.setTopInt(top - yChange);
+					}
+				}
 			}
 
-			for(Widget w : getChildren()) {
-				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-				if(widget.getWidth().equals("100%"))
-					continue; //header label widget
-				
-				int top = widget.getTopInt();
-				if(top > oldY && top < nextLineY)
-					widget.setTopInt(top - yChange);
+			if(!DragContext.controlKeyPressed) {
+				for(Widget w : getChildren()) {
+					DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+					if("100%".equals(widget.getWidth()))
+						continue; //header label widget
+					
+					int top = widget.getTopInt();
+					if(top > oldY /*&& top < nextLineY*/)
+						widget.setTopInt(top - yChange);
+				}
 			}
 		}
 	}

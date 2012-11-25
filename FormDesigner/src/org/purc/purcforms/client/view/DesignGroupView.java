@@ -2003,8 +2003,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(!ret){
 				if(!isTextBoxFocus(event) || (editWidget != null /*&& event.getCurrentTarget() == editWidget.getElement()*/)){
 					boolean ret1 = false;
-					if(keyCode != KeyCodes.KEY_DELETE && editWidget == null)
+					if(keyCode != KeyCodes.KEY_DELETE && editWidget == null &&
+							(!(event.getCtrlKey() || event.getMetaKey())) ) {
 						ret1 = handleStartLabelEditing(event);
+					}
 					else if(keyCode == KeyCodes.KEY_ENTER && editWidget != null)
 						handleStopLabelEditing(true);
 					else if(keyCode == KeyCodes.KEY_ESCAPE && editWidget != null){

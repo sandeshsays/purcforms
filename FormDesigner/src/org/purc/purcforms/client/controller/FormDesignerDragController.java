@@ -234,10 +234,12 @@ public class FormDesignerDragController extends AbstractDragController{
 						if(Math.abs(x) > 0 || Math.abs(y) > 0) {
 							commands.add(new MoveWidgetCmd((DesignWidgetWrapper)widget, x, y, (DesignGroupView)dragDropListener));
 							
-							if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
+							DesignWidgetWrapper wrapper = (DesignWidgetWrapper)widget;
+							if(wrapper.getWrappedWidget() instanceof GridLine) {
 								DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
-								if(view instanceof GridDesignGroupWidget)
+								if(view instanceof GridDesignGroupWidget) {
 									((GridDesignGroupWidget)view).moveLine(x, y, left, top); //()) getP(widthChange, heightChange, width, height);
+								}
 							}
 						}
 						else {
