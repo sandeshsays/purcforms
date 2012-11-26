@@ -29,7 +29,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void resizeGrid(int widthChange, int heightChange, int width, int height){
-		((GridPanel)selectedPanel).resizeGrid(widthChange, heightChange, width, height);
+		if(!DragContext.controlKeyPressed) {
+			((GridPanel)selectedPanel).resizeGrid(widthChange, heightChange, width, height);
+		}
 	}
 	
 	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		

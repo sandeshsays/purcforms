@@ -2,7 +2,6 @@ package org.purc.purcforms.client.widget.grid;
 
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
-import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -297,20 +296,19 @@ public class GridPanel extends AbsolutePanel {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int left = widget.getLeftInt();
 				
+				int value = left + widget.getWidthInt();
+				value = getNewResizeValue(value, widthChange, width);
+				
 				if(left > 0) {
 					left = getNewResizeValue(left, widthChange, width);
 					widget.setLeftInt(left);
 				}
 				
-				int value = left + widget.getWidthInt();
-				value = getNewResizeValue(value, widthChange, width);
 				widget.setWidthInt(value - left);
 			}
 			
-			if(!DragContext.controlKeyPressed) {
-				for(Widget w : verticalLines) {
-					((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
-				}
+			for(Widget w : verticalLines) {
+				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
 			}
 		}
 		
@@ -321,36 +319,33 @@ public class GridPanel extends AbsolutePanel {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int top = widget.getTopInt();
 				
+				int value = top + widget.getHeightInt();
+				value = getNewResizeValue(value, heightChange, height);
+				
 				if(top > labelHeight) {
 					top = getNewResizeValue(top, heightChange, height);
 					widget.setTopInt(top);
 				}
-				
-				int value = top+ widget.getHeightInt();
-				value = getNewResizeValue(value, heightChange, height);
+
 				widget.setHeightInt(value - top);
 			}
 			
-			if(!DragContext.controlKeyPressed) {
-				for(Widget w : horizontalLines) {
-					((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
-				}
+			for(Widget w : horizontalLines) {
+				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
 			}
 		}
 		
-		if(!DragContext.controlKeyPressed) {
-			for(Widget w : getChildren()) {
-				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-				if("100%".equals(widget.getWidth()))
-					continue; //header label widget
-				
-				if(widthChange != 0) {
-					widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
-				}
-				
-				if(heightChange != 0) {
-					widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
-				}
+		for(Widget w : getChildren()) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if("100%".equals(widget.getWidth()))
+				continue; //header label widget
+			
+			if(widthChange != 0) {
+				widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
+			}
+			
+			if(heightChange != 0) {
+				widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
 			}
 		}
 	}
