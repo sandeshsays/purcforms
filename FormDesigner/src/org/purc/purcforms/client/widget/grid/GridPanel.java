@@ -363,9 +363,12 @@ public class GridPanel extends AbsolutePanel {
 				int left = widget.getLeftInt();
 				if(left == oldX) {
 					widget.setLeftInt(newLeft);
-					widget.setWidthInt(widget.getWidthInt() + xChange);
+					//widget.setWidthInt(widget.getWidthInt() + xChange);
 				}
-				else /*if((left + widget.getWidthInt()) == oldX)*/ {
+				else if(left > oldX) {
+					widget.setLeftInt(widget.getLeftInt() - xChange);
+				}
+				else if((left + widget.getWidthInt()) >= oldX) {
 					widget.setWidthInt(widget.getWidthInt() - xChange);
 				}
 			}
@@ -401,9 +404,12 @@ public class GridPanel extends AbsolutePanel {
 				int top = widget.getTopInt();
 				if(top == oldY) {
 					widget.setTopInt(newTop);
-					widget.setHeightInt(widget.getHeightInt() + yChange);
+					//widget.setHeightInt(widget.getHeightInt() + yChange);
 				}
-				else /*if((top + widget.getHeightInt()) == oldY)*/ {
+				else if(top > oldY) {
+					widget.setTopInt(widget.getTopInt() - yChange);
+				}
+				else if((top + widget.getHeightInt()) >= oldY) {
 					widget.setHeightInt(widget.getHeightInt() - yChange);
 				}
 			}
