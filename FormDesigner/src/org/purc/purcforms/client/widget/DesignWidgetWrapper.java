@@ -5,6 +5,7 @@ import java.util.List;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
+import org.purc.purcforms.client.controller.FormDesignerDropController;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
 import org.purc.purcforms.client.controller.WidgetSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
@@ -780,6 +781,15 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			return ((DesignGroupWidget)widget).getDragController();
 		else if(widget instanceof GridDesignGroupWidget)
 			return ((GridDesignGroupWidget)widget).getDragController();
+		
+		return null;
+	}
+	
+	public FormDesignerDropController getDropController(){
+		if(widget instanceof DesignGroupWidget)
+			return ((DesignGroupWidget)widget).getDropController();
+		else if(widget instanceof GridDesignGroupWidget)
+			return ((GridDesignGroupWidget)widget).getDropController();
 		
 		return null;
 	}

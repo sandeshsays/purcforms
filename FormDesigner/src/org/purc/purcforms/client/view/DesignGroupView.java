@@ -1334,6 +1334,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		selectedPanel.add(widget);
 		selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
 		selectedDragController.selectWidget(widget);
+		
+		FormDesignerDropController dropController = widget.getDropController();
+		if(dropController != null) {
+			selectedDragController.registerDropController(dropController);
+			PaletteView.registerDropController(dropController);
+			FormsTreeView.registerDropController(dropController);
+		}
 	}
 
 	private void selectPanel(AbsolutePanel panel){

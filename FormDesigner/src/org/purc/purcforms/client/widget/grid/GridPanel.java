@@ -208,7 +208,7 @@ public class GridPanel extends AbsolutePanel {
 		int left = verticalLine.getLeftInt();
 		
 		int prevDifTop = top - getLabelHeight();
-		int prevDifBottom = getOffsetHeight() - bottom;
+		int prevDifBottom = ((GridDesignGroupWidget)getParent()).getHeightInt() - bottom;
 		for(Widget w : horizontalLines) {
 			
 			int x = ((DesignWidgetWrapper)w).getLeftInt();
@@ -247,7 +247,7 @@ public class GridPanel extends AbsolutePanel {
 		int top = horizontalLine.getTopInt();
 		
 		int prevDifLeft = left; //distance from table left
-		int prevDifRight = getOffsetWidth() - right; //distance from table right
+		int prevDifRight = ((GridDesignGroupWidget)getParent()).getWidthInt() - right; //distance from table right
 		for(Widget w : verticalLines) {
 			
 			int y = ((DesignWidgetWrapper)w).getTopInt();
@@ -374,7 +374,7 @@ public class GridPanel extends AbsolutePanel {
 			}
 			
 			//Now move text after the moved line
-			int nextLineX = getOffsetWidth();
+			int nextLineX = ((GridDesignGroupWidget)getParent()).getWidthInt();
 			for(Widget w : verticalLines) {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int left = widget.getLeftInt();
@@ -415,7 +415,7 @@ public class GridPanel extends AbsolutePanel {
 			}
 			
 			//Now move text after the moved line
-			int nextLineY = getOffsetHeight();
+			int nextLineY = ((GridDesignGroupWidget)getParent()).getHeightInt();
 			for(Widget w : horizontalLines) {
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 				int top = widget.getTopInt();
@@ -459,5 +459,66 @@ public class GridPanel extends AbsolutePanel {
 
 	public int getVerticalWidgetCount() {
 	    return verticalLines.size();
+	}
+	
+	public void moveLineWithCtrlPressed(int xChange, int yChange, int newLeft, int newTop){		
+		int oldX = xChange + newLeft;
+		int oldY = yChange + newTop;
+		if(xChange != 0 && xChange != -1){ //vertical line moved
+			for(Widget w : horizontalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int left = widget.getLeftInt();
+				if(left == oldX) {
+					widget.setLeftInt(newLeft);
+					widget.setWidthInt(widget.getWidthInt() + xChange);
+				}
+				else if((left + widget.getWidthInt()) == oldX) {
+					widget.setWidthInt(widget.getWidthInt() - xChange);
+				}
+			}
+		}
+		else if(yChange != 0 && yChange != -1){ //horizontal line moved
+			for(Widget w : verticalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int top = widget.getTopInt();
+				if(top == oldY) {
+					widget.setTopInt(newTop);
+					widget.setHeightInt(widget.getHeightInt() + yChange);
+				}
+				else if((top + widget.getHeightInt()) == oldY) {
+					widget.setHeightInt(widget.getHeightInt() - yChange);
+				}
+			}
+		}
+	}
+	
+	public void resizeGridWithCtrlPressed(int widthChange, int heightChange, int width, int height) {		
+		if(widthChange != 0) {
+			for(Widget w : horizontalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int left = widget.getLeftInt();
+				
+				int value = left + widget.getWidthInt();
+				value = getNewResizeValue(value, widthChange, width);
+				
+				if(value == width) {
+					widget.setWidthInt(value - left);
+				}
+			}
+		}
+		
+		if(heightChange != 0) {
+			for(Widget w : verticalLines) {
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+				int top = widget.getTopInt();
+				
+				int value = top + widget.getHeightInt();
+				value = getNewResizeValue(value, heightChange, height);
+				
+				if(value == height) {
+					widget.setHeightInt(value - top);
+				}
+			}
+		}
 	}
 }

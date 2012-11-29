@@ -32,6 +32,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		if(!DragContext.controlKeyPressed) {
 			((GridPanel)selectedPanel).resizeGrid(widthChange, heightChange, width, height);
 		}
+		else
+			((GridPanel)selectedPanel).resizeGridWithCtrlPressed(widthChange, heightChange, width, height);
 	}
 	
 	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
@@ -46,6 +48,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			
 			((GridPanel)selectedPanel).moveLine(xChange, yChange, newLeft, newTop);
 		}
+		else
+			((GridPanel)selectedPanel).moveLineWithCtrlPressed(xChange, yChange, newLeft, newTop);
 	}
 	
 	protected void initPanel(){
