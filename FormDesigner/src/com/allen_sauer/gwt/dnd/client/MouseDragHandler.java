@@ -461,6 +461,8 @@ class MouseDragHandler implements MouseMoveHandler, MouseDownHandler, MouseUpHan
     style.setMargin(0, Style.Unit.PX);
     style.setBorderStyle(BorderStyle.NONE);
     style.setBackgroundColor("blue");
+    
+    DOM.setStyleAttribute(capturingWidget.getElement(), "cursor", "crosshair");
   }
 
   private void onTouchEndorCancel(TouchEvent<?> event) {

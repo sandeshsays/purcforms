@@ -28,6 +28,32 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		super(images, widgetPopupMenuListener);
 	}
 	
+	public GridDesignGroupWidget(GridDesignGroupWidget designGroupWidget, Images images, IWidgetPopupMenuListener widgetPopupMenuListener){
+		super(designGroupWidget, images, widgetPopupMenuListener);
+		
+		int count = designGroupWidget.getVerticalLineCount();
+		for(int index = 0; index < count; index++){
+			DesignWidgetWrapper widget = new DesignWidgetWrapper(designGroupWidget.getVerticalLineAt(index),images);
+
+			widget.setWidgetSelectionListener(this);
+			widget.setPopupPanel(widgetPopup);
+
+			selectedPanel.add(widget);
+			selectedDragController.makeDraggable(widget);
+		}
+		
+		count = designGroupWidget.getHorizontalLineCount();
+		for(int index = 0; index < count; index++){
+			DesignWidgetWrapper widget = new DesignWidgetWrapper(designGroupWidget.getHorizontalLineAt(index),images);
+
+			widget.setWidgetSelectionListener(this);
+			widget.setPopupPanel(widgetPopup);
+
+			selectedPanel.add(widget);
+			selectedDragController.makeDraggable(widget);
+		}
+	}
+	
 	public void resizeGrid(int widthChange, int heightChange, int width, int height){
 		if(!DragContext.controlKeyPressed) {
 			((GridPanel)selectedPanel).resizeGrid(widthChange, heightChange, width, height);
@@ -95,5 +121,57 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public int getHeightInt() {
 		return FormUtil.convertDimensionToInt(getHeight());
+	}
+	
+	public int getVerticalLineCount(){
+		return ((GridPanel)selectedPanel).getVerticalWidgetCount();
+	}
+
+	public DesignWidgetWrapper getVerticalLineAt(int index){
+		return (DesignWidgetWrapper)((GridPanel)selectedPanel).getVerticalWidget(index);
+	}
+	
+	public int getHorizontalLineCount(){
+		return ((GridPanel)selectedPanel).getHorizontalWidgetCount();
+	}
+
+	public DesignWidgetWrapper getHorizontalLineAt(int index){
+		return (DesignWidgetWrapper)((GridPanel)selectedPanel).getHorizontalWidget(index);
+	}
+	
+	public void storePosition(){
+		super.storePosition();
+		
+		int count = getVerticalLineCount();
+		for(int index = 0; index < count; index++)
+			getVerticalLineAt(index).storePosition();
+		
+		count = getHorizontalLineCount();
+		for(int index = 0; index < count; index++)
+			getHorizontalLineAt(index).storePosition();
+	}
+	
+	public void setWidgetPosition(){
+		super.setWidgetPosition();
+		
+		for(int i=0; i<getVerticalLineCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)getVerticalLineAt(i);
+			selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
+			widget.setWidth(widget.getWidth());
+			widget.setHeight(widget.getHeight());
+			
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+				((DesignGroupWidget)widget.getWrappedWidget()).setWidgetPosition();
+		}
+		
+		for(int i=0; i<getHorizontalLineCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)getHorizontalLineAt(i);
+			selectedPanel.setWidgetPosition(widget, widget.getLeftInt(), widget.getTopInt());
+			widget.setWidth(widget.getWidth());
+			widget.setHeight(widget.getHeight());
+			
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+				((DesignGroupWidget)widget.getWrappedWidget()).setWidgetPosition();
+		}
 	}
 }

@@ -93,8 +93,11 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	}
 
 	protected void copyWidget(WidgetEx widget){
-		if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+		if(widget.getWrappedWidget() instanceof GridDesignGroupWidget)
+			this.widget = new GridDesignGroupWidget((GridDesignGroupWidget)widget.getWrappedWidget(),((GridDesignGroupWidget)widget.getWrappedWidget()).getImages(),((GridDesignGroupWidget)widget.getWrappedWidget()).getWidgetPopupMenuListener());
+		else if(widget.getWrappedWidget() instanceof DesignGroupWidget)
 			this.widget = new DesignGroupWidget((DesignGroupWidget)widget.getWrappedWidget(),((DesignGroupWidget)widget.getWrappedWidget()).getImages(),((DesignGroupWidget)widget.getWrappedWidget()).getWidgetPopupMenuListener());
+		
 		super.copyWidget(widget);
 	}
 
@@ -390,12 +393,16 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 				return "e-resize";
 			else if(x >= left-incr && x <= left+incr)
 				return "w-resize";
+			else
+				;//return "s-resize";
 		}
 		else if (widget instanceof VerticalGridLine) {
 			if(y >= top-incr && y <= top+incr)
 				return "n-resize";
 			else if(y >= bottom-incr && y <= bottom+incr)
 				return "s-resize";
+			else
+				;//return "e-resize";
 		}
 		else {
 			//int incr = 3; //A smaller value than this does not resize, it instead moves.

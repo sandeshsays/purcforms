@@ -3,6 +3,8 @@ package org.purc.purcforms.client.widget;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormUtil;
+import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
+import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.zenika.widget.client.datePicker.DatePicker;
 
 import com.google.gwt.http.client.URL;
@@ -191,6 +193,14 @@ public class WidgetEx extends Composite{
 			this.widget = new TimeWidget();
 		else if(widget.widget instanceof TextBoxWidget)
 			this.widget = new TextBoxWidget();
+		else if(widget.widget instanceof TextBox)
+			this.widget = new TextBox();
+		else if(widget.widget instanceof VerticalGridLine) {
+			this.widget = new VerticalGridLine(0);
+		}
+		else if(widget.widget instanceof HorizontalGridLine) {
+			this.widget = new HorizontalGridLine(0);
+		}
 		else if(widget.widget instanceof TextBox)
 			this.widget = new TextBox();
 		else if(widget.widget instanceof Label){
