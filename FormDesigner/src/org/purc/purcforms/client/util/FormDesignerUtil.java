@@ -274,4 +274,12 @@ public class FormDesignerUtil {
 		
 		return FormUtil.isReadOnlyMode();
 	}
+	
+	public static int convertToInt(String value) {
+		try{
+			return Integer.parseInt(value);
+		}catch(Exception ex){}
+		
+		return 0;
+	}
 }

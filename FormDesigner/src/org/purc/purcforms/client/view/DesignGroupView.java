@@ -1375,7 +1375,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	protected DesignWidgetWrapper addNewHorizontalLine(boolean select){
-		HorizontalGridLine line = new HorizontalGridLine(200);
+		HorizontalGridLine line = new HorizontalGridLine(800);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
 			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
@@ -1384,7 +1384,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	protected DesignWidgetWrapper addNewVerticalLine(boolean select){
-		VerticalGridLine line = new VerticalGridLine(200);
+		VerticalGridLine line = new VerticalGridLine(400);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
 			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
@@ -2687,10 +2687,13 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @return the new widget.
 	 */
 	protected DesignWidgetWrapper addNewTable(boolean select){
+		String rows = Window.prompt("Please enter the number of rows", "8");
+		String cols = Window.prompt("Please enter the number of columns", "4");
+		
 		GridDesignGroupWidget group = new GridDesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");
-		DOM.setStyleAttribute(group.getElement(), "height","200"+PurcConstants.UNITS);
-		DOM.setStyleAttribute(group.getElement(), "width","500"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "height","400"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "width","800"+PurcConstants.UNITS);
 		group.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ??????????????
 
 		DesignWidgetWrapper widget = addNewWidget(group,select);
@@ -2726,6 +2729,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		//Without this, widgets in this box cant use Ctrl + A in edit mode and also
 		//edited text is not automatically selected.
 		widget.removeStyleName("dragdrop-handle");
+		
+		group.addTableLines(widget, FormDesignerUtil.convertToInt(rows), FormDesignerUtil.convertToInt(cols));
 
 		return widget;
 	}
@@ -3453,5 +3458,31 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	
 	public boolean remove(DesignWidgetWrapper widget){
 		return selectedPanel.remove(widget);
+	}
+	
+	public void addTableLines(DesignWidgetWrapper widgetWrapper, int horizontalLines, int verticalLines) {
+		horizontalLines -= 1;
+		verticalLines -= 1;
+		
+		x = widgetWrapper.getAbsoluteLeft();
+		y = 20 + widgetWrapper.getAbsoluteTop();
+		
+		int width = widgetWrapper.getWidthInt();
+		int length = width / (verticalLines + 1);
+	
+		for (int i = 0; i < verticalLines; i++) {
+			x += length;
+			addNewVerticalLine(false);
+		}
+		
+		x = widgetWrapper.getAbsoluteLeft();
+		y = 20 + widgetWrapper.getAbsoluteTop();
+		
+		int height = widgetWrapper.getHeightInt();
+		length = (height - 20) / (horizontalLines + 1);
+		for (int i = 0; i < horizontalLines; i++) {
+			y += length;
+			addNewHorizontalLine(false);
+		}
 	}
 }
