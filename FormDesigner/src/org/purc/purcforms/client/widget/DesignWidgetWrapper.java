@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.cmd.PanelHistory;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.FormDesignerDropController;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -75,7 +76,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	private PopupPanel popup;
 	private Element layoutNode;
 	private boolean locked;
-	private AbsolutePanel prevPanel;
+	private PanelHistory panelHistory = new PanelHistory();
 
 	public DesignWidgetWrapper(DesignWidgetWrapper designWidgetWrapper,Images images){
 		super(designWidgetWrapper);
@@ -1131,12 +1132,16 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			setBinding("LEFT"+getLeft()+"TOP"+getTop()+ "-" + getBinding());
 	}
 	
-	public AbsolutePanel getPrevPanel() {
-		return prevPanel;
+	public PanelHistory getPanelHistory() {
+		return panelHistory;
+	}
+	
+	public void setPanelHistory(PanelHistory panelHistory) {
+		this.panelHistory = panelHistory;
 	}
 	
 	public DesignGroupView getPrevView(){
-		Widget view = prevPanel.getParent();
+		Widget view = panelHistory.getPanel().getParent();
 		while(!(view instanceof DesignGroupView))
 			view = view.getParent();
 		
@@ -1144,7 +1149,12 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	}
 	
 	public void storePrevPanel() {
-		this.prevPanel = (AbsolutePanel)getParent();
+		AbsolutePanel panel = (AbsolutePanel)getParent();
+		//For efficiency, set only if changed
+		if(!panel.equals(panelHistory.getPanel()))
+			panelHistory = new PanelHistory(panelHistory, panel);
+		else 
+			panelHistory.incrementSamePanelCount();
 	}
 	
 	public DesignGroupView getView(){

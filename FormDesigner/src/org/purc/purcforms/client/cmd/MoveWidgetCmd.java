@@ -5,6 +5,8 @@ import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 import org.purc.purcforms.client.widget.grid.GridLine;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
+
 
 /**
  * 
@@ -36,7 +38,16 @@ public class MoveWidgetCmd implements ICommand {
 		widget.setLeftInt(widget.getLeftInt() + x);
 		widget.setTopInt(widget.getTopInt() + y);
 		
-		widget.getPrevPanel().add(widget, widget.getLeftInt(), widget.getTopInt());
+		PanelHistory panelHistory = widget.getPanelHistory();
+		if(panelHistory.getSamePanelCount() == 0) {
+			panelHistory = panelHistory.getPanelHistory();
+			widget.setPanelHistory(panelHistory);
+		}
+		
+		panelHistory.decrementSamePanelCount();
+		
+		AbsolutePanel prevPanel = panelHistory.getPanel();
+		prevPanel.add(widget, widget.getLeftInt(), widget.getTopInt());
 		
 		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
 			DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
@@ -44,10 +55,13 @@ public class MoveWidgetCmd implements ICommand {
 				((GridDesignGroupWidget)view).moveLine(-x, -y, widget.getLeftInt(), widget.getTopInt());
 		}
 
-		widget.getPrevView().selectWidget(widget, widget.getPrevPanel()/*panel*/);
+		widget.getPrevView().selectWidget(widget, prevPanel/*panel*/);
 	}
 	
 	public void redo(){
+		
+		widget.storePrevPanel();
+		
 		widget.setLeftInt(widget.getLeftInt() - x);
 		widget.setTopInt(widget.getTopInt() - y);
 		
