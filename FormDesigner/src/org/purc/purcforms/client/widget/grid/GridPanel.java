@@ -14,6 +14,8 @@ public class GridPanel extends AbsolutePanel {
 	private WidgetCollection verticalLines = new WidgetCollection(this);
 	private WidgetCollection horizontalLines = new WidgetCollection(this);
 
+	private boolean resizeLinesToFit = true;
+	
 	@Override
 	public void add(Widget w) {
 		if(isGridLine(w)) {
@@ -201,6 +203,9 @@ public class GridPanel extends AbsolutePanel {
 	}
 	
 	public void resizeVerticalLineToFit(DesignWidgetWrapper verticalLine) {
+		if(!resizeLinesToFit)
+			return;
+		
 		int top = verticalLine.getTopInt();
 		int height = verticalLine.getHeightInt();
 		int bottom = top + height;
@@ -240,6 +245,9 @@ public class GridPanel extends AbsolutePanel {
 	}
 	
 	public void resizeHorizontalLineToFit(DesignWidgetWrapper horizontalLine) {
+		if(!resizeLinesToFit)
+			return;
+		
 		int left = horizontalLine.getLeftInt();
 		int width = horizontalLine.getWidthInt();
 		int right = left + width;
@@ -520,5 +528,13 @@ public class GridPanel extends AbsolutePanel {
 				}
 			}
 		}
+	}
+
+	public boolean isResizeLinesToFit() {
+		return resizeLinesToFit;
+	}
+
+	public void setResizeLinesToFit(boolean resizeLinesToFit) {
+		this.resizeLinesToFit = resizeLinesToFit;
 	}
 }

@@ -4,6 +4,7 @@ import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 import org.purc.purcforms.client.widget.grid.GridLine;
+import org.purc.purcforms.client.widget.grid.GridPanel;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
@@ -47,6 +48,9 @@ public class MoveWidgetCmd implements ICommand {
 		panelHistory.decrementSamePanelCount();
 		
 		AbsolutePanel prevPanel = panelHistory.getPanel();
+		if(prevPanel instanceof GridPanel)
+			((GridPanel)prevPanel).setResizeLinesToFit(false);
+		
 		prevPanel.add(widget, widget.getLeftInt(), widget.getTopInt());
 		
 		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
@@ -56,6 +60,9 @@ public class MoveWidgetCmd implements ICommand {
 		}
 
 		widget.getPrevView().selectWidget(widget, prevPanel/*panel*/);
+		
+		if(prevPanel instanceof GridPanel)
+			((GridPanel)prevPanel).setResizeLinesToFit(true);
 	}
 	
 	public void redo(){
@@ -65,7 +72,11 @@ public class MoveWidgetCmd implements ICommand {
 		widget.setLeftInt(widget.getLeftInt() - x);
 		widget.setTopInt(widget.getTopInt() - y);
 		
-		view.getPanel().add(widget, widget.getLeftInt(), widget.getTopInt());
+		AbsolutePanel panel = view.getPanel();
+		if(panel instanceof GridPanel)
+			((GridPanel)panel).setResizeLinesToFit(false);
+		
+		panel.add(widget, widget.getLeftInt(), widget.getTopInt());
 		
 		if(((DesignWidgetWrapper)widget).getWrappedWidget() instanceof GridLine) {
 			DesignGroupView view = ((DesignWidgetWrapper)widget).getView();
@@ -74,6 +85,9 @@ public class MoveWidgetCmd implements ICommand {
 		}
 
 		view.selectWidget(widget, view.getPanel());
+		
+		if(panel instanceof GridPanel)
+			((GridPanel)panel).setResizeLinesToFit(true);
 	}
 	
 	public boolean isWidgetCommand(){

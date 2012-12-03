@@ -62,7 +62,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			((GridPanel)selectedPanel).resizeGridWithCtrlPressed(widthChange, heightChange, width, height);
 	}
 	
-	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
+	public void moveLine(int xChange, int yChange, int newLeft, int newTop){	
+		if(!((GridPanel)selectedPanel).isResizeLinesToFit())
+			return;
+		
 		//check if we are to expand table below or right
 		if(!DragContext.controlKeyPressed) {
 			if(yChange != 0 && yChange != -1) {//horizontal line moved
