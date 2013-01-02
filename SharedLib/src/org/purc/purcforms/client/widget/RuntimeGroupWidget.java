@@ -1141,7 +1141,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 
-		if(groupQtnsDef != null)
+		if(groupQtnsDef != null & isRepeated)
 			groupQtnsDef.getQtnDef().setAnswer(getRowCount()+"");
 	}
 
