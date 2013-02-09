@@ -537,4 +537,16 @@ public class GridPanel extends AbsolutePanel {
 	public void setResizeLinesToFit(boolean resizeLinesToFit) {
 		this.resizeLinesToFit = resizeLinesToFit;
 	}
+	
+	public WidgetCollection getVerticalLines() {
+		return verticalLines;
+	}
+	
+	public WidgetCollection getHorizontalLines() {
+		return horizontalLines;
+	}
+	
+	public WidgetCollection getNonLineWidgets() {
+		return getChildren();
+	}
 }

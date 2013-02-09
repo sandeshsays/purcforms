@@ -2687,8 +2687,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @return the new widget.
 	 */
 	protected DesignWidgetWrapper addNewTable(boolean select){
-		String rows = Window.prompt("Please enter the number of rows", "8");
-		String cols = Window.prompt("Please enter the number of columns", "4");
+		String rows = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "8");
+		String cols = Window.prompt(LocaleText.get("numberOfColumnsPrompt"), "4");
 		
 		GridDesignGroupWidget group = new GridDesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");

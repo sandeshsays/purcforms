@@ -13,6 +13,7 @@ import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.view.DesignSurfaceView;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -226,6 +227,8 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("selectedFormField")),true,new Command(){
 			public void execute() {popup.hide(); addSelectedFormField(true);}});
 
+		addExtraMenu(menuBar);
+
 		//if(selectedDragController.isAnyWidgetSelected()){
 		deleteWidgetsSeparator = menuBar.addSeparator();
 		deleteWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("deleteSelected")),true,new Command(){
@@ -271,6 +274,10 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 			public void execute() {popup.hide(); selectAll();}});
 
 		popup.setWidget(menuBar);
+	}
+	
+	protected void addExtraMenu(MenuBar menuBar) {
+		
 	}
 
 	protected void updatePopup(){
