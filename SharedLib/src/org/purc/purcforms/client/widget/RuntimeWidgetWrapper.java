@@ -173,7 +173,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			});
 		}
 
-		if(widget instanceof TextBox)
+		if(widget instanceof TextBoxBase)
 			setupTextBoxEventListeners();
 		else if(widget instanceof DateTimeWidget)
 			setupDateTimeEventListeners();
@@ -283,24 +283,24 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				});
 			}
 
-			((TextBox)widget).addClickHandler(new ClickHandler(){
+			((TextBoxBase)widget).addClickHandler(new ClickHandler(){
 				public void onClick(ClickEvent event){
-					((TextBox)widget).selectAll();
+					((TextBoxBase)widget).selectAll();
 				}
 			});
 
-			((TextBox)widget).addFocusHandler(new FocusHandler(){
+			((TextBoxBase)widget).addFocusHandler(new FocusHandler(){
 				public void onFocus(FocusEvent event){
-					((TextBox)widget).selectAll();
+					((TextBoxBase)widget).selectAll();
 				}
 			});
 
 			addSuggestBoxChangeEvent();
 		}
 		else{
-			((TextBox)widget).addChangeHandler(new ChangeHandler(){
+			((TextBoxBase)widget).addChangeHandler(new ChangeHandler(){
 				public void onChange(ChangeEvent event){
-					//questionDef.setAnswer(((TextBox)widget).getText());
+					//questionDef.setAnswer(((TextBoxBase)widget).getText());
 					if(questionDef != null){
 						questionDef.setAnswer(getTextBoxAnswer());
 						isValid(false);
@@ -323,7 +323,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			});
 		}
 
-		((TextBox)widget).addKeyUpHandler(new KeyUpHandler(){
+		((TextBoxBase)widget).addKeyUpHandler(new KeyUpHandler(){
 			public void onKeyUp(KeyUpEvent event) {
 				if(event.getNativeKeyCode() == KeyCodes.KEY_TAB)
 					return;
@@ -338,7 +338,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			}
 		});
 
-		((TextBox)widget).addKeyDownHandler(new KeyDownHandler(){
+		((TextBoxBase)widget).addKeyDownHandler(new KeyDownHandler(){
 			public void onKeyDown(KeyDownEvent event) {
 				int keyCode = event.getNativeKeyCode();
 				if((keyCode == KeyCodes.KEY_ENTER && !event.isShiftKeyDown()) || keyCode == KeyCodes.KEY_DOWN)
@@ -348,7 +348,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			}
 		});
 
-		((TextBox)widget).addKeyPressHandler(new KeyPressHandler(){
+		((TextBoxBase)widget).addKeyPressHandler(new KeyPressHandler(){
 			public void onKeyPress(KeyPressEvent event) {
 				int keyCode = event.getCharCode();
 				if((externalSource != null && externalSource.trim().length() > 0) && 
@@ -360,14 +360,14 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						return;
 					}
 
-					((TextBox) event.getSource()).cancelKey();
+					((TextBoxBase) event.getSource()).cancelKey();
 					
 					//Remove error icon.
 					while(panel.getWidgetCount() > 1)
 						panel.remove(1);
 
 					if(keyCode == (char) KeyCodes.KEY_DELETE || keyCode == (char) KeyCodes.KEY_BACKSPACE){
-						((TextBox) event.getSource()).setText("");
+						((TextBoxBase) event.getSource()).setText("");
 						if(questionDef != null)
 							questionDef.setAnswer(null);
 
@@ -526,7 +526,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 					OptionDef optionDef = questionDef.getOptionWithValue(defaultValue);
 					if(optionDef != null)
-						((TextBox)widget).setText(optionDef.getText());
+						((TextBoxBase)widget).setText(optionDef.getText());
 				}
 				else{
 					if(defaultValue.trim().length() > 0 && questionDef.isDate() && questionDef.isDateFunction(defaultValue))
@@ -646,7 +646,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(type == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 					OptionDef optionDef = questionDef.getOptionWithValue(answer);
 					if(optionDef != null)
-						((TextBox)widget).setText(optionDef.getText());
+						((TextBoxBase)widget).setText(optionDef.getText());
 				}
 				else{
 					if(answer.trim().length() > 0 && questionDef.isDate() && questionDef.isDateFunction(answer))
@@ -748,14 +748,14 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 
 	/**
-	 * Gets the user answer from a TextBox widget.
+	 * Gets the user answer from a TextBoxBase widget.
 	 * 
 	 * @return the text answer.
 	 */
 	private String getTextBoxAnswer(){
 		String value = null;
-		if(widget instanceof TextBox)
-			value = ((TextBox)widget).getText();
+		if(widget instanceof TextBoxBase)
+			value = ((TextBoxBase)widget).getText();
 		else if(widget instanceof TimeWidget)
 			value = ((TimeWidget)widget).getText();
 		else if(widget instanceof DateTimeWidget)
@@ -1112,7 +1112,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		//Date, Time & DateTime parse text input and give an answer of null if the entered
 		//value is not valid and hence we need to show the error flag.
-		if((widget instanceof TextBox && questionDef.getAnswer() == null && ((TextBox)widget).getText().trim().length() > 0) ||
+		if((widget instanceof TextBoxBase && questionDef.getAnswer() == null && ((TextBoxBase)widget).getText().trim().length() > 0) ||
 				(widget instanceof TimeWidget && questionDef.getAnswer() == null && ((TimeWidget)widget).getText().trim().length() > 0) ||
 				(widget instanceof DateTimeWidget && questionDef.getAnswer() == null && ((DateTimeWidget)widget).getText().trim().length() > 0)){
 
@@ -1173,15 +1173,11 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			((CheckBox)widget).setFocus(true);
 		else if(widget instanceof ListBox)
 			((ListBox)widget).setFocus(true);
-		else if(widget instanceof TextArea){
-			((TextArea)widget).setFocus(true);
-			((TextArea)widget).selectAll();	
-		}
-		else if(widget instanceof TextBox){
-			((TextBox)widget).setFocus(true);
-			((TextBox)widget).selectAll();
-			if(panel.getWidget(0) instanceof TextBox){
-				((TextBox)panel.getWidget(0)).setFocus(true);
+		else if(widget instanceof TextBoxBase){
+			((TextBoxBase)widget).setFocus(true);
+			((TextBoxBase)widget).selectAll();
+			if(panel.getWidget(0) instanceof TextBoxBase){
+				((TextBoxBase)panel.getWidget(0)).setFocus(true);
 			}
 		}
 		else if(widget instanceof Button)
@@ -1367,7 +1363,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	}
 
 	private void setId(){
-		if(!(widget instanceof TextBox))
+		if(!(widget instanceof TextBoxBase))
 			return;
 
 		String id = "";
