@@ -1870,6 +1870,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 					startRubberBand(event);
 			}
 
+			DesignSurfaceView.setSelectedView(this);
+			
 			break;
 		case Event.ONMOUSEMOVE:
 			mouseMoved = true;
@@ -2028,6 +2030,22 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		return ret;
+	}
+	
+	public void addLabelAndStartEditing(Event event) {
+		if(editWidget != null || event.getKeyCode() == KeyCodes.KEY_ENTER)
+			return;
+		
+		x += getAbsoluteLeft();
+		y += getAbsoluteTop();
+		
+		if(this instanceof DesignSurfaceView)
+			y += 30;
+		else
+			y -= 10;
+		
+		addNewLabel(null, true);
+		handleStartLabelEditing(event);
 	}
 
 	/**
@@ -2688,7 +2706,12 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 */
 	protected DesignWidgetWrapper addNewTable(boolean select){
 		String rows = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "8");
+		if(rows == null || rows.trim().isEmpty()) 
+			return null; //possibly user selected cancel
+		
 		String cols = Window.prompt(LocaleText.get("numberOfColumnsPrompt"), "4");
+		if(cols == null || cols.trim().isEmpty()) 
+			return null; //possibly user selected cancel
 		
 		GridDesignGroupWidget group = new GridDesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");

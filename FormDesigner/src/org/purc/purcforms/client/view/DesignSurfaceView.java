@@ -84,6 +84,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	/** The layout xml document object. */
 	Document doc;
 
+	private static DesignGroupView selectedView;
 
 	public DesignSurfaceView(){
 		super(null);
@@ -156,8 +157,11 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * @return true if processed, else false.
 	 */
 	public boolean handleKeyBoardEvent(Event event){
-		if(!childHandleKeyDownEvent(event))
-			handleKeyDownEvent(event);
+		if(!childHandleKeyDownEvent(event)) {
+			if (!handleKeyDownEvent(event) && selectedView != null) {
+				selectedView.addLabelAndStartEditing(event);
+			}
+		}
 
 		return true;
 	}
@@ -1143,5 +1147,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	
 	public void selectTab(FormDesignerDropController dropController){
 		tabs.selectTab(tabDropControllers.indexOf(dropController));
+	}
+	
+	public static void setSelectedView(DesignGroupView selectedView){
+		DesignSurfaceView.selectedView = selectedView;
 	}
 }
