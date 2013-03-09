@@ -1,7 +1,10 @@
 package org.purc.purcforms.client.widget.grid;
 
-import org.purc.purcforms.client.PurcConstants;
+import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.PurcConstants;
+import org.purc.purcforms.client.cmd.AddColumnsCmd;
+import org.purc.purcforms.client.cmd.AddRowsCmd;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
@@ -211,7 +214,99 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void addRows(int ypos, int rows, boolean below) {
 		//get biggest possible distance between two horizontal lines
-		int rightDiff = getHeightInt();
+		int topDiff = getHeightInt();
+		
+		//get biggest possible distance between two horizontal lines
+		int bottomDiff = topDiff;
+		boolean topLineFound = false;
+		boolean bottomLineFound = false;
+		
+		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		DesignWidgetWrapper startLine = null;
+		for(Widget w : horizontalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int top = widget.getTopInt();
+			
+			//if current line is above the mouse position
+			if(top < ypos) {
+				int diff = ypos - top; //how far, above, line is from mouse position
+				if(diff < topDiff) { //if this is the smallest distance between line and mouse position
+					topDiff = diff;
+					if(!below) {//if inserting row before
+						startLine = widget;
+					}
+				}
+				topLineFound = true;
+			}
+			else if(top > ypos){ //current line below the mouse position
+				int diff = top - ypos; //how far, below, line is from mouse position
+				if(diff < bottomDiff) { //if this is the smallest distance between line and mouse position
+					bottomDiff = diff;
+					if(below) {//if inserting row after
+						startLine = widget;
+					}
+				}
+				bottomLineFound = true;
+			}
+		}
+		
+		if(!topLineFound) {
+			int tableTop = ((DesignWidgetWrapper)getParent().getParent()).getTopInt();
+			topDiff = ypos - tableTop;
+			if(below) {
+				if(horizontalLines.size() == 0)
+					return;
+				
+				startLine = (DesignWidgetWrapper)horizontalLines.get(0);
+				startLine.setTopInt(tableTop);
+				startLine.setLeftInt(((DesignWidgetWrapper)getParent().getParent()).getLeftInt());
+				startLine.setWidthInt(getWidthInt());
+			}
+		}
+		
+		if(!bottomLineFound) {
+			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt() ;
+			bottomDiff = (tableBottom - ypos);
+			if(!below) {
+				if(horizontalLines.size() == 0)
+					return;
+				
+				startLine = (DesignWidgetWrapper)horizontalLines.get(0);
+				startLine.setTopInt(tableBottom);
+				startLine.setLeftInt(((DesignWidgetWrapper)getParent().getParent()).getLeftInt());
+				startLine.setWidthInt(getWidthInt());
+			}
+		}
+		
+		if(startLine == null)
+			return;
+		
+		int size = topDiff + bottomDiff;
+		int top = startLine.getTopInt();
+		int totalDisplacement = size * rows;
+		
+		moveHorizontalLinesAndText(top, totalDisplacement);
+		
+		AddRowsCmd addRowsCmd = new AddRowsCmd(top, below, totalDisplacement, this);
+		
+		//now add the rows
+		int width = startLine.getWidthInt();
+		x = startLine.getAbsoluteLeft();
+		y = startLine.getTopInt() + getAbsoluteTop();
+		
+		for(int i = 0; i < rows; i++) {
+			y += size;
+			HorizontalGridLine line = new HorizontalGridLine(width);
+			DesignWidgetWrapper wrapper = addNewWidget(line, false);
+			wrapper.setWidthInt(width);
+			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			
+			addRowsCmd.addline(wrapper);
+		}
+		
+		resizeVerticalLinesAndTable(ypos, totalDisplacement);
+		
+		Context.getCommandHistory().add(addRowsCmd);
 	}
 	
 	public void addColumns(boolean right) {
@@ -291,25 +386,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		int size = leftDiff + rightDiff;
 		int left = startLine.getLeftInt();
 		int totalDisplacement = size * columns;
-		for(Widget w : verticalLines) {
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-			int currentLeft = widget.getLeftInt();
-			if(currentLeft > left) {
-				widget.setLeftInt(currentLeft + totalDisplacement);
-			}
-		}
 		
-		//move all test on the right hand side of the mouse position
-		for(Widget w : ((GridPanel)selectedPanel).getNonLineWidgets()) {
-			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
-			if("100%".equals(widget.getWidth()))
-				continue; //header label widget
-			
-			int currentLeft = widget.getLeftInt();
-			if(currentLeft > left) {
-				widget.setLeftInt(currentLeft + totalDisplacement);
-			}
-		}
+		moveVerticalLinesAndText(left, totalDisplacement);
+		
+		AddColumnsCmd addColumnsCmd = new AddColumnsCmd(left, right, totalDisplacement, this);
 		
 		//now add the columns
 		int height = startLine.getHeightInt();
@@ -322,8 +402,40 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			DesignWidgetWrapper wrapper = addNewWidget(line, false);
 			wrapper.setHeight(height);
 			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			
+			addColumnsCmd.addline(wrapper);
 		}
 		
+		resizeHorizontalLinesAndTable(xpos, totalDisplacement);
+		
+		Context.getCommandHistory().add(addColumnsCmd);
+	}
+	
+	public void moveVerticalLinesAndText(int left, int totalDisplacement) {
+		//move all lines on the right of the mouse position
+		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		for(Widget w : verticalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int currentLeft = widget.getLeftInt();
+			if(currentLeft > left) {
+				widget.setLeftInt(currentLeft + totalDisplacement);
+			}
+		}
+		
+		//move all text on the right hand side of the mouse position
+		for(Widget w : ((GridPanel)selectedPanel).getNonLineWidgets()) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if("100%".equals(widget.getWidth()))
+				continue; //header label widget
+			
+			int currentLeft = widget.getLeftInt();
+			if(currentLeft > left) {
+				widget.setLeftInt(currentLeft + totalDisplacement);
+			}
+		}
+	}
+	
+	public void resizeHorizontalLinesAndTable(int xpos, int totalDisplacement) {
 		//now expand the horizontal lines
 		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
 		for(Widget w : horizontalLines) {
@@ -335,5 +447,48 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		setWidth(getWidthInt() + totalDisplacement + PurcConstants.UNITS);
+	}
+	
+	public void moveHorizontalLinesAndText(int top, int totalDisplacement) {
+		//move all lines below the mouse position
+		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		for(Widget w : horizontalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int currentTop = widget.getTopInt();
+			if(currentTop > top) {
+				widget.setTopInt(currentTop + totalDisplacement);
+			}
+		}
+		
+		//move all text below the mouse position
+		for(Widget w : ((GridPanel)selectedPanel).getNonLineWidgets()) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if("100%".equals(widget.getWidth()))
+				continue; //header label widget
+			
+			int currentTop = widget.getTopInt();
+			if(currentTop > top) {
+				widget.setTopInt(currentTop + totalDisplacement);
+			}
+		}
+	}
+	
+	public void resizeVerticalLinesAndTable(int ypos, int totalDisplacement) {
+		//now expand the vertical lines
+		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		for(Widget w : verticalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int height = widget.getHeightInt();
+			if((widget.getTopInt() + height) > ypos) {
+				widget.setHeightInt(height + totalDisplacement);
+			}
+		}
+		
+		setHeight(getHeightInt() + totalDisplacement + PurcConstants.UNITS);
+	}
+	
+	public void add(DesignWidgetWrapper line) {
+		selectedPanel.add(line);
+		selectedPanel.setWidgetPosition(line, line.getLeftInt(), line.getTopInt());
 	}
 }
