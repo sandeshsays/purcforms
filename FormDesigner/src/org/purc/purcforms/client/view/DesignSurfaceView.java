@@ -148,6 +148,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		rubberBand.addStyleName("rubberBand");
 
 		currentWidgetSelectionListener = this;
+		
+		//DOM.setAttribute(getElement(), "contentEditable", "true");
 	}
 
 	/**

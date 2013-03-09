@@ -2033,7 +2033,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	public void addLabelAndStartEditing(Event event) {
-		if(editWidget != null || event.getKeyCode() == KeyCodes.KEY_ENTER)
+		int keyCode = event.getKeyCode();
+		if(editWidget != null || keyCode == KeyCodes.KEY_ENTER ||
+				event.getAltKey() || event.getCtrlKey() || event.getMetaKey() ||
+				keyCode == KeyCodes.KEY_TAB || keyCode == KeyCodes.KEY_BACKSPACE ||
+				keyCode == KeyCodes.KEY_DELETE || keyCode == KeyCodes.KEY_UP ||
+				keyCode == KeyCodes.KEY_DOWN || keyCode == KeyCodes.KEY_ESCAPE ||
+				keyCode == KeyCodes.KEY_HOME || keyCode == KeyCodes.KEY_END ||
+				keyCode == KeyCodes.KEY_PAGEDOWN || keyCode == KeyCodes.KEY_PAGEUP ||
+				keyCode == KeyCodes.KEY_LEFT || keyCode == KeyCodes.KEY_RIGHT)
 			return;
 		
 		x += getAbsoluteLeft();
@@ -2705,7 +2713,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @return the new widget.
 	 */
 	protected DesignWidgetWrapper addNewTable(boolean select){
-		String rows = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "8");
+		String rows = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "4");
 		if(rows == null || rows.trim().isEmpty()) 
 			return null; //possibly user selected cancel
 		

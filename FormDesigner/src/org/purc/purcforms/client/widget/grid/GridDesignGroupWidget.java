@@ -265,17 +265,17 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		if(!bottomLineFound) {
-			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt() ;
-			bottomDiff = (tableBottom - ypos);
-			if(!below) {
+			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt();
+			bottomDiff = (ypos - (tableBottom - getAbsoluteTop())) + 20;
+			//if(!below) {
 				if(horizontalLines.size() == 0)
 					return;
 				
-				startLine = (DesignWidgetWrapper)horizontalLines.get(0);
-				startLine.setTopInt(tableBottom);
+				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
+				startLine.setTopInt(tableBottom + 20);
 				startLine.setLeftInt(((DesignWidgetWrapper)getParent().getParent()).getLeftInt());
 				startLine.setWidthInt(getWidthInt());
-			}
+			//}
 		}
 		
 		if(startLine == null)
@@ -292,7 +292,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		//now add the rows
 		int width = startLine.getWidthInt();
 		x = startLine.getAbsoluteLeft();
-		y = startLine.getTopInt() + getAbsoluteTop();
+		y = startLine.getTopInt() + (bottomLineFound ? getAbsoluteTop() : 0);
 		
 		for(int i = 0; i < rows; i++) {
 			y += size;
@@ -354,12 +354,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		if(!leftLineFound) {
 			int tableLeft = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
-			leftDiff = xpos - tableLeft;
-			if(right) {
+			leftDiff = (xpos - tableLeft);
+			if(!right) {
 				if(verticalLines.size() == 0)
 					return;
 				
-				startLine = (DesignWidgetWrapper)verticalLines.get(0);
+				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(tableLeft);
 				startLine.setTopInt(((DesignWidgetWrapper)getParent().getParent()).getTopInt());
 				startLine.setHeightInt(getHeightInt());
@@ -367,23 +367,23 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		if(!rightLineFound) {
-			int tableRight = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt() + getWidthInt() ;
+			int tableRight = /*((DesignWidgetWrapper)getParent().getParent()).getLeftInt() +*/ getWidthInt() ;
 			rightDiff = (tableRight - xpos);
-			if(!right) {
+			//if(!right) {
 				if(verticalLines.size() == 0)
 					return;
 				
-				startLine = (DesignWidgetWrapper)verticalLines.get(0);
+				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(tableRight);
 				startLine.setTopInt(((DesignWidgetWrapper)getParent().getParent()).getTopInt());
 				startLine.setHeightInt(getHeightInt());
-			}
+			//}
 		}
 		
 		if(startLine == null)
 			return;
 		
-		int size = leftDiff + rightDiff;
+		int size = (!leftLineFound && right) ? startLine.getLeftInt() : (leftDiff + rightDiff);
 		int left = startLine.getLeftInt();
 		int totalDisplacement = size * columns;
 		
@@ -393,8 +393,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		//now add the columns
 		int height = startLine.getHeightInt();
-		x = startLine.getAbsoluteLeft();
+		x = rightLineFound ? startLine.getAbsoluteLeft() : getWidthInt() + startLine.getLeftInt() - size;
 		y = startLine.getTopInt();
+		
+		if(!leftLineFound && !right){
+			x = startLine.getLeftInt();
+		}
 		
 		for(int i = 0; i < columns; i++) {
 			x += size;

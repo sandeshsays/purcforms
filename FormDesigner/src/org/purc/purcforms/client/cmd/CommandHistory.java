@@ -154,7 +154,15 @@ public class CommandHistory {
 		}
 	}
 	
-	public int getCommandCount(){
-		return undoCmds.size() + redoCmds.size();
+	public int getUndoCount(){
+		return undoCmds.size();
+	}
+	
+	public int getRedoCount() {
+		return redoCmds.size();
+	}
+	
+	public boolean isDirty(int undoCount, int redoCount){
+		return getUndoCount() != undoCount || getRedoCount() != redoCount;
 	}
 }

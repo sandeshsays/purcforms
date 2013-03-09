@@ -141,7 +141,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	/** Listener to form designer global events. */
 	private IFormDesignerListener formDesignerListener;
 
-	private int lastCommandCount = 0;
+	private int lastUndoCount = 0;
+	private int lastRedoCount = 0;
 
 	/**
 	 * Constructs a new center panel widget.
@@ -245,8 +246,8 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 
 		if(selectedTabIndex == SELECTED_INDEX_PREVIEW ){
 			if(formDef != null){
-				if(!previewView.isPreviewing() || Context.getCommandHistory().getCommandCount() != lastCommandCount) {
-					lastCommandCount = Context.getCommandHistory().getCommandCount();
+				if(!previewView.isPreviewing() || Context.getCommandHistory().isDirty(lastUndoCount, lastRedoCount)) {
+					storeUndoRedoCount();
 					loadPreview();
 				}
 				else
@@ -264,6 +265,11 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		//	txtLayoutXml.setText(designSurfaceView.getLayoutXml());
 	}
 
+	private void storeUndoRedoCount() {
+		lastUndoCount = Context.getCommandHistory().getUndoCount();
+		lastRedoCount = Context.getCommandHistory().getRedoCount();
+	}
+	
 	private void loadPreview(){
 		FormUtil.dlg.setText(LocaleText.get("loadingPreview"));
 		FormUtil.dlg.center();
@@ -878,7 +884,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 */
 	public void refresh(){
 		if(selectedTabIndex == SELECTED_INDEX_PREVIEW) {
-			lastCommandCount = Context.getCommandHistory().getCommandCount();
+			storeUndoRedoCount();
 			previewView.refresh(); //loadForm(formDef,designSurfaceView.getLayoutXml(),null);
 		}
 		else if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
