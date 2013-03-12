@@ -5,6 +5,8 @@ import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.cmd.AddColumnsCmd;
 import org.purc.purcforms.client.cmd.AddRowsCmd;
+import org.purc.purcforms.client.cmd.DeleteColumnCmd;
+import org.purc.purcforms.client.cmd.DeleteRowCmd;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
@@ -77,6 +79,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsLeft")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(false);}});
+		
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteColumn")), true, new Command(){
+			public void execute() {popup.hide(); deleteColumn();}});
+		
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteRow")), true, new Command(){
+			public void execute() {popup.hide(); deleteRow();}});
 		
 		menuBar.addSeparator();
 		menuBar.addItem("     " + LocaleText.get("table"), tableMenu);
@@ -361,7 +369,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				
 				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(tableLeft);
-				startLine.setTopInt(((DesignWidgetWrapper)getParent().getParent()).getTopInt());
+				startLine.setTopInt(20 /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
 				startLine.setHeightInt(getHeightInt());
 			}
 		}
@@ -397,7 +405,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		y = startLine.getTopInt();
 		
 		if(!leftLineFound && !right){
-			x = startLine.getLeftInt();
+			x = startLine.getLeftInt() + getAbsoluteLeft();
+			y += getAbsoluteTop();
 		}
 		
 		for(int i = 0; i < columns; i++) {
@@ -494,5 +503,153 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	public void add(DesignWidgetWrapper line) {
 		selectedPanel.add(line);
 		selectedPanel.setWidgetPosition(line, line.getLeftInt(), line.getTopInt());
+	}
+	
+	public void deleteColumn() {
+		int xpos = x - getAbsoluteLeft();
+		
+		//get biggest possible distance between two vertical lines
+		int leftDiff = getWidthInt();
+		
+		//get biggest possible distance between two horizontal lines
+		int rightDiff = leftDiff;
+		boolean leftLineFound = false;
+		boolean rightLineFound = false;
+		
+		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		DesignWidgetWrapper rightLine = null;
+		DesignWidgetWrapper leftLine = null;
+		for(Widget w : verticalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int left = widget.getLeftInt();
+			
+			//if current line is on the left hand side of the mouse position
+			if(left < xpos) {
+				int diff = xpos - left; //how far, to the left, line is from mouse position
+				if(diff < leftDiff) { //if this is the smallest distance between line and mouse position
+					leftDiff = diff;
+					leftLine = widget;
+				}
+				leftLineFound = true;
+			}
+			else if(left > xpos){ //current line on right hand side of mouse position
+				int diff = left - xpos; //how far, to the right, line is from mouse position
+				if(diff < rightDiff) { //if this is the smallest distance between line and mouse position
+					rightDiff = diff;
+					rightLine = widget;
+				}
+				rightLineFound = true;
+			}
+		}
+		
+		int left = xpos;
+		
+		if(!leftLineFound) {
+			int tableLeft = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
+			leftDiff = xpos - tableLeft;
+			left = tableLeft;
+		}
+		else
+			left = leftLine.getLeftInt();
+		
+		if(!rightLineFound) {
+			int tableRight = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt() + getWidthInt() ;
+			rightDiff = tableRight - xpos;
+		}
+		
+		int totalDisplacement = leftDiff + rightDiff;
+		DeleteColumnCmd deleteColumnCmd = new DeleteColumnCmd(left, totalDisplacement, this);
+		
+		if(rightLine != null) {
+			rightLine.storePosition();
+			remove(rightLine);
+			deleteColumnCmd.setLine(rightLine);
+		}
+		else {
+			leftLine.storePosition();
+			remove(leftLine);
+			deleteColumnCmd.setLine(leftLine);
+		}
+		
+		moveVerticalLinesAndText(left, -totalDisplacement);
+		resizeHorizontalLinesAndTable(left, -totalDisplacement);
+		
+		Context.getCommandHistory().add(deleteColumnCmd);
+	}
+	
+	public void deleteRow() {
+		int ypos = y - getAbsoluteTop();
+		
+		//get biggest possible distance between two horizontal lines
+		int topDiff = getHeightInt();
+		
+		//get biggest possible distance between two vertical lines
+		int belowDiff = topDiff;
+		boolean topLineFound = false;
+		boolean belowLineFound = false;
+		
+		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		DesignWidgetWrapper belowLine = null;
+		DesignWidgetWrapper topLine = null;
+		for(Widget w : horizontalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int top = widget.getTopInt();
+			
+			//if current line is above the mouse position
+			if(top < ypos) {
+				int diff = ypos - top; //how far, to the top, line is from mouse position
+				if(diff < topDiff) { //if this is the smallest distance between line and mouse position
+					topDiff = diff;
+					topLine = widget;
+				}
+				topLineFound = true;
+			}
+			else if(top > ypos){ //current line below the mouse position
+				int diff = top - ypos; //how far, to the top, line is from mouse position
+				if(diff < belowDiff) { //if this is the smallest distance between line and mouse position
+					belowDiff = diff;
+					belowLine = widget;
+				}
+				belowLineFound = true;
+			}
+		}
+		
+		int top = ypos;
+		
+		if(!topLineFound) {
+			int tableTop = ((DesignWidgetWrapper)getParent().getParent()).getTopInt();
+			topDiff = ypos - tableTop;
+			top = tableTop;
+		}
+		else
+			top = topLine.getTopInt();
+		
+		if(!belowLineFound) {
+			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt() ;
+			belowDiff = tableBottom - ypos;
+		}
+		
+		int totalDisplacement = topDiff + belowDiff;
+		DeleteRowCmd deleteRowCmd = new DeleteRowCmd(top, totalDisplacement, this);
+		
+		if(belowLine != null) {
+			belowLine.storePosition();
+			remove(belowLine);
+			deleteRowCmd.setLine(belowLine);
+		}
+		else {
+			topLine.storePosition();
+			remove(topLine);
+			deleteRowCmd.setLine(topLine);
+		}
+		
+		moveHorizontalLinesAndText(top, -totalDisplacement);
+		resizeVerticalLinesAndTable(top, -totalDisplacement);
+		
+		Context.getCommandHistory().add(deleteRowCmd);
+	}
+	
+	public void setResizeLinesToFit(boolean resizeLinesToFit) {
+		((GridPanel)selectedPanel).setResizeLinesToFit(resizeLinesToFit);
 	}
 }
