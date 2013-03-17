@@ -454,7 +454,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		for(Widget w : horizontalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int width = widget.getWidthInt();
-			if((widget.getLeftInt() + width) > xpos) {
+			if((widget.getLeftInt() + width) >= xpos) {
 				widget.setWidthInt(width + totalDisplacement);
 			}
 		}
@@ -492,7 +492,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		for(Widget w : verticalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int height = widget.getHeightInt();
-			if((widget.getTopInt() + height) > ypos) {
+			if((widget.getTopInt() + height) >= ypos) {
 				widget.setHeightInt(height + totalDisplacement);
 			}
 		}
@@ -545,7 +545,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		int left = xpos;
 		
 		if(!leftLineFound) {
-			int tableLeft = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
+			int tableLeft = 0; //((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
 			leftDiff = xpos - tableLeft;
 			left = tableLeft;
 		}
@@ -553,7 +553,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			left = leftLine.getLeftInt();
 		
 		if(!rightLineFound) {
-			int tableRight = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt() + getWidthInt() ;
+			int tableRight = /*((DesignWidgetWrapper)getParent().getParent()).getLeftInt() +*/ getWidthInt() ;
 			rightDiff = tableRight - xpos;
 		}
 		
@@ -617,7 +617,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		int top = ypos;
 		
 		if(!topLineFound) {
-			int tableTop = ((DesignWidgetWrapper)getParent().getParent()).getTopInt();
+			int tableTop = 0; //((DesignWidgetWrapper)getParent().getParent()).getTopInt();
 			topDiff = ypos - tableTop;
 			top = tableTop;
 		}
@@ -625,7 +625,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			top = topLine.getTopInt();
 		
 		if(!belowLineFound) {
-			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt() ;
+			int tableBottom = /*((DesignWidgetWrapper)getParent().getParent()).getTopInt() +*/ getHeightInt() ;
 			belowDiff = tableBottom - ypos;
 		}
 		
