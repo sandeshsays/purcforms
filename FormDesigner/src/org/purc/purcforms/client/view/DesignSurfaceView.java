@@ -163,7 +163,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		if(!childHandleKeyDownEvent(event)) {
 			if (!handleKeyDownEvent(event) && selectedView != null) {
 				//ignore keyboard events from the widget properties panel
-				if(!event.getEventTarget().toString().startsWith("<input ")) {
+				String s = event.getEventTarget().toString();
+				if(!(s.startsWith("<input ") || s.contains("HTMLInputElement"))) {
 					selectedView.addLabelAndStartEditing(event);
 				}
 			}
