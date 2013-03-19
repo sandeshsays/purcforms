@@ -34,6 +34,7 @@ import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
 
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
+import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Command;
@@ -161,7 +162,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	public boolean handleKeyBoardEvent(Event event){
 		if(!childHandleKeyDownEvent(event)) {
 			if (!handleKeyDownEvent(event) && selectedView != null) {
-				selectedView.addLabelAndStartEditing(event);
+				//ignore keyboard events from the widget properties panel
+				if(!event.getEventTarget().toString().startsWith("<input ")) {
+					selectedView.addLabelAndStartEditing(event);
+				}
 			}
 		}
 
