@@ -401,13 +401,21 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		//now add the columns
 		int height = startLine.getHeightInt();
-		x = rightLineFound ? startLine.getAbsoluteLeft() : getWidthInt() + startLine.getLeftInt() - size;
-		y = startLine.getTopInt();
+		//x = rightLineFound ? startLine.getAbsoluteLeft() : getWidthInt() + startLine.getLeftInt() - size;
+		x = left + getAbsoluteLeft();
+		y = startLine.getTopInt() + getAbsoluteTop();
 		
-		if(!leftLineFound && !right){
-			x = startLine.getLeftInt() + getAbsoluteLeft();
+		/*if(!leftLineFound && !right){
 			y += getAbsoluteTop();
+		}*/
+		
+		if(!rightLineFound /*&& right*/) {
+			//y += getAbsoluteTop();
+			x -= size;
 		}
+		/*else if(leftLineFound && !right) {
+			x -= size;
+		}*/
 		
 		for(int i = 0; i < columns; i++) {
 			x += size;
