@@ -884,6 +884,81 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	public void moveItemUp() {
 		moveItemUp(true);
 	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#find()
+	 */
+	public void find() {
+		String text = Window.prompt(LocaleText.get("find"), null);
+		if (text == null || text.trim().length() == 0)
+			return;
+		
+		text = text.toLowerCase();
+		
+		TreeItem  parent = getSelectedItemRoot(tree.getSelectedItem());
+		if(parent == null)
+			return;
+
+		int count = parent.getChildCount();
+		for(int index = 0; index < count; index++){
+			TreeItem child = parent.getChild(index);
+			PageDef pageDef = (PageDef)child.getUserObject();
+			if (pageDef.getName().toLowerCase().contains(text)) {
+				tree.setSelectedItem(child);
+				tree.ensureSelectedItemVisible();
+				return;
+			}
+			
+			if (selectQuestion(text, child)) {
+				return;
+			}
+		}
+		
+		Window.alert(LocaleText.get("noDataFound"));
+	}
+	
+	private boolean selectQuestion(String text, TreeItem  parent) {
+		int count = parent.getChildCount();
+		for(int index = 0; index < count; index++){
+			TreeItem child = parent.getChild(index);
+			QuestionDef qtnDef = (QuestionDef)child.getUserObject();
+			if (qtnDef.getText().toLowerCase().contains(text)) {
+				tree.setSelectedItem(child);
+				tree.ensureSelectedItemVisible();
+				return true;
+			}
+			
+			if (qtnDef.isGroupQtnsDef()) {
+				if (selectQuestion(text, child)) {
+					return true;
+				}
+			}
+			
+			if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+				qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+				if (selectOption(text, child)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean selectOption(String text, TreeItem  parent) {
+		int count = parent.getChildCount();
+		for(int index = 0; index < count; index++){
+			TreeItem child = parent.getChild(index);
+			OptionDef optnDef = (OptionDef)child.getUserObject();
+			if (optnDef.getText().toLowerCase().contains(text)) {
+				tree.setSelectedItem(child);
+				tree.ensureSelectedItemVisible();
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	public void moveItemUp(boolean storeCommandHistory) {
 		if(inReadOnlyMode())

@@ -39,8 +39,9 @@ public class LeftPanel extends Composite {
 	 * images needed in child widgets.
 	 */
 	public interface Images extends FormsTreeView.Images,FormDesignerImages{
-		ImageResource tasksgroup();
-		ImageResource filtersgroup();
+		ImageResource formfields();
+		ImageResource widgetproperties();
+		ImageResource palette();
 	}
 
 	/** The GWT stack panel which serves as the main or root widget. */
@@ -71,9 +72,9 @@ public class LeftPanel extends Composite {
 		widgetPropertiesView = new WidgetPropertiesView();
 		paletteView =  new PaletteView(images);
 
-		add(images,formsTreeView , images.tasksgroup(), LocaleText.get("forms"));
-		add(images,paletteView , images.tasksgroup(),LocaleText.get("palette"));
-		add(images,widgetPropertiesView , images.filtersgroup(), LocaleText.get("widgetProperties"));
+		add(images,formsTreeView , images.formfields(), LocaleText.get("forms"));
+		add(images,paletteView , images.palette(),LocaleText.get("palette"));
+		add(images,widgetPropertiesView , images.widgetproperties(), LocaleText.get("widgetProperties"));
 
 		formsTreeView.addFormSelectionListener(widgetPropertiesView);
 		FormUtil.maximizeWidget(stackPanel);
@@ -215,6 +216,13 @@ public class LeftPanel extends Composite {
 		formsTreeView.copyItem();
 	}
 
+	/**
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#find()
+	 */
+	public void find() {
+		formsTreeView.find();
+	}
+	
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#pasteItem()
 	 */

@@ -56,6 +56,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		ImageResource undo();
 		ImageResource redo();
 		ImageResource refresh();
+		ImageResource find();
+		ImageResource print();
 	}
 	 
 	/** Main widget for this tool bar. */
@@ -83,6 +85,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	private PushButton btnRefresh;
 	private PushButton btnUndo;
 	private PushButton btnRedo;
+	private PushButton btnFind;
 	
 	/** Widget for separating tool bar buttons from each other. */
 	private Label separatorWidget = new Label("  ");
@@ -120,6 +123,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnNewForm = new PushButton(FormUtil.createImage(images.newform()));
 		btnOpenForm = new PushButton(FormUtil.createImage(images.open()));
 		btnSaveForm = new PushButton(FormUtil.createImage(images.save()));
+		btnFind = new PushButton(FormUtil.createImage(images.find()));
 		
 		btnAddNewItem = new PushButton(FormUtil.createImage(images.add()));
 		btnAddNewChildItem = new PushButton(FormUtil.createImage(images.addchild()));
@@ -146,6 +150,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnNewForm.setTitle(LocaleText.get("newForm"));
 		btnSaveForm.setTitle(LocaleText.get("save"));
 		btnOpenForm.setTitle(LocaleText.get("open"));
+		btnFind.setTitle(LocaleText.get("find"));
 		
 		btnAddNewItem.setTitle(LocaleText.get("addNew"));
 		btnAddNewChildItem.setTitle(LocaleText.get("addNewChild"));
@@ -173,7 +178,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 			panel.add(btnNewForm);
 		
 		panel.add(btnOpenForm);
-		
+		panel.add(btnFind);
 		panel.add(btnSaveForm);
 		
 		panel.add(separatorWidget);
@@ -250,6 +255,9 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		
 		btnSaveForm.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.saveForm();}});
+		
+		btnFind.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.find();}});
 		
 		btnAddNewItem.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.addNewItem();}});

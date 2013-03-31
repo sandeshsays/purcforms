@@ -803,6 +803,14 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.pasteItem();
 	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#find()
+	 */
+	public void find() {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.find();
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.SubmitListener#onSubmit(String)()

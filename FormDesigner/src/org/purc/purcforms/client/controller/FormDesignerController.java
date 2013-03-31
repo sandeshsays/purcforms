@@ -204,6 +204,16 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	}
 
 	/**
+	 * @see org.purc.purcforms.client.controller.IFormActionListener#find()
+	 */
+	public void find() {
+		if(Context.getCurrentMode() != Context.MODE_DESIGN/*Context.MODE_QUESTION_PROPERTIES*/)
+			leftPanel.find();	
+		else
+			centerPanel.find();
+	}
+	
+	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#newForm()
 	 */
 	public void newForm() {

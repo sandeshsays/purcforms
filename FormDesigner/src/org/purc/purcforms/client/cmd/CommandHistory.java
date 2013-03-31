@@ -7,6 +7,7 @@ import java.util.Stack;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.util.FormUtil;
 
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PushButton;
 
 
@@ -27,6 +28,8 @@ public class CommandHistory {
 	private Stack<ICommand> redoCmds = new Stack<ICommand>();
 	private PushButton btnUndo;
 	private PushButton btnRedo;
+	private MenuItem undoMenuItem;
+	private MenuItem redoMenuItem;
 	
 	public CommandHistory(){
 		try{
@@ -50,6 +53,9 @@ public class CommandHistory {
 		
 		btnUndo.setEnabled(true);
 		btnUndo.setTitle("Undo " + command.getName());
+		
+		undoMenuItem.setEnabled(true);
+		undoMenuItem.setTitle(btnUndo.getTitle());
 	}
 	
 	public void undo(){
@@ -70,6 +76,12 @@ public class CommandHistory {
 		
 		btnRedo.setEnabled(true);
 		btnRedo.setTitle("Redo " + command.getName());
+		
+		undoMenuItem.setEnabled(canUndo());
+		undoMenuItem.setTitle(btnUndo.getTitle());
+		
+		redoMenuItem.setEnabled(true);
+		redoMenuItem.setTitle(btnRedo.getTitle());
 	}
 	
 	public void redo(){
@@ -90,6 +102,12 @@ public class CommandHistory {
 		
 		btnUndo.setEnabled(true);
 		btnUndo.setTitle("Undo " + command.getName());
+		
+		redoMenuItem.setEnabled(canRedo());
+		redoMenuItem.setTitle(btnRedo.getTitle());
+		
+		undoMenuItem.setEnabled(true);
+		undoMenuItem.setTitle(btnUndo.getTitle());
 		
 		//if(undoCmds.size() > undoBufferSize)
 		//	undoCmds.remove(undoCmds.size() - 1);
@@ -127,6 +145,12 @@ public class CommandHistory {
 		
 		btnUndo.setTitle("Undo");
 		btnRedo.setTitle("Redo");
+		
+		undoMenuItem.setEnabled(false);
+		redoMenuItem.setEnabled(false);
+		
+		undoMenuItem.setTitle(btnUndo.getTitle());
+		redoMenuItem.setTitle(btnRedo.getTitle());
 	}
 	
 	public void setUndoBufferSize(int size){
@@ -141,6 +165,16 @@ public class CommandHistory {
 	public void setRedoButton(PushButton btnRedo){
 		this.btnRedo = btnRedo;
 		btnRedo.setEnabled(false);
+	}
+	
+	public void setUndoMenuItem(MenuItem undoMenuItem) {
+		this.undoMenuItem = undoMenuItem;
+		undoMenuItem.setEnabled(false);
+	}
+	
+	public void setRedoMenuItem(MenuItem redoMenuItem) {
+		this.redoMenuItem = redoMenuItem;
+		redoMenuItem.setEnabled(false);
 	}
 	
 	private void selectUITab(ICommand command){

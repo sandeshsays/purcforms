@@ -527,6 +527,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void pasteItem(){
 		pasteItem(false);
 	}
+	
+	public void find(){
+		
+	}
 
 	public void pasteItem(boolean increment) {
 		if(Context.clipBoardWidgets.size() > 0){

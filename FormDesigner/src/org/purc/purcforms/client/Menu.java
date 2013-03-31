@@ -8,6 +8,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 
 /**
  * Creates the main menu widget for the form designer.
@@ -33,6 +34,8 @@ public class Menu extends Composite {
 	/** Listener to menu item click events. */
 	private IFormDesignerListener controller;
 
+	private MenuItem undoMenuItem;
+	private MenuItem redoMenuItem;
 
 	/**
 	 * Creates a new instance of the menu bar.
@@ -65,7 +68,7 @@ public class Menu extends Composite {
 		fileMenu.addItem(FormDesignerUtil.createHeaderHTML(images.open(),LocaleText.get("open")),true, new Command(){
 			public void execute() {controller.openForm();}});
 
-		fileMenu.addItem(FormDesignerUtil.createHeaderHTML(images.open(),LocaleText.get("print")),true, new Command(){
+		fileMenu.addItem(FormDesignerUtil.createHeaderHTML(images.print(),LocaleText.get("print")),true, new Command(){
 			public void execute() {controller.printForm();}});
 
 		
@@ -121,6 +124,32 @@ public class Menu extends Composite {
 		MenuBar viewMenu = new MenuBar(true);
 		viewMenu.addItem(FormDesignerUtil.createHeaderHTML(images.refresh(),LocaleText.get("refresh")),true, new Command(){
 			public void execute() {controller.refresh(this);}});
+		
+		//Set up the edit menu.
+		MenuBar editMenu = new MenuBar(true);
+		undoMenuItem = editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.undo(),LocaleText.get("undo")),true, new Command(){
+			public void execute() {controller.undo();}});
+		
+		redoMenuItem = editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.redo(),LocaleText.get("redo")),true, new Command(){
+			public void execute() {controller.redo();}});
+		
+		editMenu.addSeparator();
+		editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true, new Command(){
+			public void execute() {controller.cutItem();}});
+		
+		editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.copy(),LocaleText.get("copy")),true, new Command(){
+			public void execute() {controller.copyItem();}});
+		
+		editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.paste(),LocaleText.get("paste")),true, new Command(){
+			public void execute() {controller.pasteItem();}});
+		
+		editMenu.addSeparator();
+		editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteSelected")),true, new Command(){
+			public void execute() {controller.deleteSelectedItem();}});
+		
+		editMenu.addSeparator();
+		editMenu.addItem(FormDesignerUtil.createHeaderHTML(images.find(), LocaleText.get("find")), true, new Command(){
+			public void execute() {controller.find();}});
 
 
 		//Set up the item menu.
@@ -186,10 +215,14 @@ public class Menu extends Composite {
 		menuBar = new MenuBar();
 		menuBar.addItem(LocaleText.get("file"), fileMenu);
 		menuBar.addItem(LocaleText.get("view"), viewMenu);
+		menuBar.addItem(LocaleText.get("edit"), editMenu);
 		menuBar.addItem(LocaleText.get("item"),itemMenu);
 		menuBar.addItem(LocaleText.get("tools"), toolsMenu);
 		menuBar.addItem(LocaleText.get("help"), helpMenu);
 
 		menuBar.setAnimationEnabled(true);
+		
+		Context.getCommandHistory().setUndoMenuItem(undoMenuItem);
+		Context.getCommandHistory().setRedoMenuItem(redoMenuItem);
 	}
 }
