@@ -216,8 +216,11 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void addRows(boolean below) {
-		String columns = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "1");
-		addRows(y - getAbsoluteTop(), FormDesignerUtil.convertToInt(columns), below);
+		String rows = Window.prompt(LocaleText.get("numberOfRowsPrompt"), "1");
+		if(rows == null || rows.trim().isEmpty()) 
+			return; //possibly user selected cancel
+		
+		addRows(y - getAbsoluteTop(), FormDesignerUtil.convertToInt(rows), below);
 	}
 	
 	public void addRows(int ypos, int rows, boolean below) {
@@ -259,7 +262,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		if(!topLineFound) {
-			int tableTop = ((DesignWidgetWrapper)getParent().getParent()).getTopInt();
+			/*int tableTop = ((DesignWidgetWrapper)getParent().getParent()).getTopInt();
 			topDiff = ypos - tableTop;
 			if(below) {
 				if(horizontalLines.size() == 0)
@@ -269,19 +272,30 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				startLine.setTopInt(tableTop);
 				startLine.setLeftInt(((DesignWidgetWrapper)getParent().getParent()).getLeftInt());
 				startLine.setWidthInt(getWidthInt());
+			}*/
+			
+			topDiff = ypos;
+			if(!below) {
+				if(horizontalLines.size() == 0)
+					return;
+				
+				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
+				startLine.setTopInt(20);
+				startLine.setLeftInt(0);
+				startLine.setWidthInt(getWidthInt());
 			}
 		}
 		
 		if(!bottomLineFound) {
-			int tableBottom = ((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt();
-			bottomDiff = (ypos - (tableBottom - getAbsoluteTop())) + 20;
+			int tableBottom = getHeightInt(); //((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt();
+			bottomDiff = tableBottom - ypos; //(ypos - (tableBottom - getAbsoluteTop())) + 20;
 			//if(!below) {
 				if(horizontalLines.size() == 0)
 					return;
 				
 				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
-				startLine.setTopInt(tableBottom + 20);
-				startLine.setLeftInt(((DesignWidgetWrapper)getParent().getParent()).getLeftInt());
+				startLine.setTopInt(tableBottom /*+ 20*/);
+				startLine.setLeftInt(0 /*((DesignWidgetWrapper)getParent().getParent()).getLeftInt()*/);
 				startLine.setWidthInt(getWidthInt());
 			//}
 		}
@@ -289,9 +303,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		if(startLine == null)
 			return;
 		
-		int size = topDiff + bottomDiff;
+		//int size = topDiff + bottomDiff;
+		int size = (!topLineFound && below) ? startLine.getTopInt() : (topDiff + bottomDiff);
+		if(topLineFound) size -= 1; else size -= 9;
 		int top = startLine.getTopInt();
 		int totalDisplacement = size * rows;
+		
+		//int size = (!leftLineFound && right) ? startLine.getLeftInt() : (leftDiff + rightDiff);
 		
 		moveHorizontalLinesAndText(top, totalDisplacement);
 		
@@ -299,8 +317,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		//now add the rows
 		int width = startLine.getWidthInt();
-		x = startLine.getAbsoluteLeft();
-		y = startLine.getTopInt() + (bottomLineFound ? getAbsoluteTop() : 0);
+		x = startLine.getLeftInt() + getAbsoluteLeft(); //startLine.getAbsoluteLeft();
+		y = top +  getAbsoluteTop(); //(bottomLineFound ? getAbsoluteTop() : 0);
+		
+		if(!bottomLineFound) {
+			y -= size;
+		}
 		
 		for(int i = 0; i < rows; i++) {
 			y += size;
@@ -319,6 +341,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void addColumns(boolean right) {
 		String columns = Window.prompt(LocaleText.get("numberOfColumnsPrompt"), "1");
+		if(columns == null || columns.trim().isEmpty()) 
+			return; //possibly user selected cancel
+		
 		addColumns(x - getAbsoluteLeft(), FormDesignerUtil.convertToInt(columns), right);
 	}
 	
@@ -361,14 +386,14 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		if(!leftLineFound) {
-			int tableLeft = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
-			leftDiff = (xpos - tableLeft);
+			//int tableLeft = ((DesignWidgetWrapper)getParent().getParent()).getLeftInt();
+			leftDiff = xpos; //(xpos - tableLeft);
 			if(!right) {
 				if(verticalLines.size() == 0)
 					return;
 				
 				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
-				startLine.setLeftInt(tableLeft);
+				startLine.setLeftInt(0 /*tableLeft*/);
 				startLine.setTopInt(20 /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
 				startLine.setHeightInt(getHeightInt());
 			}
@@ -383,7 +408,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				
 				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(tableRight);
-				startLine.setTopInt(((DesignWidgetWrapper)getParent().getParent()).getTopInt());
+				startLine.setTopInt(20 /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
 				startLine.setHeightInt(getHeightInt());
 			//}
 		}
