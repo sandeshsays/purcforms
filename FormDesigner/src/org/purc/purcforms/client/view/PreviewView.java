@@ -149,7 +149,7 @@ public class PreviewView extends FormRunnerView {
 			FormDesignerUtil.enableContextMenu(getElement());
 			
 			if( (event.getButton() & Event.BUTTON_RIGHT) != 0){
-				if(event.getTarget().getClassName().length() == 0){
+				if("gwt-purcforms".equals(event.getTarget().getClassName())){
 					
 					int ypos = event.getClientY();
 					if(Window.getClientHeight() - ypos < 100)
@@ -183,7 +183,7 @@ public class PreviewView extends FormRunnerView {
 					List<RuntimeWidgetWrapper> externalSourceWidgets = new ArrayList<RuntimeWidgetWrapper>();
 					if(Context.isOfflineMode())
 						;//externalSourceWidgets = null;
-					loadForm(centerPanel.getFormDef(), designSurfaceView.getLayoutXml(),centerPanel.getJavaScriptSource(),externalSourceWidgets,true);
+					loadForm(centerPanel.getFormDef(), designSurfaceView.getLayoutXml(), centerPanel.getJavaScriptSource(), centerPanel.getCSS(), externalSourceWidgets, true);
 					FormUtil.dlg.hide();
 				}
 				catch(Exception ex){

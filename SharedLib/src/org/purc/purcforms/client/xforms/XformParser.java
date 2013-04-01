@@ -96,7 +96,7 @@ public class XformParser {
 	 * @return the form definition object.
 	 */
 	public static FormDef fromXform2FormDef(Document doc, String xml, HashMap<Integer,HashMap<String,String>> languageText){
-		String layoutXml = null, javaScriptSrc = null; NodeList nodes = null;
+		String layoutXml = null, javaScriptSrc = null, css = null; NodeList nodes = null;
 		Element root = doc.getDocumentElement();
 		if(root.getNodeName().equals("PurcForm")){
 			nodes = root.getElementsByTagName("Xform");
@@ -111,6 +111,10 @@ public class XformParser {
 			nodes = root.getElementsByTagName("JavaScript");
 			if(nodes.getLength() > 0)
 				javaScriptSrc = XmlUtil.getChildCDATA(nodes.item(0)).getNodeValue();
+			
+			nodes = root.getElementsByTagName("CSS");
+			if(nodes.getLength() > 0)
+				css = XmlUtil.getChildCDATA(nodes.item(0)).getNodeValue();
 
 			nodes = root.getElementsByTagName("LanguageText"); 
 			assert(nodes.getLength() > 0);
@@ -123,6 +127,9 @@ public class XformParser {
 
 		if(javaScriptSrc != null)
 			formDef.setJavaScriptSource(javaScriptSrc);
+		
+		if(css != null)
+			formDef.setCSS(css);
 
 		if(nodes != null){
 			loadLanguageText(formDef.getId(),nodes,languageText);

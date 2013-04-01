@@ -88,6 +88,9 @@ public class FormDef implements Serializable{
 
 	/** The javascript source for this form. */
 	private String javaScriptSource;
+	
+	/** The css text for this form. */
+	private String css;
 
 	/** The xforms xml for this form. */
 	private String xformXml;
@@ -342,6 +345,14 @@ public class FormDef implements Serializable{
 
 	public void setJavaScriptSource(String javaScriptSource) {
 		this.javaScriptSource = javaScriptSource;
+	}
+	
+	public String getCSS() {
+		return css;
+	}
+	
+	public void setCSS(String css) {
+		this.css = css;
 	}
 
 	public String getLayoutXml() {

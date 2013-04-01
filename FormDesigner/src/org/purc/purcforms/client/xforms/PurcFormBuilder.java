@@ -47,6 +47,13 @@ public class PurcFormBuilder {
 			purcFormNode.appendChild(javaScriptNode);
 		}
 		
+		String text = formDef.getCSS();
+		if(text != null && text.trim().length() > 0){
+			Element cssNode = doc.createElement("CSS");
+			cssNode.appendChild(doc.createCDATASection(text));
+			purcFormNode.appendChild(cssNode);
+		}
+		
 		if(localeText != null)
 			purcFormNode.appendChild(getLanguageNode(doc,localeText));
 

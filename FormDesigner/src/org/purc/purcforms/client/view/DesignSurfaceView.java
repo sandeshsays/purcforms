@@ -104,7 +104,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		initWidget(tabs);
 		tabs.addSelectionHandler(this);
-
+		
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.MOUSEEVENTS | Event.KEYEVENTS);
 
 		setupPopup();

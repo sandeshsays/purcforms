@@ -12,5 +12,6 @@ public interface ICenterPanel {
 
 	void commitChanges();
 	String getJavaScriptSource();
+	String getCSS();
 	FormDef getFormDef();
 }

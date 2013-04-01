@@ -194,13 +194,14 @@ public class FormDesignerWidget extends Composite{
 	 * @param readOnly set to true to prevent changing of form structure and allow 
 	 * 				   changing only text and help text.
 	 */
-	public void loadForm(int formId,String xform, String layout, String javaScript, boolean readOnly){
+	public void loadForm(int formId,String xform, String layout, String javaScript, String css, boolean readOnly){
 		if(leftPanel.formExists(formId))
 			return;
 
 		centerPanel.setXformsSource(xform, false);
 		centerPanel.setLayoutXml(layout, false);
 		centerPanel.setJavaScriptSource(javaScript);
+		centerPanel.setCSS(css);
 		controller.openFormDeffered(formId,readOnly);
 	}
 
@@ -437,6 +438,10 @@ public class FormDesignerWidget extends Composite{
 
 	public void removeJavaScriptTab(){
 		centerPanel.removeJavaScriptSourceTab();
+	}
+	
+	public void removeCSSTab(){
+		centerPanel.removeCSSTab();
 	}
 	
 	public void removeDesignSurfaceTab(){

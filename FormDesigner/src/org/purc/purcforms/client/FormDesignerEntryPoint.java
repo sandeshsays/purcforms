@@ -157,6 +157,10 @@ public class FormDesignerEntryPoint implements EntryPoint, ResizeHandler, Closin
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeJavaScriptTab();
 		
+		s = FormUtil.getDivValue("showCSSTab");
+		if(!("1".equals(s) || "true".equals(s)))
+			designer.removeCSSTab();
+		
 		s = FormUtil.getDivValue("showDesignSurfaceTab");
 		if(!("1".equals(s) || "true".equals(s)))
 			designer.removeDesignSurfaceTab();

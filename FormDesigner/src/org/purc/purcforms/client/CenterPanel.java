@@ -65,21 +65,25 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 
 	/** Index for the javascript source tab. */
 	private int SELECTED_INDEX_JAVASCRIPT_SOURCE = 3;
+	
+	/** Index for the css text tab. */
+	private int SELECTED_INDEX_CSS = 4;
 
 	/** Index for the layout xml tab. */
-	private int SELECTED_INDEX_LAYOUT_XML = 4;
+	private int SELECTED_INDEX_LAYOUT_XML = 5;
 
 	/** Index for the locale or language xml tab. */
-	private int SELECTED_INDEX_LANGUAGE_XML = 5;
+	private int SELECTED_INDEX_LANGUAGE_XML = 6;
 
 	/** Index for the preview tab. */
-	private int SELECTED_INDEX_PREVIEW = 6;
+	private int SELECTED_INDEX_PREVIEW = 7;
 
 	/** Index for the model xml tab. */
-	private int SELECTED_INDEX_MODEL_XML = 7;
+	private int SELECTED_INDEX_MODEL_XML = 8;
 
 	private boolean showXformsSource = true;
 	private boolean showJavaScriptSource = true;
+	private boolean showCSS = true;
 	private boolean showLayoutXml = true;
 	private boolean showLanguageXml = true;
 	private boolean showModelXml = true;
@@ -111,6 +115,9 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 
 	/** The text area which contains javascript source. */
 	private TextArea txtJavaScriptSource = new TextArea();
+	
+	/** The text area which contains css text. */
+	private TextArea txtCSS = new TextArea();
 
 	/** The text area which contains layout xml. */
 	private TextArea txtLayoutXml = new TextArea();
@@ -157,6 +164,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		initXformsSource();
 		initDesignSurface();
 		initJavaScriptSource();
+		initCSS();
 		initLayoutXml();
 		initLanguageXml();
 		initPreview();
@@ -283,7 +291,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 					if(Context.isOfflineMode())
 						;//externalSourceWidgets = null;
 
-					previewView.loadForm(formDef,designSurfaceView.getLayoutXml(),getJavaScriptSource(),externalSourceWidgets,true);
+					previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), externalSourceWidgets,true);
 					FormUtil.dlg.hide();
 				}
 				catch(Exception ex){
@@ -326,6 +334,14 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	private void initJavaScriptSource(){
 		tabs.add(txtJavaScriptSource, LocaleText.get("javaScriptSource"));
 		FormUtil.maximizeWidget(txtJavaScriptSource);
+	}
+	
+	/**
+	 * Sets up the css text tab.
+	 */
+	private void initCSS(){
+		tabs.add(txtCSS, LocaleText.get("css"));
+		FormUtil.maximizeWidget(txtCSS);
 	}
 
 	/**
@@ -381,6 +397,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public void adjustHeight(String height){
 		txtXformsSource.setHeight(height);
 		txtJavaScriptSource.setHeight(height);
+		txtCSS.setHeight(height);
 		txtLayoutXml.setHeight(height);
 		txtModelXml.setHeight(height);
 		txtLanguageXml.setHeight(height);
@@ -404,7 +421,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			previewView.setFormDef(formDef);
 
 			if(selectedTabIndex == SELECTED_INDEX_PREVIEW && formDef != null)
-				previewView.loadForm(formDef,designSurfaceView.getLayoutXml(),getJavaScriptSource(),null,true);
+				previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), null, true);
 
 			//This is necessary for those running in a non GWT mode to update the 
 			//scroll bars on loading the form.
@@ -507,6 +524,15 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public String getJavaScriptSource(){
 		return txtJavaScriptSource.getText();
 	}
+	
+	/**
+	 * Gets the css text.
+	 * 
+	 * @return the css text.
+	 */
+	public String getCSS(){
+		return txtCSS.getText();
+	}
 
 	/**
 	 * Gets the language xml.
@@ -545,6 +571,15 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 */
 	public void setJavaScriptSource(String src){
 		txtJavaScriptSource.setText(src);
+	}
+	
+	/** 
+	 * Sets the css text.
+	 * 
+	 * @param src the css text.
+	 */
+	public void setCSS(String src){
+		txtCSS.setText(src);
 	}
 
 	/**
@@ -648,6 +683,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			FormDef frmDef = null;
 			if(Context.inLocalizationMode())
 				frmDef = formDef;
+			
 			designSurfaceView.setLayoutXml(layoutXml,frmDef); //TODO This passed null formdef in localization mode
 
 			updateScrollPos();
@@ -728,6 +764,11 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public void saveJavaScriptSource(){
 		if(formDef != null)
 			formDef.setJavaScriptSource(txtJavaScriptSource.getText());
+	}
+	
+	public void saveCSS(){
+		if(formDef != null)
+			formDef.setCSS(txtCSS.getText());
 	}
 
 	/**
@@ -911,12 +952,14 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 				txtXformsSource.setText(null);
 				txtLanguageXml.setText(null);
 				txtJavaScriptSource.setText(null);
+				txtCSS.setText(null);
 			}
 			else{
 				txtLayoutXml.setText(formDef.getLayoutXml());
 				txtXformsSource.setText(formDef.getXformXml());
 				txtLanguageXml.setText(formDef.getLanguageXml());
 				txtJavaScriptSource.setText(formDef.getJavaScriptSource());
+				txtCSS.setText(formDef.getCSS());
 			}
 		}
 
@@ -1019,6 +1062,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 
 			--SELECTED_INDEX_DESIGN_SURFACE;
 			--SELECTED_INDEX_JAVASCRIPT_SOURCE;
+			--SELECTED_INDEX_CSS;
 			--SELECTED_INDEX_LAYOUT_XML;
 			--SELECTED_INDEX_LANGUAGE_XML;
 			--SELECTED_INDEX_PREVIEW;
@@ -1032,12 +1076,26 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		if(showJavaScriptSource){
 			tabs.remove(SELECTED_INDEX_JAVASCRIPT_SOURCE);
 
+			--SELECTED_INDEX_CSS;
 			--SELECTED_INDEX_LAYOUT_XML;
 			--SELECTED_INDEX_LANGUAGE_XML;
 			--SELECTED_INDEX_PREVIEW;
 			--SELECTED_INDEX_MODEL_XML;
 
 			showJavaScriptSource = false;
+		}
+	}
+	
+	public void removeCSSTab(){
+		if(showCSS){
+			tabs.remove(SELECTED_INDEX_CSS);
+
+			--SELECTED_INDEX_LAYOUT_XML;
+			--SELECTED_INDEX_LANGUAGE_XML;
+			--SELECTED_INDEX_PREVIEW;
+			--SELECTED_INDEX_MODEL_XML;
+
+			showCSS = false;
 		}
 	}
 
@@ -1071,6 +1129,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			--SELECTED_INDEX_MODEL_XML;
 			--SELECTED_INDEX_LAYOUT_XML;
 			--SELECTED_INDEX_JAVASCRIPT_SOURCE;
+			--SELECTED_INDEX_CSS;
 
 			showDesignSurface = false;
 		}

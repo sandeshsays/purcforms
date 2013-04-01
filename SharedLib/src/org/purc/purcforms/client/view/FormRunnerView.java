@@ -241,7 +241,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * @param externalSourceWidgets a list of widgets which get their data from sources 
 	 * 		  external to the xform.
 	 */
-	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
+	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
 		//FormUtil.initialize();
 
 		if(previewMode /*externalSourceWidgets == null*/){
@@ -290,6 +290,15 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			script.setAttribute("type", "text/javascript");
 			script.setAttribute("id", "purcforms_javascript");
 			script.appendChild(document.createTextNode(javaScriptSrc));
+			document.getElementsByTagName("head").getItem(0).appendChild(script);
+		}
+		
+		if(css != null){
+			Document document = Document.get();
+			script = document.createElement("style");
+			script.setAttribute("type", "text/css");
+			script.setAttribute("id", "purcforms_css");
+			script.appendChild(document.createTextNode(css));
 			document.getElementsByTagName("head").getItem(0).appendChild(script);
 		}
 
@@ -453,6 +462,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		selectedPanel.setHeight(sHeight);
 		selectedTabIndex = tabs.getWidgetCount() - 1;
 		tabs.selectTab(selectedTabIndex);
+		
+		selectedPanel.addStyleName("gwt-purcforms");
 		
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {

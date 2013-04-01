@@ -3193,7 +3193,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				setHeight(getHeight());
 			}
 		});
-
+		
 		return widget;
 	}
 	

@@ -296,6 +296,11 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							centerPanel.setJavaScriptSource(formDef.getJavaScriptSource());
 						else
 							formDef.setJavaScriptSource(centerPanel.getJavaScriptSource());
+						
+						if(formDef.getCSS() != null)
+							centerPanel.setCSS(formDef.getCSS());
+						else
+							formDef.setCSS(centerPanel.getCSS());
 
 						//TODO May also need to refresh UI if form was not stored in default lang.
 						HashMap<String,String> locales = Context.getLanguageText().get(formDef.getId());
@@ -449,6 +454,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					setLocaleText(formDef.getId(),Context.getLocale().getKey(), centerPanel.getLanguageXml());
 
 					centerPanel.saveJavaScriptSource();
+					centerPanel.saveCSS();
 
 					//TODO Due to a bug when converting a form to JR format, lets workaround it by reopening the form.
 					if(refreshForm){
@@ -460,11 +466,11 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 					DeferredCommand.addCommand(new Command(){																
 						public void execute() {
 							if(!isOfflineMode() && formSaveListener == null)
-								saveForm(centerPanel.getXformsSource(), centerPanel.getLayoutXml(), PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())), centerPanel.getJavaScriptSource());
+								saveForm(centerPanel.getXformsSource(), centerPanel.getLayoutXml(), PurcFormBuilder.getCombinedLanguageText(Context.getLanguageText().get(formDef.getId())), centerPanel.getJavaScriptSource(), centerPanel.getCSS());
 
 							boolean saveLocaleText = false;
 							if(formSaveListener != null)
-								saveLocaleText = formSaveListener.onSaveForm(formDef.getId(), centerPanel.getXformsSource(), centerPanel.getLayoutXml(), centerPanel.getJavaScriptSource());
+								saveLocaleText = formSaveListener.onSaveForm(formDef.getId(), centerPanel.getXformsSource(), centerPanel.getLayoutXml(), centerPanel.getJavaScriptSource(), centerPanel.getCSS());
 
 							if(isOfflineMode() || formSaveListener != null)
 								FormUtil.dlg.hide();
@@ -767,7 +773,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 								return;
 							}
 
-							String xformXml, layoutXml = null, localeXml = null, javaScriptSrc = null;
+							String xformXml, layoutXml = null, localeXml = null, javaScriptSrc = null, css = null;
 
 							/*int pos = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR);
 							if(pos > 0){
@@ -780,26 +786,55 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							int pos = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR);
 							int pos2 = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR);
 							int pos3 = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR);
+							int pos4 = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR);
 							if(pos > 0){
-								xformXml = xml.substring(0,pos);
-								layoutXml = FormUtil.formatXml(xml.substring(pos+PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR.length(), (pos2 > 0 ? pos2 : (pos3 > 0 ? pos3 : xml.length()))));
+								xformXml = xml.substring(0, pos);
+								
+								int endIndex = pos2;
+								if(endIndex == -1) endIndex = pos3;
+								if(endIndex == -1) endIndex = pos4;
+								if(endIndex == -1) endIndex = xml.length();
+								
+								layoutXml = FormUtil.formatXml(xml.substring(pos+PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR.length(), endIndex));
 
+								endIndex = pos3;
+								if(endIndex == -1) endIndex = pos4;
+								if(endIndex == -1) endIndex = xml.length();
+								
 								if(pos2 > 0)
-									localeXml = FormUtil.formatXml(xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR.length(), pos3 > 0 ? pos3 : xml.length()));
+									localeXml = FormUtil.formatXml(xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR.length(), endIndex));
 
 								if(pos3 > 0)
-									javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), xml.length());
+									javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), pos4 > 0 ? pos4 : xml.length());
+								
+								if(pos4 > 0)
+									css = xml.substring(pos4+PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR.length(), xml.length());
 							}
 							else if(pos2 > 0){
-								xformXml = xml.substring(0,pos2);
-								localeXml = FormUtil.formatXml(xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR.length(), pos3 > 0 ? pos3 : xml.length()));
+								xformXml = xml.substring(0, pos2);
+								
+								int endIndex = pos3;
+								if(endIndex == -1) endIndex = pos4;
+								if(endIndex == -1) endIndex = xml.length();
+								
+								localeXml = FormUtil.formatXml(xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_LOCALE_XML_SEPARATOR.length(), endIndex));
 
 								if(pos3 > 0)
-									javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), xml.length());
+									javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), pos4 > 0 ? pos4 : xml.length());
+								
+								if(pos4 > 0)
+									css = xml.substring(pos4+PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR.length(), xml.length());
 							}
 							else if(pos3 > 0){
-								xformXml = xml.substring(0,pos3);
-								javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), xml.length());
+								xformXml = xml.substring(0, pos3);
+								javaScriptSrc = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), pos4 > 0 ? pos4 : xml.length());
+								
+								if(pos4 > 0)
+									css = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR.length(), xml.length());
+							}
+							else if(pos4 > 0){
+								xformXml = xml.substring(0, pos4);
+								css = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR.length(), xml.length());
 							}
 							else
 								xformXml = xml;
@@ -809,6 +844,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							centerPanel.setXformsSource(FormUtil.formatXml(xformXml),false);
 							centerPanel.setLayoutXml(layoutXml,false);
 							centerPanel.setJavaScriptSource(javaScriptSrc);
+							centerPanel.setCSS(css);
 
 							openFormDeffered(formId, FormDesignerUtil.inReadOnlyMode());
 
@@ -843,7 +879,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 		}
 	}
 
-	public void saveForm(String xformXml, String layoutXml, String languageXml, String javaScriptSrc){
+	public void saveForm(String xformXml, String layoutXml, String languageXml, String javaScriptSrc, String css){
 		
 		if(xformXml == null || xformXml.trim().length() == 0){
 			Window.alert("Attempted to save empty form. Please report this to your Administrator");
@@ -869,6 +905,9 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 				if(javaScriptSrc != null && javaScriptSrc.trim().length() > 0)
 					xml += PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR + javaScriptSrc;
+				
+				if(css != null && css.trim().length() > 0)
+					xml += PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR + css;
 			}
 
 			builder.sendRequest(xml, new RequestCallback(){
