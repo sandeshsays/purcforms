@@ -809,7 +809,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 */
 	public void find() {
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
-			designSurfaceView.find();
+			designSurfaceView.find();			
 	}
 
 	/**

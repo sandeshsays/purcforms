@@ -166,4 +166,6 @@ public interface IFormDesignerListener extends IFormActionListener{
 	public void redo();
 	
 	public DesignWidgetWrapper addToDesignSurface(Object item);
+	
+	public void find();
 }

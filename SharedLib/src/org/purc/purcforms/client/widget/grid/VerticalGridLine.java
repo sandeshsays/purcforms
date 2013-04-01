@@ -7,5 +7,4 @@ public class VerticalGridLine extends GridLine {
 		setStylePrimaryName("purcforms-vertical-grid-line");
 		setHeight(height + "px");
     }
-
 }

@@ -86,6 +86,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	private PushButton btnUndo;
 	private PushButton btnRedo;
 	private PushButton btnFind;
+	private PushButton btnPrint;
 	
 	/** Widget for separating tool bar buttons from each other. */
 	private Label separatorWidget = new Label("  ");
@@ -124,6 +125,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnOpenForm = new PushButton(FormUtil.createImage(images.open()));
 		btnSaveForm = new PushButton(FormUtil.createImage(images.save()));
 		btnFind = new PushButton(FormUtil.createImage(images.find()));
+		btnPrint = new PushButton(FormUtil.createImage(images.print()));
 		
 		btnAddNewItem = new PushButton(FormUtil.createImage(images.add()));
 		btnAddNewChildItem = new PushButton(FormUtil.createImage(images.addchild()));
@@ -151,6 +153,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnSaveForm.setTitle(LocaleText.get("save"));
 		btnOpenForm.setTitle(LocaleText.get("open"));
 		btnFind.setTitle(LocaleText.get("find"));
+		btnPrint.setTitle(LocaleText.get("print"));
 		
 		btnAddNewItem.setTitle(LocaleText.get("addNew"));
 		btnAddNewChildItem.setTitle(LocaleText.get("addNewChild"));
@@ -178,6 +181,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 			panel.add(btnNewForm);
 		
 		panel.add(btnOpenForm);
+		panel.add(btnPrint);
 		panel.add(btnFind);
 		panel.add(btnSaveForm);
 		
@@ -255,6 +259,9 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		
 		btnSaveForm.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.saveForm();}});
+		
+		btnPrint.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.printForm();}});
 		
 		btnFind.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.find();}});

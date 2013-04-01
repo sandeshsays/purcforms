@@ -1674,24 +1674,28 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			retWidget = addNewSearchServerWidget(null,null,true);*/
 
 		if(retWidget != null && resizeParent){
-			int height = FormUtil.convertDimensionToInt(getHeight());
-			int h = retWidget.getTopInt() + retWidget.getHeightInt();
-			if(height < h) {
-				int newHeight = height + (h-height)+10;
-				setHeight(newHeight + PurcConstants.UNITS);
-				if(this instanceof DesignGroupView) {
-					DesignSurfaceView view = getDesignSurfaceView();
-					view.setHeight(FormUtil.convertDimensionToInt(view.getHeight()) + (newHeight - height) + PurcConstants.UNITS);
-				}
-			}
-
-			int width = FormUtil.convertDimensionToInt(getWidth());
-			int w = retWidget.getLeftInt() + retWidget.getWidthInt();
-			if(width < w)
-				setWidth(width + (w-width)+10+PurcConstants.UNITS);
+			resizeDesignSurface(retWidget);
 		}
 
 		return retWidget;
+	}
+	
+	protected void resizeDesignSurface(DesignWidgetWrapper widget) {
+		int height = FormUtil.convertDimensionToInt(getHeight());
+		int h = widget.getTopInt() + widget.getHeightInt();
+		if(height < h) {
+			int newHeight = height + (h-height)+10;
+			setHeight(newHeight + PurcConstants.UNITS);
+			if(this instanceof DesignGroupView) {
+				DesignSurfaceView view = getDesignSurfaceView();
+				view.setHeight(FormUtil.convertDimensionToInt(view.getHeight()) + (newHeight - height) + PurcConstants.UNITS);
+			}
+		}
+
+		int width = FormUtil.convertDimensionToInt(getWidth());
+		int w = widget.getLeftInt() + widget.getWidthInt();
+		if(width < w)
+			setWidth(width + (w-width)+10+PurcConstants.UNITS);
 	}
 
 	/**
@@ -2340,8 +2344,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 		DesignGroupWidget group = new DesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");
-		DOM.setStyleAttribute(group.getElement(), "height","200"+PurcConstants.UNITS);
-		DOM.setStyleAttribute(group.getElement(), "width","500"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "height","200" + PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "width","500" + PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		group.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ??????????????
 
 		DesignWidgetWrapper widget = addNewWidget(group,select);
@@ -2395,6 +2400,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		repeat.addStyleName("getting-started-label2");
 		DOM.setStyleAttribute(repeat.getElement(), "height","100"+PurcConstants.UNITS);
 		DOM.setStyleAttribute(repeat.getElement(), "width","500"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(repeat.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		repeat.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ????????????????
 
 		DesignWidgetWrapper widget = addNewWidget(repeat,select);
@@ -2482,6 +2488,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		repeat.addStyleName("getting-started-label2");
 		DOM.setStyleAttribute(repeat.getElement(), "height","245"+PurcConstants.UNITS);
 		DOM.setStyleAttribute(repeat.getElement(), "width","200"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(repeat.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		repeat.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ????????????????
 
 		DesignWidgetWrapper widget = addNewWidget(repeat,select);
@@ -2579,6 +2586,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		repeat.addStyleName("getting-started-label2");
 		DOM.setStyleAttribute(repeat.getElement(), "height","125"+PurcConstants.UNITS);
 		DOM.setStyleAttribute(repeat.getElement(), "width","200"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(repeat.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		repeat.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ????????????????
 
 		DesignWidgetWrapper widget = addNewWidget(repeat,select);
@@ -2729,6 +2737,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		group.addStyleName("getting-started-label2");
 		DOM.setStyleAttribute(group.getElement(), "height","400"+PurcConstants.UNITS);
 		DOM.setStyleAttribute(group.getElement(), "width","800"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		group.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ??????????????
 
 		DesignWidgetWrapper widget = addNewWidget(group,select);

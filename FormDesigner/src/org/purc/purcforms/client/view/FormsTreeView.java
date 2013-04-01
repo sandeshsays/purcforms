@@ -221,6 +221,10 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 				public void execute() {popup.hide(); moveItemDown();}});
 
 			menuBar.addSeparator();		  
+			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.find(),LocaleText.get("find")),true,new Command(){
+				public void execute() {popup.hide(); find();}});
+			
+			menuBar.addSeparator();		  
 			menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.cut(),LocaleText.get("cut")),true,new Command(){
 				public void execute() {popup.hide(); cutItem();}});
 

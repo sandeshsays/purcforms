@@ -96,6 +96,4 @@ public interface IFormActionListener {
 	public void addNewQuestion(int dataType);
 	
 	public void rebuildBindings();
-	
-	public void find();
 }

@@ -34,7 +34,6 @@ import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformConstants;
 
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
-import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Command;
@@ -138,7 +137,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {widgetPopup.hide(); changeWidget(true);}});
 
 		menuBar.addSeparator();
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("groupWidgets")),true,new Command(){
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupWidgets")),true,new Command(){
 			public void execute() {widgetPopup.hide(); groupWidgets();}});
 
 		//menuBar.addSeparator();
@@ -206,71 +205,74 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		MenuBar addControlMenu = new MenuBar(true);
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("label")),true,new Command(){
-			public void execute() {popup.hide(); addNewLabel(LocaleText.get("label"),true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("label")),true,new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewLabel(LocaleText.get("label"), true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("textBox")),true,new Command(){
-			public void execute() {popup.hide(); addNewTextBox(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("textBox")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewTextBox(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("checkBox")),true,new Command(){
-			public void execute() {popup.hide(); addNewCheckBox(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("checkBox")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewCheckBox(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("radioButton")),true,new Command(){
-			public void execute() {popup.hide(); addNewRadioButton(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("radioButton")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewRadioButton(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("listBox")),true,new Command(){
-			public void execute() {popup.hide(); addNewDropdownList(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("listBox")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewDropdownList(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("textArea")),true,new Command(){
-			public void execute() {popup.hide(); addNewTextArea(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("textArea")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewTextArea(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("button")),true,new Command(){
-			public void execute() {popup.hide(); addNewButton(LocaleText.get("button"),null,true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("button")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewButton(LocaleText.get("button"), null, true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("datePicker")),true,new Command(){
-			public void execute() {popup.hide(); addNewDatePicker(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("datePicker")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewDatePicker(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("dateTimeWidget")),true,new Command(){
-			public void execute() {popup.hide(); addNewDateTimeWidget(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("dateTimeWidget")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewDateTimeWidget(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("timeWidget")),true,new Command(){
-			public void execute() {popup.hide(); addNewTimeWidget(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("timeWidget")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewTimeWidget(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("groupBox")),true,new Command(){
-			public void execute() {popup.hide(); addNewGroupBox(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupBox")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewGroupBox(true));}});
+		
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("table")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewTable(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("repeatSection")),true,new Command(){
-			public void execute() {popup.hide(); addNewRepeatSection(true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("repeatSection")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewRepeatSection(true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("picture")),true,new Command(){
-			public void execute() {popup.hide(); addNewPictureSection(null,null,true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("picture")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewPictureSection(null, null, true));}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("videoAudio")),true,new Command(){
-			public void execute() {popup.hide(); addNewVideoAudioSection(null,null,true);}});
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("videoAudio")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewVideoAudioSection(null, null, true));}});
 
 		/*addControlMenu.addSeparator();
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Group Box"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Group Box"),true,new Command(){
 			public void execute() {popup.hide(); addNewButton();}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Auto Complete TextBox"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Auto Complete TextBox"),true,new Command(){
 			public void execute() {popup.hide(); addNewTextBox();}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Time Picker"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Time Picker"),true,new Command(){
 			public void execute() {popup.hide(); ;}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Date & Time Picker"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Date & Time Picker"),true,new Command(){
 			public void execute() {popup.hide(); ;}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Image"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Image"),true,new Command(){
 			public void execute() {popup.hide(); ;}});
 
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),"Attachment"),true,new Command(){
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),"Attachment"),true,new Command(){
 			public void execute() {popup.hide(); ;}});*/
 
 		menuBar.addItem("     "+LocaleText.get("addWidget"),addControlMenu);
 		
-		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("selectedFormField")),true,new Command(){
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectedFormField")),true,new Command(){
 			public void execute() {popup.hide(); addSelectedFormField(true);}});
 
 		//if(selectedDragController.isAnyWidgetSelected()){
@@ -279,7 +281,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {popup.hide(); deleteSelectedItem();}});
 
 		groupWidgetsSeparator = menuBar.addSeparator();
-		groupWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(),LocaleText.get("groupWidgets")),true,new Command(){
+		groupWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupWidgets")),true,new Command(){
 			public void execute() {popup.hide(); groupWidgets();}});
 		//}
 
