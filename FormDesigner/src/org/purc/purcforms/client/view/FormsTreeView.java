@@ -893,65 +893,139 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#find()
 	 */
 	public void find() {
-		String text = Window.prompt(LocaleText.get("find"), null);
+		String text = Window.prompt(LocaleText.get("find"), Context.getSearchText());
 		if (text == null || text.trim().length() == 0)
 			return;
 		
+		Context.setSearchText(text);
+		
 		text = text.toLowerCase();
 		
-		TreeItem  parent = getSelectedItemRoot(tree.getSelectedItem());
+		/*TreeItem  parent = getSelectedItemRoot(tree.getSelectedItem());
 		if(parent == null)
 			return;
-
+		
+		if(!selectFromPages(text, parent, 0)) {
+			Window.alert(LocaleText.get("noDataFound"));
+		}*/
+		
+		findText(text);
+	}
+	
+	private void findText(String text) {
+		TreeItem item = tree.getSelectedItem();
+		if(item == null)
+			return;
+		
+		TreeItem parent = item.getParentItem();
+		Object object = item.getUserObject();
+		if(selectFromObjects(text, object, item, parent, 0))
+			return;
+		
+		if (!find(text, object, item, parent)) {
+			Window.alert(LocaleText.get("noDataFound"));
+			return;
+		}
+	}
+	
+	private boolean find(String text, Object object, TreeItem item, TreeItem parent) {
+		if (object instanceof OptionDef) {
+			int index = parent.getChildIndex(item);
+			if (selectFromOptions(text, parent, index + 1))
+				return true;
+		}
+		else if (object instanceof QuestionDef) {
+			int index = parent.getChildIndex(item);
+			if (selectFromQuestions(text, parent, index + 1))
+				return true;
+		}
+		else if (object instanceof PageDef) {
+			int index = parent.getChildIndex(item);
+			if (selectFromPages(text, parent, index + 1))
+				return true;
+		}
+		else if (object instanceof FormDef) {
+			return false;
+		}
+		
+		item = item.getParentItem();
+		object = item.getUserObject();
+		parent = item.getParentItem();
+		return find(text, object, item, parent);
+	}
+	
+	private boolean selectFromObjects(String text, Object object, TreeItem item, TreeItem parent, int startIndex) {
+		if(object instanceof FormDef)
+			return selectFromPages(text, item, startIndex);
+		else if(object instanceof PageDef)
+			return selectFromQuestions(text, item, startIndex);
+		else if(object instanceof QuestionDef)
+			return selectQuestionChild(text, (QuestionDef)object, item);
+		else
+			return false;
+	}
+	
+	private boolean selectFromPages(String text, TreeItem parent, int startIndex) {
 		int count = parent.getChildCount();
-		for(int index = 0; index < count; index++){
+		for(int index = startIndex; index < count; index++){
 			TreeItem child = parent.getChild(index);
 			PageDef pageDef = (PageDef)child.getUserObject();
 			if (pageDef.getName().toLowerCase().contains(text)) {
 				tree.setSelectedItem(child);
 				tree.ensureSelectedItemVisible();
-				return;
-			}
-			
-			if (selectQuestion(text, child)) {
-				return;
-			}
-		}
-		
-		Window.alert(LocaleText.get("noDataFound"));
-	}
-	
-	private boolean selectQuestion(String text, TreeItem  parent) {
-		int count = parent.getChildCount();
-		for(int index = 0; index < count; index++){
-			TreeItem child = parent.getChild(index);
-			QuestionDef qtnDef = (QuestionDef)child.getUserObject();
-			if (qtnDef.getText().toLowerCase().contains(text)) {
-				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				return true;
 			}
 			
-			if (qtnDef.isGroupQtnsDef()) {
-				if (selectQuestion(text, child)) {
-					return true;
-				}
-			}
-			
-			if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
-				qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-				if (selectOption(text, child)) {
-					return true;
-				}
+			if (selectFromQuestions(text, child, 0)) {
+				return true;
 			}
 		}
 		
 		return false;
 	}
 	
-	private boolean selectOption(String text, TreeItem  parent) {
+	private boolean selectFromQuestions(String text, TreeItem  parent, int startIndex) {
 		int count = parent.getChildCount();
-		for(int index = 0; index < count; index++){
+		for(int index = startIndex; index < count; index++){
+			TreeItem child = parent.getChild(index);
+			QuestionDef qtnDef = (QuestionDef)child.getUserObject();
+			if (selectQuestion(text, qtnDef, child))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean selectQuestion(String text, QuestionDef qtnDef, TreeItem child) {
+		if (qtnDef.getText().toLowerCase().contains(text)) {
+			tree.setSelectedItem(child);
+			tree.ensureSelectedItemVisible();
+			return true;
+		}
+		
+		return selectQuestionChild(text, qtnDef, child);
+	}
+	
+	private boolean selectQuestionChild(String text, QuestionDef qtnDef, TreeItem child) {
+		if (qtnDef.isGroupQtnsDef()) {
+			if (selectFromQuestions(text, child, 0)) {
+				return true;
+			}
+		}
+		
+		if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+			qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+			if (selectFromOptions(text, child, 0)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean selectFromOptions(String text, TreeItem  parent, int startIndex) {
+		int count = parent.getChildCount();
+		for(int index = startIndex; index < count; index++){
 			TreeItem child = parent.getChild(index);
 			OptionDef optnDef = (OptionDef)child.getUserObject();
 			if (optnDef.getText().toLowerCase().contains(text)) {

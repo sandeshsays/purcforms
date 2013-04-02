@@ -85,6 +85,8 @@ public class Context {
 	
 	private static Object selectedItem;
 	
+	private static String searchText;
+	
 	/**
 	 * Sets the default locale.
 	 * 
@@ -297,4 +299,12 @@ public class Context {
 	public static LeftPanel getLeftPanel(){
 		return leftPanel;
 	}
+
+    public static String getSearchText() {
+    	return searchText;
+    }
+
+    public static void setSearchText(String searchText) {
+    	Context.searchText = searchText;
+    }
 }
