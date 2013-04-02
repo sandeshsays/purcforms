@@ -58,6 +58,11 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		ImageResource refresh();
 		ImageResource find();
 		ImageResource print();
+		ImageResource bold();
+		ImageResource italic();
+		ImageResource underline();
+		ImageResource font();
+		ImageResource color();
 	}
 	 
 	/** Main widget for this tool bar. */
@@ -87,6 +92,12 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	private PushButton btnRedo;
 	private PushButton btnFind;
 	private PushButton btnPrint;
+	private PushButton btnBold;
+	private PushButton btnItalic;
+	private PushButton btnUnderline;
+	private PushButton btnFont;
+	private PushButton btnColor;
+	//private ListBox lbFontSize;
 	
 	/** Widget for separating tool bar buttons from each other. */
 	private Label separatorWidget = new Label("  ");
@@ -149,6 +160,16 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnUndo = new PushButton(FormUtil.createImage(images.undo()));
 		btnRedo = new PushButton(FormUtil.createImage(images.redo()));
 		
+		btnBold = new PushButton(FormUtil.createImage(images.bold()));
+		btnItalic = new PushButton(FormUtil.createImage(images.italic()));
+		btnUnderline = new PushButton(FormUtil.createImage(images.underline()));
+		btnFont = new PushButton(FormUtil.createImage(images.font()));
+		btnColor = new PushButton(FormUtil.createImage(images.color()));
+		
+		/*lbFontSize = new ListBox();
+		lbFontSize.setWidth("80" + PurcConstants.UNITS);
+		lbFontSize.setHeight("25" + PurcConstants.UNITS);*/
+		
 		btnNewForm.setTitle(LocaleText.get("newForm"));
 		btnSaveForm.setTitle(LocaleText.get("save"));
 		btnOpenForm.setTitle(LocaleText.get("open"));
@@ -177,6 +198,12 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnUndo.setTitle(LocaleText.get("undo"));
 		btnRedo.setTitle(LocaleText.get("redo"));
 		
+		btnBold.setTitle(LocaleText.get("bold"));
+		btnItalic.setTitle(LocaleText.get("italic"));
+		btnUnderline.setTitle(LocaleText.get("underline"));
+		btnFont.setTitle(LocaleText.get("fontFamily"));
+		btnColor.setTitle(LocaleText.get("foreColor"));
+		
 		if(Context.isOfflineMode())
 			panel.add(btnNewForm);
 		
@@ -200,7 +227,14 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		panel.add(btnPaste);
 		
 		panel.add(separatorWidget);
-		panel.add(btnRefresh);
+		//panel.add(btnRefresh);
+		
+		//panel.add(lbFontSize);
+		panel.add(btnFont);
+		panel.add(btnBold);
+		panel.add(btnItalic);
+		panel.add(btnUnderline);
+		panel.add(btnColor);
 		
 		panel.add(separatorWidget);
 		panel.add(btnAlignLeft);
