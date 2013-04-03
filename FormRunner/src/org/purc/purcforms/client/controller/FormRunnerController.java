@@ -36,6 +36,7 @@ public class FormRunnerController implements SubmitListener{
 	private String xformXml;
 	private String layoutXml;
 	private String javaScriptSrc;
+	private String css;
 	private int formId;
 	private int entityId;
 
@@ -78,17 +79,26 @@ public class FormRunnerController implements SubmitListener{
 								return;
 							}
 
-							xformXml = null; layoutXml = null; javaScriptSrc = null;
+							xformXml = null; layoutXml = null; javaScriptSrc = null; css = null;
 
 							int pos = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR);
 							int pos2 = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR);
+							int pos3 = xml.indexOf(PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR);
 							if(pos > 0){
 								xformXml = xml.substring(0,pos);
-								layoutXml = xml.substring(pos+PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR.length(), pos2 > 0 ? pos2 : xml.length());
+								
+								int endIndex = pos2;
+								if(pos2 == -1) endIndex = pos3;
+								else if(pos3 == -1) endIndex = xml.length();
+								
+								layoutXml = xml.substring(pos+PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR.length(), endIndex);
 
 								if(pos2 > 0)
-									javaScriptSrc = xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), xml.length());
+									javaScriptSrc = xml.substring(pos2+PurcConstants.PURCFORMS_FORMDEF_JAVASCRIPT_SRC_SEPARATOR.length(), pos3 > 0 ? pos3 : xml.length());
 
+								if(pos3 > 0)
+									css = xml.substring(pos3+PurcConstants.PURCFORMS_FORMDEF_CSS_SEPARATOR.length(), xml.length());
+								
 								openForm();
 								//FormUtil.dlg.hide(); //open form above will close it
 							}
@@ -119,7 +129,7 @@ public class FormRunnerController implements SubmitListener{
 				try{
 					List<RuntimeWidgetWrapper> externalSourceWidgets = new ArrayList<RuntimeWidgetWrapper>();
 					FormDef formDef = XformParser.fromXform2FormDef(xformXml);
-					formRunner.loadForm(formDef, layoutXml,javaScriptSrc,externalSourceWidgets);
+					formRunner.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets);
 
 					FormUtil.dlg.hide();	
 				}

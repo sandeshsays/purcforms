@@ -64,10 +64,12 @@ public class FormRunnerWidget extends Composite{
 	 * 
 	 * @param formDef the form definition object.
 	 * @param layoutXml the widget layout xml.
+	 * @param javaScriptSrc the javascript.
+	 * @param css the css text.
 	 * @param externalSourceWidgets list of widgets whose data sources come from outside the xform.
 	 */
-	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, List<RuntimeWidgetWrapper> externalSourceWidgets){
-		view.loadForm(formDef, layoutXml,javaScriptSrc,externalSourceWidgets,false);
+	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets){
+		view.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets,false);
 	}
 	
 	
@@ -87,8 +89,8 @@ public class FormRunnerWidget extends Composite{
 	 * @param xformXml the xforms xml.
 	 * @param layoutXml the layout xml.
 	 */
-	public void loadForm(String xformXml, String layoutXml, String javaScriptSource){
-		view.loadForm(XformParser.fromXform2FormDef(xformXml), layoutXml,javaScriptSource, null,false);
+	public void loadForm(String xformXml, String layoutXml, String javaScriptSource, String css){
+		view.loadForm(XformParser.fromXform2FormDef(xformXml), layoutXml,javaScriptSource, css, null,false);
 	}
 	
 	
@@ -130,10 +132,10 @@ public class FormRunnerWidget extends Composite{
 	}
 	
 	
-	public void loadForm(int formId, String xformXml, String modelXml,String layoutXml, String javaScriptSource){
+	public void loadForm(int formId, String xformXml, String modelXml,String layoutXml, String javaScriptSource, String css){
 		FormDef formDef = XformParser.fromXform2FormDef(xformXml,modelXml);
 		formDef.setId(formId);
-		view.loadForm(formDef, layoutXml,javaScriptSource, new ArrayList<RuntimeWidgetWrapper>(),false);
+		view.loadForm(formDef, layoutXml, javaScriptSource, css, new ArrayList<RuntimeWidgetWrapper>(),false);
 	}
 	
 	public void clear(){
