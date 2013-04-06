@@ -3606,8 +3606,41 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		Context.getCommandHistory().add(commands);
 	}
 	
-	public void fontFamily(int left, int top) {
+	public void fontFamily(String fontFamily) {
 		if (!selectedDragController.isAnyWidgetSelected())
 			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getFontFamily();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_FAMILY, prevValue, view));
+			
+			widget.setFontFamily(fontFamily);
+		}
+
+		Context.getCommandHistory().add(commands);
+	}
+	
+	public void fontSize(String fontSize) {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getFontSize();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_SIZE, prevValue, view));
+			
+			widget.setFontSize(fontSize);
+		}
+
+		Context.getCommandHistory().add(commands);
 	}
 }

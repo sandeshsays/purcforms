@@ -1623,8 +1623,13 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			centerPanel.foreColor(color);
 	}
 	
-	public void fontFamily(int left, int top) {
+	public void fontFamily(String fontFamily) {
 		if(Context.getCurrentMode() == Context.MODE_DESIGN)
-			centerPanel.fontFamily(left, top);
+			centerPanel.fontFamily(fontFamily);
+	}
+	
+	public void fontSize(String fontSize) {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.fontSize(fontSize);
 	}
 }

@@ -177,5 +177,7 @@ public interface IFormDesignerListener extends IFormActionListener{
 	
 	public void foreColor(String color);
 	
-	public void fontFamily(int left, int top);
+	public void fontFamily(String fontFamily);
+	
+	public void fontSize(String fontSize);
 }

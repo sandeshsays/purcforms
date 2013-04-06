@@ -873,9 +873,14 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			designSurfaceView.foreColor(color);
 	}
 	
-	public void fontFamily(int left, int top) {
+	public void fontFamily(String fontFamily) {
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
-			designSurfaceView.fontFamily(left, top);
+			designSurfaceView.fontFamily(fontFamily);
+	}
+	
+	public void fontSize(String fontSize) {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.fontSize(fontSize);
 	}
 
 	/**

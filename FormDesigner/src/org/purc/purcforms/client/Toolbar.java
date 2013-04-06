@@ -9,11 +9,15 @@ import org.purc.purcforms.client.model.Locale;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.FormRunnerView;
+import org.purc.purcforms.client.widget.GWTCFontPicker;
+import org.purc.purcforms.client.widget.GWTCFontPicker.FontPickerType;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Composite;
@@ -31,7 +35,7 @@ import com.mogaleaf.client.common.widgets.SimpleColorPicker;
  * @author daniel
  *
  */
-public class Toolbar extends Composite implements ILocaleListChangeListener, ColorHandler {
+public class Toolbar extends Composite implements ILocaleListChangeListener, ColorHandler, ValueChangeHandler<GWTCFontPicker> {
 
 	/**
 	 * Tool bar images.
@@ -65,6 +69,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		ImageResource underline();
 		ImageResource font();
 		ImageResource color();
+		ImageResource fontsize();
 	}
 	 
 	/** Main widget for this tool bar. */
@@ -99,7 +104,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	private PushButton btnUnderline;
 	private PushButton btnFontFamily;
 	private PushButton btnForeColor;
-	//private ListBox lbFontSize;
+	private PushButton btnFontSize;
 	
 	/** Widget for separating tool bar buttons from each other. */
 	private Label separatorWidget = new Label("  ");
@@ -114,6 +119,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	private IFormDesignerListener controller;
 	
 	private SimpleColorPicker colorPicker = new SimpleColorPicker();
+	private GWTCFontPicker fontFamilyPicker = new GWTCFontPicker(FontPickerType.FONT_FAMILY);
+	private GWTCFontPicker fontSizePicker = new GWTCFontPicker(FontPickerType.FONT_SIZE);
 	
 	/**
 	 * Creates a new instance of the tool bar.
@@ -168,6 +175,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		btnUnderline = new PushButton(FormUtil.createImage(images.underline()));
 		btnFontFamily = new PushButton(FormUtil.createImage(images.font()));
 		btnForeColor = new PushButton(FormUtil.createImage(images.color()));
+		btnFontSize = new PushButton(FormUtil.createImage(images.fontsize()));
 		
 		/*lbFontSize = new ListBox();
 		lbFontSize.setWidth("80" + PurcConstants.UNITS);
@@ -206,6 +214,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		btnUnderline.setTitle(LocaleText.get("underline"));
 		btnFontFamily.setTitle(LocaleText.get("fontFamily"));
 		btnForeColor.setTitle(LocaleText.get("foreColor"));
+		btnFontSize.setTitle(LocaleText.get("fontSize"));
 		
 		if(Context.isOfflineMode())
 			panel.add(btnNewForm);
@@ -232,8 +241,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		panel.add(separatorWidget);
 		//panel.add(btnRefresh);
 		
-		//panel.add(lbFontSize);
 		panel.add(btnFontFamily);
+		panel.add(btnFontSize);
 		panel.add(btnBold);
 		panel.add(btnItalic);
 		panel.add(btnUnderline);
@@ -373,9 +382,20 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 				}});
 		
 		btnFontFamily.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event){controller.fontFamily(btnFontFamily.getAbsoluteLeft(), btnFontFamily.getAbsoluteTop());}});
+			public void onClick(ClickEvent event){			
+					fontFamilyPicker.setPopupPosition(btnFontFamily.getAbsoluteLeft(), btnFontFamily.getAbsoluteTop());
+					fontFamilyPicker.show();
+				}});
+		
+		btnFontSize.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){			
+					fontSizePicker.setPopupPosition(btnFontSize.getAbsoluteLeft(), btnFontSize.getAbsoluteTop());
+					fontSizePicker.show();
+				}});
 		
 		colorPicker.addListner(this);
+		fontFamilyPicker.addValueChangeHandler(this);
+		fontSizePicker.addValueChangeHandler(this);
 	}
 	
 	/**
@@ -415,8 +435,19 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	}
 	
 	@Override
-	public void newColorSelected(String color)
-	{
+	public void newColorSelected(String color) {
 	     controller.foreColor(color);
+	}
+	
+	@Override
+	public void onValueChange(ValueChangeEvent<GWTCFontPicker> event) {
+		GWTCFontPicker fontPicker = event.getValue();
+		
+		if (fontPicker == fontFamilyPicker) {
+			controller.fontFamily(fontPicker.getFontName());
+		}
+		else if(fontPicker == fontSizePicker) {
+			controller.fontSize(fontPicker.getFontSize());
+		}
 	}
 }
