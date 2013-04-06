@@ -168,4 +168,14 @@ public interface IFormDesignerListener extends IFormActionListener{
 	public DesignWidgetWrapper addToDesignSurface(Object item);
 	
 	public void find();
+	
+	public void bold();
+	
+	public void italic();
+	
+	public void underline();
+	
+	public void foreColor(String color);
+	
+	public void fontFamily(int left, int top);
 }

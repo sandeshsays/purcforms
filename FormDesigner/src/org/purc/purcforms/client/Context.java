@@ -86,7 +86,7 @@ public class Context {
 	private static Object selectedItem;
 	
 	private static String searchText;
-	
+
 	/**
 	 * Sets the default locale.
 	 * 

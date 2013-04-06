@@ -852,6 +852,31 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.find();			
 	}
+	
+	public void bold() {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.bold();
+	}
+	
+	public void italic() {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.italic();
+	}
+	
+	public void underline() {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.underline();
+	}
+	
+	public void foreColor(String color) {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.foreColor(color);
+	}
+	
+	public void fontFamily(int left, int top) {
+		if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
+			designSurfaceView.fontFamily(left, top);
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.SubmitListener#onSubmit(String)()

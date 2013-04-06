@@ -1602,4 +1602,29 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public void redo(){
 		Context.getCommandHistory().redo();
 	}
+	
+	public void bold() {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.bold();
+	}
+	
+	public void italic() {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.italic();
+	}
+	
+	public void underline() {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.underline();
+	}
+	
+	public void foreColor(String color) {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.foreColor(color);
+	}
+	
+	public void fontFamily(int left, int top) {
+		if(Context.getCurrentMode() == Context.MODE_DESIGN)
+			centerPanel.fontFamily(left, top);
+	}
 }

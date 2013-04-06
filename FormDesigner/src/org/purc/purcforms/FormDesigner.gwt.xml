@@ -15,6 +15,7 @@
 	  <inherits name='com.google.gwt.xml.XML'/>
 	  <inherits name='org.zenika.widget.DatePickerModule'/>                                    -->
       <inherits name='org.purc.purcforms.SharedLib'/>
+      <inherits name="com.mogaleaf.SimpleColorPicker"/>
       
       <!-- Specify the app entry point class.                         -->
       <entry-point class='org.purc.purcforms.client.FormDesignerEntryPoint'/>

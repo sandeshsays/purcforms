@@ -22,6 +22,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PushButton;
+import com.mogaleaf.client.common.widgets.ColorHandler;
+import com.mogaleaf.client.common.widgets.SimpleColorPicker;
 
 /**
  * This widget is the main tool bar for the form designer.
@@ -29,7 +31,7 @@ import com.google.gwt.user.client.ui.PushButton;
  * @author daniel
  *
  */
-public class Toolbar extends Composite implements ILocaleListChangeListener{
+public class Toolbar extends Composite implements ILocaleListChangeListener, ColorHandler {
 
 	/**
 	 * Tool bar images.
@@ -95,8 +97,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	private PushButton btnBold;
 	private PushButton btnItalic;
 	private PushButton btnUnderline;
-	private PushButton btnFont;
-	private PushButton btnColor;
+	private PushButton btnFontFamily;
+	private PushButton btnForeColor;
 	//private ListBox lbFontSize;
 	
 	/** Widget for separating tool bar buttons from each other. */
@@ -111,6 +113,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	/** Listener to the tool bar button click events. */
 	private IFormDesignerListener controller;
 	
+	private SimpleColorPicker colorPicker = new SimpleColorPicker();
 	
 	/**
 	 * Creates a new instance of the tool bar.
@@ -163,8 +166,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnBold = new PushButton(FormUtil.createImage(images.bold()));
 		btnItalic = new PushButton(FormUtil.createImage(images.italic()));
 		btnUnderline = new PushButton(FormUtil.createImage(images.underline()));
-		btnFont = new PushButton(FormUtil.createImage(images.font()));
-		btnColor = new PushButton(FormUtil.createImage(images.color()));
+		btnFontFamily = new PushButton(FormUtil.createImage(images.font()));
+		btnForeColor = new PushButton(FormUtil.createImage(images.color()));
 		
 		/*lbFontSize = new ListBox();
 		lbFontSize.setWidth("80" + PurcConstants.UNITS);
@@ -201,8 +204,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		btnBold.setTitle(LocaleText.get("bold"));
 		btnItalic.setTitle(LocaleText.get("italic"));
 		btnUnderline.setTitle(LocaleText.get("underline"));
-		btnFont.setTitle(LocaleText.get("fontFamily"));
-		btnColor.setTitle(LocaleText.get("foreColor"));
+		btnFontFamily.setTitle(LocaleText.get("fontFamily"));
+		btnForeColor.setTitle(LocaleText.get("foreColor"));
 		
 		if(Context.isOfflineMode())
 			panel.add(btnNewForm);
@@ -230,11 +233,11 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		//panel.add(btnRefresh);
 		
 		//panel.add(lbFontSize);
-		panel.add(btnFont);
+		panel.add(btnFontFamily);
 		panel.add(btnBold);
 		panel.add(btnItalic);
 		panel.add(btnUnderline);
-		panel.add(btnColor);
+		panel.add(btnForeColor);
 		
 		panel.add(separatorWidget);
 		panel.add(btnAlignLeft);
@@ -353,6 +356,26 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 		
 		btnRedo.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.redo();}});
+		
+		btnBold.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.bold();}});
+		
+		btnItalic.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.italic();}});
+		
+		btnUnderline.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.underline();}});
+		
+		btnForeColor.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){
+					colorPicker.setPopupPosition(btnForeColor.getAbsoluteLeft(), btnForeColor.getAbsoluteTop());
+					colorPicker.show();
+				}});
+		
+		btnFontFamily.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.fontFamily(btnFontFamily.getAbsoluteLeft(), btnFontFamily.getAbsoluteTop());}});
+		
+		colorPicker.addListner(this);
 	}
 	
 	/**
@@ -389,5 +412,11 @@ public class Toolbar extends Composite implements ILocaleListChangeListener{
 	
 	public void onLocaleListChanged(){
 		populateLocales();
+	}
+	
+	@Override
+	public void newColorSelected(String color)
+	{
+	     controller.foreColor(color);
 	}
 }

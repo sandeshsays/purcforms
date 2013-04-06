@@ -527,10 +527,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void pasteItem(){
 		pasteItem(false);
 	}
-	
-	public void find(){
-		
-	}
 
 	public void pasteItem(boolean increment) {
 		if(Context.clipBoardWidgets.size() > 0){
@@ -3528,5 +3524,90 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			y += length;
 			addNewHorizontalLine(false);
 		}
+	}
+	
+	public void find(){
+		
+	}
+	
+	public void bold() {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getFontWeight();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_WEIGHT, prevValue, view));
+			
+			widget.setFontWeight("bold".equals(prevValue) ? "normal" : "bold");
+		}
+
+		Context.getCommandHistory().add(commands);
+	}
+	
+	public void italic() {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getFontStyle();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_STYLE, prevValue, view));
+			
+			widget.setFontStyle("italic".equals(prevValue) ? "normal" : "italic");
+		}
+
+		Context.getCommandHistory().add(commands);
+	}
+	
+	public void underline() {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getTextDecoration();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_TEXT_DECORATION, prevValue, view));
+			
+			widget.setTextDecoration("underline".equals(prevValue) ? "none" : "underline");
+		}
+
+		Context.getCommandHistory().add(commands);
+	}
+	
+	public void foreColor(String color) {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
+		
+		CommandList commands = new CommandList(this);
+		
+		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+
+			String prevValue = widget.getForeColor();
+			DesignGroupView view = widget.getView();
+			commands.add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FORE_COLOR, prevValue, view));
+			
+			widget.setForeColor(color);
+		}
+
+		Context.getCommandHistory().add(commands);
+	}
+	
+	public void fontFamily(int left, int top) {
+		if (!selectedDragController.isAnyWidgetSelected())
+			return;
 	}
 }

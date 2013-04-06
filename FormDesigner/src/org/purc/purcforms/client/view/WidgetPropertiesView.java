@@ -965,7 +965,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		lbTextDecoration.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				if(widget != null){
-					String prevValue = widget.getBorderStyle();
+					String prevValue = widget.getTextDecoration();
 					widget.setTextDecoration(lbTextDecoration.getItemText(lbTextDecoration.getSelectedIndex()));
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_TEXT_DECORATION, prevValue, (DesignGroupView)widgetPropertyChangeListener));
@@ -977,7 +977,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		lbTextAlign.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				if(widget != null){
-					String prevValue = widget.getBorderStyle();
+					String prevValue = widget.getTextAlign();
 					widget.setTextAlign(lbTextAlign.getItemText(lbTextAlign.getSelectedIndex()));
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_TEXT_ALIGN, prevValue, (DesignGroupView)widgetPropertyChangeListener));
@@ -989,7 +989,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		lbFontStyle.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				if(widget != null){
-					String prevValue = widget.getBorderStyle();
+					String prevValue = widget.getFontStyle();
 					widget.setFontStyle(lbFontStyle.getItemText(lbFontStyle.getSelectedIndex()));
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_STYLE, prevValue, (DesignGroupView)widgetPropertyChangeListener));
@@ -1001,7 +1001,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		lbFontWeight.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
 				if(widget != null){
-					String prevValue = widget.getBorderStyle();
+					String prevValue = widget.getFontWeight();
 					widget.setFontWeight(lbFontWeight.getItemText(lbFontWeight.getSelectedIndex()));
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_FONT_WEIGHT, prevValue, (DesignGroupView)widgetPropertyChangeListener));
