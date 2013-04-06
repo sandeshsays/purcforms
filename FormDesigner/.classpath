@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/SharedLib/lib/gwt-user.jar"/>
 	<classpathentry kind="lib" path="/SharedLib/lib/gwt-dev.jar"/>
 	<classpathentry kind="lib" path="lib/gwt-dnd-3.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/mogaleaf_simplecolorpicker_1.0.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
