@@ -10,6 +10,7 @@ import org.purc.purcforms.client.cmd.AddColumnsCmd;
 import org.purc.purcforms.client.cmd.AddRowsCmd;
 import org.purc.purcforms.client.cmd.DeleteColumnCmd;
 import org.purc.purcforms.client.cmd.DeleteRowCmd;
+import org.purc.purcforms.client.cmd.MergeCellsCmd;
 import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
@@ -724,11 +725,15 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void mergeCells() {
-		mergeHorizontalLines();
-		mergeVerticalLines();
+		MergeCellsCmd mergeCellsCmd = new MergeCellsCmd(this);
+		
+		mergeHorizontalLines(mergeCellsCmd);
+		mergeVerticalLines(mergeCellsCmd);
+		
+		Context.getCommandHistory().add(mergeCellsCmd);
 	}
 	
-	public void mergeHorizontalLines() {
+	public void mergeHorizontalLines(MergeCellsCmd mergeCellsCmd) {
 		int leftDiff = getWidthInt();
 		int rightDiff = leftDiff;
 		
@@ -761,6 +766,11 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			}
 		}
 		
+		int leftLineX = 0;
+		if(leftLineFound) {
+			leftLineX = leftLine.getLeftInt();
+		}
+		
 		List<DesignWidgetWrapper> horizontalLines = getHorizontalLinesCopy();
 		for(DesignWidgetWrapper widget : horizontalLines) {
 			int left = widget.getLeftInt();
@@ -768,10 +778,17 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			int right = left + widget.getWidthInt();
 			if (left < rubberBandLeft && right > rubberBandLeft && top > rubberBandTop && top < rubberBandBottom) {
 				
-				if (!leftLineFound)
+				if (!leftLineFound) {
+					widget.storePosition();
+					mergeCellsCmd.removeLine(widget);
 					remove(widget);
-				else
-					widget.setWidthInt(leftLine.getLeftInt() - left);
+				}
+				else {
+					int oldWidth = widget.getWidthInt();
+					int newWidth = leftLineX - left;
+					widget.setWidthInt(newWidth);
+					mergeCellsCmd.addResizedHorizontalLine(widget, oldWidth);
+				}
 				
 				if (!rightLineFound)
 					continue;
@@ -783,11 +800,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				DesignWidgetWrapper wrapper = addNewWidget(line, false);
 				wrapper.setWidthInt(width);
 				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				
+				mergeCellsCmd.addLine(wrapper);
 			}
 		}
 	}
 	
-	public void mergeVerticalLines() {
+	public void mergeVerticalLines(MergeCellsCmd mergeCellsCmd) {
 		int topDiff = getHeightInt();
 		int bottomDiff = topDiff;
 		
@@ -820,6 +839,11 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			}
 		}
 		
+		int topLineY = 0;
+		if(topLineFound) {
+			topLineY = topLine.getTopInt();
+		}
+		
 		List<DesignWidgetWrapper> verticalLines = getVerticalLinesCopy();
 		for(DesignWidgetWrapper widget : verticalLines) {
 			int top = widget.getTopInt();
@@ -827,10 +851,17 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			int bottom = top + widget.getHeightInt();
 			if (top < rubberBandTop && bottom > rubberBandTop && left > rubberBandLeft && left < rubberBandRight) {
 				
-				if (!topLineFound)
+				if (!topLineFound) {
+					widget.storePosition();
+					mergeCellsCmd.removeLine(widget);
 					remove(widget);
-				else
-					widget.setHeightInt(topLine.getTopInt() - top);
+				}
+				else {
+					int oldHeight = widget.getHeightInt();
+					int newHeight = topLineY - top;
+					widget.setHeightInt(newHeight);
+					mergeCellsCmd.addResizedVerticalLine(widget, oldHeight);
+				}
 				
 				if (!bottomLineFound)
 					continue;
@@ -842,6 +873,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				DesignWidgetWrapper wrapper = addNewWidget(line, false);
 				wrapper.setHeightInt(height);
 				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				
+				mergeCellsCmd.addLine(wrapper);
 			}
 		}
 	}
