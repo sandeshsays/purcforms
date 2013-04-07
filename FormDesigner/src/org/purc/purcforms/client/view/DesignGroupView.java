@@ -146,6 +146,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 	/** The selection rubber band width in pixels. */
 	protected String rubberBandWidth;
+	
+	/** The selection rubber band left in pixels. */
+	protected int rubberBandLeft;
+	
+	/** The selection rubber band top in pixels. */
+	protected int rubberBandTop;
+	
+	/** The selection rubber band right in pixels. */
+	protected int rubberBandRight;
+	
+	/** The selection rubber band bottom in pixels. */
+	protected int rubberBandBottom;
 
 
 	/** List of drag controllers. */
@@ -1189,13 +1201,27 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param event the event object.
 	 */
 	protected void selectWidgets(Event event){
-		int endX = event.getClientX() - selectedPanel.getAbsoluteLeft();
-		int endY = event.getClientY() - selectedPanel.getAbsoluteTop();
+		int width = (event.getClientX()-selectedPanel.getAbsoluteLeft())-x;
+		int height = (event.getClientY()-selectedPanel.getAbsoluteTop())-y;
+		
+		int endX = rubberBandRight = event.getClientX() - selectedPanel.getAbsoluteLeft();
+		int endY = rubberBandBottom = event.getClientY() - selectedPanel.getAbsoluteTop();
 
+		rubberBandLeft = x;
+		rubberBandTop = y;
+		if (width < 0) {
+			rubberBandLeft = event.getClientX() - selectedPanel.getAbsoluteLeft();
+			rubberBandRight = x;
+		}
+		if (height < 0) {
+			rubberBandTop = event.getClientY() - selectedPanel.getAbsoluteTop();
+			rubberBandBottom = y;
+		}
+		
 		//Store this for Group Widgets
 		rubberBandHeight = DOM.getStyleAttribute(rubberBand.getElement(), "height");
 		rubberBandWidth = DOM.getStyleAttribute(rubberBand.getElement(), "width");
-
+		
 		for(int i=0; i<selectedPanel.getWidgetCount(); i++){
 			if(selectedPanel.getWidget(i) instanceof  DesignWidgetWrapper){
 				DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(i);

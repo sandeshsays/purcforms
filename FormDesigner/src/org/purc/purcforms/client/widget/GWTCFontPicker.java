@@ -16,6 +16,8 @@
  */
 package org.purc.purcforms.client.widget;
 
+import org.purc.purcforms.client.PurcConstants;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseOutEvent;
@@ -30,7 +32,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.RichTextArea.FontSize;
 
 /**
  * Font picker 
@@ -69,7 +70,9 @@ public class GWTCFontPicker extends PopupPanel implements ClickHandler, HasValue
 
     private static final String[] fontFamilies = new String[] { "Times New Roman", "Arial", "Courier New", "Georgia", "Trebuchet", "Verdana", "Comic Sans MS" };
 
-    private static final String[] fontSizes = new String[] {"12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30"}; //new String[] { "xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large" };
+    private static final String[] fontSizes = new String[] {"10","11","12","13","14","15","16","17","18","19",
+    	"20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37",
+    	"38","39","40","41","42","43","44","45","46","47","48","49","50"}; //new String[] { "xx-small", "x-small", "small", "medium", "large", "x-large", "xx-large" };
 
     private String font = "";
 
@@ -88,7 +91,7 @@ public class GWTCFontPicker extends PopupPanel implements ClickHandler, HasValue
             FontCell cell;
             if (type == FontPickerType.FONT_SIZE) {
                 cell = new FontCell( fonts[i] /*"" + (i + 1)*/);
-                DOM.setStyleAttribute(cell.getElement(), "fontSize", fonts[i]);
+                DOM.setStyleAttribute(cell.getElement(), "fontSize", "17" + PurcConstants.UNITS /*fonts[i]*/);
             } else {
                 cell = new FontCell(fonts[i]);
                 DOM.setStyleAttribute(cell.getElement(), "fontFamily", fonts[i]);

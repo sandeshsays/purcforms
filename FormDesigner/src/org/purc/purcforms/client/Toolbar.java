@@ -20,12 +20,15 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PushButton;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.mogaleaf.client.common.widgets.ColorHandler;
 import com.mogaleaf.client.common.widgets.SimpleColorPicker;
 
@@ -121,6 +124,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	private SimpleColorPicker colorPicker = new SimpleColorPicker();
 	private GWTCFontPicker fontFamilyPicker = new GWTCFontPicker(FontPickerType.FONT_FAMILY);
 	private GWTCFontPicker fontSizePicker = new GWTCFontPicker(FontPickerType.FONT_SIZE);
+	private PopupPanel fontPopup;
 	
 	/**
 	 * Creates a new instance of the tool bar.
@@ -388,14 +392,27 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 				}});
 		
 		btnFontSize.addClickHandler(new ClickHandler(){
-			public void onClick(ClickEvent event){			
-					fontSizePicker.setPopupPosition(btnFontSize.getAbsoluteLeft(), btnFontSize.getAbsoluteTop());
-					fontSizePicker.show();
+			public void onClick(ClickEvent event){		
+					showFontPanel(fontSizePicker, btnFontSize);
+					//fontSizePicker.setPopupPosition(btnFontSize.getAbsoluteLeft(), btnFontSize.getAbsoluteTop());
+					//fontSizePicker.show();
 				}});
 		
 		colorPicker.addListner(this);
 		fontFamilyPicker.addValueChangeHandler(this);
 		fontSizePicker.addValueChangeHandler(this);
+	}
+	
+	private void showFontPanel(PopupPanel panel, PushButton btn) {
+		ScrollPanel scrollPanel = new ScrollPanel();
+		scrollPanel.setWidget(panel);
+		scrollPanel.setHeight("200"+PurcConstants.UNITS); //"200"+PurcConstants.UNITS
+		scrollPanel.setWidth("50"+PurcConstants.UNITS);
+
+		fontPopup = new PopupPanel(true,false);
+		fontPopup.setWidget(scrollPanel);
+		fontPopup.setPopupPosition(btn.getAbsoluteLeft(), btn.getAbsoluteTop());
+		fontPopup.show();
 	}
 	
 	/**
@@ -441,8 +458,9 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	
 	@Override
 	public void onValueChange(ValueChangeEvent<GWTCFontPicker> event) {
-		GWTCFontPicker fontPicker = event.getValue();
+		fontPopup.hide();
 		
+		GWTCFontPicker fontPicker = event.getValue();
 		if (fontPicker == fontFamilyPicker) {
 			controller.fontFamily(fontPicker.getFontName());
 		}

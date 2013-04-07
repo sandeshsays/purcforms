@@ -1,5 +1,8 @@
 package org.purc.purcforms.client.widget.grid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.LeftPanel.Images;
 import org.purc.purcforms.client.PurcConstants;
@@ -74,17 +77,23 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsAbove")), true, new Command(){
 			public void execute() {popup.hide(); addRows(false);}});
 		
+		tableMenu.addSeparator();
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsRight")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(true);}});
 		
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsLeft")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(false);}});
 		
+		tableMenu.addSeparator();
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteColumn")), true, new Command(){
 			public void execute() {popup.hide(); deleteColumn();}});
 		
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteRow")), true, new Command(){
 			public void execute() {popup.hide(); deleteRow();}});
+		
+		tableMenu.addSeparator();
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("mergeCells")), true, new Command(){
+			public void execute() {popup.hide(); mergeCells();}});
 		
 		menuBar.addSeparator();
 		menuBar.addItem("     " + LocaleText.get("table"), tableMenu);
@@ -232,7 +241,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		boolean topLineFound = false;
 		boolean bottomLineFound = false;
 		
-		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		WidgetCollection horizontalLines = getHorizontalLines();
 		DesignWidgetWrapper startLine = null;
 		for(Widget w : horizontalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
@@ -356,7 +365,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		boolean leftLineFound = false;
 		boolean rightLineFound = false;
 		
-		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		WidgetCollection verticalLines = getVerticalLines();
 		DesignWidgetWrapper startLine = null;
 		for(Widget w : verticalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
@@ -459,7 +468,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void moveVerticalLinesAndText(int left, int totalDisplacement) {
 		//move all lines on the right of the mouse position
-		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		WidgetCollection verticalLines = getVerticalLines();
 		for(Widget w : verticalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int currentLeft = widget.getLeftInt();
@@ -483,7 +492,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void resizeHorizontalLinesAndTable(int xpos, int totalDisplacement) {
 		//now expand the horizontal lines
-		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		WidgetCollection horizontalLines = getHorizontalLines();
 		for(Widget w : horizontalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int width = widget.getWidthInt();
@@ -497,7 +506,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void moveHorizontalLinesAndText(int top, int totalDisplacement) {
 		//move all lines below the mouse position
-		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		WidgetCollection horizontalLines = getHorizontalLines();
 		for(Widget w : horizontalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int currentTop = widget.getTopInt();
@@ -521,7 +530,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public void resizeVerticalLinesAndTable(int ypos, int totalDisplacement) {
 		//now expand the vertical lines
-		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		WidgetCollection verticalLines = getVerticalLines();
 		for(Widget w : verticalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int height = widget.getHeightInt();
@@ -549,7 +558,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		boolean leftLineFound = false;
 		boolean rightLineFound = false;
 		
-		WidgetCollection verticalLines = ((GridPanel)selectedPanel).getVerticalLines();
+		WidgetCollection verticalLines = getVerticalLines();
 		DesignWidgetWrapper rightLine = null;
 		DesignWidgetWrapper leftLine = null;
 		for(Widget w : verticalLines) {
@@ -621,7 +630,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		boolean topLineFound = false;
 		boolean belowLineFound = false;
 		
-		WidgetCollection horizontalLines = ((GridPanel)selectedPanel).getHorizontalLines();
+		WidgetCollection horizontalLines = getHorizontalLines();
 		DesignWidgetWrapper belowLine = null;
 		DesignWidgetWrapper topLine = null;
 		for(Widget w : horizontalLines) {
@@ -682,7 +691,158 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		Context.getCommandHistory().add(deleteRowCmd);
 	}
 	
+	public WidgetCollection getHorizontalLines(){
+		return ((GridPanel)selectedPanel).getHorizontalLines();
+	}
+	
+	public WidgetCollection getVerticalLines(){
+		return ((GridPanel)selectedPanel).getVerticalLines();
+	}
+	
+	public List<DesignWidgetWrapper> getHorizontalLinesCopy(){
+		List<DesignWidgetWrapper> list = new ArrayList<DesignWidgetWrapper>();
+		WidgetCollection horizontalLines = getHorizontalLines();
+		for(Widget w : horizontalLines) {
+			list.add((DesignWidgetWrapper)w);
+		}
+		
+		return list;
+	}
+	
+	public List<DesignWidgetWrapper> getVerticalLinesCopy(){
+		List<DesignWidgetWrapper> list = new ArrayList<DesignWidgetWrapper>();
+		WidgetCollection verticalLines = getVerticalLines();
+		for(Widget w : verticalLines) {
+			list.add((DesignWidgetWrapper)w);
+		}
+		
+		return list;
+	}
+	
 	public void setResizeLinesToFit(boolean resizeLinesToFit) {
 		((GridPanel)selectedPanel).setResizeLinesToFit(resizeLinesToFit);
+	}
+	
+	public void mergeCells() {
+		mergeHorizontalLines();
+		mergeVerticalLines();
+	}
+	
+	public void mergeHorizontalLines() {
+		int leftDiff = getWidthInt();
+		int rightDiff = leftDiff;
+		
+		boolean leftLineFound = false;
+		boolean rightLineFound = false;
+		
+		WidgetCollection verticalLines = getVerticalLines();
+		DesignWidgetWrapper rightLine = null;
+		DesignWidgetWrapper leftLine = null;
+		for(Widget w : verticalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int left = widget.getLeftInt();
+			
+			//if current line is on the left hand side of the mouse position
+			if(left < rubberBandLeft) {
+				int diff = rubberBandLeft - left; //how far, to the left, line is from mouse position
+				if(diff < leftDiff) { //if this is the smallest distance between line and mouse position
+					leftDiff = diff;
+					leftLine = widget;
+				}
+				leftLineFound = true;
+			}
+			else if(left > rubberBandRight){ //current line on right hand side of mouse position
+				int diff = left - rubberBandLeft; //how far, to the right, line is from mouse position
+				if(diff < rightDiff) { //if this is the smallest distance between line and mouse position
+					rightDiff = diff;
+					rightLine = widget;
+				}
+				rightLineFound = true;
+			}
+		}
+		
+		List<DesignWidgetWrapper> horizontalLines = getHorizontalLinesCopy();
+		for(DesignWidgetWrapper widget : horizontalLines) {
+			int left = widget.getLeftInt();
+			int top = widget.getTopInt();
+			int right = left + widget.getWidthInt();
+			if (left < rubberBandLeft && right > rubberBandLeft && top > rubberBandTop && top < rubberBandBottom) {
+				
+				if (!leftLineFound)
+					remove(widget);
+				else
+					widget.setWidthInt(leftLine.getLeftInt() - left);
+				
+				if (!rightLineFound)
+					continue;
+				
+				x = rightLine.getLeftInt() + getAbsoluteLeft();
+				y = top + getAbsoluteTop();
+				int width = right - rubberBandRight;
+				HorizontalGridLine line = new HorizontalGridLine(width);
+				DesignWidgetWrapper wrapper = addNewWidget(line, false);
+				wrapper.setWidthInt(width);
+				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			}
+		}
+	}
+	
+	public void mergeVerticalLines() {
+		int topDiff = getHeightInt();
+		int bottomDiff = topDiff;
+		
+		boolean topLineFound = false;
+		boolean bottomLineFound = false;
+		
+		WidgetCollection horizontalLines = getHorizontalLines();
+		DesignWidgetWrapper topLine = null;
+		DesignWidgetWrapper bottomLine = null;
+		for(Widget w : horizontalLines) {
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			int top = widget.getTopInt();
+			
+			//if current line is above the mouse position
+			if(top < rubberBandTop) {
+				int diff = rubberBandTop - top; //how far, above, line is from mouse position
+				if(diff < topDiff) { //if this is the smallest distance between line and mouse position
+					topDiff = diff;
+					topLine = widget;
+				}
+				topLineFound = true;
+			}
+			else if(top > rubberBandBottom){ //current line below mouse position
+				int diff = top - rubberBandBottom; //how far, to the bottom, line is from mouse position
+				if(diff < bottomDiff) { //if this is the smallest distance between line and mouse position
+					bottomDiff = diff;
+					bottomLine = widget;
+				}
+				bottomLineFound = true;
+			}
+		}
+		
+		List<DesignWidgetWrapper> verticalLines = getVerticalLinesCopy();
+		for(DesignWidgetWrapper widget : verticalLines) {
+			int top = widget.getTopInt();
+			int left = widget.getLeftInt();
+			int bottom = top + widget.getHeightInt();
+			if (top < rubberBandTop && bottom > rubberBandTop && left > rubberBandLeft && left < rubberBandRight) {
+				
+				if (!topLineFound)
+					remove(widget);
+				else
+					widget.setHeightInt(topLine.getTopInt() - top);
+				
+				if (!bottomLineFound)
+					continue;
+				
+				y = bottomLine.getTopInt() + getAbsoluteTop();
+				x = left + getAbsoluteLeft();
+				int height = bottom - rubberBandBottom;
+				VerticalGridLine line = new VerticalGridLine(height);
+				DesignWidgetWrapper wrapper = addNewWidget(line, false);
+				wrapper.setHeightInt(height);
+				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			}
+		}
 	}
 }
