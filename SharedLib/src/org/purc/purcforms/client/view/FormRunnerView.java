@@ -273,16 +273,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
 		if(script != null)
 			script.removeFromParent();
-
-		/*String s = " function calculateAge(){ " +
-		" 	var element2 = document.getElementById('question5'); " +
-		"   var element1 = document.getElementById('question1'); " +
-		" 	element2.value = element1.value;	 " +
-		" } " +
-		"  " +
-		"  " +
-		" var element = document.getElementById('question1'); " +
-		" element.addEventListener('change',calculateAge ,false) ";*/
+		
+		script = DOM.getElementById("purcforms_css");
+		if(script != null)
+			script.removeFromParent();
 
 		if(javaScriptSrc != null){
 			Document document = Document.get();
