@@ -88,8 +88,8 @@ public class FormRunnerController implements SubmitListener{
 								xformXml = xml.substring(0,pos);
 								
 								int endIndex = pos2;
-								if(pos2 == -1) endIndex = pos3;
-								else if(pos3 == -1) endIndex = xml.length();
+								if(endIndex == -1) endIndex = pos3;
+								if(endIndex == -1) endIndex = xml.length();
 								
 								layoutXml = xml.substring(pos+PurcConstants.PURCFORMS_FORMDEF_LAYOUT_XML_SEPARATOR.length(), endIndex);
 
