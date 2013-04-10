@@ -1703,6 +1703,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	protected void resizeDesignSurface(DesignWidgetWrapper widget) {
+		if (widget == null)
+			return;
+		
 		int height = FormUtil.convertDimensionToInt(getHeight());
 		int h = widget.getTopInt() + widget.getHeightInt();
 		if(height < h) {
