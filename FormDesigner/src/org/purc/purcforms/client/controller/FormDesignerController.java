@@ -839,12 +839,13 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 							else
 								xformXml = xml;
 
-							LanguageUtil.loadLanguageText(formId, localeXml, Context.getLanguageText());
-
 							centerPanel.setXformsSource(FormUtil.formatXml(xformXml),false);
 							centerPanel.setLayoutXml(layoutXml,false);
 							centerPanel.setJavaScriptSource(javaScriptSrc);
 							centerPanel.setCSS(css);
+							centerPanel.setLanguageXml(localeXml, false);
+							
+							LanguageUtil.loadLanguageText(formId, localeXml, Context.getLanguageText());
 
 							openFormDeffered(formId, FormDesignerUtil.inReadOnlyMode());
 

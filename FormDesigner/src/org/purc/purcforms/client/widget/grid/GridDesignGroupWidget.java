@@ -298,10 +298,11 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			topDiff = ypos;
 			if(!below) {
 				if(horizontalLines.size() == 0)
-					return;
+					startLine = new DesignWidgetWrapper(new HorizontalGridLine(getHeightInt()), null, null);
+				else
+					startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
 				
-				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
-				startLine.setTopInt(20);
+				startLine.setTopInt(getHeaderLabelHeight());
 				startLine.setLeftInt(0);
 				startLine.setWidthInt(getWidthInt());
 			}
@@ -309,13 +310,14 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		if(!bottomLineFound) {
 			int tableBottom = getHeightInt(); //((DesignWidgetWrapper)getParent().getParent()).getTopInt() + getHeightInt();
-			bottomDiff = tableBottom - ypos; //(ypos - (tableBottom - getAbsoluteTop())) + 20;
+			bottomDiff = tableBottom - ypos; //(ypos - (tableBottom - getAbsoluteTop())) + getHeaderLabelHeight();
 			//if(!below) {
-				if(horizontalLines.size() == 0)
-					return;
+				if(horizontalLines.size() == 0) 
+					startLine = new DesignWidgetWrapper(new HorizontalGridLine(getHeightInt()), null, null);
+				else
+					startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
 				
-				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)horizontalLines.get(0), null);
-				startLine.setTopInt(tableBottom /*+ 20*/);
+				startLine.setTopInt(tableBottom /*+ getHeaderLabelHeight()*/);
 				startLine.setLeftInt(0 /*((DesignWidgetWrapper)getParent().getParent()).getLeftInt()*/);
 				startLine.setWidthInt(getWidthInt());
 			//}
@@ -435,11 +437,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			leftDiff = xpos; //(xpos - tableLeft);
 			if(!right) {
 				if(verticalLines.size() == 0)
-					return;
+					startLine = new DesignWidgetWrapper(new VerticalGridLine(getHeightInt()), null, null);
+				else
+					startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				
-				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(0 /*tableLeft*/);
-				startLine.setTopInt(20 /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
+				startLine.setTopInt(getHeaderLabelHeight() /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
 				startLine.setHeightInt(getHeightInt());
 			}
 		}
@@ -449,11 +452,12 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			rightDiff = (tableRight - xpos);
 			//if(!right) {
 				if(verticalLines.size() == 0)
-					return;
+					startLine = new DesignWidgetWrapper(new VerticalGridLine(getHeightInt()), null, null);
+				else
+					startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				
-				startLine = new DesignWidgetWrapper((DesignWidgetWrapper)verticalLines.get(0), null);
 				startLine.setLeftInt(tableRight);
-				startLine.setTopInt(20 /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
+				startLine.setTopInt(getHeaderLabelHeight() /*((DesignWidgetWrapper)getParent().getParent()).getTopInt()*/);
 				startLine.setHeightInt(getHeightInt());
 			//}
 		}
@@ -1019,5 +1023,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		
 		setHeight(getHeightInt() + totalDisplacement + PurcConstants.UNITS);
+	}
+	
+	public int getHeaderLabelHeight() {
+		return ((GridPanel)selectedPanel).getLabelHeight();
 	}
 }
