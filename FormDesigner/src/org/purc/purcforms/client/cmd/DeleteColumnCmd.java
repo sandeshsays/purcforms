@@ -29,6 +29,8 @@ public class DeleteColumnCmd implements ICommand {
 	}
 
 	public void undo(){
+		table.setResizeLinesToFit(false);
+		
 		table.moveVerticalLinesAndText(xpos, totalDisplacement);
 		
 		//table.resizeHorizontalLinesAndTable(xpos, totalDisplacement);
@@ -37,9 +39,15 @@ public class DeleteColumnCmd implements ICommand {
 		for (DesignWidgetWrapper line : deletedLines) {
 			table.add(line);
 		}
+		
+		table.onColumnsAdded(totalDisplacement);
+		
+		table.setResizeLinesToFit(true);
 	}
 
 	public void redo(){
+		table.setResizeLinesToFit(false);
+		
 		for (DesignWidgetWrapper line : deletedLines) {
 			line.storePosition();
 			table.remove(line);
@@ -49,6 +57,10 @@ public class DeleteColumnCmd implements ICommand {
 		
 		//table.resizeHorizontalLinesAndTable(xpos, -totalDisplacement);
 		table.resizeHorizontalLines(resizedLines, movedLines, -totalDisplacement);
+		
+		table.onColumnsRemoved(totalDisplacement);
+		
+		table.setResizeLinesToFit(true);
 	}
 	
 	public boolean isWidgetCommand(){

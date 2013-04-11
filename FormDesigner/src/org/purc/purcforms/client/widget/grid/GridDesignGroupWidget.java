@@ -16,6 +16,7 @@ import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
+import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
@@ -374,7 +375,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		resizeVerticalLinesAndTable(ypos, totalDisplacement, addRowsCmd.getResizedLines(), addRowsCmd.getMovedLines());
 		
+		onRowsAdded(totalDisplacement);
+		
 		Context.getCommandHistory().add(addRowsCmd);
+	}
+	
+	public void onRowsAdded(int totalDisplacement) {
+		((DesignGroupView)getWidgetPopupMenuListener()).onRowsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void addColumns(boolean right) {
@@ -518,7 +525,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		resizeHorizontalLinesAndTable(xpos, totalDisplacement, addColumnsCmd.getResizedLines(), addColumnsCmd.getMovedLines());
 		
+		onColumnsAdded(totalDisplacement);
+		
 		Context.getCommandHistory().add(addColumnsCmd);
+	}
+	
+	public void onColumnsAdded(int totalDisplacement) {
+		((DesignGroupView)getWidgetPopupMenuListener()).onColumnsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void moveVerticalLinesAndText(int left, int totalDisplacement) {
@@ -707,7 +720,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		moveVerticalLinesAndText(left, -totalDisplacement);
 		resizeHorizontalLinesAndTable(left, -totalDisplacement, deleteColumnCmd.getResizedLines(), deleteColumnCmd.getMovedLines());
 		
+		onColumnsRemoved(totalDisplacement);
+		
 		Context.getCommandHistory().add(deleteColumnCmd);
+	}
+	
+	public void onColumnsRemoved(int totalDisplacement) {
+		((DesignGroupView)getWidgetPopupMenuListener()).onColumnsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void deleteRow() {
@@ -799,7 +818,13 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		moveHorizontalLinesAndText(top, -totalDisplacement);
 		resizeVerticalLinesAndTable(top, -totalDisplacement, deleteRowCmd.getResizedLines(), deleteRowCmd.getMovedLines());
 		
+		onRowsRemoved(totalDisplacement);
+		
 		Context.getCommandHistory().add(deleteRowCmd);
+	}
+	
+	public void onRowsRemoved(int totalDisplacement) {
+		((DesignGroupView)getWidgetPopupMenuListener()).onRowsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public WidgetCollection getHorizontalLines(){

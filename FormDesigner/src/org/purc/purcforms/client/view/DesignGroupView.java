@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.purc.purcforms.client.Context;
-import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.cmd.ChangeWidgetCmd;
 import org.purc.purcforms.client.cmd.ChangeWidgetTypeCmd;
 import org.purc.purcforms.client.cmd.CommandList;
@@ -3671,5 +3671,167 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		Context.getCommandHistory().add(commands);
+	}
+	
+	public void onRowsAdded(DesignWidgetWrapper tableWidget, int increment){
+
+		//Get the current bottom y position of the table widget.
+		int bottomYpos = getBottomYPos(tableWidget) - increment;
+
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper currentWidget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(currentWidget == tableWidget)
+				continue;
+
+			int top = currentWidget.getTopInt();
+			if(top >= bottomYpos)
+				currentWidget.setTopInt(top + increment);
+		}
+
+		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()+increment+PurcConstants.UNITS);	
+
+		setParentHeight(true, tableWidget, increment);
+	}
+	
+	public void onColumnsAdded(DesignWidgetWrapper tableWidget, int increment){
+
+		//Get the current right x position of the table widget.
+		int rightXpos = getRightXPos(tableWidget) - increment;
+
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper currentWidget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(currentWidget == tableWidget)
+				continue;
+
+			int left = currentWidget.getLeftInt();
+			if(left >= rightXpos)
+				currentWidget.setLeftInt(left + increment);
+		}
+
+		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()+increment+PurcConstants.UNITS);	
+
+		setParentHeight(true, tableWidget, increment);
+	}
+	
+	public void onRowsRemoved(DesignWidgetWrapper tableWidget, int decrement){
+
+		//Get the current bottom y position of the table widget.
+		int bottomYpos = getBottomYPos(tableWidget) + decrement;
+
+		//Move widgets which are below the bottom of the table widget.
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper currentWidget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(currentWidget == tableWidget)
+				continue;
+
+			int top = currentWidget.getTopInt();
+			if(top >= bottomYpos)
+				currentWidget.setTopInt(top - decrement);
+		}
+
+		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()-decrement+PurcConstants.UNITS);
+
+		setParentHeight(false, tableWidget, decrement);
+	}
+	
+	public void onColumnsRemoved(DesignWidgetWrapper tableWidget, int decrement){
+
+		//Get the current right x position of the table widget.
+		int rightXpos = getRightXPos(tableWidget) + decrement;
+
+		//Move widgets which are on the right of the table widget.
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			DesignWidgetWrapper currentWidget = (DesignWidgetWrapper)selectedPanel.getWidget(index);
+			if(currentWidget == tableWidget)
+				continue;
+
+			int left = currentWidget.getLeftInt();
+			if(left >= rightXpos)
+				currentWidget.setLeftInt(left - decrement);
+		}
+
+		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()-decrement+PurcConstants.UNITS);
+
+		setParentWidth(false, tableWidget, decrement);
+	}
+
+	private int getBottomYPos(DesignWidgetWrapper tableWidget){
+		int bottomYpos = tableWidget.getTopInt() + tableWidget.getHeightInt();
+
+		Widget parent = tableWidget.getParent();
+		while(parent != null){
+			if(parent instanceof DesignGroupWidget){
+				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
+				if(selectedPanel.getWidgetIndex(wrapper) != -1){
+					bottomYpos = wrapper.getTopInt() + wrapper.getHeightInt();
+					break;
+				}
+			}
+			else if(parent instanceof DesignSurfaceView)
+				break;
+
+			parent = parent.getParent();
+		}
+
+		return bottomYpos;
+	}
+	
+	private int getRightXPos(DesignWidgetWrapper tableWidget){
+		int rightXpos = tableWidget.getLeftInt() + tableWidget.getWidthInt();
+
+		Widget parent = tableWidget.getParent();
+		while(parent != null){
+			if(parent instanceof DesignGroupWidget){
+				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
+				if(selectedPanel.getWidgetIndex(wrapper) != -1){
+					rightXpos = wrapper.getLeftInt() + wrapper.getWidthInt();
+					break;
+				}
+			}
+			else if(parent instanceof DesignSurfaceView)
+				break;
+
+			parent = parent.getParent();
+		}
+
+		return rightXpos;
+	}
+	
+	private void setParentHeight(boolean increase, DesignWidgetWrapper tableWidget, int change){
+		Widget parent = tableWidget.getParent();
+		while(parent != null){
+			if(parent instanceof DesignGroupWidget){
+				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
+				int height = wrapper.getHeightInt();
+				wrapper.setHeight((increase ? height+change : height-change)+PurcConstants.UNITS);
+			}
+			else if(parent instanceof DesignSurfaceView)
+				return;
+
+			parent = parent.getParent();
+		}
+	}
+	
+	private void setParentWidth(boolean increase, DesignWidgetWrapper tableWidget, int change){
+		Widget parent = tableWidget.getParent();
+		while(parent != null){
+			if(parent instanceof DesignGroupWidget){
+				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
+				int width = wrapper.getWidthInt();
+				wrapper.setWidth((increase ? width+change : width-change)+PurcConstants.UNITS);
+			}
+			else if(parent instanceof DesignSurfaceView)
+				return;
+
+			parent = parent.getParent();
+		}
+	}
+	
+	private int getHeightInt(){
+		return FormUtil.convertDimensionToInt(DOM.getStyleAttribute(selectedPanel.getElement(), "height"));
+	}
+	
+	private int getWidthInt(){
+		return FormUtil.convertDimensionToInt(DOM.getStyleAttribute(selectedPanel.getElement(), "width"));
 	}
 }

@@ -40,6 +40,8 @@ public class DeleteRowCmd implements ICommand {
 			table.add(line);
 		}
 		
+		table.onRowsAdded(totalDisplacement);
+		
 		table.setResizeLinesToFit(true);
 	}
 
@@ -55,6 +57,8 @@ public class DeleteRowCmd implements ICommand {
 		
 		//table.resizeVerticalLinesAndTable(ypos, -totalDisplacement);
 		table.resizeVerticalLines(resizedLines, movedLines, -totalDisplacement);
+		
+		table.onRowsRemoved(totalDisplacement);
 		
 		table.setResizeLinesToFit(true);
 	}

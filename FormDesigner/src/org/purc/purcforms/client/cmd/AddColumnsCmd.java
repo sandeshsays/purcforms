@@ -44,6 +44,8 @@ public class AddColumnsCmd implements ICommand {
 		
 		//table.resizeHorizontalLinesAndTable(xpos, -totalDisplacement);
 		table.resizeHorizontalLines(resizedLines, movedLines, -totalDisplacement);
+		
+		table.onColumnsRemoved(totalDisplacement);
 	}
 
 	public void redo(){
@@ -56,6 +58,8 @@ public class AddColumnsCmd implements ICommand {
 		for(DesignWidgetWrapper line : addedLines) {
 			table.add(line);
 		}
+		
+		table.onColumnsAdded(totalDisplacement);
 	}
 	
 	public boolean isWidgetCommand(){
