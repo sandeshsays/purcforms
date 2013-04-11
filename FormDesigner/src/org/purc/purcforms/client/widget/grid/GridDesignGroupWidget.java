@@ -73,18 +73,19 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	protected void addExtraMenu(MenuBar menuBar) {
 		//begin table menu-----------
 		MenuBar tableMenu = new MenuBar(true);
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsBelow")), true, new Command(){
-			public void execute() {popup.hide(); addRows(true);}});
 		
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsAbove")), true, new Command(){
 			public void execute() {popup.hide(); addRows(false);}});
 		
-		tableMenu.addSeparator();
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsRight")), true, new Command(){
-			public void execute() {popup.hide(); addColumns(true);}});
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsBelow")), true, new Command(){
+			public void execute() {popup.hide(); addRows(true);}});
 		
+		tableMenu.addSeparator();
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsLeft")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(false);}});
+		
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsRight")), true, new Command(){
+			public void execute() {popup.hide(); addColumns(true);}});
 		
 		tableMenu.addSeparator();
 		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteColumn")), true, new Command(){
@@ -245,6 +246,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		WidgetCollection horizontalLines = getHorizontalLines();
 		DesignWidgetWrapper startLine = null;
+		List<DesignWidgetWrapper> startLines = new ArrayList<DesignWidgetWrapper>();
 		for(Widget w : horizontalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int top = widget.getTopInt();
@@ -258,6 +260,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 						startLine = widget;
 					}
 				}
+				else if (diff == topDiff) {
+					startLines.add(widget);
+				}
+				
 				topLineFound = true;
 			}
 			else if(top > ypos){ //current line below the mouse position
@@ -268,6 +274,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 						startLine = widget;
 					}
 				}
+				else if (diff == bottomDiff) {
+					startLines.add(widget);
+				}
+				
 				bottomLineFound = true;
 			}
 		}
@@ -343,6 +353,19 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 			
 			addRowsCmd.addline(wrapper);
+			
+			int prevX = x;
+			for (DesignWidgetWrapper ln : startLines) {
+				x = ln.getLeftInt() + getAbsoluteLeft();
+				
+				HorizontalGridLine newLine = new HorizontalGridLine(ln.getWidthInt());
+				DesignWidgetWrapper newWrapper = addNewWidget(newLine, false);
+				newWrapper.setWidthInt(ln.getWidthInt());
+				newWrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				
+				addRowsCmd.addline(newWrapper);
+			}
+			x = prevX;
 		}
 		
 		resizeVerticalLinesAndTable(ypos, totalDisplacement, addRowsCmd.getResizedLines(), addRowsCmd.getMovedLines());
@@ -369,6 +392,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		WidgetCollection verticalLines = getVerticalLines();
 		DesignWidgetWrapper startLine = null;
+		List<DesignWidgetWrapper> startLines = new ArrayList<DesignWidgetWrapper>();
 		for(Widget w : verticalLines) {
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
 			int left = widget.getLeftInt();
@@ -382,6 +406,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 						startLine = widget;
 					}
 				}
+				else if (diff == leftDiff) {
+					startLines.add(widget);
+				}
+				
 				leftLineFound = true;
 			}
 			else if(left > xpos){ //current line on right hand side of mouse position
@@ -392,6 +420,10 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 						startLine = widget;
 					}
 				}
+				else if (diff == rightDiff) {
+					startLines.add(widget);
+				}
+				
 				rightLineFound = true;
 			}
 		}
@@ -461,6 +493,19 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
 			
 			addColumnsCmd.addline(wrapper);
+			
+			int prevY = y;
+			for (DesignWidgetWrapper ln : startLines) {
+				y = ln.getTopInt() + getAbsoluteTop();
+				
+				VerticalGridLine newLine = new VerticalGridLine(ln.getHeightInt());
+				DesignWidgetWrapper newWrapper = addNewWidget(newLine, false);
+				newWrapper.setHeightInt(ln.getHeightInt());
+				newWrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				
+				addColumnsCmd.addline(newWrapper);
+			}
+			y = prevY;
 		}
 		
 		resizeHorizontalLinesAndTable(xpos, totalDisplacement, addColumnsCmd.getResizedLines(), addColumnsCmd.getMovedLines());
