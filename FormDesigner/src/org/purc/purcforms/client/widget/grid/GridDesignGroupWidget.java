@@ -345,6 +345,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			y -= size;
 		}
 		
+		this.setResizeLinesToFit(false);
 		for(int i = 0; i < rows; i++) {
 			y += size;
 			HorizontalGridLine line = new HorizontalGridLine(width);
@@ -367,6 +368,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			}
 			x = prevX;
 		}
+		this.setResizeLinesToFit(true);
 		
 		resizeVerticalLinesAndTable(ypos, totalDisplacement, addRowsCmd.getResizedLines(), addRowsCmd.getMovedLines());
 		
@@ -485,6 +487,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			x -= size;
 		}*/
 		
+		this.setResizeLinesToFit(false);
 		for(int i = 0; i < columns; i++) {
 			x += size;
 			VerticalGridLine line = new VerticalGridLine(height);
@@ -507,6 +510,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			}
 			y = prevY;
 		}
+		this.setResizeLinesToFit(true);
 		
 		resizeHorizontalLinesAndTable(xpos, totalDisplacement, addColumnsCmd.getResizedLines(), addColumnsCmd.getMovedLines());
 		
@@ -873,6 +877,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			leftLineX = leftLine.getLeftInt();
 		}
 		
+		this.setResizeLinesToFit(false);
 		List<DesignWidgetWrapper> horizontalLines = getHorizontalLinesCopy();
 		for(DesignWidgetWrapper widget : horizontalLines) {
 			int left = widget.getLeftInt();
@@ -906,6 +911,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				mergeCellsCmd.addLine(wrapper);
 			}
 		}
+		this.setResizeLinesToFit(true);
 	}
 	
 	public void mergeVerticalLines(MergeCellsCmd mergeCellsCmd) {
@@ -946,6 +952,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			topLineY = topLine.getTopInt();
 		}
 		
+		this.setResizeLinesToFit(false);
 		List<DesignWidgetWrapper> verticalLines = getVerticalLinesCopy();
 		for(DesignWidgetWrapper widget : verticalLines) {
 			int top = widget.getTopInt();
@@ -979,6 +986,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				mergeCellsCmd.addLine(wrapper);
 			}
 		}
+		this.setResizeLinesToFit(true);
 	}
 	
 	public void resizeHorizontalLines(Map<DesignWidgetWrapper, Integer> resizedLines, Map<DesignWidgetWrapper, Integer> movedLines, int totalDisplacement) {
