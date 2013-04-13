@@ -139,7 +139,7 @@ public class WidgetEx extends Composite{
 	 * 
 	 * @param widget the widget to copy from.
 	 */
-	public void copyWidgetProperties(WidgetEx widget){
+	public void copyWidgetProperties(WidgetEx widget, Widget wrappedWidget){
 		widget.storePosition();
 		
 		this.left = widget.left;
@@ -156,7 +156,10 @@ public class WidgetEx extends Composite{
 		this.isRepeated = widget.isRepeated;
 		this.id = widget.id;
 		
-		copyWidget(widget);
+		if (wrappedWidget != null)
+			this.widget = wrappedWidget;
+		else
+			copyWidget(widget);
 
 		setForeColor(widget.getForeColor());
 		setFontWeight(widget.getFontWeight());
@@ -169,9 +172,14 @@ public class WidgetEx extends Composite{
 		setBorderStyle(widget.getBorderStyle());
 		setBorderWidth(widget.getBorderWidth());
 		setBorderColor(widget.getBorderColor());
+		setTabIndex(widget.getTabIndex());
 		
 		setTitle(widget.getTitle());
 		setText(widget.getText());
+	}
+	
+	public void copyWidgetProperties(WidgetEx widget){
+		copyWidgetProperties(widget, null);
 	}
 	
 	protected void copyWidget(WidgetEx widget){
@@ -316,6 +324,10 @@ public class WidgetEx extends Composite{
 	
 	public Widget getWrappedWidget(){
 		return widget;
+	}
+	
+	public void setWrappedWidget(Widget widget){
+		this.widget = widget;
 	}
 	
 	public Widget getWrappedWidgetEx(){

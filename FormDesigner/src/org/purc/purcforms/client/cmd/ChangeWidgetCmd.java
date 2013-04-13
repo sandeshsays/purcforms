@@ -3,6 +3,7 @@ package org.purc.purcforms.client.cmd;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 
@@ -249,14 +250,23 @@ public class ChangeWidgetCmd implements ICommand {
 		case PROPERTY_BORDER_STYLE:
 			oldValue = widget.getBorderStyle();
 			widget.setBorderStyle(value);
+			if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+				((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderStyle(value);
+			}
 			break;
 		case PROPERTY_BORDER_WIDTH:
 			oldValue = widget.getBorderWidth();
 			widget.setBorderWidth(value);
+			if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+				((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderWidth(value);
+			}
 			break;
 		case PROPERTY_BORDER_COLOR:
 			oldValue = widget.getBorderColor();
 			widget.setBorderColor(value);
+			if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+				((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderColor(value);
+			}
 			break;
 		case PROPERTY_ID:
 			oldValue = widget.getId();

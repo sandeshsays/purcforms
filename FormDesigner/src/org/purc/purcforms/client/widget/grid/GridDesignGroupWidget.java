@@ -22,6 +22,7 @@ import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.Widget;
@@ -354,7 +355,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			HorizontalGridLine line = new HorizontalGridLine(width);
 			DesignWidgetWrapper wrapper = addNewWidget(line, false);
 			wrapper.setWidthInt(width);
-			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			setLineBorderProperties(wrapper);
 			
 			addRowsCmd.addline(wrapper);
 			
@@ -365,7 +366,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				HorizontalGridLine newLine = new HorizontalGridLine(ln.getWidthInt());
 				DesignWidgetWrapper newWrapper = addNewWidget(newLine, false);
 				newWrapper.setWidthInt(ln.getWidthInt());
-				newWrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				setLineBorderProperties(wrapper);
 				
 				addRowsCmd.addline(newWrapper);
 			}
@@ -504,7 +505,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 			VerticalGridLine line = new VerticalGridLine(height);
 			DesignWidgetWrapper wrapper = addNewWidget(line, false);
 			wrapper.setHeight(height);
-			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			setLineBorderProperties(wrapper);
 			
 			addColumnsCmd.addline(wrapper);
 			
@@ -515,7 +516,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				VerticalGridLine newLine = new VerticalGridLine(ln.getHeightInt());
 				DesignWidgetWrapper newWrapper = addNewWidget(newLine, false);
 				newWrapper.setHeightInt(ln.getHeightInt());
-				newWrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				setLineBorderProperties(wrapper);
 				
 				addColumnsCmd.addline(newWrapper);
 			}
@@ -935,7 +936,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				HorizontalGridLine line = new HorizontalGridLine(width);
 				DesignWidgetWrapper wrapper = addNewWidget(line, false);
 				wrapper.setWidthInt(width);
-				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				setLineBorderProperties(wrapper);
 				
 				mergeCellsCmd.addLine(wrapper);
 			}
@@ -1010,7 +1011,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 				VerticalGridLine line = new VerticalGridLine(height);
 				DesignWidgetWrapper wrapper = addNewWidget(line, false);
 				wrapper.setHeightInt(height);
-				wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+				setLineBorderProperties(wrapper);
 				
 				mergeCellsCmd.addLine(wrapper);
 			}
@@ -1052,5 +1053,59 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	
 	public int getHeaderLabelHeight() {
 		return ((GridPanel)selectedPanel).getLabelHeight();
+	}
+	
+	public void setBorderStyle(String borderStyle) {
+		for(Widget line : getVerticalLines()) {
+			((DesignWidgetWrapper)line).setBorderStyle(borderStyle);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+		
+		for(Widget line : getHorizontalLines()) {
+			((DesignWidgetWrapper)line).setBorderStyle(borderStyle);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+	}
+	
+	public void setBorderWidth(String borderWidth) {
+		for(Widget line : getVerticalLines()) {
+			((DesignWidgetWrapper)line).setBorderWidth(borderWidth);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+		
+		for(Widget line : getHorizontalLines()) {
+			((DesignWidgetWrapper)line).setBorderWidth(borderWidth);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+	}
+	
+	public void setBorderColor(String borderColor) {
+		for(Widget line : getVerticalLines()) {
+			((DesignWidgetWrapper)line).setBorderColor(borderColor);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+		
+		for(Widget line : getHorizontalLines()) {
+			((DesignWidgetWrapper)line).setBorderColor(borderColor);
+			setBorderRightBottomStyle(((DesignWidgetWrapper)line));
+		}
+	}
+	
+	private void setLineBorderProperties(DesignWidgetWrapper wrapper) {
+		String borderColor = ((DesignWidgetWrapper)getParent().getParent()).getBorderColor();
+		if (borderColor == null || borderColor.trim().length() == 0) {
+			borderColor = FormUtil.getDefaultGroupBoxHeaderBgColor();
+		}
+		
+		wrapper.setBorderColor(borderColor);
+		wrapper.setBorderWidth(((DesignWidgetWrapper)getParent().getParent()).getBorderWidth());
+		wrapper.setBorderStyle(((DesignWidgetWrapper)getParent().getParent()).getBorderStyle());
+		
+		setBorderRightBottomStyle(wrapper);
+	}
+	
+	private void setBorderRightBottomStyle(DesignWidgetWrapper wrapper) {
+		DOM.setStyleAttribute(wrapper.getWrappedWidget().getElement(), "borderBottomStyle", "none");
+		DOM.setStyleAttribute(wrapper.getWrappedWidget().getElement(), "borderRightStyle", "none");
 	}
 }

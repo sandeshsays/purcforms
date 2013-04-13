@@ -2252,6 +2252,23 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if((height + getAbsoluteTop()) < y)
 			setHeight(y+PurcConstants.UNITS);
 	}
+	
+	protected void changeToTextBoxWidget(){
+		if(selectedDragController.getSelectedWidgetCount() != 1)
+			return;
+
+		DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(0);
+
+		Element layoutNode = widget.getLayoutNode();
+		if(layoutNode != null){
+			layoutNode.getParentNode().removeChild(layoutNode);
+			widget.setLayoutNode(null);
+		}
+		
+		Context.getCommandHistory().add(new ChangeWidgetTypeCmd(widget, layoutNode, widget.getWrappedWidget(), this));
+		
+		widget.copyWidgetProperties(widget, new TextBox());
+	}
 
 	/**
 	 * Adds a new serach server widget.

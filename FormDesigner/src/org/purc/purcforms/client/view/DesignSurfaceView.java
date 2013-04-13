@@ -136,6 +136,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("changeWidgetV")),true, new Command(){
 			public void execute() {widgetPopup.hide(); changeWidget(true);}});
 
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("changeToTextBoxWidget")),true, new Command(){
+			public void execute() {widgetPopup.hide(); changeToTextBoxWidget();}});
+		
 		menuBar.addSeparator();
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupWidgets")),true,new Command(){
 			public void execute() {widgetPopup.hide(); groupWidgets();}});

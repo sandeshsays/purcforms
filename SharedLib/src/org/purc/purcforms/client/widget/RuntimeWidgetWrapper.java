@@ -355,7 +355,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						(displayField == null || displayField.trim().length() == 0) &&
 						(valueField == null || valueField.trim().length() == 0) ){
 
-					if(keyCode == KeyCodes.KEY_TAB || keyCode == KeyCodes.KEY_ENTER){
+					if(keyCode == KeyCodes.KEY_TAB || keyCode == KeyCodes.KEY_ENTER || isDateOrTimeExternalSource()){
 						//editListener.onMoveToNextWidget((RuntimeWidgetWrapper)panel.getParent());
 						return;
 					}
@@ -378,6 +378,24 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					label.setVisible(false);
 					panel.add(label);
 					FormUtil.searchExternal(externalSource,String.valueOf(event.getCharCode()), widget.getElement(), label.getElement(), widget.getElement(),filterField);
+				}
+			}
+		});
+		
+		((TextBoxBase)widget).addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event) {
+				if((externalSource != null && externalSource.trim().length() > 0) && 
+						(displayField == null || displayField.trim().length() == 0) &&
+						(valueField == null || valueField.trim().length() == 0) ){
+
+					//Remove error icon.
+					while(panel.getWidgetCount() > 1)
+						panel.remove(1);
+				
+					Label label = new Label("");
+					label.setVisible(false);
+					panel.add(label);
+					FormUtil.searchExternal(externalSource, "", widget.getElement(), label.getElement(), widget.getElement(), filterField);
 				}
 			}
 		});
@@ -858,7 +876,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				if(panel.getWidgetCount() > 1 && answer != null && answer.trim().length() > 0){
 					Widget wid = panel.getWidget(1);
 					if(wid instanceof Label){
-						answer = ((Label)wid).getText();
+						String ans = ((Label)wid).getText();
+						if (ans != null && ans.trim().length() > 0)
+							answer = ans;
 					}
 				}
 			}
@@ -962,6 +982,12 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		//Repeat widgets have a value for row count which does not go anywhere in the model
 		if(!(widget instanceof RuntimeGroupWidget))
 			questionDef.updateNodeValue(formDef);
+	}
+	
+	private boolean isDateOrTimeExternalSource() {
+		return "date".equalsIgnoreCase(externalSource) || 
+				"datetime".equalsIgnoreCase(externalSource) ||
+				"time".equalsIgnoreCase(externalSource);
 	}
 
 	/**

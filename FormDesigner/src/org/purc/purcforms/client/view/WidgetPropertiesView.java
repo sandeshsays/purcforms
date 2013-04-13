@@ -19,6 +19,7 @@ import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.util.StyleUtil;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -32,6 +33,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
@@ -43,7 +45,6 @@ import com.google.gwt.user.client.ui.TabBar;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 
 
 /**
@@ -807,6 +808,10 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					
 					widget.setBorderColor(txtBorderColor.getText());
 					
+					if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+						((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderColor(txtBorderColor.getText());
+					}
+					
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
 					beforeChangeText = null;
 				}
@@ -834,6 +839,10 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					beforeChangeText = widget.getBorderColor();
 					
 					widget.setBorderColor(txtBorderColor.getText());
+					
+					if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+						((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderColor(txtBorderColor.getText());
+					}
 
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_COLOR, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
 					beforeChangeText = null;
@@ -917,6 +926,10 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			public void onChange(ChangeEvent event){
 				if(widget != null)	{
 					widget.setBorderWidth(txtBorderWidth.getText());
+					
+					if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+						((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderWidth(txtBorderWidth.getText());
+					}
 
 					if(widget != null && beforeChangeText != null){
 						Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_WIDTH, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
@@ -947,6 +960,10 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					}
 
 					widget.setBorderWidth(txtBorderWidth.getText());
+					
+					if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+						((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderWidth(txtBorderWidth.getText());
+					}
 				}
 				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
 					if(beforeChangeText == null){
@@ -1014,8 +1031,13 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			public void onChange(ChangeEvent event){
 				if(widget != null){
 					String prevValue = widget.getBorderStyle();
-					widget.setBorderStyle(lbBorderStyle.getItemText(lbBorderStyle.getSelectedIndex()));
+					String borderStyle = lbBorderStyle.getItemText(lbBorderStyle.getSelectedIndex());
+					widget.setBorderStyle(borderStyle);
 
+					if (widget.getWrappedWidget() instanceof GridDesignGroupWidget) {
+						((GridDesignGroupWidget)widget.getWrappedWidget()).setBorderStyle(borderStyle);
+					}
+					
 					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BORDER_STYLE, prevValue, (DesignGroupView)widgetPropertyChangeListener));
 				}
 				else if(viewWidget != null && viewWidget instanceof DesignGroupWidget){
