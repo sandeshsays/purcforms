@@ -3574,8 +3574,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	
 	public boolean findLabel(String text) {
 		AbsolutePanel lastFoundWidgetPanel = null;
-		if (Context.getLastFoundLabelWidget() != null) {
-			lastFoundWidgetPanel = (AbsolutePanel)Context.getLastFoundLabelWidget().getParent();
+		if (Context.getLastFoundWidget() != null) {
+			lastFoundWidgetPanel = (AbsolutePanel)Context.getLastFoundWidget().getParent();
 		}
 		boolean lastWidgetPanelHasBeenFound = false;
 		
@@ -3605,7 +3605,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(panel.getWidgetIndex(rubberBand) > -1)
 			panel.remove(rubberBand);
 
-		DesignWidgetWrapper lastFoundLabelWidget = Context.getLastFoundLabelWidget();
+		DesignWidgetWrapper lastFoundWidget = Context.getLastFoundWidget();
 		boolean lastWidgetHasBeenFound = false;
 		
 		for(int index = 0; index < panel.getWidgetCount(); index++){
@@ -3617,23 +3617,21 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
 			
-			if (widget == lastFoundLabelWidget) {
+			if (widget == lastFoundWidget) {
 				lastWidgetHasBeenFound  = true;
 				continue;
 			}
 		
-			if (lastFoundLabelWidget != null && !lastWidgetHasBeenFound && lastFoundLabelWidget.getParent() == panel) {
+			if (lastFoundWidget != null && !lastWidgetHasBeenFound && lastFoundWidget.getParent() == panel) {
 				continue;
 			}
 
-			if(widget.getWrappedWidget() instanceof Label) {
-				String labelText = widget.getText();
-				if (labelText != null && labelText.toLowerCase().contains(text)) {
-					selectWidget(widget, panel);
-					ensureVisible(widget);
-					Context.setLastFoundLabelWidget(widget);
-					return true;
-				}
+			String labelText = widget.getText();
+			if (labelText != null && labelText.toLowerCase().contains(text)) {
+				selectWidget(widget, panel);
+				ensureVisible(widget);
+				Context.setLastFoundWidget(widget);
+				return true;
 			}
 
 			if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
@@ -3657,7 +3655,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		text = text.toLowerCase();
 		
 		if (!findLabel(text)) {
-			Context.setLastFoundLabelWidget(null);
+			Context.setLastFoundWidget(null);
 			Window.alert(LocaleText.get("noDataFound"));
 			return;
 		}

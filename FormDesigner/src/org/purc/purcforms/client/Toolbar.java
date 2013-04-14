@@ -224,10 +224,10 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 			panel.add(btnNewForm);
 		
 		panel.add(btnOpenForm);
+		panel.add(btnRefresh);
 		panel.add(btnPrint);
 		panel.add(btnFind);
 		panel.add(btnSaveForm);
-		panel.add(btnRefresh);
 		
 		panel.add(separatorWidget);
 		
