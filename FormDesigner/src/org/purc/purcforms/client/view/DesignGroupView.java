@@ -3572,8 +3572,95 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 	}
 	
-	public void find(){
+	public boolean findLabel(String text) {
+		AbsolutePanel lastFoundWidgetPanel = null;
+		if (Context.getLastFoundLabelWidget() != null) {
+			lastFoundWidgetPanel = (AbsolutePanel)Context.getLastFoundLabelWidget().getParent();
+		}
+		boolean lastWidgetPanelHasBeenFound = false;
 		
+		List<DropController> dropControllers = FormDesignerDragController.getInstance().getDropControllers();
+		for(int i=0; i<dropControllers.size(); i++){
+			Widget dropTarget = dropControllers.get(i).getDropTarget();
+			if(!(dropTarget instanceof AbsolutePanel))
+				continue;
+			
+			AbsolutePanel panel = (AbsolutePanel)dropTarget;
+			if (panel == lastFoundWidgetPanel) {
+				lastWidgetPanelHasBeenFound  = true;
+			}
+		
+			if (lastFoundWidgetPanel != null && !lastWidgetPanelHasBeenFound) {
+				continue;
+			}
+			
+			if (findLabel(panel, text))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean findLabel(AbsolutePanel panel, String text){
+		if(panel.getWidgetIndex(rubberBand) > -1)
+			panel.remove(rubberBand);
+
+		DesignWidgetWrapper lastFoundLabelWidget = Context.getLastFoundLabelWidget();
+		boolean lastWidgetHasBeenFound = false;
+		
+		for(int index = 0; index < panel.getWidgetCount(); index++){
+			Widget wid = panel.getWidget(index);
+			if(!(wid instanceof DesignWidgetWrapper)) {
+				panel.remove(wid);
+				continue;
+			}
+			
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
+			
+			if (widget == lastFoundLabelWidget) {
+				lastWidgetHasBeenFound  = true;
+				continue;
+			}
+		
+			if (lastFoundLabelWidget != null && !lastWidgetHasBeenFound && lastFoundLabelWidget.getParent() == panel) {
+				continue;
+			}
+
+			if(widget.getWrappedWidget() instanceof Label) {
+				String labelText = widget.getText();
+				if (labelText != null && labelText.toLowerCase().contains(text)) {
+					selectWidget(widget, panel);
+					ensureVisible(widget);
+					Context.setLastFoundLabelWidget(widget);
+					return true;
+				}
+			}
+
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
+				if (findLabel(((DesignGroupWidget)widget.getWrappedWidget()).getPanel(), text))
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public void find(){
+		String text = Window.prompt(LocaleText.get("find"), Context.getSearchText());
+		if (text == null || text.trim().length() == 0)
+			return;
+		
+		selectedDragController.clearSelection();
+		
+		Context.setSearchText(text);
+		
+		text = text.toLowerCase();
+		
+		if (!findLabel(text)) {
+			Context.setLastFoundLabelWidget(null);
+			Window.alert(LocaleText.get("noDataFound"));
+			return;
+		}
 	}
 	
 	public void bold() {

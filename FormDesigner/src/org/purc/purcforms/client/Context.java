@@ -86,6 +86,8 @@ public class Context {
 	private static Object selectedItem;
 	
 	private static String searchText;
+	
+	private static DesignWidgetWrapper lastFoundLabelWidget;
 
 	/**
 	 * Sets the default locale.
@@ -306,5 +308,13 @@ public class Context {
 
     public static void setSearchText(String searchText) {
     	Context.searchText = searchText;
+    }
+
+    public static DesignWidgetWrapper getLastFoundLabelWidget() {
+    	return lastFoundLabelWidget;
+    }
+
+    public static void setLastFoundLabelWidget(DesignWidgetWrapper lastFoundLabelWidget) {
+    	Context.lastFoundLabelWidget = lastFoundLabelWidget;
     }
 }
