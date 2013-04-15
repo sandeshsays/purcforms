@@ -2267,7 +2267,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 		Context.getCommandHistory().add(new ChangeWidgetTypeCmd(widget, layoutNode, widget.getWrappedWidget(), this));
 		
-		widget.copyWidgetProperties(widget, new TextBox());
+		widget.copyWidgetProperties(new DesignWidgetWrapper(widget, null), new TextBox());
 	}
 
 	/**
