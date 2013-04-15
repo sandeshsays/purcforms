@@ -388,6 +388,10 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						(displayField == null || displayField.trim().length() == 0) &&
 						(valueField == null || valueField.trim().length() == 0) ){
 
+					//We want external source display on click for only date/time widgets.
+					if (!isDateOrTimeExternalSource())
+						return;
+					
 					//Remove error icon.
 					while(panel.getWidgetCount() > 1)
 						panel.remove(1);
