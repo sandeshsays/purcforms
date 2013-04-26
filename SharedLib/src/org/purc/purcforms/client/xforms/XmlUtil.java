@@ -205,7 +205,7 @@ public class XmlUtil {
 	 * @return the document object.
 	 */
 	public static Document getDocument(String xml){
-		return XMLParser.parse(xml);
+		return XMLParser.parse(xml.trim());
 	}
 
 

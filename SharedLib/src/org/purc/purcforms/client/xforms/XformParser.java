@@ -17,6 +17,7 @@ import org.purc.purcforms.client.model.RepeatQtnsDef;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.xpath.XPathExpression;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -966,9 +967,15 @@ public class XformParser {
 				varName = (String)id2VarNameMap.get(parent.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) != null ? parent.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) : parent.getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET));
 				
 				QuestionDef rptQtnDef = formDef.getQuestion(varName);
-				if(rptQtnDef == null && varName.startsWith("/" + formDef.getBinding() + "/")){
-					varName = varName.substring(varName.indexOf('/', 1) + 1);
-					rptQtnDef = formDef.getQuestion(varName);
+				try {
+					if(rptQtnDef == null && varName.startsWith("/" + formDef.getBinding() + "/")){
+						varName = varName.substring(varName.indexOf('/', 1) + 1);
+						rptQtnDef = formDef.getQuestion(varName);
+					}
+				}
+				catch(Exception ex) {
+					Window.alert("Failed to get repeat type field for: " + parent.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND));
+					return null;
 				}
 				
 				if(qtn.getId() ==  ModelConstants.NULL_ID){

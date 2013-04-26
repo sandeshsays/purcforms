@@ -1356,7 +1356,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			if(isOfflineMode()){
 				if(formSaveListener != null){
 					if(langXml != null && langXml.trim().length() > 0){
-						Document doc = XMLParser.parse(langXml);
+						Document doc = XMLParser.parse(langXml.trim());
 						formSaveListener.onSaveLocaleText(formDef.getId(), LanguageUtil.getXformsLocaleText(doc), LanguageUtil.getLayoutLocaleText(doc));
 					}
 				}

@@ -384,7 +384,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		initValidationWidgetsMap(parentValidationWidgetQtns);
 
 		String firstPageText = null;
-		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml);
+		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml.trim());
 		Element root = doc.getDocumentElement();
 		NodeList pages = root.getChildNodes();
 		for(int i=0; i<pages.getLength(); i++){

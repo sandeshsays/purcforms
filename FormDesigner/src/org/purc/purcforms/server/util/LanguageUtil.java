@@ -21,7 +21,7 @@ public class LanguageUtil {
 
 
 	/*public static String translate(String srcXml, String languageXml){
-		return translate(XMLParser.parse(srcXml),XMLParser.parse(languageXml).getDocumentElement());
+		return translate(XMLParser.parse(srcXml.trim()),XMLParser.parse(languageXml.trim()).getDocumentElement());
 	}*/
 
 	private static String translate(Document doc, Node parentLangNode){

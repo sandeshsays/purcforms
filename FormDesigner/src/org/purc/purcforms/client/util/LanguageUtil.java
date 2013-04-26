@@ -43,7 +43,7 @@ public class LanguageUtil {
 		if(srcXml == null || srcXml.trim().length() == 0 || languageXml == null || languageXml.trim().length() == 0)
 			return null;
 
-		return translate(XMLParser.parse(srcXml),languageXml,xform);
+		return translate(XMLParser.parse(srcXml.trim()),languageXml,xform);
 	}
 
 	public static String translate(Document doc, String languageXml, boolean xform){
@@ -51,7 +51,7 @@ public class LanguageUtil {
 		if(doc == null)
 			return null;
 
-		Document lngDoc = XMLParser.parse(languageXml);
+		Document lngDoc = XMLParser.parse(languageXml.trim());
 		NodeList nodes = lngDoc.getDocumentElement().getChildNodes();
 		if(nodes == null)
 			return null;
@@ -116,8 +116,8 @@ public class LanguageUtil {
 		if(srcXml == null || srcXml.trim().length() == 0 || langXml == null || langXml.trim().length() == 0)
 			return srcXml;
 
-		Document doc = XMLParser.parse(srcXml);
-		Element parentLangNode = XMLParser.parse(langXml).getDocumentElement();
+		Document doc = XMLParser.parse(srcXml.trim());
+		Element parentLangNode = XMLParser.parse(langXml.trim()).getDocumentElement();
 
 		NodeList nodes = parentLangNode.getChildNodes();
 		for(int index = 0; index < nodes.getLength(); index++){
@@ -200,10 +200,10 @@ public class LanguageUtil {
 		Document doc = createNewLanguageDoc();
 
 		if(xform != null && xform.trim().length() > 0)
-			doc.getDocumentElement().appendChild(doc.importNode(XMLParser.parse(xform).getDocumentElement(),true));
+			doc.getDocumentElement().appendChild(doc.importNode(XMLParser.parse(xform.trim()).getDocumentElement(),true));
 
 		if(layout != null && layout.trim().length() > 0)
-			doc.getDocumentElement().appendChild(doc.importNode(XMLParser.parse(layout).getDocumentElement(),true));
+			doc.getDocumentElement().appendChild(doc.importNode(XMLParser.parse(layout.trim()).getDocumentElement(),true));
 
 		return doc.toString();
 	}

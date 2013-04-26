@@ -1404,8 +1404,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		HorizontalGridLine line = new HorizontalGridLine(800);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
-			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			((GridDesignGroupWidget)this).setLineBorderProperties(wrapper);
 		}
+		
 		return wrapper;
 	}
 	
@@ -1413,8 +1414,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		VerticalGridLine line = new VerticalGridLine(400);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
-			wrapper.setBorderColor(FormUtil.getDefaultGroupBoxHeaderBgColor());
+			((GridDesignGroupWidget)this).setLineBorderProperties(wrapper);
 		}
+		
 		return wrapper;
 	}
 

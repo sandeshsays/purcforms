@@ -240,12 +240,18 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupBox")), true, new Command(){
 			public void execute() {popup.hide(); resizeDesignSurface(addNewGroupBox(true));}});
-		
-		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("table")), true, new Command(){
-			public void execute() {popup.hide(); resizeDesignSurface(addNewTable(true));}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("repeatSection")), true, new Command(){
 			public void execute() {popup.hide(); resizeDesignSurface(addNewRepeatSection(true));}});
+		
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("table")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewTable(true));}});
+		
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("verticalLine")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewVerticalLine(true));}});
+		
+		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("horizontalLine")), true, new Command(){
+			public void execute() {popup.hide(); resizeDesignSurface(addNewHorizontalLine(true));}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("picture")), true, new Command(){
 			public void execute() {popup.hide(); resizeDesignSurface(addNewPictureSection(null, null, true));}});
@@ -500,7 +506,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			return false;
 		}
 
-		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml);
+		com.google.gwt.xml.client.Document doc = XMLParser.parse(xml.trim());
 		Element root = doc.getDocumentElement();
 		NodeList pages = root.getChildNodes();
 		for(int i=0; i<pages.getLength(); i++){

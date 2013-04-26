@@ -76,24 +76,24 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		//begin table menu-----------
 		MenuBar tableMenu = new MenuBar(true);
 		
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsAbove")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(), LocaleText.get("addRowsAbove")), true, new Command(){
 			public void execute() {popup.hide(); addRows(false);}});
 		
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addRowsBelow")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(), LocaleText.get("addRowsBelow")), true, new Command(){
 			public void execute() {popup.hide(); addRows(true);}});
 		
 		tableMenu.addSeparator();
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsLeft")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(), LocaleText.get("addColumnsLeft")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(false);}});
 		
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("addColumnsRight")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(), LocaleText.get("addColumnsRight")), true, new Command(){
 			public void execute() {popup.hide(); addColumns(true);}});
 		
 		tableMenu.addSeparator();
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteColumn")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.delete(), LocaleText.get("deleteColumn")), true, new Command(){
 			public void execute() {popup.hide(); deleteColumn();}});
 		
-		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.addchild(), LocaleText.get("deleteRow")), true, new Command(){
+		tableMenu.addItem(FormDesignerUtil.createHeaderHTML(images.delete(), LocaleText.get("deleteRow")), true, new Command(){
 			public void execute() {popup.hide(); deleteRow();}});
 		
 		tableMenu.addSeparator();
@@ -1091,7 +1091,7 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 	}
 	
-	private void setLineBorderProperties(DesignWidgetWrapper wrapper) {
+	public void setLineBorderProperties(DesignWidgetWrapper wrapper) {
 		String borderColor = ((DesignWidgetWrapper)getParent().getParent()).getBorderColor();
 		if (borderColor == null || borderColor.trim().length() == 0) {
 			borderColor = FormUtil.getDefaultGroupBoxHeaderBgColor();
