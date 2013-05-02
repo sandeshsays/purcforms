@@ -3631,6 +3631,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			String labelText = widget.getText();
 			if (labelText != null && labelText.toLowerCase().contains(text)) {
 				selectWidget(widget, panel);
+				ensureTabVisible(widget);
 				ensureVisible(widget);
 				Context.setLastFoundWidget(widget);
 				return true;
