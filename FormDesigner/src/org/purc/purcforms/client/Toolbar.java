@@ -73,6 +73,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		ImageResource font();
 		ImageResource color();
 		ImageResource fontsize();
+		ImageResource lock();
+		ImageResource unlock();
 	}
 	 
 	/** Main widget for this tool bar. */
