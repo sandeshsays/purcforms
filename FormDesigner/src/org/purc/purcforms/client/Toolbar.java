@@ -460,7 +460,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	
 	@Override
 	public void onValueChange(ValueChangeEvent<GWTCFontPicker> event) {
-		fontPopup.hide();
+		if (fontPopup != null)
+			fontPopup.hide();
 		
 		GWTCFontPicker fontPicker = event.getValue();
 		if (fontPicker == fontFamilyPicker) {
