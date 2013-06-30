@@ -216,4 +216,56 @@ public class FormRunnerController implements SubmitListener{
 			}
 		});
 	}
+	
+	public void onDelete(){
+
+		FormUtil.dlg.setText(LocaleText.get("submitting"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getFormDataDeleteUrlSuffix();
+				url += entityId;
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,URL.encode(url));
+
+				try{
+					builder.sendRequest(entityId + "", new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+							FormUtil.dlg.hide();
+							
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+
+							if(response.getStatusCode() == Response.SC_OK){
+								if(FormUtil.showSubmitSuccessMsg())
+									Window.alert(LocaleText.get("formDeleteSuccess"));
+
+								String url = FormUtil.getHostPageBaseURL();
+								url += FormUtil.getAfterSubmitUrlSuffix();
+
+								//Prevent close confirmation dialog box.
+								FormRunnerContext.setWarnOnClose(false);
+								
+								Window.Location.replace(url);
+							}
+							else
+								FormUtil.displayReponseError(response);
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
 }

@@ -120,6 +120,12 @@ public class PreviewView extends FormRunnerView {
 		}
 	}
 	
+	@Override
+	protected void delete(){		
+		if(formDef != null){
+			submitListener.onDelete();
+		}
+	}
 
 	/**
 	 * Sets the listener for form submission events.

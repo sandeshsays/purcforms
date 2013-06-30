@@ -95,6 +95,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		ImageResource error();
 		ImageResource loading();
 	}
+	
+	private enum ServerSideAction {
+		SAVE,
+		DELETE
+	}
+	
+	private static ServerSideAction serverSideAction;
 
 	/** Images reference where we get the error icon for widgets with errors. */
 	public static final Images images = (Images) GWT.create(Images.class);
@@ -835,6 +842,48 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					}
 				});
 			}
+			else if(binding.equals("edit")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						edit();
+					}
+				});
+			}
+			else if(binding.equals("delete")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						onDelete();
+					}
+				});
+			}
+			else if(binding.equals("nextRecord")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						nextRecord();
+					}
+				});
+			}
+			else if(binding.equals("prevRecord")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						prevRecord();
+					}
+				});
+			}
+			else if(binding.equals("firstRecord")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						firstRecord();
+					}
+				});
+			}
+			else if(binding.equals("lastRecord")){
+				((Button)widget).addClickHandler(new ClickHandler(){
+					public void onClick(ClickEvent event){
+						lastRecord();
+					}
+				});
+			}
 		}
 
 		if(wrapper.isEditable() && questionDef != null)
@@ -900,6 +949,39 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		//Before calling the submit listener, we first check if the user is authenticated
 		//The authentication will call us back and tell us whether to proceed with the
 		//data submission or display the login dialog box.
+		if(formDef != null) {
+			serverSideAction = ServerSideAction.SAVE;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	protected void edit(){
+		
+	}
+	
+	protected void delete(){
+		if(formDef != null) {
+			serverSideAction = ServerSideAction.DELETE;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	protected void nextRecord(){
+		if(formDef != null)
+			FormUtil.isAuthenticated();
+	}
+	
+	protected void prevRecord(){
+		if(formDef != null)
+			FormUtil.isAuthenticated();
+	}
+	
+	protected void firstRecord(){
+		if(formDef != null)
+			FormUtil.isAuthenticated();
+	}
+	
+	protected void lastRecord(){
 		if(formDef != null)
 			FormUtil.isAuthenticated();
 	}
@@ -932,7 +1014,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		submit();
 	}
 
-
 	/**
 	 * Called when one clicks the cancel button on the form, meaning that they have
 	 * changed their mind about submitting the form.
@@ -940,6 +1021,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	public void onCancel(){
 		if(Window.confirm(LocaleText.get("cancelFormPrompt")))
 			submitListener.onCancel();
+	}
+	
+	public void onDelete(){
+		if(Window.confirm(LocaleText.get("deleteFormPrompt")))
+			delete();
 	}
 
 	public void onSearch(String key,Widget widget){
@@ -962,6 +1048,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		String xml = XformUtil.getInstanceDataDoc(formDef.getDoc()).toString();
 		xml = FormUtil.formatXml(xml); //"<?xml version='1.0' encoding='UTF-8' ?> " + 
 		submitListener.onSubmit(xml);
+	}
+	
+	private void deleteData() {
+		submitListener.onDelete();
 	}
 
 
@@ -1522,7 +1612,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(authenticated){
 			loginDlg.hide();
-			formRunnerView.submitData();
+			 if (serverSideAction == ServerSideAction.SAVE) {
+				 formRunnerView.submitData();
+			 }
+			 else if (serverSideAction == ServerSideAction.DELETE) {
+				 formRunnerView.deleteData();
+			 }
 		}
 		else
 			loginDlg.center();

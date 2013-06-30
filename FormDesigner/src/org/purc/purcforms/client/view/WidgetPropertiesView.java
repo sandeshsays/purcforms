@@ -1409,6 +1409,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 						if("submit".equalsIgnoreCase(value)||"addnew".equalsIgnoreCase(value)||"remove".equalsIgnoreCase(value)
 								|| "browse".equalsIgnoreCase(value) || "clear".equalsIgnoreCase(value) || "cancel".equalsIgnoreCase(value) ||
 								"nextPage".equalsIgnoreCase(value) || "prevPage".equalsIgnoreCase(value) ||
+								"edit".equalsIgnoreCase(value) || "delete".equalsIgnoreCase(value) ||
+								"nextRecord".equalsIgnoreCase(value) || "prevRecord".equalsIgnoreCase(value) || 
+								"firstRecord".equalsIgnoreCase(value) || "lastRecord".equalsIgnoreCase(value) ||
 								(this.widget.getWrappedWidget() instanceof Label || this.widget.getWrappedWidget() instanceof Hyperlink) ||
 								"search".equalsIgnoreCase(value) || this.widget.getWrappedWidget() instanceof TabBar)
 							txtBinding.setText(value);
@@ -1546,6 +1549,12 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		oracle.add("search");
 		oracle.add("nextPage");
 		oracle.add("prevPage");
+		oracle.add("edit");
+		oracle.add("delete");
+		oracle.add("nextRecord");
+		oracle.add("prevRecord");
+		oracle.add("lastRecord");
+		oracle.add("firstRecord");
 
 		loadedBindings = (formDef.getQuestionCount() > 0);
 	}

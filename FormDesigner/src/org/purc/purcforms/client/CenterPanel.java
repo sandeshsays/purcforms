@@ -901,6 +901,13 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	public void onCancel(){
 
 	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.SubmitListener#onDelete()()
+	 */
+	public void onDelete() {
+		Window.alert(LocaleText.get("formDeleteSuccess"));
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormDesignerController#alignLeft()

@@ -23,4 +23,9 @@ public interface SubmitListener {
 	 * changes made on the form.
 	 */
 	public void onCancel();
+	
+	/**
+	 * Called when one needs to delete a record from the database.
+	 */
+	public void onDelete();
 }

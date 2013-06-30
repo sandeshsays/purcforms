@@ -104,6 +104,7 @@ public class FormUtil {
 	private static String formDefUploadUrlSuffix;
 	private static String entityFormDefDownloadUrlSuffix;
 	private static String formDataUploadUrlSuffix;
+	private static String formDataDeleteUrlSuffix;
 	private static String afterSubmitUrlSuffix;
 	private static String afterCancelUrlSuffix;
 	private static String formDefRefreshUrlSuffix;
@@ -455,6 +456,7 @@ public class FormUtil {
 		formDefUploadUrlSuffix = getDivValue("formDefUploadUrlSuffix");
 		entityFormDefDownloadUrlSuffix = getDivValue("entityFormDefDownloadUrlSuffix");
 		formDataUploadUrlSuffix = getDivValue("formDataUploadUrlSuffix");
+		formDataDeleteUrlSuffix = getDivValue("formDataDeleteUrlSuffix");
 		afterSubmitUrlSuffix = getDivValue("afterSubmitUrlSuffix");
 		afterCancelUrlSuffix = getDivValue("afterCancelUrlSuffix");
 		formDefRefreshUrlSuffix = getDivValue("formDefRefreshUrlSuffix");
@@ -773,6 +775,10 @@ public class FormUtil {
 
 	public static String getFormDataUploadUrlSuffix(){
 		return formDataUploadUrlSuffix;
+	}
+	
+	public static String getFormDataDeleteUrlSuffix(){
+		return formDataDeleteUrlSuffix;
 	}
 
 	public static String getAfterSubmitUrlSuffix(){
