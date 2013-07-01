@@ -441,9 +441,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 	
 	private boolean isDataReadonly() {
-		return true; //FormUtil.isDataEditMode() && btnEdit != null && btnSave != null && formDef != null;
+		return FormUtil.isDataEditMode() && btnEdit != null && btnSave != null && formDef != null;
 	}
-
 
 	/**
 	 * Sets up the main panel widget.
