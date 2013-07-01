@@ -1610,7 +1610,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @return the new button.
 	 */
 	protected DesignWidgetWrapper addCancelButton(boolean select){
-		return addNewButton(LocaleText.get("cancel"),"cancel",select);
+		return addNewButton(LocaleText.get("close"),"cancel",select);
 	}
 
 	public void onCopy(Widget sender) {

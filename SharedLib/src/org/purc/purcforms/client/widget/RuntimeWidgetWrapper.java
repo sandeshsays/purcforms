@@ -37,6 +37,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -77,6 +78,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	/** Flag that tells whether this widget is locked and hence doesn't allow editing. */
 	private boolean locked = false;
 
+	/** Used when form is first loaded and one needs to click the edit button. */
+	private boolean readOnly = false;
+	
 	/** The widget's validation rule. */
 	private ValidationRule validationRule;
 
@@ -144,7 +148,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 	@Override
 	public void onBrowserEvent(Event event) {
-		if(locked){
+		if(locked || readOnly){
 			event.preventDefault();
 			event.stopPropagation();
 		}
@@ -758,6 +762,18 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		if(widget instanceof RuntimeGroupWidget)
 			((RuntimeGroupWidget)widget).setLocked(locked);
 	}
+	
+	public void setReadOnly(boolean readOnly){
+		this.readOnly = readOnly;
+
+		if(widget instanceof RuntimeGroupWidget)
+			((RuntimeGroupWidget)widget).setReadOnly(readOnly);
+		else if(widget instanceof Image || widget instanceof HTML) {
+			Widget wgt = widget.getParent().getParent().getParent().getParent();
+			if(wgt instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)wgt).setReadOnlyEx(readOnly);
+		}
+	}
 
 	/**
 	 * Checks if this widget does not allow changing of its value.
@@ -767,7 +783,10 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	public boolean isLocked(){
 		return locked;
 	}
-
+	
+	public boolean isReadOnly() {
+		return readOnly;
+	}
 
 	/**
 	 * Gets the user answer from a TextBoxBase widget.
@@ -1192,7 +1211,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 	 * @return true if the widget accepts input focus.
 	 */
 	public boolean setFocus(){
-		if(questionDef != null && (!questionDef.isVisible() || !questionDef.isEnabled() || questionDef.isLocked()))
+		if(questionDef != null && (!questionDef.isVisible() || !questionDef.isEnabled() || questionDef.isLocked() || readOnly))
 			return false;
 
 		//Browser does not seem to set focus to check boxes and radio buttons
@@ -1276,6 +1295,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			clearValue();
 
 		setLocked(locked);
+	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onReadOnlyChanged(QuestionDef, boolean)
+	 */
+	public void onReadOnlyChanged(QuestionDef sender, boolean readOnly) {
+		setReadOnly(readOnly);
 	}
 
 	/**

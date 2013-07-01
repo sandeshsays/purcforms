@@ -48,6 +48,14 @@ public interface QuestionChangeListener {
 	public void onLockedChanged(QuestionDef sender,boolean locked);
 	
 	/**
+	 * Called when the read only property changes.
+	 * 
+	 * @param sender the question whose property value has changed.
+	 * @param locked
+	 */
+	public void onReadOnlyChanged(QuestionDef sender, boolean readOnly);
+	
+	/**
 	 * Called when the binding property changes.
 	 * 
 	 * @param sender the question whose property value has changed.

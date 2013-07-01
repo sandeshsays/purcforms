@@ -847,6 +847,11 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 		// TODO Auto-generated method stub
 
 	}
+	
+	public void onReadOnlyChanged(QuestionDef sender,boolean readOnly) {
+		// TODO Auto-generated method stub
+
+	}
 
 	public void onRequiredChanged(QuestionDef sender,boolean required) {
 		// TODO Auto-generated method stub

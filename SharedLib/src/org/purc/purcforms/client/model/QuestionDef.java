@@ -366,6 +366,28 @@ public class QuestionDef implements Serializable{
 			for(int index = 0; index < changeListeners.size(); index++)
 				changeListeners.get(index).onLockedChanged(this,locked);
 		}
+		
+		if (this.isGroupQtnsDef()) {
+			GroupQtnsDef groupQtnsDef = this.getGroupQtnsDef();
+			if (groupQtnsDef != null) {
+				for (int index = 0; index < groupQtnsDef.getQuestionsCount(); index++) {
+					groupQtnsDef.getQuestionAt(index).setLocked(locked);
+				}
+			}
+		}
+	}
+	
+	public void setReadOnly(boolean readOnly) {
+		for(int index = 0; index < changeListeners.size(); index++) {
+			changeListeners.get(index).onReadOnlyChanged(this, readOnly);
+		}
+		
+		if (this.isGroupQtnsDef()) {
+			GroupQtnsDef groupQtnsDef = this.getGroupQtnsDef();
+			for (int index = 0; index < groupQtnsDef.getQuestionsCount(); index++) {
+				groupQtnsDef.getQuestionAt(index).setReadOnly(readOnly);
+			}
+		}
 	}
 
 	public boolean isRequired() {

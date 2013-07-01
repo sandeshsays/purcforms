@@ -33,6 +33,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
@@ -97,6 +98,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	protected HashMap<PushButton, List<FormDef>> repeatRowFormMap = new HashMap<PushButton, List<FormDef>>();
 
+	private boolean readOnly = false;
 
 	public RuntimeGroupWidget(Images images,FormDef formDef,GroupQtnsDef groupQtnsDef,EditListener editListener, WidgetListener widgetListener, boolean isRepeated, EnabledChangeListener enabledListener){
 		this.images = images;
@@ -726,6 +728,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		else if(binding.equalsIgnoreCase("prevPage"))
 			((FormRunnerView)getParent().getParent().getParent().getParent().getParent().getParent().getParent()).prevPage();
 		else if(groupQtnsDef != null && groupQtnsDef instanceof RepeatQtnsDef){
+			if (readOnly)
+				return;
+			
 			if(binding.equalsIgnoreCase("addnew")){
 				RuntimeWidgetWrapper wrapper = (RuntimeWidgetWrapper)getParent().getParent();
 				int y = getHeightInt();
@@ -756,6 +761,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 		else{
+			if (readOnly)
+				return;
+			
 			if(binding.equalsIgnoreCase("clear")){
 				RuntimeWidgetWrapper wrapper = getCurrentMultimediWrapper(sender);
 				if(wrapper == null)
@@ -1127,6 +1135,30 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 	}
+	
+	public void setReadOnlyEx(boolean readOnly){
+		this.readOnly = readOnly;
+	}
+	
+	public void setReadOnly(boolean readOnly){
+		this.readOnly = readOnly;
+		
+		if(isRepeated){
+			HorizontalPanel panel = (HorizontalPanel)verticalPanel.getWidget(1);
+			for(int index = 0; index < panel.getWidgetCount(); index++)
+				((RuntimeWidgetWrapper)panel.getWidget(index)).setReadOnly(readOnly);
+
+			for(int row = 0; row < table.getRowCount(); row++){
+				for(int col = 0; col < table.getCellCount(row)-1; col++)
+					((RuntimeWidgetWrapper)table.getWidget(row, col)).setReadOnly(readOnly);
+			}	
+		}
+		else{
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).setReadOnly(readOnly);
+			}
+		}
+	}
 
 	public void saveValue(FormDef formDef){
 		if(isRepeated){
@@ -1403,6 +1435,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	public void onLockedChanged(QuestionDef sender,boolean locked){
 
 	}
+	
+	public void onReadOnlyChanged(QuestionDef sender,boolean readOnly){
+
+	}
 
 	public void onBindingChanged(QuestionDef sender,String newValue){
 
@@ -1578,5 +1614,22 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			return true;
 		
 		return false;
+	}
+	
+	@Override
+	public void onBrowserEvent(Event event) {
+		//if(locked || readOnly){
+			event.preventDefault();
+			event.stopPropagation();
+		//}
+
+		/*if(widget instanceof RadioButton && DOM.eventGetType(event) == Event.ONMOUSEUP){
+			if(((RadioButton)widget).getValue() == true){
+				event.stopPropagation();
+				event.preventDefault();
+				((RadioButton)widget).setValue(false);
+				return;
+			}
+		}*/
 	}
 }

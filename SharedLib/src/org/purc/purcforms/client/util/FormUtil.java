@@ -777,6 +777,10 @@ public class FormUtil {
 		return formDataUploadUrlSuffix;
 	}
 	
+	public static boolean isDataEditMode() {
+		return formDataUploadUrlSuffix != null && formDataUploadUrlSuffix.contains("mode=edit");
+	}
+	
 	public static String getFormDataDeleteUrlSuffix(){
 		return formDataDeleteUrlSuffix;
 	}

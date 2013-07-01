@@ -131,6 +131,10 @@ public class RuntimeGroupView extends Composite implements OpenFileDialogEventLi
 
 	}
 
+	public void onReadOnlyChanged(QuestionDef sender,boolean readOnly){
+
+	}
+	
 	public void onBindingChanged(QuestionDef sender,String newValue){
 
 	}

@@ -143,7 +143,8 @@ public class DatePickerWidget extends DatePickerEx implements KeyPressHandler, C
 	 */
 	public void onBrowserEvent(Event event) {
 		if(getParent().getParent() instanceof RuntimeWidgetWrapper &&
-				((RuntimeWidgetWrapper)getParent().getParent()).isLocked()){
+				(((RuntimeWidgetWrapper)getParent().getParent()).isLocked() ||
+						((RuntimeWidgetWrapper)getParent().getParent()).isReadOnly())){
 			return;
 		}
 		

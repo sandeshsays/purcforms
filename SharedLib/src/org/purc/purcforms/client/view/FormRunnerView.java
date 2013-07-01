@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -214,6 +214,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 */
 	private List<FormDef> repeatQtnFormDefs = new ArrayList<FormDef>();
 
+	private Button btnSave;
+	private Button btnEdit;
+	private Button btnClose;
+	private Button btnDelete;
 
 	/**
 	 * Constructs an instance of the form runner.
@@ -275,8 +279,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		loaded = true;
 
-		moveToFirstWidget();
-
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
 		if(script != null)
 			script.removeFromParent();
@@ -307,6 +309,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		externalSourceWidgetIndex = 0;
 		if(externalSourceWidgets != null && externalSourceWidgets.size() > 0 && FormUtil.getExternalSourceUrlSuffix() != null)
 			fillExternalSourceWidget(externalSourceWidgets.get(externalSourceWidgetIndex++),null);
+		
+		if (isDataReadonly()) {
+			makeWidgetsReadOnly(true);
+		}
+		else {
+			moveToFirstWidget();
+		}
 	}
 
 	/**
@@ -429,6 +438,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			tabs.getTabBar().setVisible(false);
 		else
 			tabs.getTabBar().setVisible(true);
+	}
+	
+	private boolean isDataReadonly() {
+		return true; //FormUtil.isDataEditMode() && btnEdit != null && btnSave != null && formDef != null;
 	}
 
 
@@ -808,14 +821,16 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		if(widget instanceof Button && binding != null){
 			if(binding.equals("submit")){
-				((Button)widget).addClickHandler(new ClickHandler(){
+				btnSave = (Button)widget;
+				btnSave.addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						submit();
 					}
 				});
 			}
 			else if(binding.equals("cancel")){
-				((Button)widget).addClickHandler(new ClickHandler(){
+				btnClose = (Button)widget;
+				btnClose.addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						onCancel();
 					}
@@ -843,18 +858,30 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				});
 			}
 			else if(binding.equals("edit")){
-				((Button)widget).addClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event){
-						edit();
-					}
-				});
+				if (!FormUtil.isDataEditMode()) {
+					widget.setVisible(false);
+				}
+				else {
+					btnEdit = (Button)widget;
+					btnEdit.addClickHandler(new ClickHandler(){
+						public void onClick(ClickEvent event){
+							edit();
+						}
+					});
+				}
 			}
 			else if(binding.equals("delete")){
-				((Button)widget).addClickHandler(new ClickHandler(){
-					public void onClick(ClickEvent event){
-						onDelete();
-					}
-				});
+				if (!FormUtil.isDataEditMode()) {
+					widget.setVisible(false);
+				}
+				else {
+					btnDelete = (Button)widget;
+					btnDelete.addClickHandler(new ClickHandler(){
+						public void onClick(ClickEvent event){
+							onDelete();
+						}
+					});
+				}
 			}
 			else if(binding.equals("nextRecord")){
 				((Button)widget).addClickHandler(new ClickHandler(){
@@ -956,7 +983,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 	
 	protected void edit(){
-		
+		makeWidgetsReadOnly(!btnEdit.getText().equals(LocaleText.get("edit")));
 	}
 	
 	protected void delete(){
@@ -1019,7 +1046,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * changed their mind about submitting the form.
 	 */
 	public void onCancel(){
-		if(Window.confirm(LocaleText.get("cancelFormPrompt")))
+		//When one has no edit button, then we always confirm. But with edit button, we
+		//confirm only when they have clicked it and its text changed to cancel
+		boolean readOnlyMode = (btnEdit != null && btnEdit.getText().equals(LocaleText.get("edit")));
+		if(readOnlyMode || Window.confirm(LocaleText.get("cancelFormPrompt")))
 			submitListener.onCancel();
 	}
 	
@@ -1579,6 +1609,13 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onLockedChanged(QuestionDef, boolean)
 	 */
 	public void onLockedChanged(QuestionDef sender,boolean locked){
+
+	}
+	
+	/**
+	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onReadOnlyChanged(QuestionDef, boolean)
+	 */
+	public void onReadOnlyChanged(QuestionDef sender,boolean readOnly){
 
 	}
 
@@ -2260,6 +2297,28 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		Calculation calculation = widget.getQuestionDef().getParentFormDef().getCalculation(widget.getQuestionDef());
 		if(calculation != null){
 			doWidgetCalculation(widget, widget.getQuestionDef());
+		}
+	}
+	
+	private void makeWidgetsReadOnly(boolean readOnly) {
+		for (int pageIndex = 0; pageIndex < formDef.getPageCount(); pageIndex++) {
+			PageDef pageDef = formDef.getPageAt(pageIndex);
+			for (int qtnIndex = 0; qtnIndex < pageDef.getQuestionCount(); qtnIndex++) {
+				pageDef.getQuestionAt(qtnIndex).setReadOnly(readOnly);
+			}
+		}
+		
+		if (btnDelete != null) {
+			btnDelete.setEnabled(!readOnly);
+		}
+		
+		btnSave.setEnabled(!readOnly);
+		
+		btnEdit.setText(LocaleText.get(readOnly ? "edit" : "cancel"));
+		btnEdit.setTitle(btnEdit.getText());
+		
+		if (!readOnly) {
+			moveToFirstWidget();
 		}
 	}
 }
