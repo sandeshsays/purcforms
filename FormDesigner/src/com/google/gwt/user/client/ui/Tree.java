@@ -675,6 +675,11 @@ HasCloseHandlers<TreeItem>, SourcesMouseEvents, HasAllMouseHandlers {
 	 */
 	public void setSelectedItem(TreeItem item) {
 		setSelectedItem(item, true);
+		
+		if (item != null) {
+			ensureSelectedItemVisible();
+			setSelectedItem(item, true);
+		}
 	}
 
 	/**

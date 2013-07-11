@@ -137,7 +137,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		FormUtil.maximizeWidget(tree);
 
 		tree.addSelectionHandler(this);
-		tree.ensureSelectedItemVisible();
 
 		//This is just for solving a wiered behaviour when one changes a node text
 		//and the click another node which gets the same text as the previously
@@ -972,7 +971,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			PageDef pageDef = (PageDef)child.getUserObject();
 			if (pageDef.getName().toLowerCase().contains(text)) {
 				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				return true;
 			}
 			
@@ -999,7 +997,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	private boolean selectQuestion(String text, QuestionDef qtnDef, TreeItem child) {
 		if (qtnDef.getText().toLowerCase().contains(text)) {
 			tree.setSelectedItem(child);
-			tree.ensureSelectedItemVisible();
 			return true;
 		}
 		
@@ -1030,7 +1027,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			OptionDef optnDef = (OptionDef)child.getUserObject();
 			if (optnDef.getText().toLowerCase().contains(text)) {
 				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				return true;
 			}
 		}
@@ -1494,7 +1490,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			String pageNo = String.valueOf(pageDef.getPageNo());
 			if(pageNos.containsKey(pageNo)){
 				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				Window.alert(LocaleText.get("selectedPage") + pageDef.getName() +LocaleText.get("shouldNotSharePageBinding") + pageNos.get(pageNo)+ "]");
 				return false;
 			}
@@ -1516,7 +1511,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			String variableName = questionDef.getBinding();
 			if(bindings.containsKey(variableName) /*&& questionDef.getParent() == bindings.get(variableName).getParent()*/){
 				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				Window.alert(LocaleText.get("selectedQuestion") + questionDef.getText()+LocaleText.get("shouldNotShareQuestionBinding") + bindings.get(variableName).getDisplayText()+ "]");
 				return false;
 			}
@@ -1554,7 +1548,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			String variableName = optionDef.getBinding();
 			if(bindings.containsKey(variableName)){
 				tree.setSelectedItem(child);
-				tree.ensureSelectedItemVisible();
 				Window.alert(LocaleText.get("selectedOption") + optionDef.getText()+LocaleText.get("shouldNotShareOptionBinding") + bindings.get(variableName)+ "]");
 				return false;
 			}
@@ -1626,7 +1619,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			return;
 
 		tree.setSelectedItem(parent);
-		tree.ensureSelectedItemVisible();
 	}
 
 
@@ -1645,7 +1637,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		TreeItem child = item.getChild(0);
 		tree.setSelectedItem(child);
-		tree.ensureSelectedItemVisible();
 	}
 
 
@@ -1747,7 +1738,6 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	
 	public void setSelectedItem(TreeItem item){
 		tree.setSelectedItem(item);
-		tree.ensureSelectedItemVisible();
 		selectItem(item, false);
 		updateTreeItemText(item.getUserObject(), item);
 	}
