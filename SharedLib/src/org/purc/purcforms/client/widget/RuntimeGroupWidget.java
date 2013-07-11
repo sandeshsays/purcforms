@@ -3,9 +3,11 @@ package org.purc.purcforms.client.widget;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.purc.purcforms.client.controller.OpenFileDialogEventListener;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
@@ -470,9 +472,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(answer == null || answer.trim().length() == 0 )
 				((HTML)widget).setVisible(false);
 		}
-		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)
+				|| s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE) ){
 			GroupQtnsDef groupQtnsDef = null;
-			if(questionDef != null)
+			if(questionDef != null && questionDef.isGroupQtnsDef())
 				groupQtnsDef = questionDef.getGroupQtnsDef();
 
 			boolean repeated = false;
@@ -482,14 +485,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, editListener, widgetListener, repeated, enabledListener);
 			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
-			/*getLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
-			getLabelText(((RuntimeGroupWidget)widget).getLabelText());
-			getLabelReplaceText(((RuntimeGroupWidget)widget).getLabelReplaceText());
-			getCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());*/
-		}
-		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE)) {
-			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, editListener, widgetListener, false, enabledListener);
-			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
+			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
+			copyLabelText(((RuntimeGroupWidget)widget).getLabelText());
+			copyLabelReplaceText(((RuntimeGroupWidget)widget).getLabelReplaceText());
+			copyCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());
+			copyCalcWidgetMap(((RuntimeGroupWidget)widget).getCalcWidgetMap());
+			copyFiltDynOptWidgetMap(((RuntimeGroupWidget)widget).getFiltDynOptWidgetMap());
 		}
 		/*else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
 			//Not dealing with nested repeats
@@ -1631,5 +1632,92 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				return;
 			}
 		}*/
+	}
+	
+	
+	//TODO refactor these duplicate copy methods below
+	/**
+	 * Copies from a given label map to our class level one.
+	 * 
+	 * @param labelMap the label map to copy from.
+	 */
+	private void copyLabelMap(HashMap<QuestionDef,List<Label>> labelMap){
+		Iterator<Entry<QuestionDef,List<Label>>> iterator = labelMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<QuestionDef,List<Label>> entry = iterator.next();
+
+			List<Label> labels = this.labelMap.get(entry.getKey());
+			if(labels == null)
+				this.labelMap.put(entry.getKey(), entry.getValue());
+			else
+				labels.addAll(entry.getValue());
+		}
+	}
+
+	private void copyCalcWidgetMap(HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap){
+		Iterator<Entry<QuestionDef,List<RuntimeWidgetWrapper>>> iterator = calcWidgetMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<QuestionDef,List<RuntimeWidgetWrapper>> entry = iterator.next();
+
+			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
+			if(widgets == null)
+				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
+		}
+	}
+
+	private void copyFiltDynOptWidgetMap(HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap){
+		Iterator<Entry<QuestionDef,RuntimeWidgetWrapper>> iterator = filtDynOptWidgetMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<QuestionDef,RuntimeWidgetWrapper> entry = iterator.next();
+			this.filtDynOptWidgetMap.put(entry.getKey(), entry.getValue()); //TODO Can it affect more than one.
+		}
+	}
+
+
+	/**
+	 * Copies from a given label text map to our class level one.
+	 * 
+	 * @param labelText the label text map to copy from.
+	 */
+	private void copyLabelText(HashMap<Label,String> labelText){
+		Iterator<Entry<Label,String>> iterator = labelText.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<Label,String> entry = iterator.next();
+			this.labelText.put(entry.getKey(), entry.getValue());
+		}
+	}
+
+
+	/**
+	 * Copies from a given label replace text map to our class level one.
+	 * 
+	 * @param labelReplaceText the label replace text map to copy from.
+	 */
+	private void copyLabelReplaceText(HashMap<Label,String> labelReplaceText){
+		Iterator<Entry<Label,String>> iterator = labelReplaceText.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<Label,String> entry = iterator.next();
+			this.labelReplaceText.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
+	/**
+	 * Copies from a given check box group map to our class level one.
+	 * 
+	 * @param labelMap the check box group map to copy from.
+	 */
+	private void copyCheckBoxGroupMap(HashMap<QuestionDef,List<CheckBox>> labelMap){
+		Iterator<Entry<QuestionDef,List<CheckBox>>> iterator = labelMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<QuestionDef,List<CheckBox>> entry = iterator.next();
+
+			List<CheckBox> checkboxes = this.checkBoxGroupMap.get(entry.getKey());
+			if(checkboxes == null)
+				this.checkBoxGroupMap.put(entry.getKey(), entry.getValue());
+			else
+				checkboxes.addAll(entry.getValue());
+		}
 	}
 }

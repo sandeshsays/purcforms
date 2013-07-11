@@ -650,9 +650,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				}*/
 			}
 		}
-		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX)||s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
+		else if (s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX) || s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)
+				|| s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE) ){
 			GroupQtnsDef groupQtnsDef = null;
-			if(questionDef != null)
+			if(questionDef != null && questionDef.isGroupQtnsDef())
 				groupQtnsDef = questionDef.getGroupQtnsDef();
 
 			boolean repeated = false;
@@ -669,10 +670,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			copyCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());
 			copyCalcWidgetMap(((RuntimeGroupWidget)widget).getCalcWidgetMap());
 			copyFiltDynOptWidgetMap(((RuntimeGroupWidget)widget).getFiltDynOptWidgetMap());
-		}
-		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_TABLE)) {
-			widget = new RuntimeGroupWidget(images, formDef, null, this, this, false, this);
-			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE)){
 			widget = new Image();
