@@ -188,6 +188,10 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	public DesignWidgetWrapper addToDesignSurface(Object item) {
 		return centerPanel.addToDesignSurface(item);
 	}
+	
+	public void selectItem(Object item) {
+		centerPanel.selectItem(item);
+	}
 
 	/**
 	 * @see org.purc.purcforms.client.controller.IFormActionListener#moveItemDown()

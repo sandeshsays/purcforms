@@ -253,6 +253,29 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		}
 
 		widgetSelectionListener.onWidgetSelected(widget, multipleSel);
+		
+		//Synchronize by selecting the form field corresponding to the selected widget.
+		if (Context.getLeftPanel().isFormsStackSelected()) {
+			if (!multipleSel && widget instanceof DesignWidgetWrapper) {
+				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)widget;
+				QuestionDef questionDef = wrapper.getQuestionDef();
+				if (questionDef != null) {
+					if (Context.getSelectedItem() != questionDef) {
+						Context.getLeftPanel().selectItem(questionDef, null);
+					}
+				}
+				else if (wrapper.getParentBinding() != null) {
+					questionDef = Context.getFormDef().getQuestion(wrapper.getParentBinding());
+					String binding = wrapper.getBinding();
+					if (questionDef != null && binding != null) {
+						OptionDef optionDef = questionDef.getOptionWithValue(binding);
+						if (optionDef != null && Context.getSelectedItem() != optionDef) {
+							Context.getLeftPanel().selectItem(questionDef, binding);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	protected void cutWidgets(){
@@ -3452,8 +3475,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return null;
 	}
 	
-	public DesignWidgetWrapper addToDesignSurface(Object item, int y, int x) {
-		
+	public DesignWidgetWrapper selectItem(Object item) {
 		if(item == null)
 			return null;
 		
@@ -3466,11 +3488,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return null;
 		
 		getDesignSurfaceView().recursivelyClearGroupBoxSelection();
-		/*if(widgetSelectionListener instanceof DesignSurfaceView){
-			((DesignSurfaceView)widgetSelectionListener).clearSelection();
-			if(selectedDragController.getSelectedWidgetCount() == 1)
-				((DesignSurfaceView)widgetSelectionListener).clearGroupBoxSelection();
-		}*/
 		
 		//Create list of bindings for widgets that are already loaded on the design surface.
 		HashMap<String, DesignWidgetWrapper> bindings = new HashMap<String, DesignWidgetWrapper>();
@@ -3489,13 +3506,34 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				
 				ensureTabVisible(widget);
 				ensureVisible(widget);
+				
+				return widget;
 			}
 			else {
 				//Can this really happen???
 				assert(false);
 			}
-			
+		}
+		
+		return null;
+	}
+	
+	public DesignWidgetWrapper addToDesignSurface(Object item, int y, int x) {
+		
+		if(item == null)
 			return null;
+		
+		QuestionDef questionDef =  null;
+		if(item instanceof QuestionDef)
+			questionDef  = (QuestionDef)item;
+		else if(item instanceof OptionDef)
+			questionDef  = ((OptionDef)item).getParent();
+		else
+			return null;
+		
+		DesignWidgetWrapper widget = selectItem(item);
+		if (widget != null) {
+			return widget;
 		}
 		
 		CommandList commands = new CommandList(this);
@@ -3504,7 +3542,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		newQuestions.add(questionDef);
 		
 		//Load the new questions onto the design surface for the current page.
-		DesignWidgetWrapper widget = null;
 		if(newQuestions.size() > 0){
 			boolean visible = questionDef.isVisible();
 			questionDef.setVisible(true);

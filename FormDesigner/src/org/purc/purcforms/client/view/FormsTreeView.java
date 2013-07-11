@@ -115,7 +115,8 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	
 	/** The DND drag controller. */
 	private static FormDesignerDragController dragController;
-
+	
+	private boolean synchronizingWithDesignSurface = false;
 
 	/**
 	 * Creates a new instance of the forms tree view widget.
@@ -320,6 +321,10 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			fireFormItemSelected(item.getUserObject(), item);
 			this.item = item;
 
+			if (!synchronizingWithDesignSurface) {
+				this.formDesignerListener.selectItem(item.getUserObject());
+			}
+			
 			//Expand if has kids such that users do not have to click the plus
 			//sign to expand. Besides, some are not even aware of that.
 			//if(item.getChildCount() > 0)
@@ -1780,5 +1785,67 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 	 */
 	public static void unRegisterAllDropControllers(){
 		dragController.unregisterAllDropControllers();
+	}
+	
+	public void selectItem(QuestionDef questionDef, String parentBinding) {
+		synchronizingWithDesignSurface = true;
+		
+		int count = tree.getItemCount();
+		for(int index = 0; index < count; index++){
+			TreeItem item = tree.getItem(index);
+			if (selectPageItem(item, questionDef, parentBinding)) {
+				break;
+			}
+		}
+		
+		synchronizingWithDesignSurface = false;
+	}
+	
+	public boolean selectPageItem(TreeItem parentItem, QuestionDef questionDef, String binding) {
+		int count = parentItem.getChildCount();
+		for (int index = 0; index < count; index++){
+			TreeItem item = parentItem.getChild(index);
+			if (selectQuestionItem(item, questionDef, binding)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean selectQuestionItem(TreeItem parentItem, QuestionDef questionDef, String binding) {
+		int count = parentItem.getChildCount();
+		for (int index = 0; index < count; index++){
+			TreeItem item = parentItem.getChild(index);
+			QuestionDef qtnDef = (QuestionDef)item.getUserObject();
+			if (qtnDef == questionDef) {
+				if (binding == null)
+					tree.setSelectedItem(item);
+				else
+					selectOptionItem(item, binding);
+				
+				return true;
+			}
+			
+			if (qtnDef.isGroupQtnsDef()) {
+				if (selectQuestionItem(item, questionDef, binding)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public void selectOptionItem(TreeItem parentItem, String binding) {
+		int count = parentItem.getChildCount();
+		for (int index = 0; index < count; index++){
+			TreeItem item = parentItem.getChild(index);
+			OptionDef optionDef = (OptionDef)item.getUserObject();
+			if (binding.equals(optionDef.getBinding())) {
+				tree.setSelectedItem(item);
+				return;
+			}
+		}
 	}
 }

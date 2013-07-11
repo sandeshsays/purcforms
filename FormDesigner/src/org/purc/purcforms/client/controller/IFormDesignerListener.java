@@ -167,6 +167,8 @@ public interface IFormDesignerListener extends IFormActionListener{
 	
 	public DesignWidgetWrapper addToDesignSurface(Object item);
 	
+	public void selectItem(Object item);
+	
 	public void find();
 	
 	public void bold();

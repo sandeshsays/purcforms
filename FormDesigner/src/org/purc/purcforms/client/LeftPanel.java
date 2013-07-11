@@ -11,6 +11,7 @@ import org.purc.purcforms.client.controller.WidgetSelectionListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.Locale;
+import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.FormsTreeView;
@@ -147,6 +148,10 @@ public class LeftPanel extends Composite {
 	 */
 	public void deleteSelectedItem(){
 		formsTreeView.deleteSelectedItem();
+	}
+	
+	public void selectItem(QuestionDef questionDef, String binding) {
+		formsTreeView.selectItem(questionDef, binding);
 	}
 
 	/**
@@ -332,5 +337,9 @@ public class LeftPanel extends Composite {
 	
 	public void selectWidgetProperties(){
 		stackPanel.showStack(2);
+	}
+	
+	public boolean isFormsStackSelected() {
+		return stackPanel.getSelectedIndex() == 0;
 	}
 }
