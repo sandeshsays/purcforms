@@ -2904,6 +2904,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
 
 			String binding = widget.getBinding();
+			if (widget.getParentBinding() != null) {
+				binding = widget.getParentBinding() + "-purcforms-" + binding;
+			}
+			
 			bindings.put(binding, widget); //Could possibly put widget as value.
 			
 			//When a widget is deleted, it is reloaded on refresh even if its label still exists.
@@ -3480,10 +3484,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return null;
 		
 		QuestionDef questionDef =  null;
-		if(item instanceof QuestionDef)
+		String binding = null;
+		if(item instanceof QuestionDef) {
 			questionDef  = (QuestionDef)item;
-		else if(item instanceof OptionDef)
+			binding = questionDef.getBinding();
+		}
+		else if(item instanceof OptionDef) {
 			questionDef  = ((OptionDef)item).getParent();
+			binding = questionDef.getBinding() + "-purcforms-" + ((OptionDef)item).getBinding();
+		}
 		else
 			return null;
 		
@@ -3494,15 +3503,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		HashMap<String, DesignWidgetWrapper> labels = new HashMap<String, DesignWidgetWrapper>();
 		getDesignSurfaceView().fillWidgetBindings(bindings, labels);
 		 
-		if(bindings.containsKey(questionDef.getBinding())){
-			DesignWidgetWrapper widget = bindings.get(questionDef.getBinding());
+		if(bindings.containsKey(binding)){
+			DesignWidgetWrapper widget = bindings.get(binding);
 			FormDesignerDragController dragController = FormDesignerDragController.getInstance();//getDesignSurfaceView().getWidgetDragController(widget);
 			if(dragController != null){
 				dragController.selectWidget(widget);
 				
 				//select the label too
-				if(labels.containsKey(questionDef.getBinding()))
-					dragController.selectWidget(labels.get(questionDef.getBinding()));
+				if(labels.containsKey(binding))
+					dragController.selectWidget(labels.get(binding));
 				
 				ensureTabVisible(widget);
 				ensureVisible(widget);
