@@ -170,6 +170,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 
 	/** Widget for defining dynamic selection lists. */
 	private DynamicListsView dynamicListsView = new DynamicListsView(this);
+	
+	private OtherPropertiesView otherPropertiesView = new OtherPropertiesView();
 
 	/** Listener to form action events. */
 	private IFormActionListener formActionListener;
@@ -275,6 +277,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		tabs.add(skipRulesView, LocaleText.get("skipLogic"));
 		tabs.add(validationRulesView, LocaleText.get("validationLogic"));
 		tabs.add(dynamicListsView, LocaleText.get("dynamicLists"));
+		tabs.add(otherPropertiesView, LocaleText.get("otherProperties"));
 
 		tabs.selectTab(0);
 		verticalPanel.add(tabs);
@@ -926,6 +929,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.setFormChangeListener(formChangeListener);
 		validationRulesView.setFormChangeListener(formChangeListener);
 		dynamicListsView.setFormChangeListener(formChangeListener);
+		otherPropertiesView.setFormChangeListener(formChangeListener);
 	}
 
 	/**
@@ -1008,6 +1012,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				skipRulesView.setQuestionDef((QuestionDef)propertiesObj);
 				validationRulesView.setQuestionDef((QuestionDef)propertiesObj);
 				dynamicListsView.setQuestionDef((QuestionDef)propertiesObj);
+				otherPropertiesView.setQuestionDef((QuestionDef)propertiesObj);
 			}
 		});
 	}
@@ -1049,6 +1054,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.setEnabled(enable2);
 		validationRulesView.setEnabled(enable2);
 		dynamicListsView.setEnabled(enable2);
+		otherPropertiesView.setEnabled(enable2);
 
 		//btnDescTemplate.setVisible(enable2);
 		txtCalculation.setEnabled(enable2);
@@ -1148,6 +1154,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.onFormItemSelected(treeItem);
 		validationRulesView.onFormItemSelected(treeItem);
 		dynamicListsView.onFormItemSelected(treeItem);
+		otherPropertiesView.onFormItemSelected(treeItem);
 
 		clearProperties();
 
@@ -1205,6 +1212,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.updateSkipRule();
 		validationRulesView.updateValidationRule();
 		dynamicListsView.updateDynamicLists();
+		otherPropertiesView.updateOtherProperties();
 	}
 
 	/**

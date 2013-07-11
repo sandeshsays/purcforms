@@ -37,6 +37,7 @@ import org.purc.purcforms.client.widget.WidgetListener;
 import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
 import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 import org.purc.purcforms.client.xforms.XformBuilder;
+import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XformParser;
 import org.purc.purcforms.client.xforms.XformUtil;
 
@@ -1204,7 +1205,49 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
-		if(list != null /*&& questionDef.isRequired()*/){
+		if (list != null){
+			//Work on exclusive selection logic
+			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+				String exclusiveOption = this.formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+				if (exclusiveOption != null) {
+					CheckBox exclusiveCheckBox = null;
+					boolean exclusiveValue = false;
+					for(CheckBox checkBox : list) {
+						if (exclusiveOption.equals(((RuntimeWidgetWrapper)checkBox.getParent().getParent()).getBinding())) {
+							exclusiveCheckBox = checkBox;
+							exclusiveValue = exclusiveCheckBox.getValue();
+							break;
+						}
+					}
+					
+					boolean atleastOneSelection = false;
+					for(CheckBox checkBox : list) {
+						if (checkBox == exclusiveCheckBox) {
+							if (!exclusiveValue) {
+								checkBox.setValue(false);
+								checkBox.setEnabled(false);
+							}
+							continue;
+						}
+						
+						if (exclusiveValue) {
+							checkBox.setValue(false);
+							checkBox.setEnabled(false);
+						}
+						else {
+							checkBox.setEnabled(true);
+							if (checkBox.getValue()) {
+								atleastOneSelection = true;
+							}
+						}
+					}
+					
+					if (!exclusiveValue && !atleastOneSelection) {
+						exclusiveCheckBox.setEnabled(true);
+					}
+				}
+			}
+			
 			for(CheckBox checkBox : list)
 				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid(false);
 		}

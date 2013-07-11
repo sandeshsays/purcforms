@@ -108,6 +108,7 @@ public class FormDef implements Serializable{
 	 */
 	private boolean readOnly = false;
 
+	private Map<QuestionDef, Map<String, String>> extendedProperties = new HashMap<QuestionDef, Map<String, String>>();
 
 	/** Constructs a form definition object. */
 	public FormDef() {
@@ -1554,4 +1555,34 @@ public class FormDef implements Serializable{
 	public void setItextNode(Element itextNode) {
 		this.itextNode = itextNode;
 	}
+    
+    public void setExtentendProperty(QuestionDef qtnDef, String key, String value) {
+    	Map<String, String> properties = extendedProperties.get(qtnDef);
+    	if (properties == null) {
+    		properties = new HashMap<String, String>();
+    		extendedProperties.put(qtnDef, properties);
+    	}
+    	
+    	properties.put(key, value);
+    }
+    
+    public String getExtentendProperty(QuestionDef qtnDef, String key) {
+    	Map<String, String> properties = extendedProperties.get(qtnDef);
+    	if (properties == null) {
+    		return null;
+    	}
+    	
+    	return properties.get(key);
+    }
+    
+    public void removeExtentendProperty(QuestionDef qtnDef, String key) {
+    	Map<String, String> properties = extendedProperties.get(qtnDef);
+    	if (properties != null) {
+    		properties.remove(key);
+    		
+    		if (properties.size() == 0) {
+    			extendedProperties.remove(qtnDef);
+    		}
+    	}
+    }
 }

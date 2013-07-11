@@ -619,7 +619,7 @@ public class XformParser {
 			qtn.setLocked(true);
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE) != null && child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE).equals(XformConstants.XPATH_VALUE_FALSE))
 			qtn.setVisible(false);
-
+		
 		String binding = ((ref != null) ? ref : bind);
 		if(binding.startsWith("/"+formDef.getBinding()+"/"))
 			binding = binding.replace("/"+formDef.getBinding()+"/", "");
@@ -824,7 +824,7 @@ public class XformParser {
 			qtn.setLocked(true);
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE) != null && child.getAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE).equals(XformConstants.XPATH_VALUE_FALSE))
 			qtn.setVisible(false);
-
+				
 		if(!addRepeatChildQtn(qtn,repeatQtns,child,id2VarNameMap,rptKidMap)){
 			String id = child.getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 			id2VarNameMap.put(id != null ? id : qtn.getBinding(), qtn.getBinding());
@@ -911,6 +911,15 @@ public class XformParser {
 				//qtn.setDataType((tagname.equals(NODE_NAME_SELECT1)||tagname.equals(NODE_NAME_SELECT1_MINUS_PREFIX)) ? QuestionDef.QTN_TYPE_LIST_EXCLUSIVE : QuestionDef.QTN_TYPE_LIST_MULTIPLE);
 				qtn.setDataType((XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_SELECT1_MINUS_PREFIX)) ? QuestionDef.QTN_TYPE_LIST_EXCLUSIVE : QuestionDef.QTN_TYPE_LIST_MULTIPLE);
 				qtn.setOptions(new Vector());
+				
+				//Add extended properties if any for exclusive option
+				if (qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE && qtn.getBindNode() != null) {
+					String exclusiveOption = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+					if(exclusiveOption != null) {
+						formDef.setExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+					}
+				}
+				
 			}//TODO first addition for repeats
 			//else if((tagname.equals(NODE_NAME_REPEAT)||tagname.equals(NODE_NAME_REPEAT_MINUS_PREFIX)) && !label.equals("")){
 			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX) && !nodeContext.getLabel().equals("")){

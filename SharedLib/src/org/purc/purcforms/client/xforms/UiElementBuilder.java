@@ -74,6 +74,14 @@ public class UiElementBuilder {
 		if(!qtn.isVisible())
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE, XformConstants.XPATH_VALUE_FALSE);
 		
+		//Add extended properties if any for exclusive option
+		if (qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+			String exclusiveOption = formDef.getExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+			if(exclusiveOption != null) {
+				bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+			}
+		}
+				
 		return id;
 	}
 	
@@ -213,23 +221,6 @@ public class UiElementBuilder {
 		parentControlNode.appendChild(inputNode);
 		qtnDef.setControlNode(inputNode);
 		qtnDef.setBindNode(bindNode);
-		//..........................
-		
-		/*Element inputNode =  getXformUIElement(doc,qtnDef,XformConstants.ATTRIBUTE_NAME_REF,true, null);
-		
-		inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(qtnDef.getDataType(),inputNode));
-		if(qtnDef.isRequired())
-			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_REQUIRED, XformConstants.XPATH_VALUE_TRUE);
-		if(!qtnDef.isEnabled())
-			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_READONLY, XformConstants.XPATH_VALUE_TRUE);
-		if(qtnDef.isLocked())
-			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_LOCKED, XformConstants.XPATH_VALUE_TRUE);
-		if(!qtnDef.isVisible())
-			inputNode.setAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE, XformConstants.XPATH_VALUE_FALSE);
-
-		parentControlNode.appendChild(inputNode);
-		qtnDef.setControlNode(inputNode);
-		qtnDef.setBindNode(inputNode); */
 
 		Element labelNode =  doc.createElement(XformConstants.NODE_NAME_LABEL);
 		labelNode.appendChild(doc.createTextNode(qtnDef.getText()));

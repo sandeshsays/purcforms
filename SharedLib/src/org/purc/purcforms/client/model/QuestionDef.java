@@ -808,6 +808,14 @@ public class QuestionDef implements Serializable{
 			else
 				node.removeAttribute(XformConstants.ATTRIBUTE_NAME_VISIBLE);
 
+			//Add extended properties if any for exclusive option
+			if (dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+				String exclusiveOption = formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+				if(exclusiveOption != null)
+					node.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+				else
+					node.removeAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+			}
 
 			if(!(dataType == QuestionDef.QTN_TYPE_IMAGE || dataType == QuestionDef.QTN_TYPE_AUDIO ||
 					dataType == QuestionDef.QTN_TYPE_VIDEO || dataType == QuestionDef.QTN_TYPE_GPS))
