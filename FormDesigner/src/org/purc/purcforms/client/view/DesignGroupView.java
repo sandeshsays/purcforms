@@ -3545,24 +3545,40 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return widget;
 		}
 		
-		CommandList commands = new CommandList(this);
-
-		List<QuestionDef> newQuestions = new ArrayList<QuestionDef>();
-		newQuestions.add(questionDef);
-		
-		//Load the new questions onto the design surface for the current page.
-		if(newQuestions.size() > 0){
-			boolean visible = questionDef.isVisible();
-			questionDef.setVisible(true);
-			widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, true);
-			questionDef.setVisible(visible);
+		if (item instanceof OptionDef) {
+			OptionDef optionDef = (OptionDef)item;
+			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
+				widget = addNewWidget(new CheckBox(optionDef.getText()), true);
+			else
+				widget = addNewWidget(new RadioButtonWidget(optionDef.getText()), true);
 			
-			format();
-			ensureVisible(widget);
+			widget.setFontFamily(FormUtil.getDefaultFontFamily());
+			widget.setFontSize(FormUtil.getDefaultFontSize());
+			widget.setBinding(optionDef.getBinding());
+			widget.setParentBinding(questionDef.getBinding());
+			widget.setText(optionDef.getText());
+			widget.setTitle(optionDef.getText());
 		}
-
-		if(commands.size() > 0)
-			Context.getCommandHistory().add(commands);
+		else {
+			CommandList commands = new CommandList(this);
+	
+			List<QuestionDef> newQuestions = new ArrayList<QuestionDef>();
+			newQuestions.add(questionDef);
+			
+			//Load the new questions onto the design surface for the current page.
+			if(newQuestions.size() > 0){
+				boolean visible = questionDef.isVisible();
+				questionDef.setVisible(true);
+				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, true);
+				questionDef.setVisible(visible);
+				
+				format();
+				ensureVisible(widget);
+			}
+	
+			if(commands.size() > 0)
+				Context.getCommandHistory().add(commands);
+		}
 		
 		return widget;
 	}
