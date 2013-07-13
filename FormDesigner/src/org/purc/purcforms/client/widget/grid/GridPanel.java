@@ -450,7 +450,13 @@ public class GridPanel extends AbsolutePanel {
 	}
 	
 	public int getLabelHeight() {
-		return ((DesignWidgetWrapper)this.getWidget(0)).getHeightInt();
+		//When header label background color is made the same as that of the table
+		//it means user no longer wants the table header.
+		DesignWidgetWrapper widget = (DesignWidgetWrapper)this.getWidget(0);
+		if (widget.getBackgroundColor().equalsIgnoreCase(((GridDesignGroupWidget)getParent()).getBackgroundColor()))
+			return 0;
+		else
+			return widget.getHeightInt();
 	}
 	
 	public Widget getHorizontalWidget(int index) {
