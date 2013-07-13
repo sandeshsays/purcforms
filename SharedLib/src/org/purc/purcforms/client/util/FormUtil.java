@@ -120,6 +120,7 @@ public class FormUtil {
 	private static boolean readOnlyMode = false;
 	private static boolean overwriteValidationsOnRefresh = false;
 	private static boolean maintainOrderingOnRefresh = true;
+	private static boolean manualWidgetLayout = false;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -592,6 +593,12 @@ public class FormUtil {
 				maintainOrderingOnRefresh = false;
 		}
 		
+		s = getDivValue("manualWidgetLayout");
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				manualWidgetLayout = true;
+		}
+		
 		s = getDivValue("formatXml");
 		if("0".equals(s) || "false".equals(s))
 			formatXml = false;
@@ -930,6 +937,10 @@ public class FormUtil {
 	
 	public static boolean maintainOrderingOnRefresh(){
 		return maintainOrderingOnRefresh;
+	}
+	
+	public static boolean manualWidgetLayout() {
+		return manualWidgetLayout;
 	}
 	
 	public static boolean isReadOnlyMode(){

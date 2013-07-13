@@ -3240,9 +3240,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public DesignWidgetWrapper addNewTab(String name, int index, boolean forcename){
 		initPanel();
 		
-		if(!forcename)
-		//if(name == null)
+		//if(!forcename)
+		if(name == null && (Context.getFormDef() == null || Context.getFormDef().getPages() == null)) {
 			name = LocaleText.get("page")+(tabs.getWidgetCount());
+		}
 
 		//tabs.insert(selectedPanel, name, index + 1);
 		tabs.add(selectedPanel, name);

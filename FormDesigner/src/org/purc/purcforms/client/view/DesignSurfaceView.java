@@ -843,9 +843,15 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	 * Loads widgets for questions that are not loaded on the design surface.
 	 */
 	public void refresh(){
-		if(formDef == null)
+		if(formDef == null) {
+			this.setWidth("100px");
+			this.setHeight("473px");
 			return;
-
+		}
+		
+		if (FormUtil.manualWidgetLayout())
+			return;
+		
 		FormUtil.dlg.setText(LocaleText.get("refreshingDesignSurface"));
 		FormUtil.dlg.center();
 
