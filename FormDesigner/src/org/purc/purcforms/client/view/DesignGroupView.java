@@ -3570,7 +3570,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(newQuestions.size() > 0){
 				boolean visible = questionDef.isVisible();
 				questionDef.setVisible(true);
-				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, true);
+				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, false);
 				questionDef.setVisible(visible);
 				
 				format();
