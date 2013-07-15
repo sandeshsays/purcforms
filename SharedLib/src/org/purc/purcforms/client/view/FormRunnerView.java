@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -1158,7 +1159,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(!widget.isEditable())
 			return;
 
-		onValueChanged(widget.getQuestionDef());
+		onValueChanged(widget, widget.getQuestionDef());
 		fireParentQtnValidationRules(widget);
 	}
 
@@ -1166,9 +1167,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	/**
 	 * Called when the value or answer of a question changes.
 	 * 
-	 * @param questionDef the question definition object.
+	 * @param widget the widget whose value has changed.
+	 * @param questionDef the question whose value changed.
 	 */
-	private void onValueChanged(QuestionDef questionDef){
+	private void onValueChanged(RuntimeWidgetWrapper wrapper, QuestionDef questionDef){
+		
 		fireSkipRules();
 		//doCalculations();
 		updateDynamicOptions(questionDef);
@@ -1195,7 +1198,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		List<RuntimeWidgetWrapper> widgets = calcWidgetMap.get(questionDef);
 		if(widgets != null){
-
 			for(RuntimeWidgetWrapper widget : widgets){
 				doWidgetCalculation(widget, questionDef);
 			}
@@ -1204,49 +1206,83 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		List<CheckBox> list = checkBoxGroupMap.get(questionDef);
 		if (list != null){
 			//Work on exclusive selection logic
-			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-				String exclusiveOption = this.formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
-				if (exclusiveOption != null) {
-					CheckBox exclusiveCheckBox = null;
-					boolean exclusiveValue = false;
-					for(CheckBox checkBox : list) {
-						if (exclusiveOption.equals(((RuntimeWidgetWrapper)checkBox.getParent().getParent()).getBinding())) {
-							exclusiveCheckBox = checkBox;
-							exclusiveValue = exclusiveCheckBox.getValue();
-							break;
-						}
-					}
-					
-					boolean atleastOneSelection = false;
-					for(CheckBox checkBox : list) {
-						if (checkBox == exclusiveCheckBox) {
-							if (!exclusiveValue) {
-								checkBox.setValue(false);
-								checkBox.setEnabled(false);
-							}
-							continue;
-						}
-						
-						if (exclusiveValue) {
-							checkBox.setValue(false);
-							checkBox.setEnabled(false);
-						}
-						else {
-							checkBox.setEnabled(true);
-							if (checkBox.getValue()) {
-								atleastOneSelection = true;
-							}
-						}
-					}
-					
-					if (!exclusiveValue && !atleastOneSelection) {
-						exclusiveCheckBox.setEnabled(true);
-					}
-				}
+			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE && wrapper != null) {
+				updateExclusiveOption(questionDef, list);
+				updateExclusiveOptions(wrapper, questionDef);
 			}
 			
 			for(CheckBox checkBox : list)
 				((RuntimeWidgetWrapper)checkBox.getParent().getParent()).isValid(false);
+		}
+	}
+	
+	private void updateExclusiveOption(QuestionDef questionDef, List<CheckBox> list) {
+		Object exclusiveOption = this.formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+		if (exclusiveOption != null) {
+			CheckBox exclusiveCheckBox = null;
+			boolean exclusiveValue = false;
+			for(CheckBox checkBox : list) {
+				if (exclusiveOption.equals(((RuntimeWidgetWrapper)checkBox.getParent().getParent()).getBinding())) {
+					exclusiveCheckBox = checkBox;
+					exclusiveValue = exclusiveCheckBox.getValue();
+					break;
+				}
+			}
+			
+			boolean atleastOneSelection = false;
+			for(CheckBox checkBox : list) {
+				if (checkBox == exclusiveCheckBox) {
+					if (!exclusiveValue) {
+						checkBox.setValue(false);
+						checkBox.setEnabled(false);
+					}
+					continue;
+				}
+				
+				if (exclusiveValue) {
+					checkBox.setValue(false);
+					checkBox.setEnabled(false);
+				}
+				else {
+					checkBox.setEnabled(true);
+					if (checkBox.getValue()) {
+						atleastOneSelection = true;
+					}
+				}
+			}
+			
+			if (!exclusiveValue && !atleastOneSelection) {
+				exclusiveCheckBox.setEnabled(true);
+			}
+		}
+	}
+
+	private void updateExclusiveOptions(RuntimeWidgetWrapper wrapper, QuestionDef questionDef) {
+		Object exclusiveQuestion = formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION);
+		if (exclusiveQuestion == null)
+			return;
+		
+		QuestionDef qtnDef = formDef.getQuestion(exclusiveQuestion.toString());
+		if (qtnDef == null)
+			return;
+		
+		List<CheckBox> list = checkBoxGroupMap.get(qtnDef);
+		if (list == null)
+			return;
+		
+		Object map = formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+		if (map == null)
+			return;
+		
+		String binding = ((Map<String, String>)map).get(wrapper.getBinding());
+		if (binding == null)
+			return;
+			
+		for(CheckBox checkBox : list) {
+			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)checkBox.getParent().getParent();
+			if (binding.equals(widget.getBinding())) {
+				checkBox.setEnabled(!((CheckBox)wrapper.getWrappedWidget()).getValue());
+			}
 		}
 	}
 
@@ -1430,7 +1466,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 
 		//do it recursively until when no more dependent questions.
-		onValueChanged(childQuestionDef);
+		onValueChanged(null, childQuestionDef);
 	}
 
 
@@ -2057,7 +2093,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					else{ 
 						//loading later after filter.
 						fillWidgetValues(text,widget);
-						onValueChanged(widget.getQuestionDef());
+						onValueChanged(widget, widget.getQuestionDef());
 					}
 				}
 
@@ -2067,7 +2103,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 					if(filterValue == null)
 						fillNextExternalSourceWidget();
 					else
-						onValueChanged(widget.getQuestionDef());
+						onValueChanged(widget, widget.getQuestionDef());
 				}
 			});
 		}
@@ -2077,7 +2113,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if(filterValue == null)
 				fillNextExternalSourceWidget();
 			else
-				onValueChanged(widget.getQuestionDef());
+				onValueChanged(widget, widget.getQuestionDef());
 		}
 	}
 

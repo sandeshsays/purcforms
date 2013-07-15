@@ -62,6 +62,8 @@ public class FieldWidget extends Composite{
 	//TODO I think we need only one of questionDef or dynamicQuestionDef to serve the same purpose
 	/** The question that this field widget is handling. eg the skip logic question. */
 	private QuestionDef questionDef;
+	
+	private boolean sameTypesOnly = false;
 
 	boolean enabled = true;
 
@@ -78,7 +80,12 @@ public class FieldWidget extends Composite{
 	 */
 	public void setFormDef(FormDef formDef){
 		this.formDef = formDef;
-		setupPopup();
+		setupPopup(true);
+	}
+	
+	public void selectFormDef(FormDef formDef){
+		this.formDef = formDef;
+		setupPopup(false);
 	}
 
 	private void setupWidgets(){
@@ -136,15 +143,18 @@ public class FieldWidget extends Composite{
 			itemSelectionListener.onItemSelected(this, qtn, true);
 	}
 
-	private void setupPopup(){
+	private void setupPopup(boolean selectFirstQuestion){
 		MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
 
 		for(int i=0; i<formDef.getPageCount(); i++)
-			FormDesignerUtil.loadQuestions(false, formDef.getPageAt(i).getQuestions(), (forDynamicOptions ? dynamicQuestionDef : questionDef),oracle,forDynamicOptions);
+			FormDesignerUtil.loadQuestions(false, formDef.getPageAt(i).getQuestions(), (forDynamicOptions ? dynamicQuestionDef : questionDef),oracle,forDynamicOptions, sameTypesOnly, null);
 
 		txtField = new TextBox(); //TODO New and hence could be buggy
 		sgstField = new SuggestBox(oracle,txtField);
-		selectFirstQuestion();
+		
+		if (selectFirstQuestion) {
+			selectFirstQuestion();
+		}
 
 		sgstField.addSelectionHandler(new SelectionHandler(){
 			public void onSelection(SelectionEvent event){
@@ -210,8 +220,21 @@ public class FieldWidget extends Composite{
 	public void setQuestion(QuestionDef questionDef){
 		this.questionDef = questionDef;
 
-		if(questionDef != null)
-			fieldHyperlink.setText(questionDef.getText());
+		if(questionDef != null) {
+			if (!sameTypesOnly) {
+				fieldHyperlink.setText(questionDef.getText());
+			}
+			else {
+				horizontalPanel.remove(fieldHyperlink);
+				horizontalPanel.remove(sgstField);
+
+				//Removing and adding of fieldHyperlink is to prevent a wiered bug from
+				//happening where focus is taken off, brought back and the hyperlink
+				//displays no more text.
+				horizontalPanel.add(fieldHyperlink);
+				fieldHyperlink.setText(EMPTY_VALUE);
+			}
+		}
 		else{
 			horizontalPanel.remove(fieldHyperlink);
 			horizontalPanel.remove(sgstField);
@@ -234,5 +257,13 @@ public class FieldWidget extends Composite{
 
 	public void setEnabled(boolean enabled){
 		this.enabled = enabled;
+	}
+	
+	public void setSameTypesOnly(boolean sameTypesOnly) {
+		this.sameTypesOnly = sameTypesOnly;
+	}
+	
+	public void clearSelection() {
+		fieldHyperlink.setText(EMPTY_VALUE);
 	}
 }

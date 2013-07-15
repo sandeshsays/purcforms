@@ -143,7 +143,7 @@ public class FormDesignerUtil {
 	 * @param dynamicOptions set to true if we are loading for dynamic options.
 	 */
 	public static void loadQuestions(boolean includeBinding, Vector questions, QuestionDef refQuestion, MultiWordSuggestOracle oracle, boolean dynamicOptions){
-		loadQuestions(includeBinding, questions, refQuestion, oracle, dynamicOptions,/*true*/ false, null);
+		loadQuestions(includeBinding, questions, refQuestion, oracle, dynamicOptions, false, null);
 	}
 
 	/**

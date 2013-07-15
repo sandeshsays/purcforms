@@ -174,18 +174,24 @@ public class OptionDef implements Serializable {
 	 * @param doc the xml document.
 	 * @param selectNode the select or select1 node that this option belongs to.
 	 */
-    public void updateDoc(Document doc, Element selectNode){
+    public void updateDoc(FormDef formDef, QuestionDef questionDef, Document doc, Element selectNode, String extendedOption){
     	if(labelNode != null)
     		XmlUtil.setTextNodeValue(labelNode,text);
     	
     	if(valueNode != null)
     		XmlUtil.setTextNodeValue(valueNode,variableName);
-    	
+    	    	
     	if(labelNode == null && valueNode == null) ////Must be new option.
-    		UiElementBuilder.fromOptionDef2Xform(this,doc,selectNode);
+    		UiElementBuilder.fromOptionDef2Xform(formDef, questionDef, this, doc, selectNode, extendedOption);
     	
-    	if(controlNode != null)
+    	if(controlNode != null) {
     		controlNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, variableName);
+    		
+    		if (extendedOption != null)
+				controlNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, extendedOption);
+			else
+				controlNode.removeAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+    	}
 	}
     
     /**

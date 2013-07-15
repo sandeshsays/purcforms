@@ -810,11 +810,18 @@ public class QuestionDef implements Serializable{
 
 			//Add extended properties if any for exclusive option
 			if (dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-				String exclusiveOption = formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+				Object exclusiveOption = formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
 				if(exclusiveOption != null)
-					node.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+					node.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption.toString());
 				else
 					node.removeAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+				
+				
+				Object exclusiveQuestion = formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION);
+				if(exclusiveQuestion != null)
+					node.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION, exclusiveQuestion.toString());
+				else
+					node.removeAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION);
 			}
 
 			if(!(dataType == QuestionDef.QTN_TYPE_IMAGE || dataType == QuestionDef.QTN_TYPE_AUDIO ||
@@ -834,6 +841,11 @@ public class QuestionDef implements Serializable{
 
 		if((getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 				getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) && options != null){
+			
+			Map<String, String> extendedOptionsMap = null;
+			if (getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+				extendedOptionsMap = (Map<String, String>)formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+			}
 
 			boolean allOptionsNew = areAllOptionsNew();
 			List newOptns = new ArrayList();
@@ -844,7 +856,7 @@ public class QuestionDef implements Serializable{
 				if(!allOptionsNew && optionDef.getControlNode() == null)
 					newOptns.add(optionDef);
 
-				optionDef.updateDoc(doc,controlNode);
+				optionDef.updateDoc(formDef, this, doc, controlNode, (extendedOptionsMap != null ? extendedOptionsMap.get(optionDef.getBinding()) : null) );
 				if(i == 0)
 					firstOptionNode = optionDef.getControlNode();
 			}

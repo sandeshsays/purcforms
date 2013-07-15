@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.purc.purcforms.client.model.Calculation;
@@ -454,6 +455,18 @@ public class XformParser {
 				String id = element.getAttribute(XformConstants.ATTRIBUTE_NAME_ID);
 				if(id == null || id.trim().length() == 0)
 					element.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, optionDef.getBinding());
+				
+				if (questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+					String exclusiveOption = element.getAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+					if(exclusiveOption != null && exclusiveOption.trim().length() > 0) {
+						Object map = formDef.getExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+						if (map == null) {
+							map = new HashMap<String, String>();
+						}
+						((Map)map).put(optionDef.getBinding(), exclusiveOption);
+						formDef.setExtentendProperty(questionDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS, map);
+					}
+				}
 			}
 		} 
 		else if (!nodeContext.getLabel().equals("") && questionDef != null){
@@ -917,6 +930,11 @@ public class XformParser {
 					String exclusiveOption = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
 					if(exclusiveOption != null) {
 						formDef.setExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+					}
+					
+					String exclusiveQuestion = qtn.getBindNode().getAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION);
+					if(exclusiveQuestion != null) {
+						formDef.setExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION, exclusiveQuestion);
 					}
 				}
 				

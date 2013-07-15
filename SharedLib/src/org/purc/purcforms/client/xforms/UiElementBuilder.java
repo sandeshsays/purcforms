@@ -1,6 +1,7 @@
 package org.purc.purcforms.client.xforms;
 
 import java.util.List;
+import java.util.Map;
 
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.GroupQtnsDef;
@@ -76,9 +77,14 @@ public class UiElementBuilder {
 		
 		//Add extended properties if any for exclusive option
 		if (qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-			String exclusiveOption = formDef.getExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+			Object exclusiveOption = formDef.getExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
 			if(exclusiveOption != null) {
-				bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption);
+				bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, exclusiveOption.toString());
+			}
+			
+			Object exclusiveQuestion = formDef.getExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION);
+			if(exclusiveQuestion != null) {
+				bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_QUESTION, exclusiveQuestion.toString());
 			}
 		}
 				
@@ -152,9 +158,15 @@ public class UiElementBuilder {
 			else{
 				List options = qtn.getOptions();
 				if(options != null && options.size() > 0){
+					
+					Map<String, String> extendedOptionsMap = null;
+					if (qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+						extendedOptionsMap = (Map<String, String>)formDef.getExtentendProperty(qtn, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+					}
+					
 					for(int j=0; j<options.size(); j++){
 						OptionDef optionDef = (OptionDef)options.get(j);
-						Element itemNode = fromOptionDef2Xform(optionDef,doc,uiNode);	
+						Element itemNode = fromOptionDef2Xform(formDef, qtn, optionDef, doc, uiNode, (extendedOptionsMap != null ? extendedOptionsMap.get(optionDef.getBinding()) : null));	
 						if(j == 0)
 							qtn.setFirstOptionNode(itemNode);
 					}
@@ -232,9 +244,15 @@ public class UiElementBuilder {
 		if(!qtnDef.isGroupQtnsDef()){
 			List options = qtnDef.getOptions();
 			if(options != null && options.size() > 0){
+				
+				Map<String, String> extendedOptionsMap = null;
+				if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+					extendedOptionsMap = (Map<String, String>)formDef.getExtentendProperty(qtnDef, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+				}
+				
 				for(int index=0; index<options.size(); index++){
 					OptionDef optionDef = (OptionDef)options.get(index);
-					Element itemNode = fromOptionDef2Xform(optionDef,doc,inputNode);	
+					Element itemNode = fromOptionDef2Xform(formDef, qtnDef, optionDef, doc, inputNode, (extendedOptionsMap != null ? extendedOptionsMap.get(optionDef.getBinding()) : null));	
 					if(index == 0)
 						qtnDef.setFirstOptionNode(itemNode);
 				}
@@ -321,7 +339,7 @@ public class UiElementBuilder {
 	 * @param uiNode the xforms ui node of the question to which this option belongs.
 	 * @return the item node of the option definition object.
 	 */
-	public static Element fromOptionDef2Xform(OptionDef optionDef, Document doc, Element uiNode){
+	public static Element fromOptionDef2Xform(FormDef formDef, QuestionDef questionDef, OptionDef optionDef, Document doc, Element uiNode, String extendedOption){
 		Element itemNode =  doc.createElement(XformConstants.NODE_NAME_ITEM);
 		itemNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID, optionDef.getBinding());
 
@@ -337,6 +355,12 @@ public class UiElementBuilder {
 
 		uiNode.appendChild(itemNode);
 		optionDef.setControlNode(itemNode);
+		
+		if (extendedOption != null)
+			itemNode.setAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION, extendedOption);
+		else
+			itemNode.removeAttribute(XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTION);
+		
 		return itemNode;
 	}
 

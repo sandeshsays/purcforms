@@ -1012,7 +1012,6 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				skipRulesView.setQuestionDef((QuestionDef)propertiesObj);
 				validationRulesView.setQuestionDef((QuestionDef)propertiesObj);
 				dynamicListsView.setQuestionDef((QuestionDef)propertiesObj);
-				otherPropertiesView.setQuestionDef((QuestionDef)propertiesObj);
 			}
 		});
 	}
@@ -1154,7 +1153,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		skipRulesView.onFormItemSelected(treeItem);
 		validationRulesView.onFormItemSelected(treeItem);
 		dynamicListsView.onFormItemSelected(treeItem);
-		otherPropertiesView.onFormItemSelected(treeItem);
+		otherPropertiesView.onFormItemSelected(formItem, treeItem);
 
 		clearProperties();
 
@@ -1169,6 +1168,14 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			txtBinding.setEnabled(false);
 
 			return;
+		}
+		else {
+			DeferredCommand.addCommand(new Command(){
+				public void execute() {
+					txtText.setFocus(true);
+					txtText.selectAll();
+				}
+			});
 		}
 
 		txtBinding.setEnabled(Context.allowBindEdit() && !Context.isStructureReadOnly());
