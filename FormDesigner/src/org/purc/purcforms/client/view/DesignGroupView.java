@@ -2802,8 +2802,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		
 		GridDesignGroupWidget group = new GridDesignGroupWidget(images,this);
 		group.addStyleName("getting-started-label2");
-		DOM.setStyleAttribute(group.getElement(), "height","400"+PurcConstants.UNITS);
-		DOM.setStyleAttribute(group.getElement(), "width","800"+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "height","200"/*"400"*/+PurcConstants.UNITS);
+		DOM.setStyleAttribute(group.getElement(), "width","200"/*"800"*/+PurcConstants.UNITS);
 		DOM.setStyleAttribute(group.getElement(), "borderWidth", "1" + PurcConstants.UNITS);
 		group.setWidgetSelectionListener(currentWidgetSelectionListener); //TODO CHECK ??????????????
 

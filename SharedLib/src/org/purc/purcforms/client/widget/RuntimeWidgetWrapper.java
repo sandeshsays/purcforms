@@ -1053,9 +1053,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				else{
 					String answer = "";
 					for(int index=0; index < childWidgets.size(); index++){
-						RuntimeWidgetWrapper childWidget = childWidgets.get(index);
-						String binding = childWidget.getBinding();
-						if(((CheckBox)((RuntimeWidgetWrapper)childWidget).getWrappedWidget()).getValue() == true && binding != null){
+						RuntimeWidgetWrapper kidWidget = childWidgets.get(index);
+						String binding = kidWidget.getBinding();
+						if(((CheckBox)((RuntimeWidgetWrapper)kidWidget).getWrappedWidget()).getValue() == true && binding != null){
 							if(answer.length() > 0)
 								answer += " , ";
 							answer += binding;
@@ -1064,7 +1064,13 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 					questionDef.setAnswer(answer);
 				}
 				isValid(false);
-				editListener.onValueChanged((RuntimeWidgetWrapper)panel.getParent());
+				
+				//TODO what exactly makes this null?
+				if (childWidget.getQuestionDef() == null) {
+					childWidget.setQuestionDef(((RuntimeWidgetWrapper)panel.getParent()).getQuestionDef(), false);
+				}
+				
+				editListener.onValueChanged(childWidget);
 			}
 		});
 
