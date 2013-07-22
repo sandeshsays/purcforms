@@ -265,6 +265,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 
 	private void removeRow(Widget sender){
+		if (!Window.confirm(LocaleText.get("removeRowPrompt")))
+			return;
+		
 		if(table.getRowCount() == 1){//There should be atleast one row{
 			clearValue();
 			return;
