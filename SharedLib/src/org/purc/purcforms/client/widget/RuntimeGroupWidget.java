@@ -974,7 +974,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 
 			//Loading widget from here instead of in getPreparedWidget because setDataNode may clear default values			
-			copyWidget.loadQuestion();
+			//copyWidget.loadQuestion(); commented out because it is called in setDataNode above
 
 			if(copyWidget.getWrappedWidget() instanceof RadioButton)
 				((RadioButton)copyWidget.getWrappedWidget()).setName(((RadioButton)copyWidget.getWrappedWidget()).getName()+row);
