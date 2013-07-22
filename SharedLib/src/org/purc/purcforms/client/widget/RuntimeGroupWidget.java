@@ -1075,6 +1075,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 						widget.loadQuestion();
 					}
 					else{
+						parentNode.setAttribute("new", XformConstants.XPATH_VALUE_TRUE);
 						((Element)child).setAttribute("new", XformConstants.XPATH_VALUE_TRUE);
 						if(XformConstants.XPATH_VALUE_FALSE.equals(((Element)child).getAttribute("default")))
 							widget.getQuestionDef().setDefaultValue(null);
