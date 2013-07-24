@@ -781,8 +781,13 @@ public class QuestionDef implements Serializable{
 				}
 			}
 
-			if(!isGroupQtnsDef())
+			if(!isGroupQtnsDef()) {
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_TYPE, XformBuilderUtil.getXmlType(dataType,node));
+			}
+			else {
+				node.removeAttribute(XformConstants.ATTRIBUTE_NAME_TYPE);
+			}
+			
 			if(node.getAttribute(XformConstants.ATTRIBUTE_NAME_NODESET) != null)
 				node.setAttribute(XformConstants.ATTRIBUTE_NAME_NODESET,binding);
 			if(node.getAttribute(XformConstants.ATTRIBUTE_NAME_REF) != null)
