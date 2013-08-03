@@ -159,7 +159,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	/** The selection rubber band bottom in pixels. */
 	protected int rubberBandBottom;
 
-
+	private boolean newlyAddedWidget = false;
+	
 	/** List of drag controllers. */
 	protected Vector<FormDesignerDropController> tabDropControllers = new Vector<FormDesignerDropController>();
 
@@ -1371,7 +1372,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			//widgetSelectionListener.onWidgetSelected(wrapper);
 			onWidgetSelected(wrapper, false);
 
-			Context.getCommandHistory().add(new CommandList(this, new InsertWidgetCmd(wrapper, wrapper.getLayoutNode(), this)));
+			Context.getCommandHistory().add(new InsertWidgetCmd(wrapper, wrapper.getLayoutNode(), this));
 		}
 
 		return wrapper;
@@ -1824,13 +1825,14 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if((text.trim().length() > 0 && editWidget.getWrappedWidget() instanceof Label) || !(editWidget.getWrappedWidget() instanceof Label))
 				editWidget.setText(text);
 
-			Context.getCommandHistory().add(new ChangeWidgetCmd(editWidget, ChangeWidgetCmd.PROPERTY_TEXT, beforeChangeText, this));
-
-			//selectedPanel.remove(editWidget);
-			//selectedPanel.add(editWidget);
-			//selectedPanel.setWidgetPosition(editWidget, editWidget.getLeftInt(), editWidget.getTopInt());
-
-			//if(this instanceof DesignSurfaceView){
+			if (newlyAddedWidget) {
+				Context.getCommandHistory().pop();
+				Context.getCommandHistory().add(new InsertWidgetCmd(editWidget, editWidget.getLayoutNode(), this));
+				newlyAddedWidget = false;
+			}
+			else {
+				Context.getCommandHistory().add(new ChangeWidgetCmd(editWidget, ChangeWidgetCmd.PROPERTY_TEXT, beforeChangeText, this));
+			}
 
 			if(designGroupWidgetWrapper == null){
 				selectedPanel.setWidgetPosition(editWidget, editWidget.getLeftInt(), editWidget.getTopInt());
@@ -2111,6 +2113,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			y -= 10;
 		
 		addNewLabel(null, true);
+		newlyAddedWidget = true;
 		handleStartLabelEditing(event);
 	}
 

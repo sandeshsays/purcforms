@@ -58,6 +58,10 @@ public class CommandHistory {
 		undoMenuItem.setTitle(btnUndo.getTitle());
 	}
 	
+	public void pop() {
+		undoCmds.pop();
+	}
+	
 	public void undo(){
 		if(!canUndo())
 			return;
