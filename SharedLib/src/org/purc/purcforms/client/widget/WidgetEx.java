@@ -350,14 +350,14 @@ public class WidgetEx extends Composite{
 
 	public String getWidth(){
 		String s = DOM.getStyleAttribute(widget.getElement(), "width");
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().length() == 0 || "0px".equals(s))
 			s = width;
 		return s;
 	}
 
 	public String getHeight(){
 		String s = DOM.getStyleAttribute(widget.getElement(), "height");
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().length() == 0 || "0px".equals(s))
 			s = height;
 		return s;
 	}
