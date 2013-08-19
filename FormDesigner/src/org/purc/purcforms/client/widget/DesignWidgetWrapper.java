@@ -304,6 +304,7 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 				System.out.println(html.getInnerHTML());
 			}*/
 
+			txtEdit.addStyleName("transparentElement");
 			txtEdit.setText(text);
 			txtEdit.selectAll();
 			txtEdit.setFocus(true);

@@ -201,3 +201,8 @@ label::-moz-selection { background: transparent; }
   border-top-width: thin;
   border-top-style: solid;
 }
+
+.transparentElement {
+   background: rgb(54, 25, 25); /* fallback color */
+   background: rgba(54, 25, 25, .00004);
+}
