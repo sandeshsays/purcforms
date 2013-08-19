@@ -203,6 +203,7 @@ label::-moz-selection { background: transparent; }
 }
 
 .transparentElement {
-   background: rgb(54, 25, 25); /* fallback color */
-   background: rgba(54, 25, 25, .00004);
+   background: rgb(0, 0, 0); /* fallback color */
+   background: rgba(0, 0, 0, 0);
+   outline:none;
 }
