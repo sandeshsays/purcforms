@@ -71,7 +71,17 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_PROPERTY_TEXT_ALIGN = "TextAlign";
 	public static final String WIDGET_PROPERTY_HEADER_LABEL = "HeaderLabel";
 	
+	public static final String WIDGET_PROPERTY_FONT_WEIGHT = "fontWeight";
+	public static final String WIDGET_PROPERTY_FONT_FAMILY = "fontFamily";
+	
 	public static final String WIDGET_PROPERTY_BACKGROUND_COLOR = "backgroundColor";
+	public static final String WIDGET_PROPERTY_COLOR = "color";
+	public static final String WIDGET_PROPERTY_FONT_STYLE = "fontStyle";
+	public static final String WIDGET_PROPERTY_FONT_SIZE = "fontSize";
+	public static final String WIDGET_PROPERTY_TEXT_DECORATION = "textDecoration";
+	public static final String WIDGET_PROPERTY_BORDER_STYLE = "borderStyle";
+	public static final String WIDGET_PROPERTY_BORDER_WIDTH = "borderWidth";
+	public static final String WIDGET_PROPERTY_BORDER_COLOR = "borderColor";
 	
 	public static final String WIDGET_PROPERTY_ID = "Id";
 	
