@@ -83,9 +83,13 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String WIDGET_PROPERTY_BORDER_COLOR = "borderColor";
 	
+	public static final String WIDGET_PROPERTY_ROTATED = "rotated";
+	
 	public static final String WIDGET_PROPERTY_ID = "Id";
 	
 	public static final String REPEATED_TRUE_VALUE = "1";
+	
+	public static final String STYLE_NAME_ROTATED = "rotated";
 	
 	protected Widget widget;
 	
@@ -115,6 +119,8 @@ public class WidgetEx extends Composite{
 	protected String filterField;
 	
 	protected boolean isRepeated = false;
+	
+	protected boolean rotated = false;
 	
 	protected String id;
 	
@@ -174,6 +180,7 @@ public class WidgetEx extends Composite{
 		setForeColor(widget.getForeColor());
 		setFontWeight(widget.getFontWeight());
 		setFontStyle(widget.getFontStyle());
+		setRotated(widget.isRotated());
 		setFontSize(widget.getFontSize());
 		setFontFamily(widget.getFontFamily());
 		setTextDecoration(widget.getTextDecoration());
@@ -410,6 +417,15 @@ public class WidgetEx extends Composite{
 			//ex.printStackTrace();
 		}
 	}
+	
+	public void setRotated(boolean rotate) {
+		this.rotated = rotate;
+		
+		if (rotate)
+			this.addStyleName(STYLE_NAME_ROTATED);
+		else
+			this.removeStyleName(STYLE_NAME_ROTATED);
+	}
 
 	public void setFontSize(String fontSize){
 		try{
@@ -549,6 +565,10 @@ public class WidgetEx extends Composite{
 		return s;
 	}
 	
+	public boolean isRotated() {
+		return rotated;
+	}
+	
 	public String getFontSize(){
 		if(widget instanceof TabBar){
 			if(fontSize == null || fontSize.trim().length() == 0)
@@ -653,6 +673,10 @@ public class WidgetEx extends Composite{
 		 value = node.getAttribute("fontStyle");
 		 if(value != null && value.trim().length() > 0)
 			 widget.setFontStyle(value);
+		 
+		 value = node.getAttribute("rotate");
+		 if("true".equals(value))
+			 widget.addStyleName(STYLE_NAME_ROTATED);
 		 
 		 value = node.getAttribute("fontSize");
 		 if(value == null || value.trim().length() == 0)
