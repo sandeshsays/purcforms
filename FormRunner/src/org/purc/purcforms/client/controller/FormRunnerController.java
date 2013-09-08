@@ -186,20 +186,23 @@ public class FormRunnerController implements SubmitListener{
 									Window.alert(LocaleText.get("formSubmitSuccess"));
 
 								String url = FormUtil.getHostPageBaseURL();
-								url += FormUtil.getAfterSubmitUrlSuffix();
-
-								if(FormUtil.appendEntityIdAfterSubmit()){
-									url += FormUtil.getEntityIdName();
-									if(entityId > 0)
-										url += "=" + entityId;
-									else if(entityId == 0 && response.getText().trim().length() > 0)
-										url += "=" + response.getText();
+								String suffix = FormUtil.getAfterSubmitUrlSuffix();
+								if (suffix != null) {
+									url += suffix;
+	
+									if(FormUtil.appendEntityIdAfterSubmit()){
+										url += FormUtil.getEntityIdName();
+										if(entityId > 0)
+											url += "=" + entityId;
+										else if(entityId == 0 && response.getText().trim().length() > 0)
+											url += "=" + response.getText();
+									}
+	
+									//Prevent close confirmation dialog box.
+									FormRunnerContext.setWarnOnClose(false);
+									
+									Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
 								}
-
-								//Prevent close confirmation dialog box.
-								FormRunnerContext.setWarnOnClose(false);
-								
-								Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
 							}
 							else
 								FormUtil.displayReponseError(response);
