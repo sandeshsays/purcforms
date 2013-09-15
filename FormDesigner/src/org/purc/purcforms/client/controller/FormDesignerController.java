@@ -280,8 +280,10 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 						FormDef formDef = XformParser.fromXform2FormDef(doc, xml, languageText);
 						formDef.setReadOnly(tempReadonly);
 						if(formDef.getId() != -1 && languageText != null && languageText.size() > 0 && isOfflineMode()){
-							languageText.put(formDef.getId(), languageText.get(-1)); 
-							languageText.remove(-1);
+							if (languageText.get(-1) != null) {
+								languageText.put(formDef.getId(), languageText.get(-1)); 
+								languageText.remove(-1);
+							}
 						}
 
 						if(tempFormId != ModelConstants.NULL_ID)
