@@ -421,10 +421,12 @@ public class WidgetEx extends Composite{
 	public void setRotated(boolean rotate) {
 		this.rotated = rotate;
 		
-		if (rotate)
-			this.addStyleName(STYLE_NAME_ROTATED);
-		else
-			this.removeStyleName(STYLE_NAME_ROTATED);
+		if (isAttached()) {
+			if (rotate)
+				this.addStyleName(STYLE_NAME_ROTATED);
+			else
+				this.removeStyleName(STYLE_NAME_ROTATED);
+		}
 	}
 
 	public void setFontSize(String fontSize){
