@@ -1259,10 +1259,13 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if(isRepeated){
 			for(int row = 0; row < table.getRowCount(); row++){
 				for(int col = 0; col < table.getCellCount(row)-1; col++){
-					boolean valid = ((RuntimeWidgetWrapper)table.getWidget(row, col)).isValid(fireValueChanged);
-					if(!valid){
-						firstInvalidWidget = (RuntimeWidgetWrapper)table.getWidget(row, col);
-						return false;
+					Widget widget = table.getWidget(row, col);
+					if (widget != null) {
+						boolean valid = ((RuntimeWidgetWrapper)widget).isValid(fireValueChanged);
+						if(!valid){
+							firstInvalidWidget = (RuntimeWidgetWrapper)table.getWidget(row, col);
+							return false;
+						}
 					}
 				}
 			}
