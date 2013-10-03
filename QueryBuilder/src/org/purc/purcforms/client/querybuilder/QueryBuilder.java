@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.querybuilder;
 
+import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -21,6 +22,8 @@ public class QueryBuilder implements EntryPoint {
 		RootPanel rootPanel = RootPanel.get("querybuilder");
 		if(rootPanel == null)
 			return;
+		
+		QueryBuilderUtil.retrieveUserDivParameters();
 		
 		queryBuilder = new QueryBuilderWidget();
 

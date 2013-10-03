@@ -17,7 +17,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 
 /**
- * Utilities used by the form designer.
+ * Utilities used by the form query builder.
  * 
  * @author daniel
  *
@@ -25,7 +25,11 @@ import com.google.gwt.user.client.ui.Widget;
 public class QueryBuilderUtil {
 
 	/** The form designer title. */
-	private static String title = "PurcForms FormDesigner";
+	private static String title = "PurcForms QueryBuilder";
+	
+	private static boolean showXformsXml;
+	private static boolean showDefinitionXml;
+	private static boolean showSql;
 	
 
 	/**
@@ -269,5 +273,35 @@ public class QueryBuilderUtil {
 		
 		// return token
 		return token;
+	}
+	
+	/**
+	 * Gets the parameters passed in the host html file as divs (preferably hidden divs).
+	 * For now this is the way of passing parameters to the form designer and runtime widget.
+	 */
+	public static void retrieveUserDivParameters(){
+		String s = FormUtil.getDivValue("showXformsXml");
+		if("1".equals(s) || "true".equals(s))
+			showXformsXml = true;
+		
+		s = FormUtil.getDivValue("showDefinitionXml");
+		if("1".equals(s) || "true".equals(s))
+			showDefinitionXml = true;
+		
+		s = FormUtil.getDivValue("showSql");
+		if("1".equals(s) || "true".equals(s))
+			showSql = true;
+	}
+	
+	public static boolean showXformsXml(){
+		return showXformsXml;
+	}
+	
+	public static boolean showDefinitionXml(){
+		return showDefinitionXml;
+	}
+	
+	public static boolean showSql(){
+		return showSql;
 	}
 }

@@ -4,6 +4,7 @@ import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.querybuilder.sql.SqlBuilder;
 import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
+import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.xforms.XformParser;
 
@@ -44,11 +45,17 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		tabs.setWidth("100%");
 		tabs.setHeight("100%");
 		
-		tabs.add(txtXform,"XForms Source");
+		if (QueryBuilderUtil.showXformsXml())
+			tabs.add(txtXform,"XForms Source");
+		
 		tabs.add(filterConditionsView,"Filter Conditions");
 		tabs.add(displayFieldsView,"Display Fields");
-		tabs.add(txtDefXml,"Definition XML");
-		tabs.add(txtSql,"SQL");
+		
+		if (QueryBuilderUtil.showDefinitionXml())
+			tabs.add(txtDefXml,"Definition XML");
+		
+		if (QueryBuilderUtil.showSql())
+			tabs.add(txtSql,"SQL");
 		
 		tabs.addSelectionHandler(this);
 		initWidget(tabs);
