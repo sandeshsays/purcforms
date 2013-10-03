@@ -47,12 +47,12 @@ public class DisplayColumnWidget extends Composite implements ItemSelectionListe
 	}
 	
 	private void setupWidgets(){
-		actionHyperlink = new ColumnActionHyperlink("<>",null,this);
-		aggFuncHyperlink = new AggregateFunctionHyperlink(AggregateFunctionHyperlink.FUNC_TEXT_COUNT,null,this);
+		actionHyperlink = new ColumnActionHyperlink("<>","",this);
+		aggFuncHyperlink = new AggregateFunctionHyperlink(AggregateFunctionHyperlink.FUNC_TEXT_COUNT,"",this);
 		fieldWidget = new FieldWidget(this);
 		fieldNameWidget = new FieldNameWidget(this);
 		
-		sortHyperlink = new SortHyperlink(SortHyperlink.SORT_TEXT_NOT_SORTED,null,this,true);
+		sortHyperlink = new SortHyperlink(SortHyperlink.SORT_TEXT_NOT_SORTED,"",this,true);
 
 		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
