@@ -68,7 +68,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 		if(allowFieldSelection)
 			horizontalPanel.add(fieldWidget);
 		else{
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			if(questionDef.isGroupQtnsDef())
 				lbLabel.setText(LocaleText.get("count"));
 			horizontalPanel.add(lbLabel);
 		}

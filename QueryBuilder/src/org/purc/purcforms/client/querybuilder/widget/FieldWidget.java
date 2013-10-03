@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class FieldWidget extends Composite{
 
-	//private static final int HORIZONTAL_SPACING = 5;
 	private static final String EMPTY_VALUE = "_____";
 	
 	private FormDef formDef;

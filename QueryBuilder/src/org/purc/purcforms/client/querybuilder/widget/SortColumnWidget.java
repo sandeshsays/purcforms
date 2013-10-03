@@ -30,9 +30,9 @@ public class SortColumnWidget extends Composite implements ItemSelectionListener
 	private void setupWidgets(int sortOrder,SortColumnActionListener listener){
 		this.listener = listener;
 		
-		actionHyperlink = new SortColumnActionHyperlink("<>",null,listener);
+		actionHyperlink = new SortColumnActionHyperlink("<>","",listener);
 		fieldText = new Label();
-		sortHyperlink = new SortHyperlink(SortHyperlink.SORT_TEXT_ASCENDING,null,this,false);
+		sortHyperlink = new SortHyperlink(SortHyperlink.SORT_TEXT_ASCENDING,"",this,false);
 		
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
 		horizontalPanel.add(actionHyperlink);
