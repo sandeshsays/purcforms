@@ -34,9 +34,8 @@
 
 	<div id="querybuilder"><div>
 
-	<div id="showXformsXml" style="visibility:hidden;">1</div>
-	<div id="showDefinitionXml" style="visibility:hidden;">1</div>
-	<div id="showSql" style="visibility:hidden;">1</div>
+	
+	<div id="showResults" style="visibility:hidden;">1</div>
 	
 	<script language="javascript">
     	var PurcformsText = {
@@ -294,8 +293,22 @@
            		searchServer: "Search Server",
            		recording: "Recording",
            		search: "Search",
-           		processingMsg: "Please wait while processing..."
+           		processingMsg: "Please wait while processing...",
+           		loading: "loading..."
 		  };
+    	
+	  function isUserAuthenticated(){
+		   return true; //Not expected to be used in the design mode.
+	  }
+
+	  function authenticateUser(username, password){
+		  return true; //Not expected to be used in the design mode.
+	  }
+
+	  function initialize(){
+		  
+	  }
+		  
     </script>
     
   </body>

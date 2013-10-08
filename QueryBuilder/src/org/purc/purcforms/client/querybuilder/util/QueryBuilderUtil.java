@@ -27,10 +27,19 @@ public class QueryBuilderUtil {
 	/** The form designer title. */
 	private static String title = "PurcForms QueryBuilder";
 	
+	/** Parameter for the form id. e.g formId, surveyId, questionaireId, etc. */
+	private static final String PARAM_NAME_FORM_ID_NAME = "formIdName";
+	
 	private static boolean showXformsXml;
 	private static boolean showDefinitionXml;
 	private static boolean showSql;
+	private static boolean showResults;
 	
+	/** The name for the queryId field. */
+	private static String formIdName;
+
+	/** The query identifier. */
+	private static String queryId;
 
 	/**
 	 * Creates an HTML fragment that places an image & caption together, for use
@@ -280,6 +289,9 @@ public class QueryBuilderUtil {
 	 * For now this is the way of passing parameters to the form designer and runtime widget.
 	 */
 	public static void retrieveUserDivParameters(){
+		
+		FormUtil.retrieveUserDivParameters();
+		
 		String s = FormUtil.getDivValue("showXformsXml");
 		if("1".equals(s) || "true".equals(s))
 			showXformsXml = true;
@@ -291,6 +303,12 @@ public class QueryBuilderUtil {
 		s = FormUtil.getDivValue("showSql");
 		if("1".equals(s) || "true".equals(s))
 			showSql = true;
+		
+		s = FormUtil.getDivValue("showResults");
+		if("1".equals(s) || "true".equals(s))
+			showResults = true;
+
+		queryId = FormUtil.getFormId();
 	}
 	
 	public static boolean showXformsXml(){
@@ -303,5 +321,9 @@ public class QueryBuilderUtil {
 	
 	public static boolean showSql(){
 		return showSql;
+	}
+	
+	public static boolean showResults() {
+		return showResults;
 	}
 }

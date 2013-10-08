@@ -2,6 +2,7 @@ package org.purc.purcforms.client.querybuilder.view;
 
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.querybuilder.controller.QueryBuilderController;
 import org.purc.purcforms.client.querybuilder.sql.SqlBuilder;
 import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
@@ -19,6 +20,7 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextArea;
 
 
@@ -30,13 +32,23 @@ import com.google.gwt.user.client.ui.TextArea;
 public class QueryBuilderView  extends Composite implements SelectionHandler<Integer>,ResizeHandler{
 
 	private int selectedTabIndex;
+	private int xformsXmlIndex = 0;
+	private int filterConditionsIndex = 1;
+	private int displayFieldsIndex = 2;
+	private int queryDefXmlIndex = 3;
+	private int sqlIndex = 4;
+	private int resultsIndex = 5;
+	
 	private DecoratedTabPanel tabs = new DecoratedTabPanel();
 	private TextArea txtXform = new TextArea();
 	private TextArea txtDefXml= new TextArea();
 	private TextArea txtSql = new TextArea();
+	private HTML htmlResults = new HTML();
 	
 	private FilterConditionsView filterConditionsView = new FilterConditionsView();
 	private DisplayFieldsView displayFieldsView = new DisplayFieldsView();
+	
+	private QueryBuilderController controller;
 	
 	public QueryBuilderView(){
 		
@@ -47,20 +59,39 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		
 		if (QueryBuilderUtil.showXformsXml())
 			tabs.add(txtXform,"XForms Source");
+		else {
+			filterConditionsIndex -= 1;
+			displayFieldsIndex -= 1;
+			queryDefXmlIndex -= 1;
+			sqlIndex -= 1;
+			resultsIndex -= 1;
+		}
 		
 		tabs.add(filterConditionsView,"Filter Conditions");
 		tabs.add(displayFieldsView,"Display Fields");
 		
 		if (QueryBuilderUtil.showDefinitionXml())
 			tabs.add(txtDefXml,"Definition XML");
+		else {
+			sqlIndex -= 1;
+			resultsIndex -= 1;
+		}
 		
 		if (QueryBuilderUtil.showSql())
 			tabs.add(txtSql,"SQL");
+		else 
+			resultsIndex -= 1;
+		
+		if (QueryBuilderUtil.showResults()) {
+			tabs.add(htmlResults, "Results");
+			htmlResults.setWidth("100%");
+			htmlResults.setHeight("100%");
+		}
 		
 		tabs.addSelectionHandler(this);
 		initWidget(tabs);
 		
-		tabs.selectTab(1);
+		tabs.selectTab(filterConditionsIndex);
 		
 		Window.addResizeHandler(this);
 
@@ -90,22 +121,28 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		//parseQueryDef();
 	}
 
+	public void setController(QueryBuilderController controller) {
+		this.controller = controller;
+	}
+	
 	/**
 	 * @see com.google.gwt.event.logical.shared.SelectionHandler#onSelection(SelectionEvent)
 	 */
 	public void onSelection(SelectionEvent<Integer> event){
 		selectedTabIndex = event.getSelectedItem();
 		
-		FormUtil.dlg.setText("Building " + (selectedTabIndex == 3 ? "Query Definition" : "SQL")); //LocaleText.get("???????")
+		FormUtil.dlg.setText("Building " + (selectedTabIndex == queryDefXmlIndex ? "Query Definition" : "SQL")); //LocaleText.get("???????")
 		FormUtil.dlg.center();
 
 		DeferredCommand.addCommand(new Command(){
 			public void execute() {
 				try{
-					if(selectedTabIndex == 3)
+					if(selectedTabIndex == queryDefXmlIndex && QueryBuilderUtil.showDefinitionXml())
 						buildQueryDef();
-					else if(selectedTabIndex == 4)
+					else if(selectedTabIndex == sqlIndex && QueryBuilderUtil.showSql())
 						buildSql();
+					else if(selectedTabIndex == resultsIndex && QueryBuilderUtil.showResults())
+						showResults();
 
 					FormUtil.dlg.hide();
 				}
@@ -233,6 +270,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		txtDefXml.setText(FormUtil.formatXml(FormUtil.formatXml(XmlBuilder.buildXml(filterConditionsView.getFormDef(),filterConditionsView.getFilterConditionRows(),displayFieldsView.getDisplayFields(),displayFieldsView.getSortFields()))));
 	}
 	
+	private void showResults() {
+		controller.loadResults();
+	}
+	
 	public String getQueryDef(){
 		buildQueryDef();
 		return txtDefXml.getText();
@@ -257,6 +298,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		txtSql.setText(sql);
 	}
 	
+	public void setResults(String html) {
+		htmlResults.setHTML(html);
+	}
+	
 	public void load(){
 		parseXform();
 		parseQueryDef();
@@ -270,5 +315,16 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		tabs.remove(0);
 		tabs.remove(2);
 		tabs.remove(2);
+	}
+	
+	/**
+	 * Loads a query from the server into the query builder.
+	 * 
+	 * @param queryId the query identifier.
+	 */
+	public void loadQuery(int queryId){
+		if(queryId != -1) {
+			controller.loadQuery(queryId);
+		}
 	}
 }
