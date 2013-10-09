@@ -21,7 +21,7 @@ public class QueryBuilderWidget extends Composite{
 	public QueryBuilderWidget(){
 		
 		dockPanel.setWidth("100%");
-		dockPanel.setHeight("100%");
+		//dockPanel.setHeight("100%");
 		dockPanel.add(view, DockPanel.CENTER);
 		initWidget(dockPanel);
 		controller = new QueryBuilderController(view);

@@ -6,6 +6,7 @@ import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ConditionController;
 import org.purc.purcforms.client.querybuilder.controller.FilterRowActionListener;
 import org.purc.purcforms.client.querybuilder.model.FilterCondition;
@@ -60,6 +61,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 	private void setupWidgets(){
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 
 		actionHyperlink = new ConditionActionHyperlink("<>","",false,1,addConditionLink,this);
 
@@ -76,6 +78,8 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		});
 
 		verticalPanel.setSpacing(VERTICAL_SPACING);
+		verticalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
+		
 		initWidget(verticalPanel);
 	}
 
@@ -95,6 +99,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 					index = verticalPanel.getWidgetIndex(addConditionHyperlink.getParent());
 
 				HorizontalPanel horizontalPanel = new HorizontalPanel();
+				horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 				int depth = addConditionHyperlink.getDepth();
 				horizontalPanel.add(getSpace(depth));
 				conditionWidget = new ConditionWidget(formDef,this,true,questionDef,depth,addConditionHyperlink);
@@ -120,6 +125,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		if(depth > 2)
 			horizontalPanel.add(getSpace3(depth-1));
 		horizontalPanel.add(new CheckBox());
@@ -133,12 +139,14 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 		if(addCondition){
 			horizontalPanel = new HorizontalPanel();
+			horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 			horizontalPanel.add(getSpace(depth));
 			horizontalPanel.add(new ConditionWidget(formDef,this,true,questionDef,depth,addConditionLink));
 			verticalPanel.insert(horizontalPanel, ++index);
 		}
 
 		horizontalPanel = new HorizontalPanel();
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(getSpace2(depth));
 		horizontalPanel.add(addConditionLink);
 		verticalPanel.insert(horizontalPanel, ++index);
@@ -177,6 +185,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 	public void addAddConditionLink(){
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(addConditionLink);
 		verticalPanel.add(horizontalPanel);
 	}

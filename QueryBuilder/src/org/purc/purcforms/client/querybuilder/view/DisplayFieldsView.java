@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.DisplayColumnActionListener;
 import org.purc.purcforms.client.querybuilder.controller.SortColumnActionListener;
 import org.purc.purcforms.client.querybuilder.model.DisplayField;
@@ -57,8 +58,13 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 
 	private void setupWidgets(){
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
+		
 		columnPanel.setSpacing(VERTICAL_SPACING);
+		columnPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
+		
 		sortPanel.setSpacing(VERTICAL_SPACING);
+		sortPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 
 		horizontalPanel.add(columnPanel);
 		horizontalPanel.add(sortPanel);

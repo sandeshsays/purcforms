@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.querybuilder.widget;
 
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -41,6 +42,7 @@ public class FieldNameWidget extends Composite {
 		horizontalPanel = new HorizontalPanel();;
 
 		valueHyperlink = new Hyperlink(EMPTY_VALUE,"");
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(valueHyperlink);
 
 		valueHyperlink.addClickHandler(new ClickHandler(){

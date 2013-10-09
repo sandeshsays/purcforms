@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 
@@ -52,6 +53,7 @@ public class FieldWidget extends Composite{
 		fieldHyperlink = new Hyperlink("",""); //Field 1
 		
 		horizontalPanel = new HorizontalPanel();
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(fieldHyperlink);
 
 		fieldHyperlink.addClickHandler(new ClickHandler(){

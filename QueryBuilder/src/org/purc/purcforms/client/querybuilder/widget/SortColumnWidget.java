@@ -1,5 +1,6 @@
 package org.purc.purcforms.client.querybuilder.widget;
 
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 import org.purc.purcforms.client.querybuilder.controller.SortColumnActionListener;
 
@@ -35,6 +36,7 @@ public class SortColumnWidget extends Composite implements ItemSelectionListener
 		sortHyperlink = new SortHyperlink(SortHyperlink.SORT_TEXT_ASCENDING,"",this,false);
 		
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(actionHyperlink);
 		horizontalPanel.add(fieldText);
 		horizontalPanel.add(sortHyperlink);

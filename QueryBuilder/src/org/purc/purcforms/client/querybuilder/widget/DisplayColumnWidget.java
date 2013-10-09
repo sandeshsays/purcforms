@@ -3,6 +3,7 @@ package org.purc.purcforms.client.querybuilder.widget;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.AggregateFunctionListener;
 import org.purc.purcforms.client.querybuilder.controller.DisplayColumnActionListener;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
@@ -56,6 +57,7 @@ public class DisplayColumnWidget extends Composite implements ItemSelectionListe
 
 		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(actionHyperlink);
 
 		if(true)

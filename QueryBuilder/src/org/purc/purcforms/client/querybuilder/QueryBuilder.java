@@ -14,6 +14,8 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public class QueryBuilder implements EntryPoint {
 
+	public static final String CSS_QUERY_BUILDER_TABLE = "gwt-QueryBuilderTable";
+	
 	private QueryBuilderWidget queryBuilder;
 	
 	/**
@@ -52,7 +54,7 @@ public class QueryBuilder implements EntryPoint {
 		rootPanel.add(queryBuilder);
 
 		queryBuilder.setWidth("100%");
-		queryBuilder.setHeight("100%");
+		//queryBuilder.setHeight("100%");
 		
 		//If a form id has been specified in the html host page, load the form
 		//with that id in the designer.

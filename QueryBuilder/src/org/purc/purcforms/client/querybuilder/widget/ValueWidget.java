@@ -9,6 +9,7 @@ import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
@@ -101,7 +102,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	}
 
 	private void setupWidgets(){
-		horizontalPanel = new HorizontalPanel();;
+		horizontalPanel = new HorizontalPanel();
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 
 		valueHyperlink = new Hyperlink(EMPTY_VALUE,"");
 		horizontalPanel.add(valueHyperlink);

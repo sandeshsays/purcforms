@@ -5,6 +5,7 @@ import org.purc.purcforms.client.model.Condition;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.QueryBuilder;
 import org.purc.purcforms.client.querybuilder.controller.ConditionController;
 import org.purc.purcforms.client.querybuilder.controller.FilterRowActionListener;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
@@ -63,6 +64,7 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 		horizontalPanel = new HorizontalPanel();
 		horizontalPanel.add(chkSelect);
 		horizontalPanel.setSpacing(HORIZONTAL_SPACING);
+		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		horizontalPanel.add(actionHyperlink);
 
 		if(allowFieldSelection)

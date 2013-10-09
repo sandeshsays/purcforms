@@ -55,7 +55,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		txtXform.setWidth("100%");
 		txtXform.setHeight("100%");
 		tabs.setWidth("100%");
-		tabs.setHeight("100%");
+		//tabs.setHeight("100%");
 		
 		if (QueryBuilderUtil.showXformsXml())
 			tabs.add(txtXform,"XForms Source");
