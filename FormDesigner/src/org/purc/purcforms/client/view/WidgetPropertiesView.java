@@ -169,6 +169,9 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 
 	/** Widget for setting the id property. */
 	private TextBox txtId= new TextBox();
+	
+	/** Widget for setting the class property. */
+	private TextBox txtClass= new TextBox();
 
 	/** The current form definition object. */
 	private FormDef formDef;
@@ -222,6 +225,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		table.setWidget(++index, 0, new Label(LocaleText.get("borderWidth")));
 		table.setWidget(++index, 0, new Label(LocaleText.get("borderColor")));
 		table.setWidget(++index, 0, new Label(LocaleText.get("id")));
+		table.setWidget(++index, 0, new Label(LocaleText.get("cls")));
 
 		index = -1;
 		table.setWidget(++index, 1,txtText );
@@ -254,6 +258,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		table.setWidget(++index, 1, txtBorderWidth);
 		table.setWidget(++index, 1, sgstBorderColor);
 		table.setWidget(++index, 1, txtId);
+		table.setWidget(++index, 1, txtClass);
 
 		txtText.setWidth("100%");
 		txtHelpText.setWidth("100%");
@@ -284,6 +289,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		txtBorderWidth.setWidth("100%");
 		sgstBorderColor.setWidth("100%");
 		txtId.setWidth("100%");
+		txtClass.setWidth("100%");
 
 		table.setStyleName("cw-FlexTable");
 		table.setWidth("100%");
@@ -709,6 +715,32 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 				updateId();
 			}
 		});
+		
+		//class
+		txtClass.addChangeHandler(new ChangeHandler(){
+			public void onChange(ChangeEvent event){
+				updateClass();
+
+				if(widget != null && beforeChangeText != null){
+					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_CLASS, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+					beforeChangeText = null;
+				}
+			}
+		});
+
+		txtClass.addKeyUpHandler(new KeyUpHandler(){
+			public void onKeyUp(KeyUpEvent event) {
+				if(beforeChangeText == null && widget != null){
+					beforeChangeProperty = ChangeWidgetCmd.PROPERTY_CLASS;
+					beforeChangeText = widget.getCls();
+
+					if(beforeChangeText == null)
+						beforeChangeText = "";
+				}
+
+				updateClass();
+			}
+		});
 
 		txtForeColor.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
@@ -1123,6 +1155,14 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		if(widget != null)
 			widget.setId(txtId.getText());
 	}
+	
+	/**
+	 * Updates the selected widget with the new class as typed by the user.
+	 */
+	private void updateClass(){
+		if(widget != null)
+			widget.setCls(txtClass.getText());
+	}
 
 	/**
 	 * Updates the selected widget with the new isRepeat value as ticked by the user.
@@ -1364,6 +1404,12 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 				txtId.setText(value);
 			else
 				txtId.setText(null);
+			
+			value = this.widget.getCls();
+			if(value != null && value.trim().length() > 0)
+				txtClass.setText(value);
+			else
+				txtClass.setText(null);
 
 			cbRepeat.setSelectedIndex(this.widget.isRepeated() ? 0 : 1);
 
@@ -1493,6 +1539,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		txtValueField.setText(null);
 		txtFilterField.setText(null);
 		txtId.setText(null);
+		txtClass.setText(null);
 		cbRepeat.setSelectedIndex(-1);
 		enableLabelProperties(false);
 	}

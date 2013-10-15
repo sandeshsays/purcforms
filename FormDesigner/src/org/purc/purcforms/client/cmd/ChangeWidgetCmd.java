@@ -46,6 +46,7 @@ public class ChangeWidgetCmd implements ICommand {
 	public static final byte PROPERTY_BORDER_WIDTH = 26;
 	public static final byte PROPERTY_BORDER_COLOR = 27;
 	public static final byte PROPERTY_ID = 28;
+	public static final byte PROPERTY_CLASS = 29;
 
 	protected DesignGroupView view;
 	protected DesignWidgetWrapper widget;
@@ -141,6 +142,8 @@ public class ChangeWidgetCmd implements ICommand {
 			return LocaleText.get("borderColor");
 		case PROPERTY_ID:
 			return LocaleText.get("id");
+		case PROPERTY_CLASS:
+			return LocaleText.get("cls");
 		default:
 			return "";
 		}
@@ -271,6 +274,10 @@ public class ChangeWidgetCmd implements ICommand {
 		case PROPERTY_ID:
 			oldValue = widget.getId();
 			widget.setId(value);
+			break;
+		case PROPERTY_CLASS:
+			oldValue = widget.getCls();
+			widget.setCls(value);
 			break;
 		}
 

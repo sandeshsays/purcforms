@@ -391,6 +391,18 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 			}
 		}
 	}
+	
+	public void lockUnlockChildren(boolean lock) {
+		for(int i=0; i<selectedPanel.getWidgetCount(); i++){
+			if(selectedPanel.getWidget(i) instanceof DesignWidgetWrapper){
+				DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedPanel.getWidget(i);
+				widget.setLocked(lock);
+				
+				if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+					((DesignGroupWidget)widget.getWrappedWidget()).lockUnlockChildren(lock);
+			}
+		}
+	}
 
 	public void loadWidgets(Element node,FormDef formDef){
 		NodeList nodes = node.getChildNodes();

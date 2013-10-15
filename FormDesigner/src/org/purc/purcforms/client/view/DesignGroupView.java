@@ -1876,9 +1876,18 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			y = event.getClientY();
 
 			if(editWidget != null){
-				if(editWidget.getWrappedWidgetEx().getElement() == event.getTarget())
-					return;
+				boolean targetIsEditWidget = false;
+				if(editWidget.getWrappedWidgetEx().getElement() == event.getTarget()) {
+					targetIsEditWidget = true;
+					x = x - editWidget.getParent().getAbsoluteLeft();
+					y = y - editWidget.getParent().getAbsoluteTop();
+				}
+				
 				handleStopLabelEditing(false);
+				
+				if (targetIsEditWidget) {
+					return;
+				}
 			}
 
 			if((event.getButton() & Event.BUTTON_RIGHT) != 0){
@@ -2747,13 +2756,17 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		lockUnlockWidgets(true);
 	}
 	
-	protected void unLockWidgets(){
+	public void unLockWidgets(){
 		lockUnlockWidgets(false);
 	}
 
-	private void lockUnlockWidgets(boolean lock) {
+	public void lockUnlockWidgets(boolean lock) {
 		for(int i=0; i<selectedDragController.getSelectedWidgetCount(); i++){
-			((DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i)).setLocked(lock);
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)selectedDragController.getSelectedWidgetAt(i);
+			widget.setLocked(lock);
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget) {
+				((DesignGroupWidget)widget.getWrappedWidget()).lockUnlockChildren(lock);
+			}
 		}
 	}
 	
