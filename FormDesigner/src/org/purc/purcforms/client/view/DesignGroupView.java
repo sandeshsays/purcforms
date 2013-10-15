@@ -2081,9 +2081,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(!ret){
 				if(!isTextBoxFocus(event) || (editWidget != null /*&& event.getCurrentTarget() == editWidget.getElement()*/)){
 					boolean ret1 = false;
-					if(keyCode != KeyCodes.KEY_DELETE && editWidget == null &&
-							(!(event.getCtrlKey() || event.getMetaKey())) ) {
-						ret1 = handleStartLabelEditing(event);
+					if(keyCode != KeyCodes.KEY_DELETE && editWidget == null) {
+						if (!((event.getCtrlKey() || event.getShiftKey() || event.getMetaKey()) && selectedDragController.isAnyWidgetSelected()))
+							ret1 = handleStartLabelEditing(event);
+						else
+							ret1 = true;
 					}
 					else if(keyCode == KeyCodes.KEY_ENTER && editWidget != null)
 						handleStopLabelEditing(true);
