@@ -87,6 +87,8 @@ public class WidgetEx extends Composite{
 	
 	public static final String WIDGET_PROPERTY_ID = "Id";
 	
+	public static final String WIDGET_PROPERTY_CLASS = "class";
+	
 	public static final String REPEATED_TRUE_VALUE = "1";
 	
 	public static final String STYLE_NAME_ROTATED = "rotated";
@@ -123,6 +125,8 @@ public class WidgetEx extends Composite{
 	protected boolean rotated = false;
 	
 	protected String id;
+	
+	protected String cls;
 	
 	/** 
 	 * The horizontal panel which contains the widget. The widget is contained in a horizontal
@@ -171,6 +175,7 @@ public class WidgetEx extends Composite{
 		this.filterField = widget.filterField;
 		this.isRepeated = widget.isRepeated;
 		this.id = widget.id;
+		this.cls = widget.cls;
 		
 		if (wrappedWidget != null)
 			this.widget = wrappedWidget;
@@ -680,6 +685,11 @@ public class WidgetEx extends Composite{
 		 if("true".equals(value))
 			 widget.addStyleName(STYLE_NAME_ROTATED);
 		 
+		 value = node.getAttribute("class");
+		 if(value != null && value.trim().length() > 0) {
+			 widget.addStyleName(value);
+		 }
+		 
 		 value = node.getAttribute("fontSize");
 		 if(value == null || value.trim().length() == 0)
 			 value = FormUtil.getDefaultFontSize();
@@ -884,6 +894,16 @@ public class WidgetEx extends Composite{
 		return id;
 	}
 	
+	public String getCls() {
+		return cls;
+	}
+	
+	public void setCls(String cls){
+		this.cls = cls;
+		if (cls != null && cls.trim().length() > 0) {
+			this.addStyleName(cls);
+		}
+	}
 	
 	public static String getTabDisplayText(String html){
 		if(html.indexOf("&lt") > 0)

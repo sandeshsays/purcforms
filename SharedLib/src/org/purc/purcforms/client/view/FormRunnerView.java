@@ -256,31 +256,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 */
 	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
 		//FormUtil.initialize();
-
-		if(previewMode /*externalSourceWidgets == null*/){
-			//Here we must be in preview mode where we need to create a new copy of the formdef
-			//such that we don't set preview values as default formdef values.
-			if(formDef == null)
-				this.formDef = null;
-			else //set the document xml which we shall need for updating the model with question answers
-				this.formDef = XformParser.copyFormDef(formDef);
-		}
-		else
-			this.formDef = formDef;
-
-		tabs.clear();
-		if(formDef == null || layoutXml == null || layoutXml.trim().length() == 0){
-			addNewTab(LocaleText.get("page") + "1");
-			return;
-		}
-
-		loaded = false;
-
-		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
-		isValid(true);
-
-		loaded = true;
-
+		
 		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
 		if(script != null)
 			script.removeFromParent();
@@ -306,6 +282,30 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			script.appendChild(document.createTextNode(css));
 			document.getElementsByTagName("head").getItem(0).appendChild(script);
 		}
+
+		if(previewMode /*externalSourceWidgets == null*/){
+			//Here we must be in preview mode where we need to create a new copy of the formdef
+			//such that we don't set preview values as default formdef values.
+			if(formDef == null)
+				this.formDef = null;
+			else //set the document xml which we shall need for updating the model with question answers
+				this.formDef = XformParser.copyFormDef(formDef);
+		}
+		else
+			this.formDef = formDef;
+
+		tabs.clear();
+		if(formDef == null || layoutXml == null || layoutXml.trim().length() == 0){
+			addNewTab(LocaleText.get("page") + "1");
+			return;
+		}
+
+		loaded = false;
+
+		loadLayout(layoutXml,externalSourceWidgets,getCalcQtnMappings(this.formDef));
+		isValid(true);
+
+		loaded = true;
 
 		this.externalSourceWidgets = externalSourceWidgets;
 		externalSourceWidgetIndex = 0;
@@ -748,6 +748,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_ID);
 		if(value != null && value.trim().length() > 0)
 			wrapper.setId(value);
+		
+		value = node.getAttribute(WidgetEx.WIDGET_PROPERTY_CLASS);
+		if(value != null && value.trim().length() > 0)
+			wrapper.setCls(value);
 
 		if(questionDef != null){
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
