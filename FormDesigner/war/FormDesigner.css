@@ -207,3 +207,7 @@ label::-moz-selection { background: transparent; }
    background: rgba(0, 0, 0, 0);
    outline:none;
 }
+
+.gwt-Label {
+    white-space: pre;
+}
