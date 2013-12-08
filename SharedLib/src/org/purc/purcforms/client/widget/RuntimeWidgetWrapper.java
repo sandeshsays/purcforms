@@ -102,6 +102,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		panel.add(this.widget);
 		initWidget(panel);
+		panel.addStyleName("gwt-PanelTable");
 		setupEventListeners();
 
 		if(widget.questionDef != null){ //TODO For long list of options may need to share list
@@ -126,6 +127,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 			panel.add(widget);
 			initWidget(panel);
+			panel.addStyleName("gwt-PanelTable");
 			setupEventListeners();
 			errorImage.setTitle(LocaleText.get("requiredErrorMsg"));
 
