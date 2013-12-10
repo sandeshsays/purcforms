@@ -60,7 +60,7 @@ public class QueryBuilderWidget extends Composite{
 		view.hideDebugTabs();
 	}
 	
-	public void loadQuery(Integer queryId) {
-		view.loadQuery(queryId);
+	public void load(Integer formId) {
+		view.load(formId);
 	}
 }

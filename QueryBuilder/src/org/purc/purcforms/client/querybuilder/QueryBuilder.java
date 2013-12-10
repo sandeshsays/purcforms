@@ -60,11 +60,11 @@ public class QueryBuilder implements EntryPoint {
 		//with that id in the designer.
 		String s = FormUtil.getFormId();
 		if(s != null) {
-			queryBuilder.loadQuery(getQueryId(s));
+			queryBuilder.load(getFormId(s));
 		}
 	}
 	
-	private Integer getQueryId(String sId){
+	private Integer getFormId(String sId){
 		try{
 			return Integer.parseInt(sId);
 		}

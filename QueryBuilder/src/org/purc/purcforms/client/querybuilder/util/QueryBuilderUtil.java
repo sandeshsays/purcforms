@@ -8,10 +8,14 @@ import java.util.Map.Entry;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.util.FormUtil;
 
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -283,6 +287,38 @@ public class QueryBuilderUtil {
 		// return token
 		return token;
 	}
+	
+	/**
+	 * Creates an HTML fragment that places an image & caption together, for use
+	 * in a group header.
+	 * 
+	 * @param imageProto an image prototype for an image
+	 * @param caption the group caption
+	 * @return the header HTML fragment
+	 */
+	public static String createHeaderHTML(ImageResource imageProto, String caption) {
+
+		//Add the image and text to a horizontal panel
+		HorizontalPanel hPanel = new HorizontalPanel();
+		hPanel.setSpacing(0);
+
+		hPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		hPanel.add(FormUtil.createImage(imageProto));
+		//HTML headerText = new HTML(caption);
+		Widget headerText = new Label(caption);
+		hPanel.add(headerText);
+
+		return hPanel.getElement().getString();
+	}
+	
+	/**
+	 * Enabled the browsers default context menu for the specified element.
+	 *
+	 * @param elem the element whose context menu will be enabled
+	 */
+	public static native void enableContextMenu(Element elem) /*-{
+	    elem.oncontextmenu=function() {  return true};
+	}-*/;
 	
 	/**
 	 * Gets the parameters passed in the host html file as divs (preferably hidden divs).

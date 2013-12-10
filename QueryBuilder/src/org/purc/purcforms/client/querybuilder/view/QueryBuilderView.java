@@ -1,7 +1,10 @@
 package org.purc.purcforms.client.querybuilder.view;
 
 import org.purc.purcforms.client.PurcConstants;
+import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
+import org.purc.purcforms.client.model.PageDef;
+import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.querybuilder.controller.QueryBuilderController;
 import org.purc.purcforms.client.querybuilder.sql.SqlBuilder;
 import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
@@ -9,18 +12,25 @@ import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.xforms.XformParser;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 
 
@@ -49,6 +59,17 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	private DisplayFieldsView displayFieldsView = new DisplayFieldsView();
 	
 	private QueryBuilderController controller;
+	
+	private PopupPanel popup;
+	
+	public interface Images extends ClientBundle {
+		ImageResource open();
+		ImageResource save();
+		ImageResource saveas();
+		ImageResource spreadsheet();
+	}
+	
+	public static final Images images = (Images) GWT.create(Images.class);
 	
 	public QueryBuilderView(){
 		
@@ -114,11 +135,61 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			}
 		});
 		
+		popup = new PopupPanel(true,true);
+		MenuBar menuBar = new MenuBar(true);
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.open(),LocaleText.get("open")),true,new Command(){
+			public void execute() {popup.hide(); openQuery();}});
+
+		menuBar.addSeparator();
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.save(),LocaleText.get("save")),true,new Command(){
+			public void execute() {popup.hide(); saveQuery();}});
+		
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.saveas(),LocaleText.get("saveAs")),true,new Command(){
+			public void execute() {popup.hide(); saveAsQuery();}});
+		
+		menuBar.addSeparator();
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.spreadsheet(),LocaleText.get("exportSpreadSheet")),true,new Command(){
+			public void execute() {popup.hide(); exportSpreadSheet();}});
+
+		popup.setWidget(menuBar);
+		
+		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.ONMOUSEDOWN);
+		
 		//txtXform.setText(FormUtil.formatXml(getTestXform()));
 		//parseXform();
 		
 		//txtDefXml.setText(getTestQueryDef());
 		//parseQueryDef();
+	}
+	
+	@Override
+	public void onBrowserEvent(Event event) {
+		int type = DOM.eventGetType(event);
+
+		switch (type) {
+		case Event.ONMOUSEDOWN:
+			
+			QueryBuilderUtil.enableContextMenu(getElement());
+			
+			if( (event.getButton() & Event.BUTTON_RIGHT) != 0){
+				//if("gwt-purcforms".equals(event.getTarget().getClassName())){
+					
+					int ypos = event.getClientY();
+					if(Window.getClientHeight() - ypos < 100)
+						ypos = event.getClientY() - 100;
+					
+					int xpos = event.getClientX();
+					if(Window.getClientWidth() - xpos < 110)
+						xpos = event.getClientX() - 110;
+					
+					QueryBuilderUtil.disableContextMenu(popup.getElement());
+					QueryBuilderUtil.disableContextMenu(getElement());
+					popup.setPopupPosition(xpos, ypos);
+					popup.show();
+				//}
+			}
+			break;
+		}	
 	}
 
 	public void setController(QueryBuilderController controller) {
@@ -168,8 +239,22 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 				try{
 					FormDef formDef = null;
 					String xml = txtXform.getText().trim();
-					if(xml.length() > 0)
+					if(xml.length() > 0) {
 						formDef = XformParser.fromXform2FormDef(xml);
+
+						//remove questions which are not filled by the user
+						//such could be automatically filled
+						for (int pageNo = 0; pageNo < formDef.getPageCount(); pageNo++) {
+							PageDef pageDef = formDef.getPageAt(pageNo);
+							for (int index = 0; index < pageDef.getQuestionCount(); index++) {
+								QuestionDef qtnDef = pageDef.getQuestionAt(index);
+								if (!qtnDef.isVisible()) {
+									pageDef.removeQuestion(qtnDef, formDef);
+									index--;
+								}
+							}
+						}
+					}
 
 					filterConditionsView.setFormDef(formDef);
 					displayFieldsView.setFormDef(formDef);
@@ -183,7 +268,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		});
 	}
 	
-	private void parseQueryDef(){
+	public void parseQueryDef(){
 		FormUtil.dlg.setText("Parsing Query Definition"); //LocaleText.get("???????")
 		FormUtil.dlg.center();
 
@@ -318,13 +403,33 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	/**
-	 * Loads a query from the server into the query builder.
+	 * Loads a form from the server into the query builder.
 	 * 
-	 * @param queryId the query identifier.
+	 * @param formId the form identifier.
 	 */
-	public void loadQuery(int queryId){
-		if(queryId != -1) {
-			controller.loadQuery(queryId);
+	public void load(int formId){
+		if(formId != -1) {
+			controller.load(formId);
 		}
+	}
+	
+	public void openQuery() {
+		controller.loadQueryList();
+	}
+	
+	public void saveQuery() {
+		controller.saveQuery("");
+	}
+	
+	public void saveAsQuery() {
+		
+	}
+	
+	public void exportSpreadSheet() {
+		controller.exportExcel();
+	}
+	
+	public void openQueryList(String xml) {
+		
 	}
 }

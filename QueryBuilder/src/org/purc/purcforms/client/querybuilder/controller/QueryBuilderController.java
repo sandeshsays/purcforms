@@ -15,6 +15,8 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.TextArea;
 
 
 /**
@@ -30,16 +32,26 @@ public class QueryBuilderController {
 	private static final byte CA_NONE = 0;
 		
 	/** Action for loading a query definition. */
-	private static final byte CA_LOAD_QUERY = 1;
+	private static final byte CA_LOAD = 1;
 
 	/** Action for loading results. */
 	private static final byte CA_LOAD_RESULTS = 2;
+	
+	private static final byte CA_LOAD_QUERYLIST = 3;
+	
+	private static final byte CA_EXPORT_EXCEL = 4;
+	
+	private static final byte CA_SAVE_QUERY = 5;
+	
+	private static final byte CA_LOAD_QUERY = 6;
 	
 	/** The current action by the time to try to authenticate the user at the server. */
 	private static byte currentAction = CA_NONE;
 	
 	private static QueryBuilderView view;
-	private Integer queryId;
+	private static Integer formId;
+	private static Integer queryId;
+	private static String queryName;
 	
 	/** Static self reference such that the static login call back can have
 	 *  a reference to proceed with the current action.
@@ -62,7 +74,7 @@ public class QueryBuilderController {
 	 * @return true if in offline mode, else false.
 	 */
 	public boolean isOfflineMode(){
-		return queryId == null;
+		return formId == null;
 	}
 	
 	public void loadResults() {
@@ -74,18 +86,58 @@ public class QueryBuilderController {
 		}
 	}
 	
+	public void loadQueryList() {
+		if(isOfflineMode())
+			getQueryList();
+		else{
+			currentAction = CA_LOAD_QUERYLIST;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	public void exportExcel() {
+		if(isOfflineMode())
+			doExportExcel();
+		else{
+			currentAction = CA_EXPORT_EXCEL;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	public void saveQuery(String name) {
+		queryName = name;
+		
+		if(isOfflineMode())
+			doSaveQuery();
+		else{
+			currentAction = CA_SAVE_QUERY;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
 	/**
-	 * Loads or opens a form with a given id.
+	 * Loads or opens a query with a given id.
 	 * 
-	 * @param frmId the form id.
+	 * @param qryId the query id.
 	 */
 	public void loadQuery(Integer qryId){
-		this.queryId = qryId;
+		queryId = qryId;
 
 		if(isOfflineMode())
-			loadQuery();
+			getQuery();
 		else{
 			currentAction = CA_LOAD_QUERY;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	public void load(Integer frmId){
+		formId = frmId;
+		
+		if(isOfflineMode())
+			doLoad();
+		else{
+			currentAction = CA_LOAD;
 			FormUtil.isAuthenticated();
 		}
 	}
@@ -104,10 +156,18 @@ public class QueryBuilderController {
 		if(authenticated){	
 			loginDlg.hide();
 			
-			if(currentAction == CA_LOAD_QUERY)
-				controller.loadQuery();
+			if(currentAction == CA_LOAD)
+				controller.doLoad();
 			else if(currentAction == CA_LOAD_RESULTS)
 				controller.getResults();
+			else if(currentAction == CA_LOAD_QUERYLIST)
+				controller.getQueryList();
+			else if(currentAction == CA_LOAD_QUERY)
+				controller.getQuery();
+			else if(currentAction == CA_SAVE_QUERY)
+				controller.doSaveQuery();
+			else if(currentAction == CA_EXPORT_EXCEL)
+				controller.doExportExcel();
 
 			currentAction = CA_NONE;
 		}
@@ -115,7 +175,7 @@ public class QueryBuilderController {
 			loginDlg.center();
 	}
 	
-	public static void getResults() {
+	private static void getResults() {
 		FormUtil.dlg.setText(LocaleText.get("loading"));
 		FormUtil.dlg.center();
 
@@ -161,7 +221,7 @@ public class QueryBuilderController {
 		});
 	}
 	
-	public static void loadQuery() {
+	private static void doLoad() {
 		FormUtil.dlg.setText(LocaleText.get("loading"));
 		FormUtil.dlg.center();
 
@@ -205,6 +265,160 @@ public class QueryBuilderController {
 							view.setXform(xformsXml);
 							view.load();
 							
+							FormUtil.dlg.hide();
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+	
+	private static void getQuery() {
+		FormUtil.dlg.setText(LocaleText.get("loading"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getFormDefDownloadUrlSuffix();
+				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
+				url += "queryId=" + queryId;
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+				
+				try{
+					builder.sendRequest(null, new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+
+							String xml = response.getText();
+							if(xml == null || xml.length() == 0){
+								FormUtil.dlg.hide();
+								Window.alert(LocaleText.get("noDataFound"));
+								return;
+							}
+							
+							FormUtil.dlg.hide();
+							
+							view.setQueryDef(xml);
+							view.parseQueryDef();
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+	
+	private static void doExportExcel() {
+		
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getExportExcelUrlSuffix();
+				url += "sql=" + view.getSql();
+				url = FormUtil.appendRandomParameter(url);
+				Window.open(URL.encode(url), null, null);
+			}
+		});
+	}
+	
+	private static void doSaveQuery() {
+		FormUtil.dlg.setText(LocaleText.get("saving"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getSaveQueryUrlSuffix();
+				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
+				url += "name=" + queryName;
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+				
+				try{
+					builder.sendRequest(view.getQueryDef(), new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+
+							String queryId = response.getText();
+							if(queryId == null || queryId.length() == 0){
+								FormUtil.dlg.hide();
+								Window.alert(LocaleText.get("noDataFound"));
+								return;
+							}
+
+							FormUtil.dlg.hide();
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+	
+	private static void getQueryList() {
+		FormUtil.dlg.setText(LocaleText.get("loading"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getOpenQueryUrlSuffix();
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+				
+				try{
+					builder.sendRequest(view.getQueryDef(), new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+
+							String xml = response.getText();
+							if(xml == null || xml.length() == 0){
+								FormUtil.dlg.hide();
+								Window.alert(LocaleText.get("noDataFound"));
+								return;
+							}
+							
+							view.setQueryDef(xml);
+
 							FormUtil.dlg.hide();
 						}
 
