@@ -121,6 +121,10 @@ public class FormUtil {
 	private static boolean overwriteValidationsOnRefresh = false;
 	private static boolean maintainOrderingOnRefresh = true;
 	private static boolean manualWidgetLayout = false;
+	
+	private static String exportExcelUrlSuffix;
+	private static String saveQueryUrlSuffix;
+	private static String openQueryUrlSuffix;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -467,6 +471,10 @@ public class FormUtil {
 		fileSaveUrlSuffix = getDivValue("fileSaveUrlSuffix");
 		closeUrl = getDivValue("closeUrl");
 		localeKey = getDivValue("localeKey");
+		
+		exportExcelUrlSuffix = getDivValue("exportExcelUrlSuffix");
+		saveQueryUrlSuffix = getDivValue("saveQueryUrlSuffix");
+		openQueryUrlSuffix = getDivValue("openQueryUrlSuffix");
 
 		if(multimediaUrlSuffix == null || multimediaUrlSuffix.trim().length() == 0)
 			multimediaUrlSuffix = "multimedia";
@@ -810,6 +818,18 @@ public class FormUtil {
 
 	public static String getMultimediaUrl(){
 		return getHostPageBaseURL()+ multimediaUrlSuffix;
+	}
+	
+	public static String getExportExcelUrlSuffix(){
+		return exportExcelUrlSuffix;
+	}
+	
+	public static String getSaveQueryUrlSuffix(){
+		return saveQueryUrlSuffix;
+	}
+	
+	public static String getOpenQueryUrlSuffix(){
+		return openQueryUrlSuffix;
 	}
 
 	public static String getFileOpenUrl(){
