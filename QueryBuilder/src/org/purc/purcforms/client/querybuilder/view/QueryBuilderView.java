@@ -5,11 +5,13 @@ import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
+import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 import org.purc.purcforms.client.querybuilder.controller.QueryBuilderController;
 import org.purc.purcforms.client.querybuilder.sql.SqlBuilder;
 import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
+import org.purc.purcforms.client.view.SaveFileDialog;
 import org.purc.purcforms.client.xforms.XformParser;
 
 import com.google.gwt.core.client.GWT;
@@ -39,7 +41,7 @@ import com.google.gwt.user.client.ui.TextArea;
  * @author daniel
  *
  */
-public class QueryBuilderView  extends Composite implements SelectionHandler<Integer>,ResizeHandler{
+public class QueryBuilderView  extends Composite implements SelectionHandler<Integer>,ResizeHandler, ItemSelectionListener {
 
 	private int selectedTabIndex;
 	private int xformsXmlIndex = 0;
@@ -418,7 +420,13 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public void saveQuery() {
-		controller.saveQuery("");
+		//controller.saveQuery("");
+		String url = FormUtil.getHostPageBaseURL();
+		url += FormUtil.getSaveQueryUrlSuffix();
+		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
+		url = FormUtil.appendRandomParameter(url);
+		SaveFileDialog dlg = new SaveFileDialog(url, getQueryDef(), "New Query");
+		dlg.center();
 	}
 	
 	public void saveAsQuery() {
@@ -430,6 +438,24 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public void openQueryList(String xml) {
-		
+		OpenQueryDialog dialog = new OpenQueryDialog(this);
+		dialog.loadQueryList(xml);
+		dialog.center();
 	}
+
+	/**
+     * @see org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener#onItemSelected(java.lang.Object, java.lang.Object)
+     */
+    @Override
+    public void onItemSelected(Object sender, Object item) {
+    	controller.loadQuery(item.toString());
+    }
+
+	/**
+     * @see org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener#onStartItemSelection(java.lang.Object)
+     */
+    @Override
+    public void onStartItemSelection(Object sender) {
+	    
+    }
 }

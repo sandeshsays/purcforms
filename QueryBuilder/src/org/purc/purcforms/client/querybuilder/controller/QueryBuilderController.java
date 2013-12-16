@@ -15,8 +15,6 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.TextArea;
 
 
 /**
@@ -50,7 +48,7 @@ public class QueryBuilderController {
 	
 	private static QueryBuilderView view;
 	private static Integer formId;
-	private static Integer queryId;
+	private static String queryId;
 	private static String queryName;
 	
 	/** Static self reference such that the static login call back can have
@@ -120,7 +118,7 @@ public class QueryBuilderController {
 	 * 
 	 * @param qryId the query id.
 	 */
-	public void loadQuery(Integer qryId){
+	public void loadQuery(String qryId){
 		queryId = qryId;
 
 		if(isOfflineMode())
@@ -288,9 +286,10 @@ public class QueryBuilderController {
 			public void execute() {
 
 				String url = FormUtil.getHostPageBaseURL();
-				url += FormUtil.getFormDefDownloadUrlSuffix();
+				url += FormUtil.getOpenQueryUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
-				url += "queryId=" + queryId;
+				url += "&queryId=" + queryId;
+				url += "&action=query";
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
@@ -337,7 +336,7 @@ public class QueryBuilderController {
 				url += FormUtil.getExportExcelUrlSuffix();
 				url += "sql=" + view.getSql();
 				url = FormUtil.appendRandomParameter(url);
-				Window.open(URL.encode(url), null, null);
+				Window.Location.replace(URL.encode(url));
 			}
 		});
 	}
@@ -352,7 +351,7 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getSaveQueryUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
-				url += "name=" + queryName;
+				url += "&name=" + queryName;
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
@@ -397,6 +396,8 @@ public class QueryBuilderController {
 
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getOpenQueryUrlSuffix();
+				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
+				url += "&action=queryList";
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
@@ -417,9 +418,9 @@ public class QueryBuilderController {
 								return;
 							}
 							
-							view.setQueryDef(xml);
-
 							FormUtil.dlg.hide();
+							
+							view.openQueryList(xml);
 						}
 
 						public void onError(Request request, Throwable exception){
