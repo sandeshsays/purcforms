@@ -236,6 +236,8 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 	}
 	
 	public void loadQueryDef(String xml){
+		clearConditions();
+		
 		Document doc = XMLParser.parse(xml);
 		Element rootNode = doc.getDocumentElement();
 		if(!rootNode.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_QUERYDEF))
