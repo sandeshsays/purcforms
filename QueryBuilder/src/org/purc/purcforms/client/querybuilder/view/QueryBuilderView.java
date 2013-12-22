@@ -64,6 +64,9 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	
 	private PopupPanel popup;
 	
+	private SaveQueryDialog saveQueryDialog;
+	private String queryId;
+	
 	public interface Images extends ClientBundle {
 		ImageResource open();
 		ImageResource save();
@@ -420,17 +423,21 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public void saveQuery() {
-		//controller.saveQuery("");
+		if (queryId == null) {
+			saveAsQuery();
+		}
+		else {
+			controller.saveQuery(queryId);
+		}
+	}
+	
+	public void saveAsQuery() {
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getSaveQueryUrlSuffix();
 		url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 		url = FormUtil.appendRandomParameter(url);
-		SaveFileDialog dlg = new SaveFileDialog(url, getQueryDef(), "New Query");
-		dlg.center();
-	}
-	
-	public void saveAsQuery() {
-		
+		saveQueryDialog = new SaveQueryDialog(url, getQueryDef(), "New Query", this);
+		saveQueryDialog.center();
 	}
 	
 	public void exportSpreadSheet() {
@@ -448,7 +455,14 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
      */
     @Override
     public void onItemSelected(Object sender, Object item) {
-    	controller.loadQuery(item.toString());
+    	queryId = item.toString();
+    	
+    	if (saveQueryDialog == sender) {
+    		Window.alert(LocaleText.get("querySaveSuccess"));
+    	}
+    	else {
+    		controller.loadQuery(queryId);
+    	}
     }
 
 	/**

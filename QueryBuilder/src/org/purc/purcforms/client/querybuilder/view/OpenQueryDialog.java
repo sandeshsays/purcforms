@@ -3,23 +3,22 @@ package org.purc.purcforms.client.querybuilder.view;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
-import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
@@ -84,6 +83,16 @@ public class OpenQueryDialog  extends DialogBox {
 			public void onClick(ClickEvent event) {
 				hide();
 				listener.onItemSelected(this, lbQueryList.getValue(lbQueryList.getSelectedIndex()));
+			}
+		});
+		
+		lbQueryList.addDoubleClickHandler(new DoubleClickHandler() {
+			public void onDoubleClick(DoubleClickEvent event) {
+				int index = lbQueryList.getSelectedIndex();
+				if (index >= 0) {
+					hide();
+					listener.onItemSelected(this, lbQueryList.getValue(index));
+				}
 			}
 		});
 		

@@ -49,7 +49,6 @@ public class QueryBuilderController {
 	private static QueryBuilderView view;
 	private static Integer formId;
 	private static String queryId;
-	private static String queryName;
 	
 	/** Static self reference such that the static login call back can have
 	 *  a reference to proceed with the current action.
@@ -102,8 +101,8 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void saveQuery(String name) {
-		queryName = name;
+	public void saveQuery(String queryId) {
+		this.queryId = queryId;
 		
 		if(isOfflineMode())
 			doSaveQuery();
@@ -162,8 +161,9 @@ public class QueryBuilderController {
 				controller.getQueryList();
 			else if(currentAction == CA_LOAD_QUERY)
 				controller.getQuery();
-			else if(currentAction == CA_SAVE_QUERY)
+			else if(currentAction == CA_SAVE_QUERY) {
 				controller.doSaveQuery();
+			}
 			else if(currentAction == CA_EXPORT_EXCEL)
 				controller.doExportExcel();
 
@@ -342,7 +342,7 @@ public class QueryBuilderController {
 	}
 	
 	private static void doSaveQuery() {
-		FormUtil.dlg.setText(LocaleText.get("saving"));
+		FormUtil.dlg.setText(LocaleText.get("savingQuery"));
 		FormUtil.dlg.center();
 
 		DeferredCommand.addCommand(new Command(){
@@ -351,7 +351,7 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getSaveQueryUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
-				url += "&name=" + queryName;
+				url += "&queryId=" + queryId;
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
@@ -373,6 +373,8 @@ public class QueryBuilderController {
 							}
 
 							FormUtil.dlg.hide();
+							
+							Window.alert(LocaleText.get("querySaveSuccess"));
 						}
 
 						public void onError(Request request, Throwable exception){
