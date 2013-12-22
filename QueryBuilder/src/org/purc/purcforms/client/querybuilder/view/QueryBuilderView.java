@@ -315,9 +315,21 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			" </xf:model> " +
 			" <xf:group id=\"1\"> " +
 			"   <xf:label>Page1</xf:label> " +
-			"  <xf:input bind=\"question1\"> " +
+			"  <xf:select1 bind=\"question1\"> " +
 			"    <xf:label>Question1</xf:label> " +
-			"  </xf:input> " +
+			"	<item id=\"option1\"> " +
+		    "    <label>Option1</label> " +
+		    "    <value>option1</value> " +
+		    "  </item> " +
+		    "  <item id=\"option2\"> " +
+		    "    <label>Option2</label> " +
+		    "    <value>option2</value> " +
+		    "  </item> " +
+		    "  <item id=\"option3\"> " +
+		    "    <label>Option3</label> " +
+		    "    <value>option3</value> " +
+		    "  </item> " +
+			"  </xf:select1> " +
 			"  <xf:input bind=\"question2\"> " +
 			"    <xf:label>Question2</xf:label> " +
 			"  </xf:input> " +

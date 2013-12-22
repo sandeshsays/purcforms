@@ -417,7 +417,13 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 
 	public void onClose(CloseEvent event){
 		String value = "";
-		VerticalPanel panel = (VerticalPanel)popup.getWidget();
+		VerticalPanel panel = null; //(VerticalPanel)popup.getWidget();
+		
+		if(popup.getWidget() instanceof ScrollPanel)
+			panel = (VerticalPanel)((ScrollPanel)popup.getWidget()).getWidget();
+		else
+			panel = (VerticalPanel)popup.getWidget();
+		
 		int count = panel.getWidgetCount();
 		for(int i=0; i<count; i++){
 			CheckBox checkbox = (CheckBox)panel.getWidget(i);
