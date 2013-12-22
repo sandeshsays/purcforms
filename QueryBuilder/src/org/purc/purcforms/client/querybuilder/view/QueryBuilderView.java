@@ -284,6 +284,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 					if(xml.length() > 0){
 						filterConditionsView.loadQueryDef(xml);
 						displayFieldsView.loadQueryDef(xml);
+
+						if(selectedTabIndex == resultsIndex && QueryBuilderUtil.showResults()) {
+							showResults();
+						}
 					}
 					
 					FormUtil.dlg.hide();
