@@ -183,6 +183,7 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getFormDefDownloadUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
+				url += "&queryId=" + queryId;
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));

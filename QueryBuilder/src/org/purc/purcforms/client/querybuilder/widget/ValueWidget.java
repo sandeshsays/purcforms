@@ -435,7 +435,12 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		}
 		if(value.length() == 0)
 			value = EMPTY_VALUE;
-		valueHyperlink.setText(value);
+
+		String oldValue = valueHyperlink.getText();
+		if(!value.equals(oldValue)){
+			valueHyperlink.setText(value);
+			//conditionWidget.onConditionValue1Changed(oldValue);
+		}
 	}
 
 	public String getValue(){
@@ -445,14 +450,14 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 		if(val.equals(EMPTY_VALUE))
 			return null;
 
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
+		/*if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
 			OptionDef optionDef = questionDef.getOptionWithText(val);
 			if(optionDef != null)
 				val = optionDef.getBinding();
 			else
 				val = null;
 		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
+		else*/ if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
 			DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
 			if(dynamicOptionDef != null){
 				OptionDef optionDef = dynamicOptionDef.getOptionWithText(val);
@@ -460,7 +465,8 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 					val = optionDef.getBinding();
 			}
 		}
-		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+		else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
+				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE) {
 			String[] options = val.split(LIST_SEPARATOR);
 			if(options == null || options.length == 0)
 				val = null;

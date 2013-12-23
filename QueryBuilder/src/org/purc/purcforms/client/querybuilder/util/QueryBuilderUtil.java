@@ -356,7 +356,7 @@ public class QueryBuilderUtil {
 	}
 	
 	public static boolean showSql(){
-		return showSql;
+		return true; //showSql;
 	}
 	
 	public static boolean showResults() {

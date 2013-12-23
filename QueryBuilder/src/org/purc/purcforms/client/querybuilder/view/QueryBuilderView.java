@@ -160,8 +160,8 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		
 		DOM.sinkEvents(getElement(),DOM.getEventsSunk(getElement()) | Event.ONMOUSEDOWN);
 		
-		//txtXform.setText(FormUtil.formatXml(getTestXform()));
-		//parseXform();
+		txtXform.setText(FormUtil.formatXml(getTestXform()));
+		parseXform();
 		
 		//txtDefXml.setText(getTestQueryDef());
 		//parseQueryDef();
@@ -299,7 +299,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		});
 	}
 	
-	/*private String getTestXform(){
+	private String getTestXform(){
 		return "<xf:xforms xmlns:xf=\"http://www.w3.org/2002/xforms\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> " +
 			" <xf:model> " +
 			"   <xf:instance id=\"newform1\"> " +
@@ -366,7 +366,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			  " 	<Field name=\"question2\" sortOrder=\"2\"/> " +
 			  " </SortFields> " +
 			  " </querydef>";
-	}*/
+	}
 	
 	private void buildSql(){
 		txtSql.setText(SqlBuilder.buildSql(filterConditionsView.getFormDef(),displayFieldsView.getDisplayFields(),filterConditionsView.getFilterConditionRows(),displayFieldsView.getSortFields()));
