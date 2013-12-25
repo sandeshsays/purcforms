@@ -72,6 +72,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		ImageResource save();
 		ImageResource saveas();
 		ImageResource spreadsheet();
+		ImageResource pdf();
 	}
 	
 	public static final Images images = (Images) GWT.create(Images.class);
@@ -155,6 +156,8 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		menuBar.addSeparator();
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.spreadsheet(),LocaleText.get("exportSpreadSheet")),true,new Command(){
 			public void execute() {popup.hide(); exportSpreadSheet();}});
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.pdf(),LocaleText.get("exportPdf")),true,new Command(){
+			public void execute() {popup.hide(); exportPdf();}});
 
 		popup.setWidget(menuBar);
 		
@@ -458,6 +461,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	
 	public void exportSpreadSheet() {
 		controller.exportExcel();
+	}
+	
+	public void exportPdf() {
+		controller.exportPdf();
 	}
 	
 	public void openQueryList(String xml) {

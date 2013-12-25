@@ -10,6 +10,7 @@ import org.purc.purcforms.client.querybuilder.model.FilterCondition;
 import org.purc.purcforms.client.querybuilder.model.FilterConditionGroup;
 import org.purc.purcforms.client.querybuilder.model.FilterConditionRow;
 import org.purc.purcforms.client.querybuilder.model.SortField;
+import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.querybuilder.widget.GroupHyperlink;
 
 
@@ -27,7 +28,12 @@ public class SqlBuilder {
 		if(formDef == null || filterConditionGroup == null)
 			return null;
 
-		String sql = "SELECT " + getSelectList(displayFields) + " \r\nFROM " + formDef.getBinding();
+		String tableAlias = QueryBuilderUtil.getTableAlias();
+		if (tableAlias == null) {
+			tableAlias = "";
+		}
+		
+		String sql = "SELECT " + getSelectList(displayFields) + " \r\nFROM " + formDef.getBinding() + " " + tableAlias;
 
 		String filter = "";
 		if(filterConditionGroup.getConditionCount() > 0)
@@ -48,6 +54,16 @@ public class SqlBuilder {
 		return sql;
 	}
 	
+	private static String getFieldMapping(String name) {
+		String mapping = QueryBuilderUtil.getColumnMapping(name);
+		if (mapping != null) {
+			return mapping;
+		}
+		else {
+			return "t." + name;
+		}
+	}
+	
 	private static String getSelectList(List<DisplayField> displayFields){
 		if(displayFields == null || displayFields.size() == 0)
 			return "*";
@@ -64,7 +80,7 @@ public class SqlBuilder {
 			if(aggFunc != null)
 				selectList += aggFunc + "(";
 			
-			selectList += field.getName();
+			selectList += getFieldMapping(field.getName());
 			
 			if(aggFunc != null)
 				selectList +=")";
@@ -88,7 +104,7 @@ public class SqlBuilder {
 				groupByClause += ",";
 			
 			if(field.getAggFunc() == null)
-				groupByClause += field.getName();
+				groupByClause += getFieldMapping(field.getName());
 			else
 				aggFuncCount++;
 		}
@@ -110,7 +126,7 @@ public class SqlBuilder {
 			else
 				orderByClause += ",";
 			
-			orderByClause += field.getName() + " " + (field.getSortOrder() == SortField.SORT_ASCENDING ? "ASC" : "DESC");
+			orderByClause += getFieldMapping(field.getName()) + " " + (field.getSortOrder() == SortField.SORT_ASCENDING ? "ASC" : "DESC");
 		}
 		
 		return orderByClause;
@@ -139,7 +155,7 @@ public class SqlBuilder {
 	}
 
 	private static String getFilter(FilterCondition condition){		
-		String filter = condition.getFieldName();
+		String filter = getFieldMapping(condition.getFieldName());
 		filter += getDBOperator(condition.getOperator());
 		filter += getQuotedValue(condition.getFirstValue(),condition.getDataType(),condition.getOperator());
 		return filter;

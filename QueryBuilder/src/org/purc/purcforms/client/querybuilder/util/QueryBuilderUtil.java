@@ -39,6 +39,9 @@ public class QueryBuilderUtil {
 	private static boolean showSql;
 	private static boolean showResults;
 	
+	private static String tableAlias;
+	private static HashMap<String, String> columnMappings = new HashMap<String, String>();
+	
 	/** The name for the queryId field. */
 	private static String formIdName;
 
@@ -343,6 +346,17 @@ public class QueryBuilderUtil {
 		s = FormUtil.getDivValue("showResults");
 		if("1".equals(s) || "true".equals(s))
 			showResults = true;
+		
+		tableAlias = FormUtil.getDivValue("tableAlias");
+		
+		s = FormUtil.getDivValue("columnMappings");
+		if (s != null) {
+			String[] mappings = s.split(",");
+			for (String map : mappings) {
+				String[] keyValue = map.split(":");
+				columnMappings.put(keyValue[0].trim(), keyValue[1].trim());
+			}
+		}
 
 		queryId = FormUtil.getFormId();
 	}
@@ -361,5 +375,13 @@ public class QueryBuilderUtil {
 	
 	public static boolean showResults() {
 		return showResults;
+	}
+	
+	public static String getTableAlias() {
+		return tableAlias;
+	}
+	
+	public static String getColumnMapping(String column) {
+		return columnMappings.get(column);
 	}
 }

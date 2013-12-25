@@ -43,6 +43,8 @@ public class QueryBuilderController {
 	
 	private static final byte CA_LOAD_QUERY = 6;
 	
+	private static final byte CA_EXPORT_PDF = 7;
+	
 	/** The current action by the time to try to authenticate the user at the server. */
 	private static byte currentAction = CA_NONE;
 	
@@ -97,6 +99,15 @@ public class QueryBuilderController {
 			doExportExcel();
 		else{
 			currentAction = CA_EXPORT_EXCEL;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
+	public void exportPdf() {
+		if(isOfflineMode())
+			doExportPdf();
+		else{
+			currentAction = CA_EXPORT_PDF;
 			FormUtil.isAuthenticated();
 		}
 	}
@@ -161,11 +172,12 @@ public class QueryBuilderController {
 				controller.getQueryList();
 			else if(currentAction == CA_LOAD_QUERY)
 				controller.getQuery();
-			else if(currentAction == CA_SAVE_QUERY) {
+			else if(currentAction == CA_SAVE_QUERY)
 				controller.doSaveQuery();
-			}
 			else if(currentAction == CA_EXPORT_EXCEL)
 				controller.doExportExcel();
+			else if(currentAction == CA_EXPORT_PDF)
+				controller.doExportPdf();
 
 			currentAction = CA_NONE;
 		}
@@ -336,6 +348,23 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getExportExcelUrlSuffix();
 				url += "sql=" + view.getSql();
+				url += "&queryId=" + queryId;
+				url += "&format=excel";
+				url = FormUtil.appendRandomParameter(url);
+				Window.Location.replace(URL.encode(url));
+			}
+		});
+	}
+	
+	private static void doExportPdf() {
+		
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getExportExcelUrlSuffix();
+				url += "sql=" + view.getSql();
+				url += "&queryId=" + queryId;
+				url += "&format=pdf";
 				url = FormUtil.appendRandomParameter(url);
 				Window.Location.replace(URL.encode(url));
 			}
