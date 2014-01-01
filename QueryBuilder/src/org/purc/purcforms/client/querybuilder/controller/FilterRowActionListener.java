@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface FilterRowActionListener {
 	
-	public ConditionWidget addCondition(Widget sender);
-	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition);
+	public ConditionWidget addCondition(Widget sender, boolean select);
+	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition, boolean select);
 	public void deleteCurrentRow(Widget sender);
 }

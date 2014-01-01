@@ -46,7 +46,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 	private VerticalPanel verticalPanel = new VerticalPanel();
 	private AddConditionHyperlink addConditionLink = new AddConditionHyperlink(LocaleText.get("clickToAddNewCondition"),"",1);
-	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"",1);
+	private GroupHyperlink groupHyperlink = new GroupHyperlink(GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"",1, null);
 	private ConditionActionHyperlink actionHyperlink;
 
 	private FormDef formDef;
@@ -73,7 +73,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 		addConditionLink.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				addCondition((Widget)event.getSource());
+				addCondition((Widget)event.getSource(), true);
 			}
 		});
 
@@ -83,11 +83,11 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		initWidget(verticalPanel);
 	}
 
-	public ConditionWidget addCondition(Widget sender){
+	public ConditionWidget addCondition(Widget sender, boolean select){
 		ConditionWidget conditionWidget = null;
 		
 		if(formDef != null && enabled){
-			Widget widget = conditionWidget = new ConditionWidget(formDef,this,true,questionDef,1,addConditionLink);
+			Widget widget = conditionWidget = new ConditionWidget(formDef,this,true,questionDef,1,addConditionLink, true);
 			int index = verticalPanel.getWidgetIndex(sender);
 			if(index == -1){
 				AddConditionHyperlink addConditionHyperlink = (AddConditionHyperlink)sender;
@@ -102,7 +102,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 				horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 				int depth = addConditionHyperlink.getDepth();
 				horizontalPanel.add(getSpace(depth));
-				conditionWidget = new ConditionWidget(formDef,this,true,questionDef,depth,addConditionHyperlink);
+				conditionWidget = new ConditionWidget(formDef,this,true,questionDef,depth,addConditionHyperlink, select);
 				horizontalPanel.add(conditionWidget);
 				widget = horizontalPanel;
 			}
@@ -113,7 +113,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		return conditionWidget;
 	}
 
-	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition){
+	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition, boolean select){
 		int depth = ((ConditionActionHyperlink)sender).getDepth() + 1;
 
 		int index = verticalPanel.getWidgetIndex(((ConditionActionHyperlink)sender).getAddConditionHyperlink());
@@ -128,10 +128,13 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 		if(depth > 2)
 			horizontalPanel.add(getSpace3(depth-1));
-		horizontalPanel.add(new CheckBox());
+		
+		CheckBox chk = new CheckBox();
+		chk.setValue(select);
+		horizontalPanel.add(chk);
 		horizontalPanel.add(actionHyperlink);
 
-		GroupHyperlink groupHyperlink = new GroupHyperlink(operator != null ? operator : GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"",depth);
+		GroupHyperlink groupHyperlink = new GroupHyperlink(operator != null ? operator : GroupHyperlink.CONDITIONS_OPERATOR_TEXT_ALL,"",depth, chk);
 		horizontalPanel.add(groupHyperlink);
 		horizontalPanel.add(new Label(LocaleText.get("ofTheFollowingApply")));
 
@@ -141,7 +144,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 			horizontalPanel = new HorizontalPanel();
 			horizontalPanel.addStyleName(QueryBuilder.CSS_QUERY_BUILDER_TABLE);
 			horizontalPanel.add(getSpace(depth));
-			horizontalPanel.add(new ConditionWidget(formDef,this,true,questionDef,depth,addConditionLink));
+			horizontalPanel.add(new ConditionWidget(formDef,this,true,questionDef,depth,addConditionLink, true));
 			verticalPanel.insert(horizontalPanel, ++index);
 		}
 
@@ -153,7 +156,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 		addConditionLink.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){
-				addCondition((Widget)event.getSource());
+				addCondition((Widget)event.getSource(), true);
 			}
 		});
 
@@ -229,6 +232,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 				row.setFirstValue(condition.getValue());
 				row.setSecondValue(condition.getSecondValue());
 				row.setOperator(condition.getOperator());
+				row.setSelected(condition.isSelected());
 				row.setDataType(questionDef.getDataType());
 				groupDepth.get(((ConditionWidget)widget).getDepth()+"").addCondition(row);
 				return;
@@ -237,6 +241,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 				GroupHyperlink groupHyperlink = (GroupHyperlink)widget;
 				FilterConditionGroup row = new FilterConditionGroup();
 				row.setConditionsOperator(groupHyperlink.getConditionsOperator());
+				row.setSelected(groupHyperlink.isSelected());
 				groupDepth.put(""+groupHyperlink.getDepth()+"", row);
 				groupDepth.get((groupHyperlink.getDepth()-1)+"").addCondition(row);
 				return;
@@ -305,10 +310,11 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		for(int index = 0; index < nodes.getLength(); index++){
 			Node node = nodes.item(index);
 			if(node.getNodeType() == Node.ELEMENT_NODE){
+				boolean selected = "true".equals(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_SELECTED));
 				if(node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_GROUP))
-					loadConditions((Element)node,addBracket(actionHyperlink,((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR),false));
+					loadConditions((Element)node, addBracket(actionHyperlink,((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR),false, selected));
 				else if(node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_CONDITION)){
-					ConditionWidget conditionWidget = addCondition(actionHyperlink);
+					ConditionWidget conditionWidget = addCondition(actionHyperlink, selected);
 					conditionWidget.setQuestionDef(formDef.getQuestion(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_FIELD)));
 					conditionWidget.setOparator(Integer.parseInt(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR)));
 					conditionWidget.setValue(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_VALUE));

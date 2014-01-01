@@ -52,10 +52,10 @@ public class ConditionActionHyperlink extends AddConditionHyperlink {
 		}
 
 		menuBar.addItem(LocaleText.get("addCondition"),true, new Command(){
-			public void execute() {popup.hide(); actionListener.addCondition(w);}});
+			public void execute() {popup.hide(); actionListener.addCondition(w, true);}});
 
 		menuBar.addItem("Add Bracket",true, new Command(){ //LocaleText.get("???")
-			public void execute() {popup.hide(); actionListener.addBracket(w,null,true);}});
+			public void execute() {popup.hide(); actionListener.addBracket(w,null,true, true);}});
 
 		popup.setWidget(menuBar);
 	}

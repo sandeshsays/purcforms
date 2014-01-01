@@ -35,6 +35,7 @@ public class XmlBuilder {
 	public static final String ATTRIBUTE_NAME_OPERATOR = "operator";
 	public static final String ATTRIBUTE_NAME_FIELD = "field";
 	public static final String ATTRIBUTE_NAME_VALUE = "value";
+	public static final String ATTRIBUTE_NAME_SELECTED = "selected";
 
 	public static final String ATTRIBUTE_NAME_NAME = "name";
 	public static final String ATTRIBUTE_NAME_AGG_FUNC = "AggFunc";
@@ -85,6 +86,7 @@ public class XmlBuilder {
 			if(row instanceof FilterConditionGroup){
 				Element node = doc.createElement(NODE_NAME_GROUP);
 				node.setAttribute(ATTRIBUTE_NAME_OPERATOR, String.valueOf(((FilterConditionGroup)row).getConditionsOperator()));
+				node.setAttribute(ATTRIBUTE_NAME_SELECTED, String.valueOf(((FilterConditionGroup)row).isSelected()));
 				parentNode.appendChild(node);
 				buildFilter(node,(FilterConditionGroup)row);
 			}
@@ -100,6 +102,7 @@ public class XmlBuilder {
 		node.setAttribute(ATTRIBUTE_NAME_FIELD, condition.getFieldName());
 		node.setAttribute(ATTRIBUTE_NAME_OPERATOR, String.valueOf(condition.getOperator()));
 		node.setAttribute(ATTRIBUTE_NAME_VALUE, condition.getFirstValue());
+		node.setAttribute(ATTRIBUTE_NAME_SELECTED, String.valueOf(condition.isSelected()));
 	}
 
 	private static void buildDisplayFields(Element displayFieldsNode, List<DisplayField> displayFields){

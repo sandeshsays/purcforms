@@ -6,6 +6,7 @@ import org.purc.purcforms.client.model.ModelConstants;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -26,10 +27,12 @@ public class GroupHyperlink extends Hyperlink{
 	private PopupPanel popup;
 	private boolean enabled = true;
 	private int depth = 1;
+	private CheckBox selectCheckBox;
 
-	public GroupHyperlink(String text, String targetHistoryToken,int depth){
+	public GroupHyperlink(String text, String targetHistoryToken,int depth, CheckBox selectCheckBox){
 		super(text,targetHistoryToken);
 		this.depth = depth;
+		this.selectCheckBox = selectCheckBox;
 
 		DOM.sinkEvents(getElement(), DOM.getEventsSunk(getElement()) | Event.ONMOUSEDOWN );
 	}
@@ -81,5 +84,9 @@ public class GroupHyperlink extends Hyperlink{
 	
 	public int getDepth(){
 		return depth;
+	}
+	
+	public boolean isSelected() {
+		return selectCheckBox.getValue();
 	}
 }

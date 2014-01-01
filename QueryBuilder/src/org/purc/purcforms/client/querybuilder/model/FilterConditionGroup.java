@@ -15,6 +15,8 @@ public class FilterConditionGroup extends FilterConditionRow {
 	/** Operator for combining more than one condition. (And, Or) only these two for now. */
 	private String conditionsOperator;
 	
+	private boolean selected;
+	
 	private List<FilterConditionRow> conditions = new ArrayList<FilterConditionRow>();
 	
 	
@@ -50,4 +52,18 @@ public class FilterConditionGroup extends FilterConditionRow {
 	public FilterConditionRow getConditionAt(int index){
 		return conditions.get(index);
 	}
+	
+    /**
+     * @return the selected
+     */
+    public boolean isSelected() {
+    	return selected;
+    }
+	
+    /**
+     * @param selected the selected to set
+     */
+    public void setSelected(boolean selected) {
+    	this.selected = selected;
+    }
 }

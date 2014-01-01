@@ -14,7 +14,7 @@ public class FilterCondition extends FilterConditionRow {
 	private String secondValue;
 	private int operator;
 	private int dataType;
-	
+	private boolean selected;
 	
 	public FilterCondition(){
 		
@@ -59,4 +59,18 @@ public class FilterCondition extends FilterConditionRow {
 	public void setDataType(int dataType) {
 		this.dataType = dataType;
 	}
+
+    /**
+     * @return the selected
+     */
+    public boolean isSelected() {
+    	return selected;
+    }
+
+    /**
+     * @param selected the selected to set
+     */
+    public void setSelected(boolean selected) {
+    	this.selected = selected;
+    }
 }

@@ -43,18 +43,18 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 	private boolean allowFieldSelection = false;
 	private int depth = 1;
 	
-	public ConditionWidget(FormDef formDef, ConditionController view, boolean allowFieldSelection, QuestionDef questionDef, int depth,AddConditionHyperlink addConditionHyperlink){
+	public ConditionWidget(FormDef formDef, ConditionController view, boolean allowFieldSelection, QuestionDef questionDef, int depth,AddConditionHyperlink addConditionHyperlink, boolean select){
 		this.formDef = formDef;
 		this.view = view;
 		this.allowFieldSelection = allowFieldSelection;
 		this.questionDef = questionDef;
 		this.depth = depth;
-		setupWidgets(addConditionHyperlink);
+		setupWidgets(addConditionHyperlink, select);
 	}
 
-	private void setupWidgets(AddConditionHyperlink addConditionHyperlink){
+	private void setupWidgets(AddConditionHyperlink addConditionHyperlink, boolean select){
 		actionHyperlink = new ConditionActionHyperlink("<>","",true,depth,addConditionHyperlink,this);
-		chkSelect.setValue	(true);
+		chkSelect.setValue(select);
 		
 		if(allowFieldSelection)
 			fieldWidget = new FieldWidget(this);
@@ -121,12 +121,12 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 		}*/
 	}
 
-	public ConditionWidget addCondition(Widget sender){
-		return view.addCondition(sender);
+	public ConditionWidget addCondition(Widget sender, boolean select){
+		return view.addCondition(sender, select);
 	}
 
-	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition){
-		return view.addBracket(sender,operator,addCondition);
+	public ConditionActionHyperlink addBracket(Widget sender, String operator, boolean addCondition, boolean select){
+		return view.addBracket(sender,operator,addCondition, select);
 	}
 
 	public void deleteCurrentRow(Widget sender){
@@ -141,7 +141,8 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 		condition.setOperator(operator);
 		condition.setValue(valueWidget.getValue());
 		condition.setValueQtnDef(valueWidget.getValueQtnDef());
-
+		condition.setSelected(chkSelect.getValue());
+		
 		if(condition.getValue() == null)
 			return null;
 
