@@ -48,6 +48,8 @@ public class Condition implements Serializable, BindingChangeListener {
 	private int id = ModelConstants.NULL_ID;
 
 	private OptionDef bindingChangeSrc;
+	
+	private boolean selected;
 
 	/** Creates a new condition object. */
 	public Condition(){
@@ -722,6 +724,20 @@ public class Condition implements Serializable, BindingChangeListener {
 			bindingChangeSrc.removeBindingChangeListener(this);
 	}
 
+	 /**
+     * @return the selected
+     */
+    public boolean isSelected() {
+    	return selected;
+    }
+
+    /**
+     * @param selected the selected to set
+     */
+    public void setSelected(boolean selected) {
+    	this.selected = selected;
+    }
+    
 	@Override
 	public int hashCode() {
 		final int prime = 31;
