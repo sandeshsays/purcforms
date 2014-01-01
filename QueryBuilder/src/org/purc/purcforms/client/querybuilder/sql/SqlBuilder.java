@@ -135,12 +135,21 @@ public class SqlBuilder {
 	private static String getFilter(FilterConditionGroup filterGroup){
 
 		String filter = "";
+		
+		if (!filterGroup.hasAnySelectedCondition())
+			return filter;
 
 		List<FilterConditionRow> rows = filterGroup.getConditions();
 		for(FilterConditionRow row : rows){
 			
-			if(filter.length() > 0)
-				filter += getSQLInnerCombiner(filterGroup.getConditionsOperator());
+			if (!row.isSelected())
+				continue;
+			
+			if(filter.length() > 0) {
+				if (row instanceof FilterCondition || (row instanceof FilterConditionGroup && ((FilterConditionGroup)row).hasAnySelectedCondition())) {
+					filter += getSQLInnerCombiner(filterGroup.getConditionsOperator());
+				}
+			}
 			
 			if(row instanceof FilterConditionGroup)
 				filter += getFilter((FilterConditionGroup)row);
@@ -148,7 +157,7 @@ public class SqlBuilder {
 				filter += getFilter((FilterCondition)row);
 		}
 		
-		if(filter.length() > 0)
+		if(filter.length() > 0 && filterGroup.isSelected())
 			filter = getSQLOuterCombiner(filterGroup.getConditionsOperator()) + "(" + filter + ")";
 
 		return filter;

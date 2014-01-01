@@ -86,7 +86,7 @@ public class XmlBuilder {
 			if(row instanceof FilterConditionGroup){
 				Element node = doc.createElement(NODE_NAME_GROUP);
 				node.setAttribute(ATTRIBUTE_NAME_OPERATOR, String.valueOf(((FilterConditionGroup)row).getConditionsOperator()));
-				node.setAttribute(ATTRIBUTE_NAME_SELECTED, String.valueOf(((FilterConditionGroup)row).isSelected()));
+				node.setAttribute(ATTRIBUTE_NAME_SELECTED, String.valueOf(row.isSelected()));
 				parentNode.appendChild(node);
 				buildFilter(node,(FilterConditionGroup)row);
 			}
