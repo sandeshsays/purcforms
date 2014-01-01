@@ -3,6 +3,7 @@ package org.purc.purcforms.client.querybuilder.view;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
+import org.purc.purcforms.client.querybuilder.model.KeyValue;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -82,7 +83,8 @@ public class OpenQueryDialog  extends DialogBox {
 		btnOk.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				hide();
-				listener.onItemSelected(this, lbQueryList.getValue(lbQueryList.getSelectedIndex()));
+				int index = lbQueryList.getSelectedIndex();
+				listener.onItemSelected(this, new KeyValue(lbQueryList.getValue(index), lbQueryList.getItemText(index)));
 			}
 		});
 		
@@ -91,7 +93,7 @@ public class OpenQueryDialog  extends DialogBox {
 				int index = lbQueryList.getSelectedIndex();
 				if (index >= 0) {
 					hide();
-					listener.onItemSelected(this, lbQueryList.getValue(index));
+					listener.onItemSelected(this, new KeyValue(lbQueryList.getValue(index), lbQueryList.getItemText(index)));
 				}
 			}
 		});

@@ -3,6 +3,7 @@ package org.purc.purcforms.client.querybuilder.view;
 import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
+import org.purc.purcforms.client.querybuilder.model.KeyValue;
 import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -115,7 +116,7 @@ public class SaveQueryDialog extends DialogBox{
 			public void onSubmitComplete(FormPanel.SubmitCompleteEvent event){
 				hide();
 				FormUtil.dlg.hide();
-				listener.onItemSelected(parent, event.getResults());
+				listener.onItemSelected(parent, new KeyValue(event.getResults(), txtName.getText()));
 			}
 		});
 

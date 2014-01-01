@@ -359,6 +359,8 @@ public class QueryBuilderUtil {
 		}
 
 		queryId = FormUtil.getFormId();
+		
+		setDesignerTitle();
 	}
 	
 	public static boolean showXformsXml(){

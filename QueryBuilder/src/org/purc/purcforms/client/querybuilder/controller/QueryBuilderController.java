@@ -45,6 +45,8 @@ public class QueryBuilderController {
 	
 	private static final byte CA_EXPORT_PDF = 7;
 	
+	private static final byte CA_DELETE_QUERY = 8;
+	
 	/** The current action by the time to try to authenticate the user at the server. */
 	private static byte currentAction = CA_NONE;
 	
@@ -103,6 +105,17 @@ public class QueryBuilderController {
 		}
 	}
 	
+	public void deleteQuery(String qryId) {
+		queryId = qryId;
+		
+		if(isOfflineMode())
+			doDeleteQuery();
+		else{
+			currentAction = CA_DELETE_QUERY;
+			FormUtil.isAuthenticated();
+		}
+	}
+	
 	public void exportPdf() {
 		if(isOfflineMode())
 			doExportPdf();
@@ -112,8 +125,8 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void saveQuery(String queryId) {
-		this.queryId = queryId;
+	public void saveQuery(String qryId) {
+		queryId = qryId;
 		
 		if(isOfflineMode())
 			doSaveQuery();
@@ -174,6 +187,8 @@ public class QueryBuilderController {
 				controller.getQuery();
 			else if(currentAction == CA_SAVE_QUERY)
 				controller.doSaveQuery();
+			else if(currentAction == CA_DELETE_QUERY)
+				controller.doDeleteQuery();
 			else if(currentAction == CA_EXPORT_EXCEL)
 				controller.doExportExcel();
 			else if(currentAction == CA_EXPORT_PDF)
@@ -453,6 +468,48 @@ public class QueryBuilderController {
 							FormUtil.dlg.hide();
 							
 							view.openQueryList(xml);
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+	
+	public void doDeleteQuery(){
+		FormUtil.dlg.setText(LocaleText.get("submitting"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getFormDataDeleteUrlSuffix();
+				url += queryId;
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST,URL.encode(url));
+
+				try{
+					builder.sendRequest(queryId, new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+							FormUtil.dlg.hide();
+							
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+
+							if(response.getStatusCode() == Response.SC_OK){
+								view.onQueryDeleted();
+							}
+							else
+								FormUtil.displayReponseError(response);
 						}
 
 						public void onError(Request request, Throwable exception){

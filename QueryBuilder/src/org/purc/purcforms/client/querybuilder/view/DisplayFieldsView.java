@@ -99,7 +99,7 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 
 	public void setFormDef(FormDef formDef){
 		this.formDef = formDef;
-		clearConditions();
+		clearFields();
 		addAddColumnLink();
 	}
 
@@ -107,7 +107,7 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 		columnPanel.add(addColumnLink);
 	}
 
-	private void clearConditions(){
+	public void clearFields(){
 		while(columnPanel.getWidgetCount() > 1)
 			columnPanel.remove(columnPanel.getWidget(1));
 		
@@ -236,7 +236,7 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 	}
 	
 	public void loadQueryDef(String xml){
-		clearConditions();
+		clearFields();
 		
 		Document doc = XMLParser.parse(xml);
 		Element rootNode = doc.getDocumentElement();

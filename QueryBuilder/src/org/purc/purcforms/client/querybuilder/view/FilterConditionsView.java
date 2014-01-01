@@ -193,7 +193,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		verticalPanel.add(horizontalPanel);
 	}
 
-	private void clearConditions(){
+	public void clearConditions(){
 		questionDef = null;
 		while(verticalPanel.getWidgetCount() > 1)
 			verticalPanel.remove(verticalPanel.getWidget(1));

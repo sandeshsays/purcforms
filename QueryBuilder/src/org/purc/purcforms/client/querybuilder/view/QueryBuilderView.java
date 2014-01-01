@@ -7,11 +7,11 @@ import org.purc.purcforms.client.model.PageDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener;
 import org.purc.purcforms.client.querybuilder.controller.QueryBuilderController;
+import org.purc.purcforms.client.querybuilder.model.KeyValue;
 import org.purc.purcforms.client.querybuilder.sql.SqlBuilder;
 import org.purc.purcforms.client.querybuilder.sql.XmlBuilder;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
 import org.purc.purcforms.client.util.FormUtil;
-import org.purc.purcforms.client.view.SaveFileDialog;
 import org.purc.purcforms.client.xforms.XformParser;
 
 import com.google.gwt.core.client.GWT;
@@ -66,11 +66,13 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	
 	private SaveQueryDialog saveQueryDialog;
 	private String queryId;
+	private String queryName;
 	
 	public interface Images extends ClientBundle {
 		ImageResource open();
 		ImageResource save();
 		ImageResource saveas();
+		ImageResource delete();
 		ImageResource spreadsheet();
 		ImageResource pdf();
 	}
@@ -152,6 +154,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.saveas(),LocaleText.get("saveAs")),true,new Command(){
 			public void execute() {popup.hide(); saveAsQuery();}});
+		
+		menuBar.addSeparator();
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true,new Command(){
+			public void execute() {popup.hide(); deleteQuery();}});
 		
 		menuBar.addSeparator();
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.spreadsheet(),LocaleText.get("exportSpreadSheet")),true,new Command(){
@@ -459,6 +465,18 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		saveQueryDialog.center();
 	}
 	
+	public void deleteQuery() {
+		if (queryName == null) {
+			Window.alert("Please first open the query to delete");
+			return;
+		}
+		
+		if (!Window.confirm("Do you really want to delete this query: " + queryName + "?"))
+			return;
+		
+		controller.deleteQuery(queryId);
+	}
+	
 	public void exportSpreadSheet() {
 		controller.exportExcel();
 	}
@@ -472,19 +490,35 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		dialog.loadQueryList(xml);
 		dialog.center();
 	}
+	
+	public void onQueryDeleted() {
+		queryId =  null;
+		queryName = null;
+		txtXform.setText("");
+		txtDefXml.setText("");
+		txtSql.setText("");
+		htmlResults.setHTML("");
+		filterConditionsView.clearConditions();
+		displayFieldsView.clearFields();
+		
+		Window.setTitle(QueryBuilderUtil.getTitle());
+	}
 
 	/**
      * @see org.purc.purcforms.client.querybuilder.controller.ItemSelectionListener#onItemSelected(java.lang.Object, java.lang.Object)
      */
     @Override
     public void onItemSelected(Object sender, Object item) {
-    	queryId = item.toString();
+    	queryId = ((KeyValue)item).getKey();
+    	queryName = ((KeyValue)item).getValue();
     	
+   		Window.setTitle(QueryBuilderUtil.getTitle() + " - [" + queryName + "]");
+
     	if (saveQueryDialog == sender) {
     		Window.alert(LocaleText.get("querySaveSuccess"));
     	}
     	else {
-    		controller.loadQuery(queryId);
+     		controller.loadQuery(queryId);
     	}
     }
 
