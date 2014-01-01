@@ -291,7 +291,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		for(int index = 0; index < nodes.getLength(); index++){
 			Node node = nodes.item(index);
 			if(node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_GROUP)){
-				clearConditions();
+				clearConditions(); //we always have one top level group. so no need of even this for loop. :)
 				groupHyperlink.setText(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR));
 				addAddConditionLink();
 				loadConditions((Element)node,actionHyperlink);
@@ -306,7 +306,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 			Node node = nodes.item(index);
 			if(node.getNodeType() == Node.ELEMENT_NODE){
 				if(node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_GROUP))
-					loadConditions((Element)node,addBracket(actionHyperlink,element.getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR),false));
+					loadConditions((Element)node,addBracket(actionHyperlink,((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR),false));
 				else if(node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_CONDITION)){
 					ConditionWidget conditionWidget = addCondition(actionHyperlink);
 					conditionWidget.setQuestionDef(formDef.getQuestion(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_FIELD)));
