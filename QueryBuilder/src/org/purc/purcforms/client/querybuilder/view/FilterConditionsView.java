@@ -120,7 +120,7 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		if(index == -1)
 			index = verticalPanel.getWidgetIndex(((ConditionActionHyperlink)sender).getAddConditionHyperlink().getParent());
 
-		AddConditionHyperlink addConditionLink = new AddConditionHyperlink(LocaleText.get("clickToAddNewCondition"),null,depth);
+		AddConditionHyperlink addConditionLink = new AddConditionHyperlink(LocaleText.get("clickToAddNewCondition"),"",depth);
 		ConditionActionHyperlink actionHyperlink = new ConditionActionHyperlink("<>","",true,depth,addConditionLink,this);
 
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
