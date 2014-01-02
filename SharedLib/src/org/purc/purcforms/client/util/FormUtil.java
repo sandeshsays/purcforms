@@ -119,6 +119,7 @@ public class FormUtil {
 	private static boolean rebuildBindings = false;
 	private static boolean readOnlyMode = false;
 	private static boolean overwriteValidationsOnRefresh = false;
+	private static boolean overwriteTextOnRefresh = false;
 	private static boolean maintainOrderingOnRefresh = true;
 	private static boolean manualWidgetLayout = false;
 	
@@ -595,6 +596,12 @@ public class FormUtil {
 				overwriteValidationsOnRefresh = true;
 		}
 		
+		s = getDivValue("overwriteTextOnRefresh");
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				overwriteTextOnRefresh = true;
+		}
+		
 		s = getDivValue("maintainOrderingOnRefresh");
 		if(s != null && s.trim().length() > 0){
 			if("0".equals(s) || "false".equals(s))
@@ -953,6 +960,10 @@ public class FormUtil {
 
 	public static boolean overwriteValidationsOnRefresh(){
 		return overwriteValidationsOnRefresh;
+	}
+	
+	public static boolean overwriteTextOnRefresh(){
+		return overwriteTextOnRefresh;
 	}
 	
 	public static boolean maintainOrderingOnRefresh(){

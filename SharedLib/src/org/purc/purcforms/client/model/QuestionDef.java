@@ -1344,7 +1344,10 @@ public class QuestionDef implements Serializable{
 	 * @param questionDef the old question before the refresh
 	 */
 	public void refresh(QuestionDef questionDef){
-		setText(questionDef.getText());
+		if (!FormUtil.overwriteTextOnRefresh()) {
+			setText(questionDef.getText());
+		}
+		
 		setHelpText(questionDef.getHelpText());
 		setDefaultValue(questionDef.getDefaultValue());
 
@@ -1411,7 +1414,9 @@ public class QuestionDef implements Serializable{
 				continue;
 			}
 			
-			optionDef.setText(optn.getText());
+			if (!FormUtil.overwriteTextOnRefresh()) {
+				optionDef.setText(optn.getText());
+			}
 
 			if (FormUtil.maintainOrderingOnRefresh()) {
 				orderedOptns.add(optionDef); //add the option in the order it was before the refresh.
