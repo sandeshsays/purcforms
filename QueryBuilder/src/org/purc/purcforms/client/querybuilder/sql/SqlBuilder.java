@@ -164,7 +164,7 @@ public class SqlBuilder {
 	}
 
 	private static String getFilter(FilterCondition condition){		
-		String filter = getFieldMapping(condition.getFieldName());
+		String filter = "t." + condition.getFieldName();
 		filter += getDBOperator(condition.getOperator());
 		filter += getQuotedValue(condition.getFirstValue(),condition.getDataType(),condition.getOperator());
 		
