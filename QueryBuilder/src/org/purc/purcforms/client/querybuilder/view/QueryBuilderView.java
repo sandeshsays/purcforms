@@ -391,7 +391,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	private void showResults() {
-		controller.loadResults();
+		controller.loadResults(queryId);
 	}
 	
 	public String getQueryDef(){
@@ -483,11 +483,11 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public void exportSpreadSheet() {
-		controller.exportExcel();
+		controller.exportExcel(queryId);
 	}
 	
 	public void exportPdf() {
-		controller.exportPdf();
+		controller.exportPdf(queryId);
 	}
 	
 	public void openQueryList(String xml) {

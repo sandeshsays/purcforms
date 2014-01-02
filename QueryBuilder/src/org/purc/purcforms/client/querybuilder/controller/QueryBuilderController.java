@@ -78,7 +78,9 @@ public class QueryBuilderController {
 		return formId == null;
 	}
 	
-	public void loadResults() {
+	public void loadResults(String qryId) {
+		queryId = qryId;
+		
 		if(isOfflineMode())
 			getResults();
 		else{
@@ -96,7 +98,9 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void exportExcel() {
+	public void exportExcel(String qryId) {
+		queryId = qryId;
+		
 		if(isOfflineMode())
 			doExportExcel();
 		else{
@@ -116,7 +120,9 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void exportPdf() {
+	public void exportPdf(String qryId) {
+		queryId = qryId;
+		
 		if(isOfflineMode())
 			doExportPdf();
 		else{
