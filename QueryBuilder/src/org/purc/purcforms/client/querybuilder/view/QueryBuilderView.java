@@ -69,6 +69,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	private String queryName;
 	
 	public interface Images extends ClientBundle {
+		ImageResource newquery();
 		ImageResource open();
 		ImageResource save();
 		ImageResource saveas();
@@ -145,6 +146,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		
 		popup = new PopupPanel(true,true);
 		MenuBar menuBar = new MenuBar(true);
+		
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.newquery(), LocaleText.get("newItem")), true, new Command(){
+			public void execute() {popup.hide(); onQueryDeleted();}});
+		
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.open(),LocaleText.get("open")),true,new Command(){
 			public void execute() {popup.hide(); openQuery();}});
 
