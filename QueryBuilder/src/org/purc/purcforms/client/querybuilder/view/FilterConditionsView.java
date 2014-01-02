@@ -182,7 +182,6 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 		this.formDef = formDef;
 		this.questionDef = null;
 		clearConditions();
-		addAddConditionLink();
 	}
 
 	public void addAddConditionLink(){
@@ -195,8 +194,11 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 
 	public void clearConditions(){
 		questionDef = null;
-		while(verticalPanel.getWidgetCount() > 1)
+		while(verticalPanel.getWidgetCount() > 1) {
 			verticalPanel.remove(verticalPanel.getWidget(1));
+		}
+		
+		addAddConditionLink();
 	}
 
 	public FilterConditionGroup getFilterConditionRows(){
@@ -298,7 +300,6 @@ public class FilterConditionsView  extends Composite implements ConditionControl
 			if(node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equalsIgnoreCase(XmlBuilder.NODE_NAME_GROUP)){
 				clearConditions(); //we always have one top level group. so no need of even this for loop. :)
 				groupHyperlink.setText(((Element)node).getAttribute(XmlBuilder.ATTRIBUTE_NAME_OPERATOR));
-				addAddConditionLink();
 				loadConditions((Element)node,actionHyperlink);
 				break;
 			}
