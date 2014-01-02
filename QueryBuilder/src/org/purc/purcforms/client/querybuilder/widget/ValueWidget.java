@@ -53,7 +53,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 	private static final String EMPTY_VALUE = "_____";
 	private static final String BETWEEN_WIDGET_SEPARATOR = "   "+ LocaleText.get("and") + "   ";
 	private static final String BETWEEN_VALUE_SEPARATOR = " " + LocaleText.get("and") + " ";
-	private static final String LIST_SEPARATOR = " , ";
+	private static final String LIST_SEPARATOR = ",";
 
 	private QuestionDef questionDef;
 	private int operator = ModelConstants.OPERATOR_NULL;

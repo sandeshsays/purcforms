@@ -167,6 +167,11 @@ public class SqlBuilder {
 		String filter = getFieldMapping(condition.getFieldName());
 		filter += getDBOperator(condition.getOperator());
 		filter += getQuotedValue(condition.getFirstValue(),condition.getDataType(),condition.getOperator());
+		
+		if (condition.getOperator() == ModelConstants.OPERATOR_IN_LIST || condition.getOperator() == ModelConstants.OPERATOR_NOT_IN_LIST) {
+			filter += ")";
+		}
+		
 		return filter;
 	}
 
@@ -227,14 +232,20 @@ public class SqlBuilder {
 		case QuestionDef.QTN_TYPE_LIST_MULTIPLE:
 		case QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC:
 		{
+			String value = null;
 			if(operator == ModelConstants.OPERATOR_STARTS_WITH || operator == ModelConstants.OPERATOR_NOT_START_WITH)
-				return "'" + fieldVal + LIKE_SEPARATOR + "'";
+				value = fieldVal + LIKE_SEPARATOR;
 			if(operator == ModelConstants.OPERATOR_NOT_END_WITH || operator == ModelConstants.OPERATOR_NOT_END_WITH)
-				return "'" + LIKE_SEPARATOR + fieldVal + "'";
+				value = LIKE_SEPARATOR + fieldVal;
 			if(operator == ModelConstants.OPERATOR_CONTAINS || operator == ModelConstants.OPERATOR_NOT_CONTAIN)
-				return "'" + LIKE_SEPARATOR + fieldVal + LIKE_SEPARATOR  + "'";
+				value = LIKE_SEPARATOR + fieldVal + LIKE_SEPARATOR;
 			else
-				return "'" + fieldVal + "'";
+				value = fieldVal;
+			
+			if (dataType == QuestionDef.QTN_TYPE_TEXT)
+				value = "'" + value + "'";
+			
+			return value;
 		}
 		case QuestionDef.QTN_TYPE_DATE:
 			return DATE_SEPARATOR + fieldVal + DATE_SEPARATOR;
