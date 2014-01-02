@@ -100,7 +100,6 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 	public void setFormDef(FormDef formDef){
 		this.formDef = formDef;
 		clearFields();
-		addAddColumnLink();
 	}
 
 	public void addAddColumnLink(){
@@ -113,6 +112,8 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 		
 		while(sortPanel.getWidgetCount() > 1)
 			sortPanel.remove(sortPanel.getWidget(1));
+		
+		addAddColumnLink();
 	}
 
 	public void moveColumnUp(Widget sender){
