@@ -67,6 +67,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	private SaveQueryDialog saveQueryDialog;
 	private String queryId;
 	private String queryName;
+	private String displayAs = "Report Listing";
 	
 	public interface Images extends ClientBundle {
 		ImageResource newquery();
@@ -74,8 +75,13 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		ImageResource save();
 		ImageResource saveas();
 		ImageResource delete();
+		ImageResource displayas();
 		ImageResource spreadsheet();
 		ImageResource pdf();
+		ImageResource barchart();
+		ImageResource piechart();
+		ImageResource linechart();
+		ImageResource reportlist();
 	}
 	
 	public static final Images images = (Images) GWT.create(Images.class);
@@ -163,6 +169,25 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		menuBar.addSeparator();
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true,new Command(){
 			public void execute() {popup.hide(); deleteQuery();}});
+		
+		
+		//display as menu items
+		menuBar.addSeparator();
+		MenuBar displayAsMenu = new MenuBar(true);
+		displayAsMenu.addItem(QueryBuilderUtil.createHeaderHTML(images.reportlist(), LocaleText.get("reportListing")),true,new Command(){
+			public void execute() {popup.hide(); displayAs = "Report Listing"; showResults();}});
+		
+		displayAsMenu.addItem(QueryBuilderUtil.createHeaderHTML(images.linechart(), LocaleText.get("lineGraph")),true,new Command(){
+			public void execute() {popup.hide(); displayAs = "Line Chart"; showResults();}});
+		
+		displayAsMenu.addItem(QueryBuilderUtil.createHeaderHTML(images.barchart(), LocaleText.get("barGraph")),true,new Command(){
+			public void execute() {popup.hide(); displayAs = "Bar Chart"; showResults();}});
+		
+		displayAsMenu.addItem(QueryBuilderUtil.createHeaderHTML(images.piechart(), LocaleText.get("pieChart")),true,new Command(){
+			public void execute() {popup.hide(); displayAs = "Pie Chart"; showResults();}});
+		
+		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.displayas(),LocaleText.get("displayAs")), true, displayAsMenu);
+
 		
 		menuBar.addSeparator();
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.spreadsheet(),LocaleText.get("exportSpreadSheet")),true,new Command(){
@@ -391,7 +416,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	private void showResults() {
-		controller.loadResults(queryId);
+		controller.loadResults(queryId, displayAs);
 	}
 	
 	public String getQueryDef(){
@@ -482,12 +507,16 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		controller.deleteQuery(queryId);
 	}
 	
+	public void displayAs() {
+		
+	}
+	
 	public void exportSpreadSheet() {
 		controller.exportExcel(queryId);
 	}
 	
 	public void exportPdf() {
-		controller.exportPdf(queryId);
+		controller.exportPdf(queryId, displayAs);
 	}
 	
 	public void openQueryList(String xml) {

@@ -53,6 +53,7 @@ public class QueryBuilderController {
 	private static QueryBuilderView view;
 	private static Integer formId;
 	private static String queryId;
+	private static String displayAs;
 	
 	/** Static self reference such that the static login call back can have
 	 *  a reference to proceed with the current action.
@@ -78,8 +79,9 @@ public class QueryBuilderController {
 		return formId == null;
 	}
 	
-	public void loadResults(String qryId) {
+	public void loadResults(String qryId, String displAs) {
 		queryId = qryId;
+		displayAs = displAs;
 		
 		if(isOfflineMode())
 			getResults();
@@ -120,8 +122,9 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void exportPdf(String qryId) {
+	public void exportPdf(String qryId, String displAs) {
 		queryId = qryId;
+		displayAs = displAs;
 		
 		if(isOfflineMode())
 			doExportPdf();
@@ -217,6 +220,7 @@ public class QueryBuilderController {
 				url += FormUtil.getFormDefDownloadUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
 				url += "&queryId=" + queryId;
+				url += "&displayAs=" + displayAs;
 				url = FormUtil.appendRandomParameter(url);
 
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
@@ -386,6 +390,7 @@ public class QueryBuilderController {
 				url += "sql=" + view.getSql();
 				url += "&queryId=" + queryId;
 				url += "&format=pdf";
+				url += "&displayAs=" + displayAs;
 				url = FormUtil.appendRandomParameter(url);
 				Window.Location.replace(URL.encode(url));
 			}
