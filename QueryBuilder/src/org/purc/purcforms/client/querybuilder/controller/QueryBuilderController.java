@@ -24,6 +24,8 @@ import com.google.gwt.user.client.Window;
  */
 public class QueryBuilderController {
 
+	public static final String PURCFORMS_QUERYDEF_LAYOUT_XML_SEPARATOR = " PURCFORMS_QUERYDEF_LAYOUT_XML_SEPARATOR ";
+	
 	//These are constants to remember the current action during the login call back
 	//such that we know which action to execute.
 	/** No current action. */
@@ -219,14 +221,23 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getFormDefDownloadUrlSuffix();
 				url += FormUtil.getFormIdName() + "=" + FormUtil.getFormId();
-				url += "&queryId=" + queryId;
+				
+				if (queryId != null) {
+					url += "&queryId=" + queryId;
+				}
+				
 				url += "&displayAs=" + displayAs;
 				url = FormUtil.appendRandomParameter(url);
 
+				String data = view.getSql();
+				if (queryId != null) {
+					data += PURCFORMS_QUERYDEF_LAYOUT_XML_SEPARATOR + view.getQueryDef();
+				}
+				
 				RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
 				
-				try{
-					builder.sendRequest(view.getSql(), new RequestCallback(){
+				try{				
+					builder.sendRequest(data, new RequestCallback(){
 						public void onResponseReceived(Request request, Response response){
 
 							if(response.getStatusCode() != Response.SC_OK){
@@ -373,7 +384,12 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getExportExcelUrlSuffix();
 				url += "sql=" + view.getSql();
-				url += "&queryId=" + queryId;
+				url += "&querydef=" + view.getQueryDef();
+
+				if (queryId != null) {
+					url += "&queryId=" + queryId;
+				}
+				
 				url += "&format=excel";
 				url = FormUtil.appendRandomParameter(url);
 				Window.Location.replace(URL.encode(url));
@@ -388,7 +404,12 @@ public class QueryBuilderController {
 				String url = FormUtil.getHostPageBaseURL();
 				url += FormUtil.getExportExcelUrlSuffix();
 				url += "sql=" + view.getSql();
-				url += "&queryId=" + queryId;
+				url += "&querydef=" + view.getQueryDef();
+
+				if (queryId != null) {
+					url += "&queryId=" + queryId;
+				}
+				
 				url += "&format=pdf";
 				url += "&displayAs=" + displayAs;
 				url = FormUtil.appendRandomParameter(url);
