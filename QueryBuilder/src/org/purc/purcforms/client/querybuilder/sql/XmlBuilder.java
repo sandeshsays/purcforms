@@ -27,6 +27,7 @@ public class XmlBuilder {
 	public static final String NODE_NAME_FILTER_CONDITIONS = "FilterConditions";
 	public static final String NODE_NAME_DISPLAY_FIELDS = "DisplayFields";
 	public static final String NODE_NAME_SORT_FIELDS = "SortFields";
+	public static final String NODE_NAME_SQL = "Sql";
 	public static final String NODE_NAME_FIELD = "Field";
 
 	public static final String NODE_NAME_GROUP = "Group";
@@ -46,7 +47,7 @@ public class XmlBuilder {
 
 	private static Document doc;
 
-	public static String buildXml(FormDef formDef, FilterConditionGroup filterConditionGroup, List<DisplayField> displayFields, List<SortField> sortFields){
+	public static String buildXml(FormDef formDef, FilterConditionGroup filterConditionGroup, List<DisplayField> displayFields, List<SortField> sortFields, String sql){
 		if(formDef == null || filterConditionGroup == null)
 			return null;
 
@@ -76,6 +77,10 @@ public class XmlBuilder {
 			rootNode.appendChild(sortFieldsNode);
 			buildSortFields(sortFieldsNode,sortFields);
 		}
+		
+		Element sqlNode = doc.createElement(NODE_NAME_SQL);
+		rootNode.appendChild(sqlNode);
+		sqlNode.appendChild(doc.createCDATASection(sql));
 
 		return doc.toString();
 	}
