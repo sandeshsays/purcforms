@@ -412,7 +412,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	private void buildQueryDef(){
-		txtDefXml.setText(FormUtil.formatXml(FormUtil.formatXml(XmlBuilder.buildXml(filterConditionsView.getFormDef(),filterConditionsView.getFilterConditionRows(),displayFieldsView.getDisplayFields(),displayFieldsView.getSortFields(), getSql()))));
+		txtDefXml.setText(/*FormUtil.formatXml(FormUtil.formatXml(*/XmlBuilder.buildXml(filterConditionsView.getFormDef(),filterConditionsView.getFilterConditionRows(),displayFieldsView.getDisplayFields(),displayFieldsView.getSortFields(), getSql())/*))*/);
 	}
 	
 	private void showResults() {
