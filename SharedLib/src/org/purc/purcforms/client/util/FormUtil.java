@@ -362,9 +362,22 @@ public class FormUtil {
 
 				if(index < 0 || index >= xmlContent.length())
 					break;
-
+				
 				//Trim out XML block
 				String section = xmlContent.substring(index, xmlContent.indexOf(">", index) + 1);
+				
+				//skip characters like <> in e.g sql where field <> value clause
+				int pos = xmlContent.indexOf(">", index);
+				if (xmlContent.charAt(pos - 1) == '<') {
+					section = xmlContent.substring(index, xmlContent.indexOf(">", pos + 1) + 1);
+					index = pos + 1;
+					indentLevel -= 1;
+					result = indent(result, indentLevel);
+				}
+				else if (section.startsWith("<![CDATA[")) {
+					indentLevel -= 1;
+					result = indent(result, indentLevel);
+				}
 
 				if(section.matches("<!--.*-->")) {
 					//Is comment <!--....-->
