@@ -56,6 +56,7 @@ public class QueryBuilderController {
 	private static Integer formId;
 	private static String queryId;
 	private static String displayAs;
+	private static String queryName;
 	
 	/** Static self reference such that the static login call back can have
 	 *  a reference to proceed with the current action.
@@ -102,8 +103,9 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void exportExcel(String qryId) {
+	public void exportExcel(String qryId, String qryName) {
 		queryId = qryId;
+		queryName = qryName;
 		
 		if(isOfflineMode())
 			doExportExcel();
@@ -124,9 +126,10 @@ public class QueryBuilderController {
 		}
 	}
 	
-	public void exportPdf(String qryId, String displAs) {
+	public void exportPdf(String qryId, String displAs, String qryName) {
 		queryId = qryId;
 		displayAs = displAs;
+		queryName = qryName;
 		
 		if(isOfflineMode())
 			doExportPdf();
@@ -390,6 +393,10 @@ public class QueryBuilderController {
 					url += "&queryId=" + queryId;
 				}
 				
+				if (queryName != null) {
+					url += "&queryName=" + queryName;
+				}
+				
 				url += "&format=excel";
 				url = FormUtil.appendRandomParameter(url);
 				Window.Location.replace(URL.encode(url));
@@ -408,6 +415,10 @@ public class QueryBuilderController {
 
 				if (queryId != null) {
 					url += "&queryId=" + queryId;
+				}
+				
+				if (queryName != null) {
+					url += "&queryName=" + queryName;
 				}
 				
 				url += "&format=pdf";

@@ -512,11 +512,11 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public void exportSpreadSheet() {
-		controller.exportExcel(queryId);
+		controller.exportExcel(queryId, queryName);
 	}
 	
 	public void exportPdf() {
-		controller.exportPdf(queryId, displayAs);
+		controller.exportPdf(queryId, displayAs, queryName);
 	}
 	
 	public void openQueryList(String xml) {
