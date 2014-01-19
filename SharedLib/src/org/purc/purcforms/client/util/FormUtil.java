@@ -126,6 +126,7 @@ public class FormUtil {
 	private static String exportExcelUrlSuffix;
 	private static String saveQueryUrlSuffix;
 	private static String openQueryUrlSuffix;
+	private static String exportPdfUrlSuffix;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -489,6 +490,7 @@ public class FormUtil {
 		exportExcelUrlSuffix = getDivValue("exportExcelUrlSuffix");
 		saveQueryUrlSuffix = getDivValue("saveQueryUrlSuffix");
 		openQueryUrlSuffix = getDivValue("openQueryUrlSuffix");
+		exportPdfUrlSuffix = getDivValue("exportPdfUrlSuffix");
 
 		if(multimediaUrlSuffix == null || multimediaUrlSuffix.trim().length() == 0)
 			multimediaUrlSuffix = "multimedia";
@@ -842,6 +844,10 @@ public class FormUtil {
 	
 	public static String getExportExcelUrlSuffix(){
 		return exportExcelUrlSuffix;
+	}
+	
+	public static String getExportPdfUrlSuffix(){
+		return exportPdfUrlSuffix;
 	}
 	
 	public static String getSaveQueryUrlSuffix(){
