@@ -64,6 +64,16 @@ public class SqlBuilder {
 		}
 	}
 	
+	private static String getFilterMapping(String name) {
+		String mapping = QueryBuilderUtil.getFilterMapping(name);
+		if (mapping != null) {
+			return mapping;
+		}
+		else {
+			return "t." + name;
+		}
+	}
+	
 	private static String getSelectList(List<DisplayField> displayFields){
 		if(displayFields == null || displayFields.size() == 0)
 			return "*";
@@ -164,7 +174,7 @@ public class SqlBuilder {
 	}
 
 	private static String getFilter(FilterCondition condition){		
-		String filter = "t." + condition.getFieldName();
+		String filter = getFilterMapping(condition.getFieldName());
 		filter += getDBOperator(condition.getOperator());
 		filter += getQuotedValue(condition.getFirstValue(),condition.getDataType(),condition.getOperator());
 		

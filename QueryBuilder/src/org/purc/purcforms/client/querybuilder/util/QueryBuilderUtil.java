@@ -41,6 +41,7 @@ public class QueryBuilderUtil {
 	
 	private static String tableAlias;
 	private static HashMap<String, String> columnMappings = new HashMap<String, String>();
+	private static HashMap<String, String> filterMappings = new HashMap<String, String>();
 	
 	/** The name for the queryId field. */
 	private static String formIdName;
@@ -351,10 +352,19 @@ public class QueryBuilderUtil {
 		
 		s = FormUtil.getDivValue("columnMappings");
 		if (s != null) {
-			String[] mappings = s.split(",");
+			String[] mappings = s.split("!");
 			for (String map : mappings) {
 				String[] keyValue = map.split(":");
 				columnMappings.put(keyValue[0].trim(), keyValue[1].trim());
+			}
+		}
+		
+		s = FormUtil.getDivValue("filterMappings");
+		if (s != null) {
+			String[] mappings = s.split("!");
+			for (String map : mappings) {
+				String[] keyValue = map.split(":");
+				filterMappings.put(keyValue[0].trim(), keyValue[1].trim());
 			}
 		}
 
@@ -385,5 +395,9 @@ public class QueryBuilderUtil {
 	
 	public static String getColumnMapping(String column) {
 		return columnMappings.get(column);
+	}
+	
+	public static String getFilterMapping(String column) {
+		return filterMappings.get(column);
 	}
 }
