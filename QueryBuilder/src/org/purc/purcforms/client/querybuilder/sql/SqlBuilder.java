@@ -245,9 +245,9 @@ public class SqlBuilder {
 			String value = null;
 			if(operator == ModelConstants.OPERATOR_STARTS_WITH || operator == ModelConstants.OPERATOR_NOT_START_WITH)
 				value = fieldVal + LIKE_SEPARATOR;
-			if(operator == ModelConstants.OPERATOR_NOT_END_WITH || operator == ModelConstants.OPERATOR_NOT_END_WITH)
+			else if(operator == ModelConstants.OPERATOR_ENDS_WITH || operator == ModelConstants.OPERATOR_NOT_END_WITH)
 				value = LIKE_SEPARATOR + fieldVal;
-			if(operator == ModelConstants.OPERATOR_CONTAINS || operator == ModelConstants.OPERATOR_NOT_CONTAIN)
+			else if(operator == ModelConstants.OPERATOR_CONTAINS || operator == ModelConstants.OPERATOR_NOT_CONTAIN)
 				value = LIKE_SEPARATOR + fieldVal + LIKE_SEPARATOR;
 			else
 				value = fieldVal;
