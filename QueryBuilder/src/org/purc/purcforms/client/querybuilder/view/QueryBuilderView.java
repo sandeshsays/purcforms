@@ -397,7 +397,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			  " <DisplayFields> " +
 			  " 	<Field name=\"question1\" text=\"Last Name\"/> " +
 			  " 	<Field name=\"question2\" text=\"First Name\"/> " +
-			  " 	<Field name=\"question3\" text=\"Weight\" AggFunc=\"COUNT\" /> " +
+			  " 	<Field name=\"question3\" text=\"Weight\" AggFunc=\"SUM\" /> " +
 			  " 	<Field name=\"question4\" text=\"Date of Birth\"/> " +
 			  " </DisplayFields> " +
 			  " <SortFields> " +

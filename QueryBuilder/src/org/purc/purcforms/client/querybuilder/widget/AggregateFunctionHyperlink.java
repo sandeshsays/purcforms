@@ -23,6 +23,12 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 	public static final String FUNC_TEXT_MIN = "Minimum";
 	public static final String FUNC_TEXT_MAX = "Maximum";
 	public static final String FUNC_TEXT_COUNT = "Count";
+	
+	public static final String FUNC_VALUE_SUM = "SUM"; //LocaleText.get("???");
+	public static final String FUNC_VALUE_AVG = "AVG";
+	public static final String FUNC_VALUE_MIN = "MIN";
+	public static final String FUNC_VALUE_MAX = "MAX";
+	public static final String FUNC_VALUE_COUNT = "COUNT";
 
 	private PopupPanel popup;
 	private AggregateFunctionListener actionListener;
@@ -94,18 +100,29 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 		String text = getText();
 		
 		if(text.equals(FUNC_TEXT_SUM))
-			return "SUM";
+			return FUNC_VALUE_SUM;
 		else if(text.equals(FUNC_TEXT_AVG))
-			return "AVG";
+			return FUNC_VALUE_AVG;
 		else if(text.equals(FUNC_TEXT_MIN))
-			return "MIN";
+			return FUNC_VALUE_MIN;
 		else if(text.equals(FUNC_TEXT_MAX))
-			return "MAX";
+			return FUNC_VALUE_MAX;
 		
-		return "COUNT";
+		return FUNC_VALUE_COUNT;
 	}
 	
 	public void setAggregateFunction(String aggFunc){
+		if(aggFunc.equals(FUNC_VALUE_SUM))
+			aggFunc = FUNC_TEXT_SUM;
+		else if(aggFunc.equals(FUNC_VALUE_AVG))
+			aggFunc = FUNC_TEXT_AVG;
+		else if(aggFunc.equals(FUNC_VALUE_MIN))
+			aggFunc = FUNC_TEXT_MIN;
+		else if(aggFunc.equals(FUNC_VALUE_MAX))
+			aggFunc = FUNC_TEXT_MAX;
+		else
+			aggFunc = FUNC_TEXT_COUNT;
+		
 		setText(aggFunc);
 	}
 }
