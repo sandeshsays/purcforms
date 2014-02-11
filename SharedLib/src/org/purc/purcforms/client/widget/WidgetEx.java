@@ -681,9 +681,11 @@ public class WidgetEx extends Composite{
 		 if(value != null && value.trim().length() > 0)
 			 widget.setFontStyle(value);
 		 
-		 value = node.getAttribute("rotate");
-		 if("true".equals(value))
+		 value = node.getAttribute(WIDGET_PROPERTY_ROTATED);
+		 if("true".equals(value)) {
 			 widget.addStyleName(STYLE_NAME_ROTATED);
+			 widget.setRotated(true);
+		 }
 		 
 		 value = node.getAttribute("class");
 		 if(value != null && value.trim().length() > 0) {
