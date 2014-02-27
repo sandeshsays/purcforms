@@ -154,5 +154,5 @@ label::-moz-selection { background: transparent; }
 }
 
 .gwt-Label {
-    white-space: pre;
+    white-space: pre-wrap;
 }
