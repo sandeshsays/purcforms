@@ -514,31 +514,39 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 				}
 			}
 
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE){
-				OptionDef optionDef = ((OptionDef)questionDef.getOptionWithValue(value));
-				if(optionDef != null)
-					sValue = optionDef.getText();
+			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+				if (isListOperator()) {
+					sValue = getListValues(sValue);
+				} else {
+					OptionDef optionDef = ((OptionDef)questionDef.getOptionWithValue(value));
+					if(optionDef != null) {
+						sValue = optionDef.getText();
+					}
+				}
 			}
 			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC){
 				DynamicOptionDef dynamicOptionDef = formDef.getChildDynamicOptions(questionDef.getId());
 				if(dynamicOptionDef != null){
-					OptionDef optionDef = dynamicOptionDef.getOptionWithValue(value);
-					if(optionDef != null)
-						sValue = optionDef.getText();
-				}
-			}
-			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
-				String[] options = sValue.split(LIST_SEPARATOR);
-				if(options == null || options.length == 0)
-					sValue = null;
-				else{
-					sValue = "";
-					for(int i=0; i<options.length; i++){
-						OptionDef optionDef = questionDef.getOptionWithValue(options[i]);
-						if(optionDef != null){
-							if(sValue.length() > 0)
-								sValue += LIST_SEPARATOR;
-							sValue += optionDef.getText();
+					if (isListOperator()) {
+						String[] options = sValue.split(LIST_SEPARATOR);
+						if(options == null || options.length == 0)
+							sValue = null;
+						else{
+							sValue = "";
+							for(int i=0; i<options.length; i++){
+								OptionDef optionDef = dynamicOptionDef.getOptionWithValue(options[i]);
+								if(optionDef != null){
+									if(sValue.length() > 0)
+										sValue += LIST_SEPARATOR;
+									sValue += optionDef.getText();
+								}
+							}
+						}
+					} else {
+						OptionDef optionDef = dynamicOptionDef.getOptionWithValue(value);
+						if(optionDef != null) {
+							sValue = optionDef.getText();
 						}
 					}
 				}
@@ -554,6 +562,29 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			sValue = EMPTY_VALUE;
 
 		valueHyperlink.setText(sValue);
+	}
+	
+	private boolean isListOperator() {
+		return operator == ModelConstants.OPERATOR_IN_LIST || operator == ModelConstants.OPERATOR_NOT_IN_LIST;
+	}
+	
+	private String getListValues(String sValue) {
+		String[] options = sValue.split(LIST_SEPARATOR);
+		if(options == null || options.length == 0)
+			sValue = null;
+		else{
+			sValue = "";
+			for(int i=0; i<options.length; i++){
+				OptionDef optionDef = questionDef.getOptionWithValue(options[i]);
+				if(optionDef != null){
+					if(sValue.length() > 0)
+						sValue += LIST_SEPARATOR;
+					sValue += optionDef.getText();
+				}
+			}
+		}
+		
+		return sValue;
 	}
 
 	public void setFormDef(FormDef formDef){

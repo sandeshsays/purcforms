@@ -387,7 +387,7 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			  " <FilterConditions> "+
 			  " <group operator=\"all\"> "+
 			  " <group operator=\"all\"> "+
-			  "     <condition field=\"question1\" operator=\"1\" value=\"aaa\"/> "+
+			  "     <condition field=\"question1\" operator=\"7\" value=\"option1,option2\"/> "+
 			  "   </group> "+
 			  "   <group operator=\"all\"> "+
 			  "     <condition field=\"question1\" operator=\"1\" value=\"bbbb\"/> "+
