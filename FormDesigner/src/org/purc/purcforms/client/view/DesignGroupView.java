@@ -1791,7 +1791,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		DOM.setStyleAttribute(txtEdit.getElement(), "fontFamily", FormUtil.getDefaultFontFamily());
 		DOM.setStyleAttribute(txtEdit.getElement(), "fontSize", FormUtil.getDefaultFontSize());
 		//DOM.setStyleAttribute(txtEdit.getElement(), "opacity", "1");
-		txtEdit.setWidth("400"+PurcConstants.UNITS);
+		//txtEdit.setWidth("400"+PurcConstants.UNITS);
 		//txtEdit.addStyleName("purcforms-label-editor");
 	}
 
@@ -2172,6 +2172,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	public void setWidth(String width){
 		try{
 			DOM.setStyleAttribute(selectedPanel.getElement(), "width", width);
+			txtEdit.setWidth(width);
 		}catch(Exception ex){}
 	}
 
