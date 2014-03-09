@@ -3564,12 +3564,17 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 							view.getPanel().setWidgetPosition(widget, widget.getLeftInt() + difx, widget.getTopInt() + dify);
 						}
 						else {
+							difx = x - widget.getLeftInt() - widget.getParent().getAbsoluteLeft();
+							dify = y - widget.getTopInt() - widget.getParent().getAbsoluteTop();
 							view.getPanel().setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
 						}
 						widget.storePrevPanel();
 						commands.add(new MoveWidgetCmd(widget, -difx, -dify, view));
-						Context.getCommandHistory().add(commands);
 					}
+				}
+				
+				if (commands.size() > 0) {
+					Context.getCommandHistory().add(commands);
 				}
 
 				ensureTabVisible(widget);
