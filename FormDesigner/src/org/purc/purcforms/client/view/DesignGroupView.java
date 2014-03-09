@@ -3543,19 +3543,25 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 					DesignWidgetWrapper w = labels.get(binding);
 					
 					if (moveItem) {
-						selectedPanel.setWidgetPosition(w, w.getLeftInt() + difx, w.getTopInt() + dify);
-						w.storePrevPanel();
-						commands.add(new MoveWidgetCmd(w, -difx, -dify, this));
+						DesignGroupView view = w.getView();
+						if (view == this) {//for now we support moving only within the same view
+							view.getPanel().setWidgetPosition(w, w.getLeftInt() + difx, w.getTopInt() + dify);
+							w.storePrevPanel();
+							commands.add(new MoveWidgetCmd(w, -difx, -dify, view));
+						}
 					}
 					
 					dragController.selectWidget(w);
 				}
 				
 				if (moveItem) {
-					selectedPanel.setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
-					widget.storePrevPanel();
-					commands.add(new MoveWidgetCmd(widget, -difx, -dify, this));
-					Context.getCommandHistory().add(commands);
+					DesignGroupView view = widget.getView();
+					if (view == this) {//for now we support moving only within the same view
+						view.getPanel().setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
+						widget.storePrevPanel();
+						commands.add(new MoveWidgetCmd(widget, -difx, -dify, view));
+						Context.getCommandHistory().add(commands);
+					}
 				}
 
 				ensureTabVisible(widget);
