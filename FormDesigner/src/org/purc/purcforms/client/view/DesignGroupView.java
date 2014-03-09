@@ -3528,6 +3528,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		getDesignSurfaceView().fillWidgetBindings(bindings, labels);
 		 
 		if(bindings.containsKey(binding)){
+			DesignWidgetWrapper labelWidget = null;
 			DesignWidgetWrapper widget = bindings.get(binding);
 			FormDesignerDragController dragController = FormDesignerDragController.getInstance();//getDesignSurfaceView().getWidgetDragController(widget);
 			if(dragController != null){
@@ -3535,29 +3536,36 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				
 				CommandList commands = new CommandList(this);
 
-				int difx = x - widget.getLeftInt() - widget.getParent().getAbsoluteLeft();
-				int dify = y - widget.getTopInt() - widget.getParent().getAbsoluteTop();
+				int difx = -1;
+				int dify = -1;
 				
 				//select the label too
 				if(labels.containsKey(binding)) {
-					DesignWidgetWrapper w = labels.get(binding);
+					labelWidget = labels.get(binding);
 					
 					if (moveItem) {
-						DesignGroupView view = w.getView();
+						DesignGroupView view = labelWidget.getView();
 						if (view == this) {//for now we support moving only within the same view
-							view.getPanel().setWidgetPosition(w, w.getLeftInt() + difx, w.getTopInt() + dify);
-							w.storePrevPanel();
-							commands.add(new MoveWidgetCmd(w, -difx, -dify, view));
+							difx = x - labelWidget.getLeftInt() - labelWidget.getParent().getAbsoluteLeft();
+							dify = y - labelWidget.getTopInt() - labelWidget.getParent().getAbsoluteTop();
+							view.getPanel().setWidgetPosition(labelWidget, x - labelWidget.getParent().getAbsoluteLeft(), y - labelWidget.getParent().getAbsoluteTop());
+							labelWidget.storePrevPanel();
+							commands.add(new MoveWidgetCmd(labelWidget, -difx, -dify, view));
 						}
 					}
 					
-					dragController.selectWidget(w);
+					dragController.selectWidget(labelWidget);
 				}
 				
-				if (moveItem) {
+				if (moveItem && widget != labelWidget) {
 					DesignGroupView view = widget.getView();
 					if (view == this) {//for now we support moving only within the same view
-						view.getPanel().setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
+						if (difx != -1) {
+							view.getPanel().setWidgetPosition(widget, widget.getLeftInt() + difx, widget.getTopInt() + dify);
+						}
+						else {
+							view.getPanel().setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
+						}
 						widget.storePrevPanel();
 						commands.add(new MoveWidgetCmd(widget, -difx, -dify, view));
 						Context.getCommandHistory().add(commands);
