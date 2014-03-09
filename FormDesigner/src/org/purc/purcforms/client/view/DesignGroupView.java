@@ -3500,6 +3500,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	public DesignWidgetWrapper selectItem(Object item) {
+		return selectItem(item, false);
+	}
+	
+	public DesignWidgetWrapper selectItem(Object item, boolean moveItem) {
 		if(item == null)
 			return null;
 		
@@ -3529,10 +3533,31 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(dragController != null){
 				dragController.selectWidget(widget);
 				
-				//select the label too
-				if(labels.containsKey(binding))
-					dragController.selectWidget(labels.get(binding));
+				CommandList commands = new CommandList(this);
+
+				int difx = x - widget.getLeftInt() - widget.getParent().getAbsoluteLeft();
+				int dify = y - widget.getTopInt() - widget.getParent().getAbsoluteTop();
 				
+				//select the label too
+				if(labels.containsKey(binding)) {
+					DesignWidgetWrapper w = labels.get(binding);
+					
+					if (moveItem) {
+						selectedPanel.setWidgetPosition(w, w.getLeftInt() + difx, w.getTopInt() + dify);
+						w.storePrevPanel();
+						commands.add(new MoveWidgetCmd(w, -difx, -dify, this));
+					}
+					
+					dragController.selectWidget(w);
+				}
+				
+				if (moveItem) {
+					selectedPanel.setWidgetPosition(widget, x - widget.getParent().getAbsoluteLeft(), y - widget.getParent().getAbsoluteTop());
+					widget.storePrevPanel();
+					commands.add(new MoveWidgetCmd(widget, -difx, -dify, this));
+					Context.getCommandHistory().add(commands);
+				}
+
 				ensureTabVisible(widget);
 				ensureVisible(widget);
 				
@@ -3560,7 +3585,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		else
 			return null;
 		
-		DesignWidgetWrapper widget = selectItem(item);
+		DesignWidgetWrapper widget = selectItem(item, true);
 		if (widget != null) {
 			return widget;
 		}
