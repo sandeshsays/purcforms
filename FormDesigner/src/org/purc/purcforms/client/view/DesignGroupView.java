@@ -3678,24 +3678,26 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		horizontalLines -= 1;
 		verticalLines -= 1;
 		
-		x = widgetWrapper.getAbsoluteLeft();
-		y = 20 + widgetWrapper.getAbsoluteTop();
+		int labelHeight = ((GridDesignGroupWidget)this).getHeaderLabelHeight();
 		
-		int width = widgetWrapper.getWidthInt();
-		int length = width / (verticalLines + 1);
+		float basex = widgetWrapper.getAbsoluteLeft();
+		y = labelHeight + widgetWrapper.getAbsoluteTop();
+		
+		float width = widgetWrapper.getWidthInt();
+		float length = width / (verticalLines + 1);
 	
 		for (int i = 0; i < verticalLines; i++) {
-			x += length;
+			x = (int)(basex + (length * (i+1)));
 			addNewVerticalLine(false);
 		}
 		
 		x = widgetWrapper.getAbsoluteLeft();
-		y = 20 + widgetWrapper.getAbsoluteTop();
+		float basey = labelHeight + widgetWrapper.getAbsoluteTop();
 		
-		int height = widgetWrapper.getHeightInt();
-		length = (height - 20) / (horizontalLines + 1);
+		float height = widgetWrapper.getHeightInt();
+		length = (height - labelHeight) / (horizontalLines + 1);
 		for (int i = 0; i < horizontalLines; i++) {
-			y += length;
+			y = (int)(basey + (length * (i+1)));
 			addNewHorizontalLine(false);
 		}
 	}

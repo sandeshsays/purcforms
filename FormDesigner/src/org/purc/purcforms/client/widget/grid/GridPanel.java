@@ -305,10 +305,10 @@ public class GridPanel extends AbsolutePanel {
 				int left = widget.getLeftInt();
 				
 				int value = left + widget.getWidthInt();
-				value = getNewResizeValue(value, widthChange, width);
+				value = (int)getNewResizeValue(value, widthChange, width);
 				
 				if(left > 0) {
-					left = getNewResizeValue(left, widthChange, width);
+					left = (int)getNewResizeValue(left, widthChange, width);
 					widget.setLeftInt(left);
 				}
 				
@@ -316,7 +316,7 @@ public class GridPanel extends AbsolutePanel {
 			}
 			
 			for(Widget w : verticalLines) {
-				((DesignWidgetWrapper)w).setLeftInt(getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
+				((DesignWidgetWrapper)w).setLeftInt((int)getNewResizeValue(((DesignWidgetWrapper)w).getLeftInt(), widthChange, width));
 			}
 		}
 		
@@ -328,18 +328,25 @@ public class GridPanel extends AbsolutePanel {
 				int top = widget.getTopInt();
 				
 				int value = top + widget.getHeightInt();
-				value = getNewResizeValue(value, heightChange, height);
+				value = (int)getNewResizeValue(value, heightChange, height);
 				
 				if(top > labelHeight) {
-					top = getNewResizeValue(top, heightChange, height);
+					top = (int)getNewResizeValue(top, heightChange, height);
 					widget.setTopInt(top);
 				}
 
 				widget.setHeightInt(value - top);
 			}
 			
-			for(Widget w : horizontalLines) {
-				((DesignWidgetWrapper)w).setTopInt(getNewResizeValue(((DesignWidgetWrapper)w).getTopInt(), heightChange, height));
+			if (horizontalLines.size() > 0) {
+				int count = 0;
+				float offset = getNewResizeValue(getLabelHeight(), heightChange, height) - getLabelHeight();
+				float increment = offset/(horizontalLines.size() + 1);
+				for(Widget w : horizontalLines) {	
+					int top = ((DesignWidgetWrapper)w).getTopInt();
+					top = (int)(getNewResizeValue(top, heightChange, height) - offset);					
+					((DesignWidgetWrapper)w).setTopInt((int)(top + (increment * ++count)));
+				}
 			}
 		}
 		
@@ -349,17 +356,17 @@ public class GridPanel extends AbsolutePanel {
 				continue; //header label widget
 			
 			if(widthChange != 0) {
-				widget.setLeftInt(getNewResizeValue(widget.getLeftInt(), widthChange, width));
+				widget.setLeftInt((int)getNewResizeValue(widget.getLeftInt(), widthChange, width));
 			}
 			
 			if(heightChange != 0) {
-				widget.setTopInt(getNewResizeValue(widget.getTopInt(), heightChange, height));
+				widget.setTopInt((int)getNewResizeValue(widget.getTopInt(), heightChange, height));
 			}
 		}
 	}
 	
-	private int getNewResizeValue(int value, int change, int newValue) {
-		return (int)(value * ((double)newValue/(change + newValue)));
+	private float getNewResizeValue(int value, int change, int newValue) {
+		return (value * ((float)newValue/(change + newValue)));
 	}
 	
 	public void moveLine(int xChange, int yChange, int newLeft, int newTop){		
@@ -513,7 +520,7 @@ public class GridPanel extends AbsolutePanel {
 				int left = widget.getLeftInt();
 				
 				int value = left + widget.getWidthInt();
-				value = getNewResizeValue(value, widthChange, width);
+				value = (int)getNewResizeValue(value, widthChange, width);
 				
 				if(value == width) {
 					widget.setWidthInt(value - left);
@@ -527,7 +534,7 @@ public class GridPanel extends AbsolutePanel {
 				int top = widget.getTopInt();
 				
 				int value = top + widget.getHeightInt();
-				value = getNewResizeValue(value, heightChange, height);
+				value = (int)getNewResizeValue(value, heightChange, height);
 				
 				if(value == height) {
 					widget.setHeightInt(value - top);
