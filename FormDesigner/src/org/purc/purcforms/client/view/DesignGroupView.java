@@ -3288,6 +3288,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return widget;
 	}
 	
+	protected DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands, boolean useExistingPos){
+		return loadQuestions(questions, startY, startX, tabIndex, submitCancelBtns, select, commands, useExistingPos, null);
+	}
+	
 	/**
 	 * Does automatic loading of question widgets onto the design surface for a given page
 	 * and starting at a given y coordinate.
@@ -3300,7 +3304,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param submitCancelBtns set to true to add the submit and cancel buttons
 	 * @param select set to true to select all the created widgets.
 	 */
-	protected DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands, boolean useExistingPos){
+	protected DesignWidgetWrapper loadQuestions(List<QuestionDef> questions, int startY, int startX, int tabIndex, boolean submitCancelBtns, boolean select, CommandList commands, boolean useExistingPos, DesignWidgetWrapper labelWidget){
 		if(questions == null)
 			return null;
 		
@@ -3335,15 +3339,20 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE
 					|| type == QuestionDef.QTN_TYPE_GROUP)){
-				labelWidgetWrapper = widgetWrapper = addNewLabel(questionDef.getText(),false);
-				widgetWrapper.setBinding(questionDef.getBinding());
-				widgetWrapper.setTitle(questionDef.getText());
-
-				if(select)
-					selectedDragController.selectWidget(widgetWrapper);
-
-				if(commands != null)
-					commands.add(new InsertWidgetCmd(widgetWrapper, widgetWrapper.getLayoutNode(), this));
+				if (labelWidget == null) {
+					labelWidgetWrapper = widgetWrapper = addNewLabel(questionDef.getText(),false);
+					widgetWrapper.setBinding(questionDef.getBinding());
+					widgetWrapper.setTitle(questionDef.getText());
+	
+					if(select)
+						selectedDragController.selectWidget(widgetWrapper);
+	
+					if(commands != null)
+						commands.add(new InsertWidgetCmd(widgetWrapper, widgetWrapper.getLayoutNode(), this));
+				}
+				else {
+					labelWidgetWrapper = widgetWrapper = labelWidget;
+				}
 			}
 
 			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
@@ -3605,7 +3614,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			return null;
 		
 		DesignWidgetWrapper widget = selectItem(item, true);
-		if (widget != null) {
+		if (widget != null && !(widget.getWrappedWidget() instanceof Label)) {
 			return widget;
 		}
 		
@@ -3633,7 +3642,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(newQuestions.size() > 0){
 				boolean visible = questionDef.isVisible();
 				questionDef.setVisible(true);
-				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, false);
+				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, false, widget);
 				questionDef.setVisible(visible);
 				
 				format();
