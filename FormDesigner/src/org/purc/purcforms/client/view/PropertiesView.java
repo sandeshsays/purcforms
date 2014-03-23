@@ -816,7 +816,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			deleteKids = true;
 		}
 		else if((questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT) &&
-				!(index == DT_INDEX_REPEAT)){
+				!(index == DT_INDEX_REPEAT || index == DT_INDEX_SUBFORM)){
 			if(!Window.confirm(LocaleText.get("changeWidgetTypePrompt"))){
 				index = DT_INDEX_REPEAT;
 				cbDataType.setSelectedIndex(index);
@@ -825,7 +825,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			deleteKids = true;
 		}
 		else if((questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) &&
-				!(index == DT_INDEX_SUBFORM)){
+				!(index == DT_INDEX_SUBFORM || index == DT_INDEX_REPEAT)){
 			if(!Window.confirm(LocaleText.get("changeWidgetTypePrompt"))){
 				index = DT_INDEX_SUBFORM;
 				cbDataType.setSelectedIndex(index);

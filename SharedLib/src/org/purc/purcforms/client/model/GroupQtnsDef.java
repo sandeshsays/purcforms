@@ -93,6 +93,9 @@ public class GroupQtnsDef implements Serializable {
 		if(formDef != null)
 			formDef.removeQtnFromRules(qtnDef);
 		
+		if (questions == null)
+			return false;
+		
 		return questions.removeElement(qtnDef);
 	}
 	

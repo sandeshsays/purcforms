@@ -881,8 +881,15 @@ public class QuestionDef implements Serializable{
 		else if(isGroupQtnsDef()){
 			getGroupQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
 
-			if(controlNode != null && (getDataType() == QuestionDef.QTN_TYPE_REPEAT || getDataType() == QuestionDef.QTN_TYPE_SUBFORM))
+			if(controlNode != null && (getDataType() == QuestionDef.QTN_TYPE_REPEAT || getDataType() == QuestionDef.QTN_TYPE_SUBFORM)) {
 				((Element)controlNode.getParentNode()).setAttribute(XformConstants.ATTRIBUTE_NAME_ID, binding);
+				if (getDataType() != QuestionDef.QTN_TYPE_SUBFORM) {
+					controlNode.removeAttribute(XformConstants.ATTRIBUTE_NAME_STYLE);
+				}
+				else {
+					controlNode.setAttribute(XformConstants.ATTRIBUTE_NAME_STYLE, XformConstants.ATTRIBUTE_VALUE_SUBFORM);
+				}
+			}
 
 			if(!withData && dataNode != null){
 				//Remove all repeating data kids
@@ -1125,7 +1132,7 @@ public class QuestionDef implements Serializable{
 			bindNode.setAttribute(XformConstants.ATTRIBUTE_NAME_ID,id);
 
 		//update control node referencing the binding
-		if(controlNode != null&& controlNode.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) != null)
+		if(controlNode != null && controlNode.getAttribute(XformConstants.ATTRIBUTE_NAME_BIND) != null)
 			controlNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND,id);
 		else if(controlNode != null && controlNode.getAttribute(XformConstants.ATTRIBUTE_NAME_REF) != null){
 			/*String ref = controlNode.getAttribute(EpihandyXform.ATTRIBUTE_NAME_REF);
