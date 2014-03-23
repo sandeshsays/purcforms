@@ -319,4 +319,8 @@ public class GroupQtnsDef implements Serializable {
 			}
 		}
 	}
+	
+	public boolean isSubForm() {
+		return qtnDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM;
+	}
 }

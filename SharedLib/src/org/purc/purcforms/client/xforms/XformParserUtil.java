@@ -270,7 +270,7 @@ public class XformParserUtil {
 				def.setDataType(QuestionDef.QTN_TYPE_BARCODE);
 		}
 		else
-			def.setDataType(QuestionDef.QTN_TYPE_TEXT); //QTN_TYPE_REPEAT
+			def.setDataType(QuestionDef.QTN_TYPE_TEXT);
 	}
 	
 	

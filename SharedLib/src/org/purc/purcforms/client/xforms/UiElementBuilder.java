@@ -173,7 +173,8 @@ public class UiElementBuilder {
 				}
 			}
 		}
-		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT) {
+		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT ||
+				qtn.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
 			Element repeatNode =  doc.createElement(XformConstants.NODE_NAME_REPEAT);
 			repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND, id);
 			uiNode.appendChild(repeatNode);
@@ -182,6 +183,9 @@ public class UiElementBuilder {
 			GroupQtnsDef rptQtns = qtn.getGroupQtnsDef();
 			for(int j=0; j<rptQtns.size(); j++)
 				createQuestion(qtn, rptQtns.getQuestionAt(j), repeatNode, dataNode, modelNode, formDef, doc);
+			
+			if (qtn.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
+				repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_STYLE, XformConstants.ATTRIBUTE_VALUE_SUBFORM);
 		}
 		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_GROUP) {
 			qtn.setControlNode(uiNode);
@@ -258,7 +262,8 @@ public class UiElementBuilder {
 				}
 			}
 		}
-		else if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT) {
+		else if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT ||
+				qtnDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
 			Element repeatNode =  doc.createElement(XformConstants.NODE_NAME_REPEAT);
 			repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_BIND, id);
 			inputNode.appendChild(repeatNode);
@@ -267,6 +272,9 @@ public class UiElementBuilder {
 			GroupQtnsDef rptQtns = qtnDef.getGroupQtnsDef();
 			for(int j=0; j<rptQtns.size(); j++)
 				createQuestion(qtnDef, rptQtns.getQuestionAt(j), repeatNode, dataNode, modelNode, formDef, doc);
+			
+			if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
+				repeatNode.setAttribute(XformConstants.ATTRIBUTE_NAME_STYLE, XformConstants.ATTRIBUTE_VALUE_SUBFORM);
 		}
 		else if(qtnDef.getDataType() == QuestionDef.QTN_TYPE_GROUP) {
 			GroupQtnsDef grpQtns = qtnDef.getGroupQtnsDef();

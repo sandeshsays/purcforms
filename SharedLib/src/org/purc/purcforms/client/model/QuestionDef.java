@@ -151,6 +151,8 @@ public class QuestionDef implements Serializable{
 	
 	/** Question thats serves as a group. */
 	public static final int QTN_TYPE_GROUP = 17;
+	
+	public static final int QTN_TYPE_SUBFORM = 18;
 
 	/** The xforms model data node into which this question will feed its answer. */
 	private Element dataNode;
@@ -210,7 +212,7 @@ public class QuestionDef implements Serializable{
 
 		if(getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			copyQuestionOptions(questionDef.getOptions());
-		else if(getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+		else if(getDataType() == QuestionDef.QTN_TYPE_REPEAT || getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
 			this.options = new RepeatQtnsDef(questionDef.getGroupQtnsDef());
 		else if(getDataType() == QuestionDef.QTN_TYPE_GROUP)
 			this.options = new GroupQtnsDef(questionDef.getGroupQtnsDef());
@@ -428,11 +430,11 @@ public class QuestionDef implements Serializable{
 	}
 	
 	public boolean isGroupQtnsDef() {
-		return dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_GROUP;
+		return dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_GROUP || dataType == QuestionDef.QTN_TYPE_SUBFORM;
 	}
 	
 	public boolean isRepeatQtnDef() {
-		return dataType == QuestionDef.QTN_TYPE_REPEAT;
+		return dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_SUBFORM;
 	}
 
 	public void setDataType(int dataType) {
@@ -879,7 +881,7 @@ public class QuestionDef implements Serializable{
 		else if(isGroupQtnsDef()){
 			getGroupQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
 
-			if(controlNode != null && getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			if(controlNode != null && (getDataType() == QuestionDef.QTN_TYPE_REPEAT || getDataType() == QuestionDef.QTN_TYPE_SUBFORM))
 				((Element)controlNode.getParentNode()).setAttribute(XformConstants.ATTRIBUTE_NAME_ID, binding);
 
 			if(!withData && dataNode != null){

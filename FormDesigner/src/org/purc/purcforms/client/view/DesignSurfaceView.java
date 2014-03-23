@@ -239,7 +239,7 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			public void execute() {popup.hide(); resizeDesignSurface(addNewTimeWidget(true));}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupBox")), true, new Command(){
-			public void execute() {popup.hide(); resizeDesignSurface(addNewGroupBox(true));}});
+			public void execute() {popup.hide(); resizeDesignSurface(addNewGroupBox(true, false));}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("repeatSection")), true, new Command(){
 			public void execute() {popup.hide(); resizeDesignSurface(addNewRepeatSection(true));}});

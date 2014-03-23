@@ -526,10 +526,16 @@ public class XformParser {
 			xpath = xpath.substring(0,pos-1);
 		}
 
+		if (parentQtn == null && qtn.getParent() != null && qtn.getParent() instanceof QuestionDef) {
+			parentQtn = (QuestionDef)qtn.getParent();
+		}
 		Element node = formDef.getDataNode();
 		if(qtn.getControlNode().getParentNode().getNodeName().equals(XformConstants.NODE_NAME_REPEAT)){
 			if(parentQtn != null) //some kids my have full binding and in such cases we need to start from parent form node.
 				node = parentQtn.getDataNode();
+		}
+		else if (parentQtn != null && parentQtn.isGroupQtnsDef()) {
+			node = parentQtn.getDataNode();
 		}
 
 		if(node == null)
@@ -853,7 +859,7 @@ public class XformParser {
 		if(child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE) != null && !isDesignerReadOnlyCalculate(child))
 			formDef.addCalculation(new Calculation(qtn.getId(),child.getAttribute(XformConstants.ATTRIBUTE_NAME_CALCULATE)));
 
-		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
+		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT || qtn.getDataType() == QuestionDef.QTN_TYPE_SUBFORM){
 			RepeatQtnsDef repeatQtnsDef = new RepeatQtnsDef(qtn);
 			qtn.setGroupQtnsDef(repeatQtnsDef);
 			repeatQtns.addElement(qtn);
@@ -958,6 +964,9 @@ public class XformParser {
 				if(pageNo == 0) pageNo = 1; //Xform may not have groups for pages.
 				setQuestionDataNode(qtn,formDef,parentQtn);
 				parentQtn = qtn;
+				
+				if (XformConstants.ATTRIBUTE_VALUE_SUBFORM.equals(child.getAttribute(XformConstants.ATTRIBUTE_NAME_STYLE)))
+					qtn.setDataType(QuestionDef.QTN_TYPE_SUBFORM);
 			}
 			else if(XmlUtil.nodeNameEquals(tagname,XformConstants.NODE_NAME_GROUP_MINUS_PREFIX) && !nodeContext.getLabel().equals("")){
 				qtn.setDataType(QuestionDef.QTN_TYPE_GROUP);

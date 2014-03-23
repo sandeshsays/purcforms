@@ -308,7 +308,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		x = clipboardLeftMostPos + selectedPanel.getAbsoluteLeft() ;
 		y = clipboardTopMostPos + selectedPanel.getAbsoluteTop();
 
-		DesignWidgetWrapper widget = addNewGroupBox(false);
+		DesignWidgetWrapper widget = addNewGroupBox(false, false);
 		DesignGroupView designGroupView = (DesignGroupView)widget.getWrappedWidget();
 		designGroupView.updateCursorPos(x+20, y+45);
 		designGroupView.pasteWidgets(true, false);
@@ -1699,7 +1699,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		else if(text.equals(LocaleText.get("timeWidget")))
 			retWidget = addNewTimeWidget(true);
 		else if(text.equals(LocaleText.get("groupBox")))
-			retWidget = addNewGroupBox(true);
+			retWidget = addNewGroupBox(true, false);
 		else if(text.equals(LocaleText.get("repeatSection")))
 			retWidget = addNewRepeatSection(true);
 		else if(text.equals(LocaleText.get("picture")))
@@ -2420,7 +2420,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param select set to true to automatically selecte the newly added widget.
 	 * @return the new widget.
 	 */
-	protected DesignWidgetWrapper addNewGroupBox(boolean select){
+	protected DesignWidgetWrapper addNewGroupBox(boolean select, boolean repeat){
 
 		getDesignSurfaceView().recursivelyClearGroupBoxSelection();
 		
@@ -2453,7 +2453,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		headerLabel.setHeightInt(20);
 		headerLabel.setForeColor("white");
 		headerLabel.setFontWeight("bold");
-
+		
 		selectedPanel = panel;
 		selectedDragController = dragController;
 
@@ -3115,7 +3115,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	 * @param select set to true to select the group widget after adding it.
 	 * @return the added group widget.
 	 */
-	protected DesignWidgetWrapper addNewGroupSet(QuestionDef questionDef, boolean select, CommandList commands, boolean useExistingPos){
+	protected DesignWidgetWrapper addNewGroupSet(QuestionDef questionDef, boolean select, CommandList commands, boolean useExistingPos, boolean repeat){
 		Vector questions = questionDef.getGroupQtnsDef().getQuestions();
 		if(questions == null)
 			return addNewTextBox(select); //TODO Bug here
@@ -3123,7 +3123,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		if(!useExistingPos)
 			x = 20 + selectedPanel.getAbsoluteLeft();
 		
-		DesignWidgetWrapper widget = addNewGroupBox(select);
+		DesignWidgetWrapper widget = addNewGroupBox(select, repeat);
 		DesignWidgetWrapper headerLabel = ((DesignGroupWidget)widget.getWrappedWidget()).getHeaderLabel();
 		headerLabel.setText(questionDef.getText());
 
@@ -3153,7 +3153,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			
 			int type = qtn.getDataType();
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE
-					|| type == QuestionDef.QTN_TYPE_GROUP)){
+					|| type == QuestionDef.QTN_TYPE_GROUP || type == QuestionDef.QTN_TYPE_SUBFORM)){
 				/*labelWidgetWrapper = */widgetWrapper = addNewLabel(qtn.getText(),false);
 				widgetWrapper.setBinding(qtn.getBinding());
 				widgetWrapper.setTitle(qtn.getText());
@@ -3192,8 +3192,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
 				widgetWrapper = addNewRepeatSet(qtn, false, commands, useExistingPos);
-			else if(type == QuestionDef.QTN_TYPE_GROUP)
-				widgetWrapper = addNewGroupSet(qtn, false, commands, useExistingPos);
+			else if(type == QuestionDef.QTN_TYPE_GROUP || type == QuestionDef.QTN_TYPE_SUBFORM)
+				widgetWrapper = addNewGroupSet(qtn, false, commands, useExistingPos, type == QuestionDef.QTN_TYPE_SUBFORM);
 			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_IMAGE) 
 				widgetWrapper = addNewPictureSection(qtn.getBinding(), qtn.getText(), false);
 			else if(qtn.getDataType() == QuestionDef.QTN_TYPE_VIDEO ||
@@ -3222,6 +3222,29 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(right > widestValue)
 				widestValue = right;
 		}
+		
+		////////////
+		if (repeat) {
+			y += oldHeight + 10;
+			widgetWrapper = addNewButton("<<", "firstRecord", false);
+			x += widgetWrapper.getWidthInt() + 10;
+			widgetWrapper = addNewButton("<", "prevRecord", false);
+			x += widgetWrapper.getWidthInt() + 10;
+			widgetWrapper = addNewLabel("0 of 0", false);
+			x += widgetWrapper.getWidthInt() + 60;
+			widgetWrapper = addNewButton(">", "nextRecord", false);
+			x += widgetWrapper.getWidthInt() + 10;
+			widgetWrapper = addNewButton(">>", "lastRecord", false);
+			x += widgetWrapper.getWidthInt() + 50;
+			widgetWrapper = addNewButton("New", "newRecord", false);
+			x += widgetWrapper.getWidthInt() + 50;
+			widgetWrapper = addNewButton("Delete", "deleteRecord", false);
+			
+			int right = widgetWrapper.getAbsoluteLeft() + widgetWrapper.getWidthInt();
+			if(right > widestValue)
+				widestValue = right;
+		}
+		////////////
 
 		widget.setHeightInt((y - widget.getAbsoluteTop()) + widgetWrapper.getHeightInt() + 10);
 		
@@ -3338,7 +3361,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				continue;
 
 			if(!(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO || type == QuestionDef.QTN_TYPE_IMAGE
-					|| type == QuestionDef.QTN_TYPE_GROUP)){
+					|| type == QuestionDef.QTN_TYPE_GROUP || type == QuestionDef.QTN_TYPE_SUBFORM)){
 				if (labelWidget == null) {
 					labelWidgetWrapper = widgetWrapper = addNewLabel(questionDef.getText(),false);
 					widgetWrapper.setBinding(questionDef.getBinding());
@@ -3384,8 +3407,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				widgetWrapper = addNewDropdownList(false);
 			else if(type == QuestionDef.QTN_TYPE_REPEAT)
 				widgetWrapper = addNewRepeatSet(questionDef, false, commands, useExistingPos);
-			else if(type == QuestionDef.QTN_TYPE_GROUP)
-				widgetWrapper = addNewGroupSet(questionDef, false, commands, useExistingPos);
+			else if(type == QuestionDef.QTN_TYPE_GROUP || type == QuestionDef.QTN_TYPE_SUBFORM)
+				widgetWrapper = addNewGroupSet(questionDef, false, commands, useExistingPos, type == QuestionDef.QTN_TYPE_SUBFORM);
 			else if(type == QuestionDef.QTN_TYPE_IMAGE)
 				widgetWrapper = addNewPictureSection(questionDef.getBinding(),questionDef.getText(),false);
 			else if(type == QuestionDef.QTN_TYPE_VIDEO || type == QuestionDef.QTN_TYPE_AUDIO)

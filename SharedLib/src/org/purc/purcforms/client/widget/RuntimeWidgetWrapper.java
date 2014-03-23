@@ -581,7 +581,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			}
 		}
 
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
 			questionDef.setAnswer("0");
 
 		//TODO Looks like this should be at the end after all widgets are loaded
@@ -1109,7 +1109,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 
 		boolean answered = this.isAnswered();
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
 			answered = (questionDef.getAnswer() != null && !questionDef.getAnswer().equals("0"));
 		
 		if(questionDef.isRequired() && !answered){
@@ -1127,7 +1127,8 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			return false;
 		}
 
-		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT){
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT ||
+				questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM){
 			boolean valid = false;
 			if((widget instanceof RuntimeGroupWidget))
 				valid = ((RuntimeGroupWidget)widget).isValid(fireValueChanged);

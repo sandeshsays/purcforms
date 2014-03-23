@@ -1458,6 +1458,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 								"edit".equalsIgnoreCase(value) || "delete".equalsIgnoreCase(value) ||
 								"nextRecord".equalsIgnoreCase(value) || "prevRecord".equalsIgnoreCase(value) || 
 								"firstRecord".equalsIgnoreCase(value) || "lastRecord".equalsIgnoreCase(value) ||
+								"newRecord".equalsIgnoreCase(value) || "deleteRecord".equalsIgnoreCase(value) || 
 								(this.widget.getWrappedWidget() instanceof Label || this.widget.getWrappedWidget() instanceof Hyperlink) ||
 								"search".equalsIgnoreCase(value) || this.widget.getWrappedWidget() instanceof TabBar)
 							txtBinding.setText(value);
@@ -1602,6 +1603,8 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		oracle.add("prevRecord");
 		oracle.add("lastRecord");
 		oracle.add("firstRecord");
+		oracle.add("newRecord");
+		oracle.add("deleteRecord");
 
 		loadedBindings = (formDef.getQuestionCount() > 0);
 	}

@@ -166,6 +166,7 @@ public class Condition implements Serializable, BindingChangeListener {
 					break;
 				case QuestionDef.QTN_TYPE_REPEAT:
 				case QuestionDef.QTN_TYPE_NUMERIC:
+				case QuestionDef.QTN_TYPE_SUBFORM:
 					ret = isNumericTrue(qn,validation);
 					break;
 				case QuestionDef.QTN_TYPE_DATE:
@@ -241,7 +242,7 @@ public class Condition implements Serializable, BindingChangeListener {
 		if(secondValue != null && secondValue.trim().length() > 0)
 			len2 = Long.parseLong(secondValue);
 
-		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+		if(qtn.getDataType() == QuestionDef.QTN_TYPE_REPEAT || qtn.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
 			len = getRepeatQtnAnswerLength(answer);
 		else if(qtn.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE)
 			len = getMultipleSelectAnswerLength(answer);

@@ -61,7 +61,7 @@ public class FunctionHyperlink extends Hyperlink implements ItemSelectionListene
 	public void setDataType(int dataType){
 		this.dataType = dataType;
 		
-		setText((dataType == QuestionDef.QTN_TYPE_REPEAT) ? FUNCTION_TEXT_LENGTH : FUNCTION_TEXT_VALUE);
+		setText((dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_SUBFORM) ? FUNCTION_TEXT_LENGTH : FUNCTION_TEXT_VALUE);
 	}
 	  
 	@Override
@@ -84,12 +84,13 @@ public class FunctionHyperlink extends Hyperlink implements ItemSelectionListene
 		
 		MenuBar menuBar = new MenuBar(true);
 		
-		if(!(dataType == QuestionDef.QTN_TYPE_REPEAT)){
+		if(!(dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_SUBFORM)){
 			menuBar.addItem(FUNCTION_TEXT_VALUE,true, new SelectItemCommand(FUNCTION_TEXT_VALUE,this));
 			count += 1;
 		}
 		
-		if(dataType == QuestionDef.QTN_TYPE_TEXT || dataType == QuestionDef.QTN_TYPE_REPEAT){
+		if(dataType == QuestionDef.QTN_TYPE_TEXT || dataType == QuestionDef.QTN_TYPE_REPEAT ||
+				dataType == QuestionDef.QTN_TYPE_SUBFORM){
 			menuBar.addItem(FUNCTION_TEXT_LENGTH,true, new SelectItemCommand(FUNCTION_TEXT_LENGTH,this));
 			count += 1;
 		}

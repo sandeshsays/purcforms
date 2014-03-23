@@ -110,6 +110,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	
 	/** List box index for barcode data type. */
 	private static final byte DT_INDEX_GROUP = 16;
+	
+	/** List box index for barcode data type. */
+	private static final byte DT_INDEX_SUBFORM = 17;
 
 	/** Table used for organising widgets in a table format. */
 	private FlexTable table = new FlexTable();
@@ -251,6 +254,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		cbDataType.addItem(LocaleText.get("qtnTypeGPS"));
 		cbDataType.addItem(LocaleText.get("qtnTypeBarcode"));
 		cbDataType.addItem(LocaleText.get("qtnTypeGroup"));
+		cbDataType.addItem(LocaleText.get("qtnTypeSubform"));
 
 		FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
 		cellFormatter.setHorizontalAlignment(15, 1, HasHorizontalAlignment.ALIGN_CENTER);
@@ -820,6 +824,15 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 			deleteKids = true;
 		}
+		else if((questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) &&
+				!(index == DT_INDEX_SUBFORM)){
+			if(!Window.confirm(LocaleText.get("changeWidgetTypePrompt"))){
+				index = DT_INDEX_SUBFORM;
+				cbDataType.setSelectedIndex(index);
+				return;
+			}
+			deleteKids = true;
+		}
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
 			deleteKids = true;
@@ -888,6 +901,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		case DT_INDEX_GROUP:
 			dataType = QuestionDef.QTN_TYPE_GROUP;
 			break;
+		case DT_INDEX_SUBFORM:
+			dataType = QuestionDef.QTN_TYPE_SUBFORM;
+			break;
 		}
 		
 		return dataType;
@@ -909,6 +925,10 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		else if(dataType == QuestionDef.QTN_TYPE_GROUP && 
 				questionDef.getDataType() != QuestionDef.QTN_TYPE_GROUP) {
 			questionDef.setGroupQtnsDef(new GroupQtnsDef(questionDef));
+		}
+		else if(dataType == QuestionDef.QTN_TYPE_SUBFORM && 
+				questionDef.getDataType() != QuestionDef.QTN_TYPE_SUBFORM) {
+			questionDef.setGroupQtnsDef(new RepeatQtnsDef(questionDef));
 		}
 
 		questionDef.setDataType(dataType);
@@ -1121,6 +1141,9 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			break;
 		case QuestionDef.QTN_TYPE_GROUP:
 			index = DT_INDEX_GROUP;
+			break;
+		case QuestionDef.QTN_TYPE_SUBFORM:
+			index = DT_INDEX_SUBFORM;
 			break;
 		}
 

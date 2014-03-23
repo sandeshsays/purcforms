@@ -1,7 +1,7 @@
 package org.purc.purcforms.client.widget;
 
-import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.LeftPanel.Images;
+import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.controller.DragDropListener;
 import org.purc.purcforms.client.controller.FormDesignerDragController;
 import org.purc.purcforms.client.controller.FormDesignerDropController;
@@ -13,7 +13,6 @@ import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.view.DesignSurfaceView;
-import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -192,7 +191,7 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 			public void execute() {popup.hide(); addNewTimeWidget(true);}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("groupBox")),true,new Command(){
-			public void execute() {popup.hide(); addNewGroupBox(true);}});
+			public void execute() {popup.hide(); addNewGroupBox(true, false);}});
 
 		addControlMenu.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("repeatSection")),true,new Command(){
 			public void execute() {popup.hide(); addNewRepeatSection(true);}});

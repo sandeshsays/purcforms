@@ -91,6 +91,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
+	protected HashMap<String, RuntimeWidgetWrapper> widgetBindingMap = new HashMap<String, RuntimeWidgetWrapper>();
+	protected List<HashMap<String, String>> records = new ArrayList<HashMap<String, String>>();
+	protected int currentRecordIndex = 0;
+	
+	private Button btnFirstRecord;
+	private Button btnPrevRecord;
+	private Button btnNextRecord;
+	private Button btnLastRecord;
+	
 	/**
 	 * A map of filtered single select dynamic questions and their corresponding 
 	 * non label widgets. Only questions of single select dynamic which have the
@@ -120,6 +129,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		else{
 			//FormUtil.maximizeWidget(selectedPanel);	
 			initWidget(selectedPanel);
+		}
+		
+		if (groupQtnsDef.getQtnDef().getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
+			records.add(new HashMap<String, String>());
 		}
 		//setupEventListeners();
 
@@ -654,6 +667,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 			if(binding.equals("addnew")||binding.equals("remove") || binding.equals("submit") ||
 					binding.equals("browse")||binding.equals("clear")||binding.equals("cancel") ||
+					binding.equals("nextRecord")||binding.equals("prevRecord") ||
+					binding.equals("firstRecord")||binding.equals("lastRecord") ||
+					binding.equals("newRecord")||binding.equals("deleteRecord") ||
 					binding.equals("search") || binding.equals("nextPage")||binding.equals("prevPage")){
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
@@ -661,8 +677,25 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					}
 				});
 				
-				if(binding.equals("addnew"))
+				if(binding.equals("addnew")) {
 					btnAdd = (Button)widget;
+				}
+				else if(binding.equals("firstRecord")) {
+					btnFirstRecord = (Button)widget;
+					btnFirstRecord.setEnabled(false);
+				}
+				else if(binding.equals("prevRecord")) {
+					btnPrevRecord = (Button)widget;
+					btnPrevRecord.setEnabled(false);
+				}
+				else if(binding.equals("nextRecord")) {
+					btnNextRecord = (Button)widget;
+					btnNextRecord.setEnabled(false);
+				}
+				else if(binding.equals("lastRecord")) {
+					btnLastRecord = (Button)widget;
+					btnLastRecord.setEnabled(false);
+				}
 			}
 		}
 
@@ -766,6 +799,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				ValidationRule validationRule = parent.getValidationRule();
 				if(validationRule != null)
 					parent.getQuestionDef().setAnswer(table.getRowCount()+"");
+			}
+			else {
+				executeRecordOperation(binding);
 			}
 		}
 		else{
@@ -1177,13 +1213,27 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 		}
 		else{
-			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
-				((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).saveValue(formDef);
+			for (Element node : dataNodes) {
+				node.getParentNode().removeChild(node);
+			}
+			dataNodes.clear();
+			
+			if (groupQtnsDef != null && groupQtnsDef.isSubForm() && records.size() > 1) {
+				saveAllRecordValues();
+			}
+			else {
+				saveValues();
 			}
 		}
 
 		if(groupQtnsDef != null & isRepeated)
 			groupQtnsDef.getQtnDef().setAnswer(getRowCount()+"");
+	}
+	
+	private void saveValues() {
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).saveValue(formDef);
+		}
 	}
 
 	public int getRowCount(){
@@ -1730,5 +1780,160 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			else
 				checkboxes.addAll(entry.getValue());
 		}
+	}
+	
+	protected void executeRecordOperation(String binding) {
+		if (binding.equalsIgnoreCase("firstRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			currentRecordIndex = 0;
+			loadRecordValues();
+			setNavigationButtonStatus();
+		}
+		else if (binding.equalsIgnoreCase("prevRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			currentRecordIndex--;
+			loadRecordValues();
+			setNavigationButtonStatus();
+		}
+		else if (binding.equalsIgnoreCase("nextRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			currentRecordIndex++;
+			loadRecordValues();
+			setNavigationButtonStatus();
+		}
+		else if (binding.equalsIgnoreCase("lastRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			currentRecordIndex = records.size() - 1;
+			loadRecordValues();
+			setNavigationButtonStatus();
+		}
+		else if (binding.equalsIgnoreCase("newRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			clearValue();
+			setFocus();
+			records.add(new HashMap<String, String>());
+			currentRecordIndex = records.size() - 1;
+			setNavigationButtonStatus();
+		}
+		else if (binding.equalsIgnoreCase("deleteRecord")) {
+			if (Window.confirm("Do you really want to delete this record?")) {
+				records.remove(currentRecordIndex);
+				if (currentRecordIndex == 0) {
+					if (records.size() == 0) {
+						records.add(new HashMap<String, String>());
+					}
+				}
+				else  {
+					--currentRecordIndex;
+				}
+				
+				clearValue();
+				loadRecordValues();
+				setNavigationButtonStatus();
+			}
+		}
+	}
+	
+	protected void loadRecordValues() {
+		if (widgetBindingMap.size() == 0) {
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
+				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if (widget.isEditable()) {
+					String binding = widget.getBinding();
+					widgetBindingMap.put(binding, widget);
+				}
+			}
+		}
+		
+		HashMap<String, String> map = records.get(currentRecordIndex);
+		for (Entry<String, String> entry : map.entrySet()) {
+			RuntimeWidgetWrapper widget = widgetBindingMap.get(entry.getKey());
+			widget.setAnswer(entry.getValue());
+		}
+	}
+	
+	private void saveCurrentRecordValues() {
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
+			((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).saveValue(formDef);
+		}
+		
+		HashMap<String, String> map = records.get(currentRecordIndex);
+		for (int index = 0; index < groupQtnsDef.getQuestionsCount(); index++) {
+			QuestionDef qtnDef = groupQtnsDef.getQuestionAt(index);
+			map.put(qtnDef.getBinding(), qtnDef.getAnswer());
+		}
+	}
+	
+	private void saveAllRecordValues() {
+		if (groupQtnsDef.getQtnDef().getDataNode() == null) {
+			Window.alert(LocaleText.get("repeatChildDataNodeNotFound"));
+			return; //possibly form not yet saved
+		}
+		
+		saveCurrentRecordValues(); //just in case we have just added new or changed existing record
+		
+		int prevIndex = currentRecordIndex;
+		
+		currentRecordIndex = 0;
+		loadRecordValues();
+		saveValues();
+		
+		String parentBinding = groupQtnsDef.getQtnDef().getBinding();
+		for (int index = 1; index < records.size(); index++) {
+			currentRecordIndex = index;
+			loadRecordValues();
+			
+			Element repeatDataNode = groupQtnsDef.getQtnDef().getDataNode();
+			Element newRepeatDataNode = (Element)repeatDataNode.cloneNode(true);
+			repeatDataNode.getParentNode().appendChild(newRepeatDataNode);
+			dataNodes.add(newRepeatDataNode);
+			
+			for(int i = 0; i < selectedPanel.getWidgetCount(); i++) {
+				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(i);
+				if (!widget.isEditable()) {
+					continue;
+				}
+				QuestionDef qtnDef = widget.getQuestionDef();
+				widget.setQuestionDef(new QuestionDef(qtnDef, qtnDef.getParent()), false);
+				setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, parentBinding);
+				widget.saveValue(formDef);
+				widget.setQuestionDef(qtnDef, false);
+			}
+		}
+		
+		currentRecordIndex = prevIndex;
+		loadRecordValues();
+	}
+	
+	private void setNavigationButtonStatus() {
+		btnFirstRecord.setEnabled(currentRecordIndex != 0);
+		btnPrevRecord.setEnabled(currentRecordIndex != 0);
+		btnNextRecord.setEnabled(currentRecordIndex != records.size() - 1);
+		btnLastRecord.setEnabled(currentRecordIndex != records.size() - 1);
 	}
 }

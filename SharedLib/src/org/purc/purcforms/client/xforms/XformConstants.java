@@ -89,6 +89,7 @@ public class XformConstants {
 	public static final String ATTRIBUTE_NAME_READONLY = "readonly";
 	public static final String ATTRIBUTE_NAME_RELEVANT = "relevant";
 	public static final String ATTRIBUTE_NAME_CONSTRAINT = "constraint";
+	public static final String ATTRIBUTE_NAME_STYLE = "style";
 	
 	//no longer final because we need api users to overwrite it, since its not part of the xforms standard.
 	public static /*final*/ String ATTRIBUTE_NAME_CONSTRAINT_MESSAGE = "message";
@@ -122,6 +123,7 @@ public class XformConstants {
 	public static final String ATTRIBUTE_VALUE_VIDEO = "video";
 	public static final String ATTRIBUTE_VALUE_AUDIO = "audio";
 	public static final String ATTRIBUTE_VALUE_GPS = "gps";
+	public static final String ATTRIBUTE_VALUE_SUBFORM = "subform";
 
 	public static final String DATA_TYPE_DATE = "xsd:date";
 	public static final String DATA_TYPE_INT = "xsd:int";

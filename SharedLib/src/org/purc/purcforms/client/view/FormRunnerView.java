@@ -764,7 +764,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			wrapper.setQuestionDef(questionDef,false);
 			ValidationRule validationRule = formDef.getValidationRule(questionDef);
 			wrapper.setValidationRule(validationRule);
-			if(validationRule != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT)
+			if(validationRule != null && (questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM))
 				questionDef.setAnswer("0");
 
 			if(validationQtns.contains(questionDef) && isValidationWidget(wrapper)){

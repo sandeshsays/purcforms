@@ -111,7 +111,7 @@ public class ConstraintBuilder {
 			
 			if(condition.getValue() != null && condition.getValue().trim().length() > 0){
 				if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN || questionDef.getDataType() == QuestionDef.QTN_TYPE_DECIMAL || questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC || 
-						questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || condition.getFunction() == ModelConstants.FUNCTION_LENGTH ||
+						(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) || condition.getFunction() == ModelConstants.FUNCTION_LENGTH ||
 						condition.getValue().endsWith("()"))
 					value = " " + condition.getValue();
 			}
