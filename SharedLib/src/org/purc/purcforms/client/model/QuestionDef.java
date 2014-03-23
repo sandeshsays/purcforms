@@ -987,11 +987,11 @@ public class QuestionDef implements Serializable{
 				if(binding.contains("@"))
 					updateAttributeValue(formNode,"");
 				else{
-					if(!(parent instanceof QuestionDef && ((QuestionDef)parent).isGroupQtnsDef())) {
+					//if(!(parent instanceof QuestionDef && ((QuestionDef)parent).isGroupQtnsDef())) {
 						NodeList childNodes = dataNode.getChildNodes();
 						while(childNodes.getLength() > 0)
 							dataNode.removeChild(childNodes.item(0));
-					}
+					//}
 				}
 			}
 		}
@@ -1007,7 +1007,7 @@ public class QuestionDef implements Serializable{
 				dataType == QuestionDef.QTN_TYPE_AUDIO);
 	}
 
-	private void updateAttributeValue(Element formNode, String value){
+	public void updateAttributeValue(Element formNode, String value){
 		String xpath = binding;		
 		Element elem = formNode; //(Element)formNode.getParentNode();
 

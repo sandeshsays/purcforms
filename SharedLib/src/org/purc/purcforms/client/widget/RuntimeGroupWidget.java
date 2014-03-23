@@ -99,6 +99,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private Button btnPrevRecord;
 	private Button btnNextRecord;
 	private Button btnLastRecord;
+	private Label lblRecordNavigation;
 	
 	/**
 	 * A map of filtered single select dynamic questions and their corresponding 
@@ -455,6 +456,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					labelMap.put(qtnDef, labels);
 				}
 				labels.add((Label)widget);
+			}
+			
+			if ("recordNavigationLabel".equals(binding)) {
+				lblRecordNavigation = (Label)widget;
 			}
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE)){
@@ -1208,8 +1213,22 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	public void saveValue(FormDef formDef){
 		if(isRepeated){
 			for(int row = 0; row < table.getRowCount(); row++){
-				for(int col = 0; col < table.getCellCount(row)-1; col++)
-					((RuntimeWidgetWrapper)table.getWidget(row, col)).saveValue(formDef);
+				for(int col = 0; col < table.getCellCount(row)-1; col++) {
+					RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)table.getWidget(row, col);
+					widget.saveValue(formDef);
+					/*QuestionDef qtnDef = widget.getQuestionDef();
+					if (qtnDef == null)
+						continue;
+					
+					Element dataNode = qtnDef.getDataNode();
+					if (dataNode == null)
+						continue;
+					
+					String answer = qtnDef.getAnswer();
+					if (answer == null || answer.trim().length() == 0) {
+						widget.clearDataNodeValue(formDef);
+					}*/
+				}
 			}
 		}
 		else{
@@ -1294,16 +1313,27 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			while(table.getRowCount() > 1)
 				table.removeRow(1);
 
-			for(int col = 0; col < table.getCellCount(0)-1; col++)
-				((RuntimeWidgetWrapper)table.getWidget(0, col)).clearValue();
+			for(int col = 0; col < table.getCellCount(0)-1; col++) {
+				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)table.getWidget(0, col);
+				widget.clearValue();
+				//widget.clearDataNodeValue(formDef);
+			}
 
 			//TODO Causes an infinite loop for repeat questions having skip logic that refers
 			//     to non repeat children.
 			//((FormRunnerView)editListener).fireSkipRules();
 		}
 		else{
-			for(int index = 0; index < selectedPanel.getWidgetCount(); index++)
-				((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).clearValue();
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
+				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				widget.clearValue();
+				
+				/*if (groupQtnsDef != null && groupQtnsDef.isSubForm() && currentRecordIndex == 0) {
+					if (widget.isEditable()) {
+						widget.clearDataNodeValue(formDef);
+					}
+				}*/
+			}
 		}
 	}
 
@@ -1931,9 +1961,24 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 	
 	private void setNavigationButtonStatus() {
-		btnFirstRecord.setEnabled(currentRecordIndex != 0);
-		btnPrevRecord.setEnabled(currentRecordIndex != 0);
-		btnNextRecord.setEnabled(currentRecordIndex != records.size() - 1);
-		btnLastRecord.setEnabled(currentRecordIndex != records.size() - 1);
+		if (btnFirstRecord != null) {
+			btnFirstRecord.setEnabled(currentRecordIndex != 0);
+		}
+		
+		if (btnPrevRecord != null) {
+			btnPrevRecord.setEnabled(currentRecordIndex != 0);
+		}
+		
+		if (btnNextRecord != null) {
+			btnNextRecord.setEnabled(currentRecordIndex != records.size() - 1);
+		}
+		
+		if (btnLastRecord != null) {
+			btnLastRecord.setEnabled(currentRecordIndex != records.size() - 1);
+		}
+		
+		if (lblRecordNavigation != null) {
+			lblRecordNavigation.setText(currentRecordIndex + 1 + " of " + records.size());
+		}
 	}
 }

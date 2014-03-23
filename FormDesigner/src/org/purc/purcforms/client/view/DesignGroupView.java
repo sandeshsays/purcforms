@@ -3230,7 +3230,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			x += widgetWrapper.getWidthInt() + 10;
 			widgetWrapper = addNewButton("<", "prevRecord", false);
 			x += widgetWrapper.getWidthInt() + 10;
-			widgetWrapper = addNewLabel("0 of 0", false);
+			widgetWrapper = addNewLabel("1 of 1", false);
+			widgetWrapper.setBinding("recordNavigationLabel");
 			x += widgetWrapper.getWidthInt() + 60;
 			widgetWrapper = addNewButton(">", "nextRecord", false);
 			x += widgetWrapper.getWidthInt() + 10;

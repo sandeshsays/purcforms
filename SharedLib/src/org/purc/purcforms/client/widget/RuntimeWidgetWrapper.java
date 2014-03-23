@@ -49,6 +49,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Element;
 
 
 /**
@@ -1283,6 +1284,23 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 	}
 
+	public void clearDataNodeValue(FormDef formDef) {
+		if (questionDef == null || questionDef.getDataNode() == null || 
+				widget instanceof RuntimeGroupWidget) {
+			return;
+		}
+		
+		if(questionDef.getBinding().contains("@")) {
+			questionDef.updateAttributeValue(formDef.getDataNode(),"");
+		}
+		else {
+			Element dataNode = questionDef.getDataNode();
+			if(dataNode.getChildNodes().getLength() > 0) {
+				dataNode.removeChild(dataNode.getChildNodes().item(0));
+			}
+		}
+	}
+	
 	/**
 	 * @see org.purc.purcforms.client.controller.QuestionChangeListener#onEnabledChanged(QuestionDef, boolean)
 	 */
