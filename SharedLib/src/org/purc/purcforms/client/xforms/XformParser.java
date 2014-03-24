@@ -498,6 +498,14 @@ public class XformParser {
 					pageDef.setLabelNode(nodeContext.getLabelNode());
 					pageDef.setPageNo(getNextPageNo());
 				}
+				else if(questionDef.getParent() != null && questionDef.getParent() instanceof QuestionDef) {
+					QuestionDef parentQuetionDef = (QuestionDef)questionDef.getParent();
+					if(parentQuetionDef.getText() == null || parentQuetionDef.getText().trim().length()==0){
+						parentQuetionDef.setText(nodeContext.getLabel());
+						parentQuetionDef.setControlNode(element);
+						parentQuetionDef.setLabelNode(nodeContext.getLabelNode());
+					}
+				}
 			}
 		}
 		else if(!nodeContext.getLabel().equals("") && questionDef == null){
