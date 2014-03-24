@@ -1,5 +1,7 @@
 package org.purc.purcforms.client.view;
 
+import java.util.ArrayList;
+
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.cmd.ChangedFieldCmd;
 import org.purc.purcforms.client.controller.IFormActionListener;
@@ -833,6 +835,15 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 			}
 			deleteKids = true;
 		}
+		else if((questionDef.getDataType() == QuestionDef.QTN_TYPE_GROUP) &&
+				!(index == DT_INDEX_GROUP || index == DT_INDEX_SUBFORM || index == DT_INDEX_REPEAT)){
+			if(!Window.confirm(LocaleText.get("changeWidgetTypePrompt"))){
+				index = DT_INDEX_GROUP;
+				cbDataType.setSelectedIndex(index);
+				return;
+			}
+			deleteKids = true;
+		}
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
 			deleteKids = true;
@@ -842,8 +853,16 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 		setQuestionDataType(questionDef, dataType);
 		formChangeListener.onFormItemChanged(propertiesObj, ChangedFieldCmd.PROPERTY_TYPE, oldValue, true);
 
-		if(deleteKids)
+		if(deleteKids) {
 			formChangeListener.onDeleteChildren(propertiesObj);
+			
+			if (questionDef.isSelect() || questionDef.isSelect1())
+				questionDef.setOptions(new ArrayList());
+			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM)
+				questionDef.setOptions(new RepeatQtnsDef(questionDef.getGroupQtnsDef()));
+			else if(questionDef.getDataType() == QuestionDef.QTN_TYPE_GROUP)
+				questionDef.setOptions(new GroupQtnsDef(questionDef.getGroupQtnsDef()));
+		}
 		
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC)
 			selectDynamicListsTab();

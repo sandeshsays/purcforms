@@ -436,6 +436,18 @@ public class QuestionDef implements Serializable{
 	public boolean isRepeatQtnDef() {
 		return dataType == QuestionDef.QTN_TYPE_REPEAT || dataType == QuestionDef.QTN_TYPE_SUBFORM;
 	}
+	
+	public boolean isInput() {
+		return !(isSelect() || isSelect1() || isGroupQtnsDef());
+	}
+	
+	public boolean isSelect() {
+		return dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE;
+	}
+	
+	public boolean isSelect1() {
+		return dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC;
+	}
 
 	public void setDataType(int dataType) {
 		boolean changed = this.dataType != dataType;
@@ -1161,7 +1173,7 @@ public class QuestionDef implements Serializable{
 		String xml = controlNode.toString();
 		boolean modified = false;
 		
-		if((name.contains(XformConstants.NODE_NAME_INPUT_MINUS_PREFIX) || 
+		/*if((name.contains(XformConstants.NODE_NAME_INPUT_MINUS_PREFIX) || 
 				name.contains(XformConstants.NODE_NAME_UPLOAD_MINUS_PREFIX)) &&
 				dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
 			xml = xml.replace(name, XformConstants.NODE_NAME_SELECT);
@@ -1200,7 +1212,7 @@ public class QuestionDef implements Serializable{
 			xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
 			modified = true;
 		}
-		else if(!(name.contains(XformConstants.NODE_NAME_UPLOAD_MINUS_PREFIX)) &&
+		else*/ if(!(name.contains(XformConstants.NODE_NAME_UPLOAD_MINUS_PREFIX)) &&
 				(dataType == QuestionDef.QTN_TYPE_IMAGE || dataType == QuestionDef.QTN_TYPE_AUDIO ||
 						dataType == QuestionDef.QTN_TYPE_VIDEO)){
 			xml = xml.replace(name, XformConstants.NODE_NAME_UPLOAD);
@@ -1211,6 +1223,78 @@ public class QuestionDef implements Serializable{
 			xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
 			modified = true;
 		}
+		
+		///////////
+		if(name.contains(XformConstants.NODE_NAME_REPEAT_MINUS_PREFIX) &&
+				!isRepeatQtnDef()){
+			if (isSelect())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT);
+			else if (isSelect1())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT1);
+			else
+				xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
+			
+			xml = xml.replace("style=\"subform\"", "");
+			modified = true;
+		}
+		else if(name.contains(XformConstants.NODE_NAME_INPUT_MINUS_PREFIX) &&
+				!isInput()){
+			if (isSelect())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT);
+			else if (isSelect1())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT1);
+			else
+				xml = xml.replace(name, XformConstants.NODE_NAME_REPEAT);
+			
+			modified = true;
+		}
+		else if(name.contains(XformConstants.NODE_NAME_SELECT1_MINUS_PREFIX) &&
+				!isSelect1()){
+			
+			if (!(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+					dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
+					dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
+					isMultiMedia(dataType))){
+				if(firstOptionNode != null){
+					firstOptionNode.getParentNode().removeChild(firstOptionNode);
+					firstOptionNode = null;
+					xml = controlNode.toString();
+				}
+			}
+			
+			if (isInput())
+				xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
+			else if (isSelect())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT);
+			else
+				xml = xml.replace(name, XformConstants.NODE_NAME_REPEAT);
+			
+			modified = true;
+		}
+		else if(name.contains(XformConstants.NODE_NAME_SELECT_MINUS_PREFIX) &&
+				!isSelect()){
+			
+			if (!(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+					dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
+					dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
+					isMultiMedia(dataType))){
+				if(firstOptionNode != null){
+					firstOptionNode.getParentNode().removeChild(firstOptionNode);
+					firstOptionNode = null;
+					xml = controlNode.toString();
+				}
+			}
+		
+			if (isInput())
+				xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
+			else if (isSelect1())
+				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT1);
+			else
+				xml = xml.replace(name, XformConstants.NODE_NAME_REPEAT);
+			
+			modified = true;
+		}
+		
 
 		if(modified){
 			Element child = XformUtil.getNode(xml);
