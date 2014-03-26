@@ -1309,6 +1309,19 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 
 	public void clearValue(){
+		clearInputValues();
+		
+		if (!isRepeated) {
+			if (groupQtnsDef != null && groupQtnsDef.isSubForm()) {
+				records.clear();
+				records.add(new HashMap<String, String>());
+				currentRecordIndex = 0;
+				setNavigationButtonStatus();
+			}
+		}
+	}
+	
+	public void clearInputValues(){
 		if(isRepeated){
 			while(table.getRowCount() > 1)
 				table.removeRow(1);
@@ -1327,12 +1340,6 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				widget.clearValue();
-				
-				/*if (groupQtnsDef != null && groupQtnsDef.isSubForm() && currentRecordIndex == 0) {
-					if (widget.isEditable()) {
-						widget.clearDataNodeValue(formDef);
-					}
-				}*/
 			}
 		}
 	}
@@ -1766,7 +1773,6 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 	}
 
-
 	/**
 	 * Copies from a given label text map to our class level one.
 	 * 
@@ -1864,7 +1870,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			}
 			
 			saveCurrentRecordValues();
-			clearValue();
+			clearInputValues();
 			setFocus();
 			records.add(new HashMap<String, String>());
 			currentRecordIndex = records.size() - 1;
@@ -1882,7 +1888,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					--currentRecordIndex;
 				}
 				
-				clearValue();
+				clearInputValues();
 				loadRecordValues();
 				setNavigationButtonStatus();
 			}
@@ -1893,7 +1899,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if (widgetBindingMap.size() == 0) {
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
-				if (widget.isEditable()) {
+				if (widget.isEditable() || widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
 					String binding = widget.getBinding();
 					widgetBindingMap.put(binding, widget);
 				}
