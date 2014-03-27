@@ -689,7 +689,6 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		}
 	}
 
-
 	/**
 	 * Converts a date,time or dateTime from its xml submit format to display format.
 	 * 

@@ -92,7 +92,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
 	protected HashMap<String, RuntimeWidgetWrapper> widgetBindingMap = new HashMap<String, RuntimeWidgetWrapper>();
-	protected List<HashMap<String, String>> records = new ArrayList<HashMap<String, String>>();
+	protected List<HashMap<String, Object>> records = new ArrayList<HashMap<String, Object>>();
 	protected int currentRecordIndex = 0;
 	
 	private Button btnFirstRecord;
@@ -100,6 +100,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private Button btnNextRecord;
 	private Button btnLastRecord;
 	private Label lblRecordNavigation;
+	
+	private Element repeatDataNodeClone;
 	
 	/**
 	 * A map of filtered single select dynamic questions and their corresponding 
@@ -133,7 +135,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 		
 		if (groupQtnsDef.getQtnDef().getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
-			records.add(new HashMap<String, String>());
+			records.add(new HashMap<String, Object>());
+			repeatDataNodeClone = (Element)groupQtnsDef.getQtnDef().getDataNode().cloneNode(true);
 		}
 		//setupEventListeners();
 
@@ -1130,8 +1133,20 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					}
 					widget.setExternalSourceDisplayValue();
 				}
-				return;
+
+				break;
 			}
+		}
+		
+		if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+			((RuntimeGroupWidget)widget.getWrappedWidget()).setDataNodes(widget.getQuestionDef().getDataNode(), loadQtn, binding);
+		}
+	}
+	
+	private void setDataNodes(Element parentDataNode, boolean loadQtn, String parentBinding) {
+		for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
+			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+			setDataNode(widget, parentDataNode, widget.getBinding(), loadQtn, parentBinding);
 		}
 	}
 
@@ -1238,7 +1253,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			dataNodes.clear();
 			
 			if (groupQtnsDef != null && groupQtnsDef.isSubForm() && records.size() > 1) {
-				saveAllRecordValues();
+				saveAllRecordValues(groupQtnsDef.getQtnDef().getDataNode());
 			}
 			else {
 				saveValues();
@@ -1313,8 +1328,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		
 		if (!isRepeated) {
 			if (groupQtnsDef != null && groupQtnsDef.isSubForm()) {
-				records.clear();
-				records.add(new HashMap<String, String>());
+				records = new ArrayList<HashMap<String, Object>>();
+				records.add(new HashMap<String, Object>());
 				currentRecordIndex = 0;
 				setNavigationButtonStatus();
 			}
@@ -1872,7 +1887,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			saveCurrentRecordValues();
 			clearInputValues();
 			setFocus();
-			records.add(new HashMap<String, String>());
+			records.add(new HashMap<String, Object>());
 			currentRecordIndex = records.size() - 1;
 			setNavigationButtonStatus();
 		}
@@ -1881,7 +1896,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				records.remove(currentRecordIndex);
 				if (currentRecordIndex == 0) {
 					if (records.size() == 0) {
-						records.add(new HashMap<String, String>());
+						records.add(new HashMap<String, Object>());
 					}
 				}
 				else  {
@@ -1895,7 +1910,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 	}
 	
-	protected void loadRecordValues() {
+	private void buildWidgetBindingMap() {
 		if (widgetBindingMap.size() == 0) {
 			for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
@@ -1905,27 +1920,51 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				}
 			}
 		}
+	}
+	protected void loadRecordValues() {
+		buildWidgetBindingMap();
 		
-		HashMap<String, String> map = records.get(currentRecordIndex);
-		for (Entry<String, String> entry : map.entrySet()) {
+		HashMap<String, Object> map = records.get(currentRecordIndex);
+		for (Entry<String, Object> entry : map.entrySet()) {
 			RuntimeWidgetWrapper widget = widgetBindingMap.get(entry.getKey());
-			widget.setAnswer(entry.getValue());
+			if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+				((RuntimeGroupWidget)widget.getWrappedWidget()).setRecords((List<HashMap<String, Object>>)entry.getValue());
+				//((RuntimeGroupWidget)widget.getWrappedWidget()).loadRecordValues();
+			} else {
+				widget.setAnswer(entry.getValue() != null ? entry.getValue().toString() : null);
+			}
 		}
 	}
 	
-	private void saveCurrentRecordValues() {
+	protected void saveCurrentRecordValues() {
 		for(int index = 0; index < selectedPanel.getWidgetCount(); index++) {
-			((RuntimeWidgetWrapper)selectedPanel.getWidget(index)).saveValue(formDef);
+			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+			/*if (!widget.isEditable() && !(widget.getWrappedWidget() instanceof RuntimeGroupWidget))
+				continue;
+			
+			if (widget.getWrappedWidget() instanceof RuntimeGroupWidget)
+				((RuntimeGroupWidget)widget.getWrappedWidget()).saveCurrentRecordValues();
+			else*/
+				widget.saveValue(formDef);
 		}
 		
-		HashMap<String, String> map = records.get(currentRecordIndex);
+		buildWidgetBindingMap();
+		
+		HashMap<String, Object> map = records.get(currentRecordIndex);
 		for (int index = 0; index < groupQtnsDef.getQuestionsCount(); index++) {
 			QuestionDef qtnDef = groupQtnsDef.getQuestionAt(index);
-			map.put(qtnDef.getBinding(), qtnDef.getAnswer());
+			
+			if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
+				RuntimeWidgetWrapper widget = widgetBindingMap.get(qtnDef.getBinding());
+				map.put(qtnDef.getBinding(), ((RuntimeGroupWidget)widget.getWrappedWidget()).getRecords());
+			} 
+			else {
+				map.put(qtnDef.getBinding(), qtnDef.getAnswer());
+			}
 		}
 	}
 	
-	private void saveAllRecordValues() {
+	protected void saveAllRecordValues(Element paramRepeatDataNode) {
 		if (groupQtnsDef.getQtnDef().getDataNode() == null) {
 			Window.alert(LocaleText.get("repeatChildDataNodeNotFound"));
 			return; //possibly form not yet saved
@@ -1944,20 +1983,28 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			currentRecordIndex = index;
 			loadRecordValues();
 			
-			Element repeatDataNode = groupQtnsDef.getQtnDef().getDataNode();
-			Element newRepeatDataNode = (Element)repeatDataNode.cloneNode(true);
+			Element repeatDataNode = paramRepeatDataNode; //groupQtnsDef.getQtnDef().getDataNode();
+			Element newRepeatDataNode = (Element)repeatDataNodeClone.cloneNode(true);
 			repeatDataNode.getParentNode().appendChild(newRepeatDataNode);
 			dataNodes.add(newRepeatDataNode);
 			
 			for(int i = 0; i < selectedPanel.getWidgetCount(); i++) {
 				RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(i);
-				if (!widget.isEditable()) {
+				if (!(widget.isEditable() || widget.getWrappedWidget() instanceof RuntimeGroupWidget)) {
 					continue;
 				}
+				
 				QuestionDef qtnDef = widget.getQuestionDef();
 				widget.setQuestionDef(new QuestionDef(qtnDef, qtnDef.getParent()), false);
 				setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, parentBinding);
-				widget.saveValue(formDef);
+				
+				if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+					((RuntimeGroupWidget)widget.getWrappedWidget()).saveAllRecordValues(widget.getQuestionDef().getDataNode());
+				}
+				else {
+					widget.saveValue(formDef);
+				}
+				
 				widget.setQuestionDef(qtnDef, false);
 			}
 		}
@@ -1986,5 +2033,17 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if (lblRecordNavigation != null) {
 			lblRecordNavigation.setText(currentRecordIndex + 1 + " of " + records.size());
 		}
+	}
+	
+	public void setRecords(List<HashMap<String, Object>> records) {
+		this.records = records;
+		this.currentRecordIndex = 0;
+		loadRecordValues();
+		setNavigationButtonStatus();
+	}
+	
+	public List<HashMap<String, Object>> getRecords() {
+		saveCurrentRecordValues();
+		return records;
 	}
 }
