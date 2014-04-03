@@ -776,15 +776,15 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	 */
 	public void format(){
 		if(selectedTabIndex == SELECTED_INDEX_XFORMS_SOURCE)
-			txtXformsSource.setText(FormDesignerUtil.formatXml(txtXformsSource.getText()));
+			txtXformsSource.setText(FormUtil.formatXml(txtXformsSource.getText(), true));
 		else if(selectedTabIndex == SELECTED_INDEX_LAYOUT_XML)
-			txtLayoutXml.setText(FormDesignerUtil.formatXml(txtLayoutXml.getText()));
+			txtLayoutXml.setText(FormUtil.formatXml(txtLayoutXml.getText(), true));
 		else if(selectedTabIndex == SELECTED_INDEX_MODEL_XML)
-			txtModelXml.setText(FormDesignerUtil.formatXml(txtModelXml.getText()));
+			txtModelXml.setText(FormUtil.formatXml(txtModelXml.getText(), true));
 		else if(selectedTabIndex == SELECTED_INDEX_DESIGN_SURFACE)
 			designSurfaceView.format();
 		else if(selectedTabIndex == SELECTED_INDEX_LANGUAGE_XML)
-			txtLanguageXml.setText(FormDesignerUtil.formatXml(txtLanguageXml.getText()));
+			txtLanguageXml.setText(FormUtil.formatXml(txtLanguageXml.getText(), true));
 	}
 
 	public void commitChanges(){

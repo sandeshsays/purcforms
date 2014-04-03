@@ -3148,6 +3148,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		DesignWidgetWrapper widgetWrapper = null;
 		for(int index = 0; index < questions.size(); index++){
 			QuestionDef qtn = (QuestionDef)questions.get(index);
+			
+			//Provide a way of the user turning off some widgets not to be displayed.
+			if(!qtn.isVisible() && (qtn.getDefaultValue() == null || qtn.getDefaultValue().trim().length() == 0))
+				continue;
+			
 			if(oldY > 0)
 				y += oldHeight + 10;
 			

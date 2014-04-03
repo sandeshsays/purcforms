@@ -684,7 +684,7 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @return true if allowed, else false.
 	 */
 	private boolean isAllowedXmlNodeNameChar(char keyCode){
-		return isAllowedXmlNodeNameStartChar(keyCode) || Character.isDigit(keyCode) || keyCode == '-' || keyCode == '_' || keyCode == '.';
+		return isAllowedXmlNodeNameStartChar(keyCode) || Character.isDigit(keyCode) || keyCode == '-' || keyCode == '_' || keyCode == '.' || keyCode == 50 || keyCode == 73;
 	}
 
 	/**

@@ -206,6 +206,10 @@ public class XformUtil {
 			}
 		}
 
+		xml = xml.replace(" xmlns=\"\"", "");
+		xml = xml.replace(" xmlns=\"http://www.w3.org/2002/xforms\"", "");
+		xml = xml.replace(" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"", "");
+		
 		return xml;
 	}
 

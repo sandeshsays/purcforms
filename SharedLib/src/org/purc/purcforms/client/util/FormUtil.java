@@ -339,10 +339,18 @@ public class FormUtil {
 	 */
 
 	public static String formatXml(String xmlContent){
+		return formatXml(xmlContent, false);
+	}
+	
+	/**
+	 * Add formatting to an XML string
+	 */
+
+	public static String formatXml(String xmlContent, boolean force){
 		if(xmlContent == null)
 			return null;
 
-		if(!formatXml())
+		if(!formatXml() && !force)
 			return xmlContent;
 		
 		return formatXmlPrivate(formatXmlPrivate(xmlContent));

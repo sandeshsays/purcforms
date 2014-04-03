@@ -134,7 +134,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			initWidget(selectedPanel);
 		}
 		
-		if (groupQtnsDef.getQtnDef().getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
+		if (groupQtnsDef != null && groupQtnsDef.getQtnDef().getDataType() == QuestionDef.QTN_TYPE_SUBFORM) {
 			records.add(new HashMap<String, Object>());
 			repeatDataNodeClone = (Element)groupQtnsDef.getQtnDef().getDataNode().cloneNode(true);
 		}
@@ -1927,6 +1927,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		HashMap<String, Object> map = records.get(currentRecordIndex);
 		for (Entry<String, Object> entry : map.entrySet()) {
 			RuntimeWidgetWrapper widget = widgetBindingMap.get(entry.getKey());
+			if (widget == null)
+				continue;
+			
 			if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
 				((RuntimeGroupWidget)widget.getWrappedWidget()).setRecords((List<HashMap<String, Object>>)entry.getValue());
 				//((RuntimeGroupWidget)widget.getWrappedWidget()).loadRecordValues();
