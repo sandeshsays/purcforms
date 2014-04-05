@@ -242,6 +242,42 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				}
 			});	
 		}
+		else if (groupQtnsDef != null && groupQtnsDef.isSubForm()) {
+			Element repeatDataNode = groupQtnsDef.getQtnDef().getDataNode();
+			Element parent = (Element)repeatDataNode.getParentNode();
+			NodeList nodeList = parent.getElementsByTagName(repeatDataNode.getNodeName());
+
+			for (int index = 1; index < nodeList.getLength(); index++) {
+				Element newRepeatDataNode = (Element)nodeList.item(index);
+				dataNodes.add(newRepeatDataNode);
+				
+				HashMap<String, Object> record = new HashMap<String, Object>();
+				
+				for(int i = 0; i < selectedPanel.getWidgetCount(); i++) {
+					RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(i);
+					if (!(widget.isEditable() /*|| widget.getWrappedWidget() instanceof RuntimeGroupWidget*/)) {
+						continue;
+					}
+					
+					QuestionDef qtnDef = widget.getQuestionDef();
+					widget.setQuestionDef(new QuestionDef(qtnDef, qtnDef.getParent()), false);
+					setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
+					
+					if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+						//((RuntimeGroupWidget)widget.getWrappedWidget()).saveAllRecordValues(widget.getQuestionDef().getDataNode());
+					}
+					else {
+						record.put(widget.getQuestionDef().getBinding(), XmlUtil.getTextValue(widget.getQuestionDef().getDataNode()));
+					}
+					
+					widget.setQuestionDef(qtnDef, false);
+				}
+				
+				records.add(record);
+			}
+			
+			setNavigationButtonStatus();
+		}
 
 		//Now add the button and label widgets, if any.
 		if(isRepeated){
