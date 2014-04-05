@@ -1514,7 +1514,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 			TreeItem child = parent.getChild(index);
 			QuestionDef questionDef = (QuestionDef)child.getUserObject();
 			String variableName = questionDef.getBinding();
-			if(bindings.containsKey(variableName) /*&& questionDef.getParent() == bindings.get(variableName).getParent()*/){
+			if(bindings.containsKey(variableName) && questionDef.getParent() == bindings.get(variableName).getParent()){
 				tree.setSelectedItem(child);
 				Window.alert(LocaleText.get("selectedQuestion") + questionDef.getText()+LocaleText.get("shouldNotShareQuestionBinding") + bindings.get(variableName).getDisplayText()+ "]");
 				return false;
