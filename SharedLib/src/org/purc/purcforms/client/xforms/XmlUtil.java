@@ -112,6 +112,57 @@ public class XmlUtil {
 		return false;
 	}
 	
+	public static void clearTextNodeValues(Node parent) {
+		int numOfEntries = parent.getChildNodes().getLength();
+		for (int i = 0; i < numOfEntries; i++) {
+			Node node = parent.getChildNodes().item(i);
+			if (node.getNodeType() == Node.TEXT_NODE){
+				if (node.getNodeValue().trim().length() > 0) {
+					node.setNodeValue("");
+				}
+			}
+			else if(node.getNodeType() == Node.ELEMENT_NODE){
+				clearTextNodeValues(node);
+			}
+		}
+	}
+	
+	public static boolean hasData(Node parent) {
+		int numOfEntries = parent.getChildNodes().getLength();
+		for (int i = 0; i < numOfEntries; i++) {
+			Node node = parent.getChildNodes().item(i);
+			if (node.getNodeType() == Node.TEXT_NODE){
+				if (node.getNodeValue().trim().length() > 0) {
+					return true;
+				}
+			}
+			else if(node.getNodeType() == Node.ELEMENT_NODE){
+				if (hasData(node)) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public static void clearEmptyNodes(Node parent) {
+		int numOfEntries = parent.getChildNodes().getLength();
+		for (int i = 0; i < numOfEntries; i++) {
+			Node node = parent.getChildNodes().item(i);
+			if(node == null || node.getNodeType() != Node.ELEMENT_NODE){
+				continue;
+			}
+			
+			if (!hasData(node)) {
+				parent.removeChild(node);
+				i--;
+			}
+			else {
+				clearEmptyNodes(node);
+			}
+		}
+	}
 	
 	/*public static boolean setTextValue(Node node, String value){
 		if(node == null)

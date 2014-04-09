@@ -1225,6 +1225,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		//Browser does not seem to set focus to check boxes and radio buttons
 
+		if (getTabIndex() == 0)
+			return false; //widget does not allow focus via tab
+		
 		if(widget instanceof RadioButton)
 			((RadioButton)widget).setFocus(true);
 		else if(widget instanceof CheckBox)

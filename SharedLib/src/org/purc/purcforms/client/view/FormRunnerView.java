@@ -506,15 +506,15 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		for(int i=0; i<nodes.getLength(); i++){
 			if(nodes.item(i).getNodeType() != Node.ELEMENT_NODE)
 				continue;
-			try{
+			//try{
 				Element node = (Element)nodes.item(i);
 				int index = loadWidget(node,widgets,externalSourceWidgets,validationQtns,validationWidgets,qtnWidgetMap,calcQtnMappings);
 				if(index > maxTabIndex)
 					maxTabIndex = index;
-			}
+			/*}
 			catch(Exception ex){
 				ex.printStackTrace();
-			}
+			}*/
 		}
 
 		//We are adding widgets to the panel according to the tab index.
