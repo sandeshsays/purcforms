@@ -2144,6 +2144,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			records.add(record);
 		}
 		
+		if (records.size() == 0) {
+			records.add(new HashMap<String, Object>());
+		}
+		
 		return records;
 	}
 }
