@@ -1,5 +1,8 @@
 package org.purc.purcforms.client.xforms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -112,7 +115,12 @@ public class XmlUtil {
 		return false;
 	}
 	
-	public static void clearTextNodeValues(Node parent) {
+	public static void clearTextNodeValues(Element parent) {
+		String name = parent.getAttribute("dataIdName");
+		if (name != null && name.trim().length() > 0) {
+			parent.removeAttribute(name);
+		}
+		
 		int numOfEntries = parent.getChildNodes().getLength();
 		for (int i = 0; i < numOfEntries; i++) {
 			Node node = parent.getChildNodes().item(i);
@@ -122,7 +130,7 @@ public class XmlUtil {
 				}
 			}
 			else if(node.getNodeType() == Node.ELEMENT_NODE){
-				clearTextNodeValues(node);
+				clearTextNodeValues((Element)node);
 			}
 		}
 	}
@@ -155,8 +163,8 @@ public class XmlUtil {
 			}
 			
 			if (!hasData(node)) {
-				parent.removeChild(node);
-				i--;
+				//parent.removeChild(node);
+				//i--;
 			}
 			else {
 				clearEmptyNodes(node);
@@ -310,5 +318,27 @@ public class XmlUtil {
 		}
 		
 		return node;
+	}
+
+	
+	public static void clearUnNecessaryNodes(Element parent) {
+		List<String> nodeNames = new ArrayList<String>();
+		
+		for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
+			Node node = parent.getChildNodes().item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE){
+				continue;
+			}
+		
+			String name = node.getNodeName();
+			if (nodeNames.contains(name)) {
+				parent.removeChild(node);
+				i--;
+				continue;
+			}
+			
+			nodeNames.add(name);
+			clearUnNecessaryNodes((Element)node);
+		}
 	}
 }
