@@ -671,8 +671,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		wrapper.setTabIndex(tabIndex);
 		//wrapper.setParentBinding(parentBinding);
 
-		if(tabIndex > 0 && !(wrapper.getWrappedWidget() instanceof Button))
-			widgets.put(new Integer(tabIndex), wrapper);
+		Integer index = new Integer(tabIndex);
+		if(tabIndex > 0 && !(wrapper.getWrappedWidget() instanceof Button) && !widgets.containsKey(index))
+			widgets.put(index, wrapper);
 		else if (wrapper.getWrappedWidget() instanceof Label && this.isRepeated)
 			labelWidgetMap.put(new Integer(wrapper.getLeftInt()), wrapper);
 		else

@@ -814,8 +814,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 
 		wrapper.setTabIndex(tabIndex);
 
-		if(tabIndex > 0)
-			widgets.put(new Integer(tabIndex), wrapper);
+		Integer index = new Integer(tabIndex);
+		if(tabIndex > 0 && !widgets.containsKey(index))
+			widgets.put(index, wrapper);
 		else
 			selectedPanel.add(wrapper);
 
