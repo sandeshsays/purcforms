@@ -1152,7 +1152,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		
 		if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
 			if (widget.getQuestionDef().getDataNode() == null) {
-				return;
+				/*if (binding.equals(parentBinding) && parentNode.getNodeName().equals(parentBinding)) {
+					widget.getQuestionDef().setDataNode(parentNode);
+				}
+				else {*/
+					return;
+				//}
 			}
 			
 			((RuntimeGroupWidget)widget.getWrappedWidget()).setDataNodes(widget.getQuestionDef().getDataNode(), loadQtn, binding);
@@ -1985,7 +1990,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					continue;
 				
 				if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
-					((RuntimeGroupWidget)widget.getWrappedWidget()).setRecords((List<SubFormRecord>)entry.getValue());
+					if (groupQtnsDef == ((RuntimeGroupWidget)widget.getWrappedWidget()).groupQtnsDef) {
+						((RuntimeGroupWidget)widget.getWrappedWidget()).setRecords((List<SubFormRecord>)entry.getValue(), currentRecordIndex);
+					}
+					else {
+						((RuntimeGroupWidget)widget.getWrappedWidget()).setRecords((List<SubFormRecord>)entry.getValue());
+					}
 				} else {
 					widget.setAnswer(entry.getValue() != null ? entry.getValue().toString() : null);
 				}
@@ -2010,9 +2020,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 							groupQtnsDef.getQtnDef().getDataNode().getParentNode().appendChild(newRepeatDataNode);
 							record.setParentDataNode(newRepeatDataNode);
 						}
+						widget.setQuestionDef(new QuestionDef(questionDef, questionDef.getParent()), false);
 						setDataNode(widget, record.getParentDataNode(), questionDef.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
+						
+						if (widget.getQuestionDef().getDataNode() == null) {
+							widget.getQuestionDef().setDataNode(record.getParentDataNode());
+						}
+						
 						//setDataNodes(record.getParentDataNode(), false, groupQtnsDef.getQtnDef().getBinding());
-						record.setDataNode(questionDef.getBinding(), questionDef.getDataNode());
+						record.setDataNode(questionDef.getBinding(), widget.getQuestionDef().getDataNode());
 					}
 					else if (record.getParentDataNode() != null) {
 						//setDataNode(widget, record.getParentDataNode(), questionDef.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
@@ -2151,8 +2167,18 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 	
 	public void setRecords(List<SubFormRecord> records) {
+		setRecords(records, 0);
+	}
+	
+	public void setRecords(List<SubFormRecord> records, int currentRecordIndex) {
 		this.records = records;
-		this.currentRecordIndex = 0;
+		this.currentRecordIndex = currentRecordIndex;
+		loadRecordValues();
+		setNavigationButtonStatus();
+	}
+	
+	public void setCurrentRecordIndex(int currentRecordIndex) {
+		this.currentRecordIndex = currentRecordIndex;
 		loadRecordValues();
 		setNavigationButtonStatus();
 	}
@@ -2190,6 +2216,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				
 				QuestionDef qtnDef = widget.getQuestionDef();
 				if (qtnDef == null || qtnDef.getDataNode() == null) {
+					if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+						loadSubFormData(paramQtnDef, ((RuntimeGroupWidget)widget.getWrappedWidget()).selectedPanel, newRepeatDataNode, record);
+					}
 					continue;
 				}
 				
@@ -2197,7 +2226,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, paramQtnDef.getBinding());
 				
 				if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+					boolean bSet = false;
+					if (widget.getQuestionDef().getDataNode() == null) {
+						widget.getQuestionDef().setDataNode(newRepeatDataNode);
+						bSet = true;
+					}
 					List<SubFormRecord> reclist = ((RuntimeGroupWidget)widget.getWrappedWidget()).loadSubformData(widget.getQuestionDef(), 0, false);
+					if (bSet && index == 0) {
+						reclist = records;
+					}
 					record.put(widget.getQuestionDef().getBinding(), reclist);
 					
 					if (index == 0) {
@@ -2222,5 +2259,40 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}
 		
 		return records;
+	}
+	
+	private void loadSubFormData(QuestionDef paramQtnDef, AbsolutePanel selectedPanel, Element newRepeatDataNode, SubFormRecord record) {
+		for (int i = 0; i < selectedPanel.getWidgetCount(); i++) {
+			RuntimeWidgetWrapper widget = (RuntimeWidgetWrapper)selectedPanel.getWidget(i);
+			if (!(widget.isEditable() || widget.getWrappedWidget() instanceof RuntimeGroupWidget)) {
+				continue;
+			}
+			
+			QuestionDef qtnDef = widget.getQuestionDef();
+			if (qtnDef == null || qtnDef.getDataNode() == null) {
+				if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+					loadSubFormData(paramQtnDef, ((RuntimeGroupWidget)widget.getWrappedWidget()).selectedPanel, newRepeatDataNode, record);
+				}
+				continue;
+			}
+			
+			widget.setQuestionDef(new QuestionDef(qtnDef, qtnDef.getParent()), false);
+			setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, paramQtnDef.getBinding());
+			
+			if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+				if (widget.getQuestionDef().getDataNode() == null) {
+					widget.getQuestionDef().setDataNode(newRepeatDataNode);
+				}
+				List<SubFormRecord> reclist = ((RuntimeGroupWidget)widget.getWrappedWidget()).loadSubformData(widget.getQuestionDef(), 0, false);
+				record.put(widget.getQuestionDef().getBinding(), reclist);
+			}
+			else {
+				record.put(widget.getQuestionDef().getBinding(), XmlUtil.getTextValue(widget.getQuestionDef().getDataNode()));
+			}
+			
+			record.setDataNode(widget.getQuestionDef().getBinding(), widget.getQuestionDef().getDataNode());
+			
+			widget.setQuestionDef(qtnDef, false);
+		}
 	}
 }

@@ -489,13 +489,15 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			}
 		});
 
-		/*txtBinding.addChangeHandler(new ChangeHandler(){
+		txtBinding.addChangeHandler(new ChangeHandler(){
 			public void onChange(ChangeEvent event){
-				updateBinding(widget, null);
-
-				if(widget != null && beforeChangeText != null){
-					Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BINDING, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
-					beforeChangeText = null;
+				if (txtBinding.getText().trim().length() == 0) {
+					updateBinding(widget, null);
+	
+					if(widget != null && beforeChangeText != null){
+						Context.getCommandHistory().add(new ChangeWidgetCmd(widget, ChangeWidgetCmd.PROPERTY_BINDING, beforeChangeText, (DesignGroupView)widgetPropertyChangeListener));
+						beforeChangeText = null;
+					}
 				}
 			}
 		});
@@ -511,7 +513,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 					}
 				}
 			}
-		});*/
+		});
 
 		txtChildBinding.addFocusHandler(new FocusHandler(){
 			public void onFocus(FocusEvent event){

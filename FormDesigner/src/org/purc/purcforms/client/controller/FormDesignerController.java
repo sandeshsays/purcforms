@@ -160,7 +160,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	 * @param html the window html contents.
 	 */
 	public static native void openForm(String title,String html) /*-{
-		 var win =window.open('','purcforms','width=350,height=250,menubar=1,toolbar=1,status=1,scrollbars=1,resizable=1');
+		 var win =window.open('','purcforms','width=350,height=500,menubar=1,toolbar=1,status=1,scrollbars=1,resizable=1');
 		 win.document.open("text/html","replace");
 		 win.document.writeln('<html><head><title>' + title + '</title></head><body bgcolor=white onLoad="self.focus()">'+html+'</body></html>');
 		 win.document.close();

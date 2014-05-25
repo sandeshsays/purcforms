@@ -87,6 +87,7 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_PROPERTY_ROTATED = "rotated";
 	
 	public static final String WIDGET_PROPERTY_ID = "Id";
+	public static final String WIDGET_PROPERTY_EXTERNAL_ID = "externalId";
 	
 	public static final String WIDGET_PROPERTY_CLASS = "class";
 	
