@@ -966,6 +966,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(questionDef != null && questionDef.getDefaultValue() != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
 			if(questionDef.getDefaultValue().trim().equals(binding))
 				((CheckBox)widget).setValue(true);
+			else if ((questionDef.getDefaultValue().trim().equals("1") && binding.endsWith("true")) ||
+					(questionDef.getDefaultValue().trim().equals("0") && binding.endsWith("false"))) {
+				((CheckBox)widget).setValue(true);
+			}
 		}
 
 		return parentWrapper;

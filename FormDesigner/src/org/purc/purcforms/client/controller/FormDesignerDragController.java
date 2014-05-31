@@ -351,9 +351,9 @@ public class FormDesignerDragController extends AbstractDragController{
 				else /*if(cursor.equalsIgnoreCase("move"))*/{
 					//if(!"100%".equals(((DesignWidgetWrapper)context.draggable).getWidth()))
 					Widget wrappedWidget = ((DesignWidgetWrapper)context.draggable).getWrappedWidget();
-					if(wrappedWidget instanceof HorizontalGridLine)
+					if(wrappedWidget instanceof HorizontalGridLine && ((DesignWidgetWrapper)context.draggable).getWidgetSelectionListener() instanceof GridDesignGroupWidget)
 						movablePanel.getElement().getStyle().setPropertyPx("top", desiredTop);
-					else if(wrappedWidget instanceof VerticalGridLine)
+					else if(wrappedWidget instanceof VerticalGridLine && ((DesignWidgetWrapper)context.draggable).getWidgetSelectionListener() instanceof GridDesignGroupWidget)
 						movablePanel.getElement().getStyle().setPropertyPx("left", desiredLeft);
 					else
 						DOMUtil.fastSetElementPosition(movablePanel.getElement(), desiredLeft, desiredTop);

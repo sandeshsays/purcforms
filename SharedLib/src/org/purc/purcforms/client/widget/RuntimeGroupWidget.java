@@ -148,7 +148,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 
 	//TODO The code below needs great refactoring together with PreviewView
-	private RuntimeWidgetWrapper getParentWrapper(Widget widget, Element node, String parentBinding){
+	private RuntimeWidgetWrapper getParentWrapper(Widget widget, Element node, String binding, String parentBinding){
 		RuntimeWidgetWrapper parentWrapper = widgetMap.get(parentBinding);
 		if(parentWrapper == null){
 			QuestionDef qtn = null;
@@ -171,6 +171,17 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		}	 
 		else
 			checkBoxGroupMap.get(parentWrapper.getQuestionDef()).add((CheckBox)widget);
+		
+		//Update widget with default value for boolean questions.
+		QuestionDef questionDef = parentWrapper.getQuestionDef();
+		if(questionDef != null && questionDef.getDefaultValue() != null && questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN){
+			if(questionDef.getDefaultValue().trim().equals(binding))
+				((CheckBox)widget).setValue(true);
+			else if ((questionDef.getDefaultValue().trim().equals("1") && binding.endsWith("true")) ||
+					(questionDef.getDefaultValue().trim().equals("0") && binding.endsWith("false"))) {
+				((CheckBox)widget).setValue(true);
+			}
+		}
 
 		return parentWrapper;
 	}
@@ -380,7 +391,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(widgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentWrapper(widget,node,parentBinding);
+			parentWrapper = getParentWrapper(widget, node, binding, parentBinding);
 			((RadioButton)widget).setTabIndex(tabIndex);
 
 			if(wrapperSet){
@@ -397,7 +408,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if(widgetMap.get(parentBinding) == null)
 				wrapperSet = true;
 
-			parentWrapper = getParentWrapper(widget,node,parentBinding);
+			parentWrapper = getParentWrapper(widget, node, binding, parentBinding);
 			((CheckBox)widget).setTabIndex(tabIndex);
 
 			String defaultValue = parentWrapper.getQuestionDef().getDefaultValue();

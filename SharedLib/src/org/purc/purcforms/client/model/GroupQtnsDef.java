@@ -204,8 +204,13 @@ public class GroupQtnsDef implements Serializable {
 		
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
-			if(questionDef.getText().equals(text))
+			if(questionDef.getDisplayText().equals(text))
 				return questionDef;
+			else if(questionDef.isGroupQtnsDef()){ //TODO Need to make sure this new addition does not introduce bugs
+				questionDef = questionDef.getGroupQtnsDef().getQuestionWithText(text);
+				if(questionDef != null)
+					return questionDef;
+			}
 		}
 		return null;
 	}

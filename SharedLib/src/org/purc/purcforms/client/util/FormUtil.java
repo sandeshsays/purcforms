@@ -1496,8 +1496,7 @@ public class FormUtil {
 	 * @param keyCode the character code.
 	 * @return true if yes, else false.
 	 */
-	public static boolean isControlChar(char keyCode){
-		int code = keyCode;
+	public static boolean isControlChar(int code){
 		return (code == KeyCodes.KEY_ALT || code == KeyCodes.KEY_BACKSPACE ||
 				code == KeyCodes.KEY_CTRL || code == KeyCodes.KEY_DELETE ||
 				code == KeyCodes.KEY_DOWN || code == KeyCodes.KEY_END ||

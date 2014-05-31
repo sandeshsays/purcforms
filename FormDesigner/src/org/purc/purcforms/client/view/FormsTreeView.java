@@ -314,6 +314,7 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 
 		//Should not call this more than once for the same selected item.
 		if(!optimize || item != this.item){
+			item = item.getUserObject() != null ? item : item.getParentItem();
 			Context.setSelectedItem(item.getUserObject());
 			Context.setFormDef(FormDef.getFormDef(Context.getSelectedItem()));
 			formDef = Context.getFormDef();
@@ -1198,8 +1199,9 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		if(item == null)
 			return formItem; //How can this happen?
 
-		if(item.getUserObject() != formItem)
+		if(item.getUserObject() != formItem) {
 			return formItem;
+		}
 
 		updateTreeItemText(formItem, item);
 		
@@ -1842,9 +1844,17 @@ public class FormsTreeView extends Composite implements SelectionHandler<TreeIte
 		for (int index = 0; index < count; index++){
 			TreeItem item = parentItem.getChild(index);
 			OptionDef optionDef = (OptionDef)item.getUserObject();
-			if (binding.equals(optionDef.getBinding())) {
-				tree.setSelectedItem(item);
-				return;
+			if (optionDef != null) {
+				if (binding.equals(optionDef.getBinding())) {
+					tree.setSelectedItem(item);
+					return;
+				}
+			}
+			else if (count == 2) {
+				if ((index == 0 && "true".equals(binding)) || (index == 1 && "false".equals(binding))) {
+					tree.setSelectedItem(item);
+					return;
+				}
 			}
 		}
 	}

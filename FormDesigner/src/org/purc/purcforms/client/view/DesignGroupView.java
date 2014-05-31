@@ -273,6 +273,10 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 						if (optionDef != null && Context.getSelectedItem() != optionDef) {
 							Context.getLeftPanel().selectItem(questionDef, binding);
 						}
+						else if (optionDef == null && questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN && 
+								("true".equals(binding) || "false".equals(binding))) {
+							Context.getLeftPanel().selectItem(questionDef, binding);
+						}
 					}
 				}
 			}
@@ -1425,7 +1429,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	protected DesignWidgetWrapper addNewHorizontalLine(boolean select){
-		HorizontalGridLine line = new HorizontalGridLine(800);
+		HorizontalGridLine line = new HorizontalGridLine(200);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
 			((GridDesignGroupWidget)this).setLineBorderProperties(wrapper);
@@ -1435,7 +1439,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	protected DesignWidgetWrapper addNewVerticalLine(boolean select){
-		VerticalGridLine line = new VerticalGridLine(400);
+		VerticalGridLine line = new VerticalGridLine(200);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
 		if(this instanceof GridDesignGroupWidget) {
 			((GridDesignGroupWidget)this).setLineBorderProperties(wrapper);

@@ -468,12 +468,12 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 				}
 				else if(propertiesObj instanceof FormDef || propertiesObj instanceof QuestionDef){
 					if(((TextBox) event.getSource()).getCursorPos() == 0){
-						if(!isAllowedXmlNodeNameStartChar(event.getCharCode())){
+						if(!isAllowedXmlNodeNameStartChar(event.getCharCode(), event.getNativeEvent().getKeyCode())){
 							((TextBox) event.getSource()).cancelKey(); 
 							return;
 						}
 					}
-					else if(!isAllowedXmlNodeNameChar(event.getCharCode())){
+					else if(!isAllowedXmlNodeNameChar(event.getCharCode(), event.getNativeEvent().getKeyCode())){
 						((TextBox) event.getSource()).cancelKey(); 
 						return;
 					}
@@ -673,8 +673,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @param keyCode the character code.
 	 * @return true if is allowed, else false.
 	 */
-	private boolean isAllowedXmlNodeNameStartChar(char keyCode){
-		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || FormUtil.isControlChar(keyCode));
+	private boolean isAllowedXmlNodeNameStartChar(char keyCode, int code){
+		return ((keyCode >= 'a' && keyCode <= 'z') || (keyCode >= 'A' && keyCode <= 'Z') || FormUtil.isControlChar(code));
 	}
 
 	/**
@@ -683,8 +683,8 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 	 * @param keyCode the character code.
 	 * @return true if allowed, else false.
 	 */
-	private boolean isAllowedXmlNodeNameChar(char keyCode){
-		return isAllowedXmlNodeNameStartChar(keyCode) || Character.isDigit(keyCode) || keyCode == '-' || keyCode == '_' || keyCode == '.' || keyCode == 50 || keyCode == 73;
+	private boolean isAllowedXmlNodeNameChar(char keyCode, int code){
+		return isAllowedXmlNodeNameStartChar(keyCode, code) || Character.isDigit(keyCode) || keyCode == '-' || keyCode == '_' || keyCode == '.' || code == 50 || code == 73;
 	}
 
 	/**

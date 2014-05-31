@@ -1180,12 +1180,27 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 	private void updateChildBinding(){
 		if(widget != null){
 			OptionDef optionDef = questionDef.getOptionWithText(txtChildBinding.getText());
-			if(optionDef == null){
+			if(optionDef == null && questionDef.getDataType() != QuestionDef.QTN_TYPE_BOOLEAN){
 				widget.setBinding(txtChildBinding.getText());
 				return;
 			}
 
-			widget.setBinding(optionDef.getBinding());
+			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN) {
+				String text = txtChildBinding.getText();
+				if ("Yes".equals(text)) {
+					widget.setBinding("true");
+				}
+				else if ("No".equals(text)) {
+					widget.setBinding("false");
+				}
+				else {
+					widget.setBinding(txtChildBinding.getText());
+					return;
+				}
+			}
+			else {
+				widget.setBinding(optionDef.getBinding());
+			}
 
 			if(((widget.getWrappedWidget() instanceof RadioButton) && ((RadioButton)widget.getWrappedWidget()).getText().equals("RadioButton")) ||
 					((widget.getWrappedWidget() instanceof CheckBox) && ((CheckBox)widget.getWrappedWidget()).getText().equals("CheckBox"))){
@@ -1422,8 +1437,12 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 				value = this.widget.getParentBinding();
 				if(value != null && value.trim().length() > 0 && formDef != null){
 					questionDef = formDef.getQuestion(value);
-					if(questionDef != null)
+					if(questionDef != null) {
 						sgstBinding.setText(questionDef.getText()); 
+						if(hasParentBinding()){
+							updateQuestionOptionsOracle();
+						}
+					}
 					else if(value != null && value.equals("submit") && this.widget.getWrappedWidget() instanceof Button)
 						txtBinding.setText(value);
 					else
@@ -1441,6 +1460,14 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 						sgstChildBinding.setText(optionDef.getText()); 
 					else if(this.widget.getWrappedWidget() instanceof Button)
 						sgstChildBinding.setText(value);
+					else if (questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN) {
+						if ("true".equals(value))
+							txtChildBinding.setText("Yes");
+						else if ("false".equals(value))
+							txtChildBinding.setText("No");
+						else
+							txtChildBinding.setText(null);
+					}
 					else
 						txtChildBinding.setText(null);
 				}
@@ -1570,10 +1597,15 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 			oracle.add("search");
 			txtChildBinding.setEnabled(true);
 		}
-		else{
+		else if (!questionDef.isGroupQtnsDef()) {
 			List options  = questionDef.getOptions();
 			if(options != null){
 				FormUtil.loadOptions(options,oracle);
+				txtChildBinding.setEnabled(true);
+			}
+			else if (questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN) {
+				oracle.add("Yes");
+				oracle.add("No");
 				txtChildBinding.setEnabled(true);
 			}
 		}

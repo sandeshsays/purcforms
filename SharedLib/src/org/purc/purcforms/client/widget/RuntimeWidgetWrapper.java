@@ -517,9 +517,11 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 			listBox.setSelectedIndex(0);
 
 			if(defaultValue != null){
-				if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE))
+				if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE) ||
+						defaultValue.trim().equalsIgnoreCase("1"))
 					listBox.setSelectedIndex(1);
-				else if(defaultValue.trim().equalsIgnoreCase(QuestionDef.FALSE_VALUE))
+				else if(defaultValue.trim().equalsIgnoreCase(QuestionDef.FALSE_VALUE) ||
+						defaultValue.trim().equalsIgnoreCase("0"))
 					listBox.setSelectedIndex(2);
 			}
 		}
@@ -543,8 +545,10 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 				&& defaultValue.trim().length() > 0 && binding != null 
 				&& binding.trim().length() > 0 && widget instanceof CheckBox){
 			
-			if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE))
+			if(defaultValue.trim().equalsIgnoreCase(QuestionDef.TRUE_VALUE) ||
+					defaultValue.trim().equalsIgnoreCase("1")) {
 				((CheckBox)widget).setValue(true);
+			}
 		}
 
 
@@ -652,10 +656,14 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 		else if(type == QuestionDef.QTN_TYPE_BOOLEAN && widget instanceof ListBox){
 			ListBox listBox = (ListBox)widget;
 			if(answer != null){
-				if(answer.equalsIgnoreCase(QuestionDef.TRUE_VALUE))
+				if(answer.equalsIgnoreCase(QuestionDef.TRUE_VALUE) ||
+						answer.equalsIgnoreCase("1")) {
 					listBox.setSelectedIndex(1);
-				else if(answer.equalsIgnoreCase(QuestionDef.FALSE_VALUE))
+				}
+				else if(answer.equalsIgnoreCase(QuestionDef.FALSE_VALUE) ||
+						answer.equalsIgnoreCase("0")) {
 					listBox.setSelectedIndex(2);
+				}
 			}
 		}
 		else if(type == QuestionDef.QTN_TYPE_LIST_MULTIPLE && answer != null 
