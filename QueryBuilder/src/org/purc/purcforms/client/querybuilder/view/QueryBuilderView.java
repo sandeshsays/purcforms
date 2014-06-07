@@ -194,6 +194,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			public void execute() {popup.hide(); exportSpreadSheet();}});
 		menuBar.addItem(QueryBuilderUtil.createHeaderHTML(images.pdf(),LocaleText.get("exportPdf")),true,new Command(){
 			public void execute() {popup.hide(); exportPdf();}});
+		
+		menuBar.addSeparator();
+		menuBar.addItem(LocaleText.get("close"), new Command(){
+			public void execute() {close();}});
 
 		popup.setWidget(menuBar);
 		
@@ -562,5 +566,11 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
     @Override
     public void onStartItemSelection(Object sender) {
 	    
+    }
+    
+    public void close() {
+    	String url = FormUtil.getCloseUrl();
+		if(url != null && url.trim().length() > 0)
+			Window.Location.replace(url);
     }
 }
