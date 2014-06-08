@@ -74,6 +74,16 @@ public class SqlBuilder {
 		}
 	}
 	
+	private static String getOrderByMapping(String name) {
+		String mapping = QueryBuilderUtil.getOrderByMapping(name);
+		if (mapping != null) {
+			return mapping;
+		}
+		else {
+			return getFieldMapping(name);
+		}
+	}
+	
 	private static String getSelectList(List<DisplayField> displayFields){
 		if(displayFields == null || displayFields.size() == 0)
 			return "*";
@@ -136,7 +146,7 @@ public class SqlBuilder {
 			else
 				orderByClause += ",";
 			
-			orderByClause += getFieldMapping(field.getName()) + " " + (field.getSortOrder() == SortField.SORT_ASCENDING ? "ASC" : "DESC");
+			orderByClause += getOrderByMapping(field.getName()) + " " + (field.getSortOrder() == SortField.SORT_ASCENDING ? "ASC" : "DESC");
 		}
 		
 		return orderByClause;
