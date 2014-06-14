@@ -42,6 +42,7 @@ import org.purc.purcforms.client.widget.grid.GridDesignGroupWidget;
 import org.purc.purcforms.client.widget.grid.HorizontalGridLine;
 import org.purc.purcforms.client.widget.grid.VerticalGridLine;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.DropController;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Command;
@@ -163,7 +164,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	
 	/** List of drag controllers. */
 	protected Vector<FormDesignerDropController> tabDropControllers = new Vector<FormDesignerDropController>();
-
+	
 	/**
 	 * Creates a new instance of the design surface.
 	 * 
@@ -3675,7 +3676,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(newQuestions.size() > 0){
 				boolean visible = questionDef.isVisible();
 				questionDef.setVisible(true);
-				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, false, widget);
+				widget = loadQuestions(newQuestions,  y, x, selectedPanel.getWidgetCount(),false, true, commands, true, DragContext.controlKeyPressed ? new DesignWidgetWrapper() : widget);
 				questionDef.setVisible(visible);
 				
 				format();

@@ -78,6 +78,10 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 	private boolean locked;
 	private PanelHistory panelHistory = new PanelHistory();
 
+	public DesignWidgetWrapper() {
+		
+	}
+	
 	public DesignWidgetWrapper(DesignWidgetWrapper designWidgetWrapper,Images images){
 		super(designWidgetWrapper);
 
