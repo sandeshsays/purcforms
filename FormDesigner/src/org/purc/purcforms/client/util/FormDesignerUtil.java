@@ -108,8 +108,12 @@ public class FormDesignerUtil {
 		for(int i=0; i<questions.size(); i++){
 			QuestionDef questionDef = (QuestionDef)questions.elementAt(i);
 
-			if(!dynamicOptions && refQuestion != null && refQuestion.getDataType() != questionDef.getDataType() && sameTypesOnly)
+			if(!dynamicOptions && refQuestion != null && refQuestion.getDataType() != questionDef.getDataType() && sameTypesOnly) {
+				if(questionDef.isGroupQtnsDef()) {
+					loadQuestions(includeBinding, questionDef.getGroupQtnsDef().getQuestions(),refQuestion,oracle,dynamicOptions,sameTypesOnly, parentQuestionDef); //TODO These have different id sets and hence we are leaving them out for now
+				}
 				continue;
+			}
 
 			if(dynamicOptions && !(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 					questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC))
