@@ -663,7 +663,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
 			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, this, this, repeated, this);
-			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
+			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets, validationQtns, validationWidgets, qtnWidgetMap,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap, validationWidgetsMap);
 			//((RuntimeGroupWidget)widget).setTabIndex(tabIndex);
 			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
 			copyLabelText(((RuntimeGroupWidget)widget).getLabelText());
@@ -671,6 +671,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			copyCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());
 			copyCalcWidgetMap(((RuntimeGroupWidget)widget).getCalcWidgetMap());
 			copyFiltDynOptWidgetMap(((RuntimeGroupWidget)widget).getFiltDynOptWidgetMap());
+			copyValidationWidgetsMap(((RuntimeGroupWidget)widget).getValidationWidgetsMap());
 		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_IMAGE)){
 			widget = new Image();
@@ -1521,6 +1522,19 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
 			if(widgets == null)
 				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
+		}
+	}
+	
+	private void copyValidationWidgetsMap(HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> validationWidgetsMap){
+		Iterator<Entry<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>>> iterator = validationWidgetsMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> entry = iterator.next();
+
+			List<RuntimeWidgetWrapper> widgets = this.validationWidgetsMap.get(entry.getKey());
+			if(widgets == null)
+				this.validationWidgetsMap.put(entry.getKey(), entry.getValue());
 			else
 				widgets.addAll(entry.getValue());
 		}

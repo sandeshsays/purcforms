@@ -45,6 +45,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -92,6 +93,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
+	/** 
+	 * A map where the key widget's value change requires a list of other widgets to
+	 * run their validation rules. E.g key qtn: Total No of kids born and dependent qtn: how many are male?
+	 * Then the validation rule could be like no of male kids should be less than total
+	 * no of kids born. So whenever the total no changes, no of males should be revalidated.
+	 */
+	protected HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> validationWidgetsMap = new HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>>();
+	
 	protected HashMap<String, RuntimeWidgetWrapper> widgetBindingMap = new HashMap<String, RuntimeWidgetWrapper>();
 	protected List<SubFormRecord> records = new ArrayList<SubFormRecord>();
 	protected int currentRecordIndex = 0;
@@ -187,8 +196,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 
 	public void loadWidgets(FormDef formDef,NodeList nodes, List<RuntimeWidgetWrapper> externalSourceWidgets,
+	        List<QuestionDef> validationQtns,List<RuntimeWidgetWrapper> validationWidgets,HashMap<QuestionDef,RuntimeWidgetWrapper> qtnWidgetMap,
 			HashMap<QuestionDef,List<QuestionDef>> calcQtnMappings, HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap,
-			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap){
+			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap, HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> validationWidgetsMap){
 
 		HashMap<Integer,RuntimeWidgetWrapper> widgetMap = new HashMap<Integer,RuntimeWidgetWrapper>();
 		HashMap<Integer,RuntimeWidgetWrapper> labelWidgetMap = new HashMap<Integer,RuntimeWidgetWrapper>();
@@ -200,7 +210,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				continue;
 			try{
 				Element node = (Element)nodes.item(i);
-				int index = loadWidget(formDef,node,widgetMap,externalSourceWidgets,calcQtnMappings, calcWidgetMap, filtDynOptWidgetMap, labelWidgetMap);
+				int index = loadWidget(formDef,node,widgetMap,externalSourceWidgets, validationQtns, validationWidgets, qtnWidgetMap,calcQtnMappings, calcWidgetMap, filtDynOptWidgetMap, labelWidgetMap, validationWidgetsMap);
 				if(index > maxTabIndex)
 					maxTabIndex = index;
 			}
@@ -351,8 +361,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 
 	private int loadWidget(FormDef formDef, Element node,HashMap<Integer,RuntimeWidgetWrapper> widgets, List<RuntimeWidgetWrapper> externalSourceWidgets,
+	        List<QuestionDef> validationQtns,List<RuntimeWidgetWrapper> validationWidgets,HashMap<QuestionDef,RuntimeWidgetWrapper> qtnWidgetMap,
 			HashMap<QuestionDef,List<QuestionDef>> calcQtnMappings,HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap,
-			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap, HashMap<Integer,RuntimeWidgetWrapper> labelWidgetMap){
+			HashMap<QuestionDef,RuntimeWidgetWrapper> filtDynOptWidgetMap, HashMap<Integer,RuntimeWidgetWrapper> labelWidgetMap,
+			HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> validationWidgetsMap){
 
 		RuntimeWidgetWrapper parentWrapper = null;
 
@@ -530,13 +542,14 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				repeated = (value.equals(WidgetEx.REPEATED_TRUE_VALUE));
 
 			widget = new RuntimeGroupWidget(images, formDef, groupQtnsDef, editListener, widgetListener, repeated, enabledListener);
-			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap);
+			((RuntimeGroupWidget)widget).loadWidgets(formDef,node.getChildNodes(),externalSourceWidgets, validationQtns, validationWidgets, qtnWidgetMap,calcQtnMappings,calcWidgetMap,filtDynOptWidgetMap, validationWidgetsMap);
 			copyLabelMap(((RuntimeGroupWidget)widget).getLabelMap());
 			copyLabelText(((RuntimeGroupWidget)widget).getLabelText());
 			copyLabelReplaceText(((RuntimeGroupWidget)widget).getLabelReplaceText());
 			copyCheckBoxGroupMap(((RuntimeGroupWidget)widget).getCheckBoxGroupMap());
 			copyCalcWidgetMap(((RuntimeGroupWidget)widget).getCalcWidgetMap());
 			copyFiltDynOptWidgetMap(((RuntimeGroupWidget)widget).getFiltDynOptWidgetMap());
+			copyValidationWidgetsMap(((RuntimeGroupWidget)widget).getValidationWidgetsMap());
 		}
 		/*else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)){
 			//Not dealing with nested repeats
@@ -613,6 +626,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			wrapper.setQuestionDef(questionDef,false);
 			ValidationRule validationRule = formDef.getValidationRule(questionDef);
 			wrapper.setValidationRule(validationRule);
+			if(validationRule != null && (questionDef.getDataType() == QuestionDef.QTN_TYPE_REPEAT || questionDef.getDataType() == QuestionDef.QTN_TYPE_SUBFORM))
+				questionDef.setAnswer("0");
+
+			if(validationQtns.contains(questionDef) && isValidationWidget(wrapper)){
+				validationWidgetsMap.put(wrapper, new ArrayList<RuntimeWidgetWrapper>());
+				qtnWidgetMap.put(questionDef, wrapper);
+			}
+
+			if(validationRule != null && isValidationWidget(wrapper))
+				validationWidgets.add(wrapper);
 		}
 
 		if(parentBinding != null)
@@ -736,6 +759,18 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		return tabIndex;
 	}
 
+	/**
+	 * Check if a widget can have a validation rule.
+	 * 
+	 * @param wrapper the widget
+	 * @return true if it can have, else false.
+	 */
+	private boolean isValidationWidget(RuntimeWidgetWrapper wrapper){
+		return !((wrapper.getWrappedWidget() instanceof Label)||
+				(wrapper.getWrappedWidget() instanceof HTML) || (wrapper.getWrappedWidget() instanceof Hyperlink) ||
+				(wrapper.getWrappedWidget() instanceof Button));
+	}
+	
 	/**
 	 * Just adds the first row. Other runtime rows are added using addNewRow
 	 * @param wrapper
@@ -1538,6 +1573,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	public HashMap<QuestionDef,List<RuntimeWidgetWrapper>> getCalcWidgetMap(){
 		return calcWidgetMap;
 	}
+	
+	public HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> getValidationWidgetsMap(){
+		return validationWidgetsMap;
+	}
 
 	public HashMap<QuestionDef,RuntimeWidgetWrapper> getFiltDynOptWidgetMap(){
 		return filtDynOptWidgetMap;
@@ -1812,6 +1851,19 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			List<RuntimeWidgetWrapper> widgets = this.calcWidgetMap.get(entry.getKey());
 			if(widgets == null)
 				this.calcWidgetMap.put(entry.getKey(), entry.getValue());
+			else
+				widgets.addAll(entry.getValue());
+		}
+	}
+	
+	private void copyValidationWidgetsMap(HashMap<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> validationWidgetsMap){
+		Iterator<Entry<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>>> iterator = validationWidgetsMap.entrySet().iterator();
+		while(iterator.hasNext()){
+			Entry<RuntimeWidgetWrapper, List<RuntimeWidgetWrapper>> entry = iterator.next();
+
+			List<RuntimeWidgetWrapper> widgets = this.validationWidgetsMap.get(entry.getKey());
+			if(widgets == null)
+				this.validationWidgetsMap.put(entry.getKey(), entry.getValue());
 			else
 				widgets.addAll(entry.getValue());
 		}
