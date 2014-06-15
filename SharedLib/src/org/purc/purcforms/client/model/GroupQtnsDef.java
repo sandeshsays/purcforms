@@ -117,6 +117,13 @@ public class GroupQtnsDef implements Serializable {
 			QuestionDef def = (QuestionDef)getQuestions().elementAt(i);
 			if(def.getId() == id)
 				return def;
+			
+			//Without this, then we have not validation and skip rules in group questions.
+			if(def.isGroupQtnsDef() && def.getGroupQtnsDef() != null){
+				def = def.getGroupQtnsDef().getQuestion(id);
+				if(def != null)
+					return def;
+			}
 		}
 		
 		return null;
