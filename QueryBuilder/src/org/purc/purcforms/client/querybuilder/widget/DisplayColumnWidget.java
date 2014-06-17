@@ -137,6 +137,26 @@ public class DisplayColumnWidget extends Composite implements ItemSelectionListe
 		
 	}
 	
+	public void onPivotSum(Widget sender){
+		
+	}
+	
+	public void onPivotAverage(Widget sender){
+		
+	}
+	
+	public void onPivotMinimum(Widget sender){
+		
+	}
+	
+	public void onPivotMaximum(Widget sender){
+		
+	}
+	
+	public void onPivotCount(Widget sender){
+		
+	}
+	
 	public void moveColumnUp(Widget sender){
 		view.moveColumnUp(sender);
 	}
@@ -210,5 +230,9 @@ public class DisplayColumnWidget extends Composite implements ItemSelectionListe
 	
 	public int getDataType(){
 		return questionDef.getDataType();
+	}
+	
+	public QuestionDef getQuestionDef() {
+		return questionDef;
 	}
 }

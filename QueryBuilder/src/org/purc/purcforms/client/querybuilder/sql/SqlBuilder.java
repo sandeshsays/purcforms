@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
+import org.purc.purcforms.client.model.OptionDef;
 import org.purc.purcforms.client.model.QuestionDef;
 import org.purc.purcforms.client.querybuilder.model.DisplayField;
 import org.purc.purcforms.client.querybuilder.model.FilterCondition;
@@ -11,6 +12,7 @@ import org.purc.purcforms.client.querybuilder.model.FilterConditionGroup;
 import org.purc.purcforms.client.querybuilder.model.FilterConditionRow;
 import org.purc.purcforms.client.querybuilder.model.SortField;
 import org.purc.purcforms.client.querybuilder.util.QueryBuilderUtil;
+import org.purc.purcforms.client.querybuilder.widget.AggregateFunctionHyperlink;
 import org.purc.purcforms.client.querybuilder.widget.GroupHyperlink;
 
 
@@ -33,7 +35,8 @@ public class SqlBuilder {
 			tableAlias = "";
 		}
 		
-		String sql = "SELECT " + getSelectList(displayFields) + " \r\nFROM " + formDef.getBinding() + " " + tableAlias;
+		boolean withRollup = sortFields.size() == 0 && hasPivot(displayFields);
+		String sql = "SELECT " + getSelectList(displayFields, withRollup) + " \r\nFROM " + formDef.getBinding() + " " + tableAlias;
 
 		String filter = "";
 		if(filterConditionGroup.getConditionCount() > 0)
@@ -50,6 +53,9 @@ public class SqlBuilder {
 		String orderByClause = getOrderByClause(sortFields);
 		if(orderByClause != null)
 			sql = sql + " \r\nORDER BY " + orderByClause;
+		else if (withRollup) {
+			sql += " WITH ROLLUP ";
+		}
 
 		return sql;
 	}
@@ -84,7 +90,7 @@ public class SqlBuilder {
 		}
 	}
 	
-	private static String getSelectList(List<DisplayField> displayFields){
+	private static String getSelectList(List<DisplayField> displayFields, boolean withRollup){
 		if(displayFields == null || displayFields.size() == 0)
 			return "*";
 		
@@ -97,15 +103,48 @@ public class SqlBuilder {
 				selectList += ",";
 			
 			String aggFunc = field.getAggFunc();
-			if(aggFunc != null)
-				selectList += aggFunc + "(";
+			if(aggFunc != null) {
+				if (aggFunc.equals(AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT)) {
+					String fieldName = getFilterMapping(field.getName());
+					String sql = null;
+					for (int index = 0; index < field.getQuestionDef().getOptionCount(); index++) {
+						if (sql != null) {
+							sql += ", ";
+						}
+						else {
+							sql = "";
+						}
+						OptionDef optionDef = field.getQuestionDef().getOptionAt(index);
+						if (isNumeric(optionDef.getBinding())) {
+							sql += "COUNT(CASE WHEN " + fieldName + " = " + optionDef.getBinding() + " THEN " + fieldName + " END) AS '" + optionDef.getText() + "'";
+						}
+						else {
+							sql += "COUNT(CASE WHEN " + fieldName + " = '" + optionDef.getBinding() + "' THEN " + fieldName + " END) AS '" + optionDef.getText() + "'";
+						}
+					}
+					selectList += sql;
+				}
+				else {
+					selectList += aggFunc + "(";
+				}
+			}
 			
-			selectList += getFieldMapping(field.getName());
+			if (!AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT.equals(aggFunc)) {
+				if (withRollup && aggFunc == null) {
+					selectList += "IFNULL(" + getFieldMapping(field.getName()) + ",'TOTAL')" ;
+				}
+				else {
+					selectList += getFieldMapping(field.getName());
+				}
+			}
 			
-			if(aggFunc != null)
+			if (aggFunc != null && !aggFunc.equals(AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT)) {
 				selectList +=")";
+			}
 			
-			selectList += " AS '" + field.getText()+"'";
+			if (!AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT.equals(aggFunc)) {
+				selectList += " AS '" + field.getText()+"'";
+			}
 		}
 		
 		return selectList;
@@ -131,6 +170,7 @@ public class SqlBuilder {
 		
 		if(aggFuncCount > 0 && aggFuncCount < displayFields.size())
 			return groupByClause;
+		
 		return null;
 	}
 	
@@ -262,7 +302,7 @@ public class SqlBuilder {
 			else
 				value = fieldVal;
 			
-			if (dataType == QuestionDef.QTN_TYPE_TEXT)
+			if (dataType == QuestionDef.QTN_TYPE_TEXT || !isNumeric(value))
 				value = "'" + value + "'";
 			
 			return value;
@@ -300,5 +340,30 @@ public class SqlBuilder {
 			return " NOT ";
 
 		return null;
+	}
+	
+	private static boolean hasPivot(List<DisplayField> displayFields) {
+		for(DisplayField field : displayFields) {
+			if (AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT.equals(field.getAggFunc())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static boolean isNumeric(String value) {
+		try {
+			Integer.parseInt(value);
+			return true;
+		}
+		catch(NumberFormatException ex) {
+			try {
+				Float.parseFloat(value);
+				return true;
+			}
+			catch(NumberFormatException ex2) {}
+		}
+		
+		return false;
 	}
 }

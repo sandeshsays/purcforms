@@ -29,6 +29,18 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 	public static final String FUNC_VALUE_MIN = "MIN";
 	public static final String FUNC_VALUE_MAX = "MAX";
 	public static final String FUNC_VALUE_COUNT = "COUNT";
+	
+	public static final String FUNC_TEXT_PIVOT_SUM = "Pivot Sum"; //LocaleText.get("???");
+	public static final String FUNC_TEXT_PIVOT_AVG = "Pivot Average";
+	public static final String FUNC_TEXT_PIVOT_MIN = "Pivot Minimum";
+	public static final String FUNC_TEXT_PIVOT_MAX = "Pivot Maximum";
+	public static final String FUNC_TEXT_PIVOT_COUNT = "Pivot Count";
+	
+	public static final String FUNC_VALUE_PIVOT_SUM = "PIVOT_SUM"; //LocaleText.get("???");
+	public static final String FUNC_VALUE_PIVOT_AVG = "PIVOT_AVG";
+	public static final String FUNC_VALUE_PIVOT_MIN = "PIVOT_MIN";
+	public static final String FUNC_VALUE_PIVOT_MAX = "PIVOT_MAX";
+	public static final String FUNC_VALUE_PIVOT_COUNT = "PIVOT_COUNT";
 
 	private PopupPanel popup;
 	private AggregateFunctionListener actionListener;
@@ -68,6 +80,8 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 
 			menuBar.addItem(FUNC_TEXT_AVG,true, new Command(){
 				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_AVG); actionListener.onAverage(w);}});
+		
+			menuBar.addSeparator();
 		}
 
 		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_NUMERIC ||
@@ -76,7 +90,6 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_TIME ||
 				questionDef.getDataType() == QuestionDef.QTN_TYPE_DATE_TIME){
 
-			menuBar.addSeparator();
 			menuBar.addItem(FUNC_TEXT_MIN,true, new Command(){ //LocaleText.get("???")
 				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_MIN); actionListener.onMinimum(w);}});
 
@@ -89,6 +102,35 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 		menuBar.addItem(FUNC_TEXT_COUNT,true, new Command(){ //LocaleText.get("???")
 			public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_COUNT); actionListener.onCount(w);}});
 
+		
+		//cross tab
+		//LocaleText.get("???")
+		
+		if(questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+				questionDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE){
+
+			menuBar.addSeparator();
+			
+			/*menuBar.addItem(FUNC_TEXT_PIVOT_SUM,true, new Command(){
+				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_PIVOT_SUM); actionListener.onPivotSum(w);}});
+
+			menuBar.addItem(FUNC_TEXT_PIVOT_AVG,true, new Command(){
+				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_PIVOT_AVG); actionListener.onPivotAverage(w);}});
+
+			menuBar.addSeparator();
+			menuBar.addItem(FUNC_TEXT_PIVOT_MIN,true, new Command(){ //LocaleText.get("???")
+				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_PIVOT_MIN); actionListener.onPivotMinimum(w);}});
+
+			menuBar.addItem(FUNC_TEXT_PIVOT_MAX,true, new Command(){ //LocaleText.get("???")
+				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_PIVOT_MAX); actionListener.onPivotMaximum(w);}});
+			
+			menuBar.addSeparator();*/
+
+			menuBar.addItem(FUNC_TEXT_PIVOT_COUNT,true, new Command(){ //LocaleText.get("???")
+				public void execute() {popup.hide(); ((Hyperlink)w).setText(FUNC_TEXT_PIVOT_COUNT); actionListener.onPivotCount(w);}});
+		}
+
+				
 		popup.setWidget(menuBar);
 	}
 
@@ -107,8 +149,19 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 			return FUNC_VALUE_MIN;
 		else if(text.equals(FUNC_TEXT_MAX))
 			return FUNC_VALUE_MAX;
-		
-		return FUNC_VALUE_COUNT;
+		if(text.equals(FUNC_TEXT_PIVOT_SUM))
+			return FUNC_VALUE_PIVOT_SUM;
+		else if(text.equals(FUNC_TEXT_PIVOT_AVG))
+			return FUNC_VALUE_PIVOT_AVG;
+		else if(text.equals(FUNC_TEXT_PIVOT_MIN))
+			return FUNC_VALUE_PIVOT_MIN;
+		else if(text.equals(FUNC_TEXT_PIVOT_MAX))
+			return FUNC_VALUE_PIVOT_MAX;
+		else if(text.equals(FUNC_TEXT_PIVOT_COUNT)) {
+			return FUNC_VALUE_PIVOT_COUNT;
+		}
+		else
+			return FUNC_VALUE_COUNT;
 	}
 	
 	public void setAggregateFunction(String aggFunc){
@@ -120,6 +173,16 @@ public class AggregateFunctionHyperlink extends Hyperlink {
 			aggFunc = FUNC_TEXT_MIN;
 		else if(aggFunc.equals(FUNC_VALUE_MAX))
 			aggFunc = FUNC_TEXT_MAX;
+		if(aggFunc.equals(FUNC_VALUE_PIVOT_SUM))
+			aggFunc = FUNC_TEXT_PIVOT_SUM;
+		else if(aggFunc.equals(FUNC_VALUE_PIVOT_AVG))
+			aggFunc = FUNC_TEXT_PIVOT_AVG;
+		else if(aggFunc.equals(FUNC_VALUE_PIVOT_MIN))
+			aggFunc = FUNC_TEXT_PIVOT_MIN;
+		else if(aggFunc.equals(FUNC_VALUE_PIVOT_MAX))
+			aggFunc = FUNC_TEXT_PIVOT_MAX;
+		else if(aggFunc.equals(FUNC_VALUE_PIVOT_COUNT))
+			aggFunc = FUNC_TEXT_PIVOT_COUNT;
 		else
 			aggFunc = FUNC_TEXT_COUNT;
 		

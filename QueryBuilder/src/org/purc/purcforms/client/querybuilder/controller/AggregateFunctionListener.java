@@ -14,4 +14,10 @@ public interface AggregateFunctionListener {
 	public void onMinimum(Widget sender);
 	public void onMaximum(Widget sender);
 	public void onCount(Widget sender);
+	
+	public void onPivotSum(Widget sender);
+	public void onPivotAverage(Widget sender);
+	public void onPivotMinimum(Widget sender);
+	public void onPivotMaximum(Widget sender);
+	public void onPivotCount(Widget sender);
 }
