@@ -1,6 +1,8 @@
 package org.purc.purcforms.client.querybuilder.sql;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.model.ModelConstants;
@@ -35,12 +37,13 @@ public class SqlBuilder {
 			tableAlias = "";
 		}
 		
-		boolean withRollup = sortFields.size() == 0 && hasPivot(displayFields);
-		String sql = "SELECT " + getSelectList(displayFields, withRollup) + " \r\nFROM " + formDef.getBinding() + " " + tableAlias;
-
+		Map<String, FilterCondition> filterMap = new HashMap<String, FilterCondition>();
 		String filter = "";
 		if(filterConditionGroup.getConditionCount() > 0)
-			filter = getFilter(filterConditionGroup);
+			filter = getFilter(filterConditionGroup, filterMap);
+		
+		boolean withRollup = sortFields.size() == 0 && hasPivot(displayFields);
+		String sql = "SELECT " + getSelectList(displayFields, filterMap, withRollup) + " \r\nFROM " + formDef.getBinding() + " " + tableAlias;
 
 		if(filter.length() > 0)
 			sql = sql + " \r\nWHERE " + filter;
@@ -90,7 +93,7 @@ public class SqlBuilder {
 		}
 	}
 	
-	private static String getSelectList(List<DisplayField> displayFields, boolean withRollup){
+	private static String getSelectList(List<DisplayField> displayFields, Map<String, FilterCondition> filterMap, boolean withRollup){
 		if(displayFields == null || displayFields.size() == 0)
 			return "*";
 		
@@ -105,16 +108,31 @@ public class SqlBuilder {
 			String aggFunc = field.getAggFunc();
 			if(aggFunc != null) {
 				if (aggFunc.equals(AggregateFunctionHyperlink.FUNC_VALUE_PIVOT_COUNT)) {
+					FilterCondition condition = filterMap.get(field.getName());
 					String fieldName = getFilterMapping(field.getName());
 					String sql = null;
 					for (int index = 0; index < field.getQuestionDef().getOptionCount(); index++) {
+						OptionDef optionDef = field.getQuestionDef().getOptionAt(index);
+						
+						if (condition != null) {
+							if (condition.getOperator() == ModelConstants.OPERATOR_IN_LIST) {
+								if (!condition.getFirstValue().contains(optionDef.getBinding())) {
+									 continue;
+								}
+							}
+							else {
+								if (condition.getFirstValue().contains(optionDef.getBinding())) {
+									 continue;
+								}
+							}
+						}
+						
 						if (sql != null) {
 							sql += ", ";
 						}
 						else {
 							sql = "";
 						}
-						OptionDef optionDef = field.getQuestionDef().getOptionAt(index);
 						if (isNumeric(optionDef.getBinding())) {
 							sql += "COUNT(CASE WHEN " + fieldName + " = " + optionDef.getBinding() + " THEN " + fieldName + " END) AS '" + optionDef.getText() + "'";
 						}
@@ -192,7 +210,7 @@ public class SqlBuilder {
 		return orderByClause;
 	}
 
-	private static String getFilter(FilterConditionGroup filterGroup){
+	private static String getFilter(FilterConditionGroup filterGroup, Map<String, FilterCondition> filterMap){
 
 		String filter = "";
 		
@@ -212,9 +230,9 @@ public class SqlBuilder {
 			}
 			
 			if(row instanceof FilterConditionGroup)
-				filter += getFilter((FilterConditionGroup)row);
+				filter += getFilter((FilterConditionGroup)row, filterMap);
 			else
-				filter += getFilter((FilterCondition)row);
+				filter += getFilter((FilterCondition)row, filterMap);
 		}
 		
 		if(filter.length() > 0 && filterGroup.isSelected())
@@ -223,13 +241,14 @@ public class SqlBuilder {
 		return filter;
 	}
 
-	private static String getFilter(FilterCondition condition){		
+	private static String getFilter(FilterCondition condition, Map<String, FilterCondition> filterMap){		
 		String filter = getFilterMapping(condition.getFieldName());
 		filter += getDBOperator(condition.getOperator());
 		filter += getQuotedValue(condition.getFirstValue(),condition.getDataType(),condition.getOperator());
 		
 		if (condition.getOperator() == ModelConstants.OPERATOR_IN_LIST || condition.getOperator() == ModelConstants.OPERATOR_NOT_IN_LIST) {
 			filter += ")";
+			filterMap.put(condition.getFieldName(), condition);
 		}
 		
 		return filter;

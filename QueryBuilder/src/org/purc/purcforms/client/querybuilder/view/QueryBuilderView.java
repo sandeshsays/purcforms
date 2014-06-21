@@ -69,6 +69,8 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	private String queryName;
 	private String displayAs = "Report Listing";
 	
+	private boolean rebuildSql = true;
+	
 	public interface Images extends ClientBundle {
 		ImageResource newquery();
 		ImageResource open();
@@ -248,7 +250,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	 * @see com.google.gwt.event.logical.shared.SelectionHandler#onSelection(SelectionEvent)
 	 */
 	public void onSelection(SelectionEvent<Integer> event){
+		final int prevSelectionIndex = selectedTabIndex;
 		selectedTabIndex = event.getSelectedItem();
+		
+		rebuildSql = true;
 		
 		FormUtil.dlg.setText("Building " + (selectedTabIndex == queryDefXmlIndex ? "Query Definition" : "SQL")); //LocaleText.get("???????")
 		FormUtil.dlg.center();
@@ -260,8 +265,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 						buildQueryDef();
 					else if(selectedTabIndex == sqlIndex && QueryBuilderUtil.showSql())
 						buildSql();
-					else if(selectedTabIndex == resultsIndex && QueryBuilderUtil.showResults())
+					else if(selectedTabIndex == resultsIndex && QueryBuilderUtil.showResults()) {
+						rebuildSql = prevSelectionIndex != sqlIndex;
 						showResults();
+					}
 
 					FormUtil.dlg.hide();
 				}
@@ -429,7 +436,9 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 	}
 	
 	public String getSql(){
-		buildSql();
+		if (rebuildSql) {
+			buildSql();
+		}
 		return txtSql.getText();
 	}
 	

@@ -221,7 +221,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			ScrollPanel scrollPanel = new ScrollPanel();
 			scrollPanel.setWidget(menuBar);
 			scrollPanel.setHeight(height+PurcConstants.UNITS); //"200"+PurcConstants.UNITS
-			scrollPanel.setWidth((maxSize*12)+PurcConstants.UNITS);
+			scrollPanel.setWidth((maxSize*(maxSize < 4 ? 30 : 12))+PurcConstants.UNITS);
 
 			popup = new PopupPanel(true,false);
 			popup.setWidget(scrollPanel);
@@ -272,7 +272,7 @@ public class ValueWidget extends Composite implements ItemSelectionListener, Clo
 			ScrollPanel scrollPanel = new ScrollPanel();
 			scrollPanel.setWidget(panel);
 			scrollPanel.setHeight(height+PurcConstants.UNITS); //"200"+PurcConstants.UNITS
-			scrollPanel.setWidth((maxSize*12)+PurcConstants.UNITS);
+			scrollPanel.setWidth((maxSize*(maxSize < 4 ? 30 : 12))+PurcConstants.UNITS);
 
 			popup = new PopupPanel(true,false);
 			popup.addCloseHandler(this);
