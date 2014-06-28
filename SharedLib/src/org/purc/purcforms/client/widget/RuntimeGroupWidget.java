@@ -1938,6 +1938,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					((RuntimeGroupWidget)widget.getWrappedWidget()).fillWidgetBindings(widgetBindingMap);
 				}
 				else {
+					if (widget.getWrappedWidget() instanceof CheckBox) {
+						binding = widget.getParentBinding() + "_purcforms_" + binding;
+					}
 					widgetBindingMap.put(binding, widget);
 				}
 			}
@@ -2062,7 +2065,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					
 					for (int index = 0; index < qtnDef.getOptionCount(); index++) {
 						OptionDef optionDef = qtnDef.getOptionAt(index);
-						widget = widgetBindingMap.get(optionDef.getBinding());
+						String binding = qtnDef.getBinding() + "_purcforms_" + optionDef.getBinding();
+						widget = widgetBindingMap.get(binding);
 						if (widget != null && widget.getWrappedWidget() instanceof CheckBox) {
 							((CheckBox)widget.getWrappedWidget()).setValue(arrayContains(values, optionDef.getBinding()));
 						}
