@@ -1314,7 +1314,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		pasteSeparator.setVisible(visible);
 		pasteMenu.setVisible(visible); 
 
-		//lockWidgetsMenu.setHTML(FormDesignerUtil.createHeaderHTML(images.add(),Context.getLockWidgets() ? LocaleText.get("unLockWidgets") : LocaleText.get("lockWidgets")));
+		if (lockWidgetsMenu != null) {
+			lockWidgetsMenu.setHTML(FormDesignerUtil.createHeaderHTML(images.lock(),Context.getLockWidgets() ? LocaleText.get("unLockAllWidgets") : LocaleText.get("lockAllWidgets")));
+		}
 	}
 
 	/**
@@ -2763,8 +2765,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 
+	public void lockUnlockAllWidgets(){
+		Context.setLockWidgets(!Context.getLockWidgets());
+	}
+	
 	public void lockWidgets(){
-		//Context.setLockWidgets(!Context.getLockWidgets());
 		lockUnlockWidgets(true);
 	}
 	

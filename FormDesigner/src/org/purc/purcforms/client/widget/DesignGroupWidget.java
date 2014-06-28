@@ -86,10 +86,10 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 		
 		menuBar.addSeparator();	
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockWidgets")),true, new Command(){
-			public void execute() {widgetPopup.hide(); lockWidgets();}});
+			public void execute() {popup.hide(); lockWidgets();}});
 		
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.unlock(),LocaleText.get("unLockWidgets")),true, new Command(){
-			public void execute() {widgetPopup.hide(); unLockWidgets();}});
+			public void execute() {popup.hide(); unLockWidgets();}});
 
 		menuBar.addSeparator(); //LocaleText.get("??????")?????????
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("changeWidgetH")),true, new Command(){
@@ -273,11 +273,15 @@ public class DesignGroupWidget extends DesignGroupView implements DragDropListen
 		parentDeleteWidgetMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.delete(),LocaleText.get("deleteItem")),true, new Command(){
 			public void execute() {popup.hide(); getDesignSurfaceView().deleteSelectedItem(); /*widgetPopupMenuListener.onDelete(widget);*/}});
 
-		menuBar.addSeparator();
+		menuBar.addSeparator();	
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockWidgets")),true, new Command(){
+			public void execute() {popup.hide(); lockWidgets();}});
+		
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.unlock(),LocaleText.get("unLockWidgets")),true, new Command(){
+			public void execute() {popup.hide(); unLockWidgets();}});
 
-		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockWidgets")),true, new Command(){
-			public void execute() {popup.hide(); getDesignSurfaceView().lockWidgets();}});
-
+		menuBar.addSeparator();	
+		
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectAll")),true, new Command(){
 			public void execute() {popup.hide(); selectAll();}});
 

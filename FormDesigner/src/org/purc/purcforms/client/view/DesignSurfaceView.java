@@ -327,11 +327,14 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		//}
 
 		menuBar.addSeparator();	
-		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockWidgets")),true, new Command(){
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockWidgets")),true, new Command(){
 			public void execute() {popup.hide(); lockWidgets();}});
 		
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.unlock(),LocaleText.get("unLockWidgets")),true, new Command(){
 			public void execute() {popup.hide(); unLockWidgets();}});
+		
+		lockWidgetsMenu = menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.lock(),LocaleText.get("lockAllWidgets")),true, new Command(){
+			public void execute() {popup.hide(); lockUnlockAllWidgets();}});
 
 		menuBar.addSeparator();	
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("selectAll")),true, new Command(){
