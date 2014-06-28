@@ -2054,20 +2054,17 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					if (qtnDef == null) {
 						continue;
 					}
-					if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-						String[] values = entry.getValue().toString().split(" ");
-						for (int index = 0; index < qtnDef.getOptionCount(); index++) {
-							OptionDef optionDef = qtnDef.getOptionAt(index);
-							widget = widgetBindingMap.get(optionDef.getBinding());
-							if (widget != null && widget.getWrappedWidget() instanceof CheckBoxWidget) {
-								((CheckBoxWidget)widget.getWrappedWidget()).setValue(arrayContains(values, optionDef.getBinding()));
-							}
-						}
+					
+					String[] values = null;
+					if (entry.getValue() != null) {
+						values = entry.getValue().toString().split(" ");
 					}
-					else {
-						widget = widgetBindingMap.get(entry.getValue());
-						if (widget != null && widget.getWrappedWidget() instanceof RadioButtonWidget) {
-							((RadioButtonWidget)widget.getWrappedWidget()).setValue(true);
+					
+					for (int index = 0; index < qtnDef.getOptionCount(); index++) {
+						OptionDef optionDef = qtnDef.getOptionAt(index);
+						widget = widgetBindingMap.get(optionDef.getBinding());
+						if (widget != null && widget.getWrappedWidget() instanceof CheckBox) {
+							((CheckBox)widget.getWrappedWidget()).setValue(arrayContains(values, optionDef.getBinding()));
 						}
 					}
 					
@@ -2089,6 +2086,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	}
 	
 	private boolean arrayContains(String[] values, String value) {
+		if (values == null) {
+			return false;
+		}
+		
 		for (String val : values) {
 			if (value.equals(val)) {
 				return true;
