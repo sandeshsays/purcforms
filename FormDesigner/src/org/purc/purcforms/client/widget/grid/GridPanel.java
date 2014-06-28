@@ -525,6 +525,10 @@ public class GridPanel extends AbsolutePanel {
 				if(value == width) {
 					widget.setWidthInt(value - left);
 				}
+				else if (value > width) {
+					//This must be a bug. How can a line go beyond the table edges???
+					widget.setWidthInt(width - left);
+				}
 			}
 		}
 		
@@ -538,6 +542,10 @@ public class GridPanel extends AbsolutePanel {
 				
 				if(value == height) {
 					widget.setHeightInt(value - top);
+				}
+				else if (value > height) {
+					//This must be a bug. How can a line go beyond the table edges???
+					widget.setHeightInt(height - top);
 				}
 			}
 		}

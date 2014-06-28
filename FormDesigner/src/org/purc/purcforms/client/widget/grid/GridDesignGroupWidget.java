@@ -336,7 +336,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		
 		//int size = (!leftLineFound && right) ? startLine.getLeftInt() : (leftDiff + rightDiff);
 		
-		moveHorizontalLinesAndText(top, totalDisplacement);
+		if(!DragContext.controlKeyPressed) {
+			moveHorizontalLinesAndText(top, totalDisplacement);
+		}
 		
 		AddRowsCmd addRowsCmd = new AddRowsCmd(top, totalDisplacement, this);
 		
@@ -374,7 +376,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		this.setResizeLinesToFit(true);
 		
-		resizeVerticalLinesAndTable(ypos, totalDisplacement, addRowsCmd.getResizedLines(), addRowsCmd.getMovedLines());
+		if(!DragContext.controlKeyPressed) {
+			resizeVerticalLinesAndTable(ypos, totalDisplacement, addRowsCmd.getResizedLines(), addRowsCmd.getMovedLines());
+		}
 		
 		onRowsAdded(totalDisplacement);
 		
@@ -477,7 +481,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		int left = startLine.getLeftInt();
 		int totalDisplacement = size * columns;
 		
-		moveVerticalLinesAndText(left, totalDisplacement);
+		if(!DragContext.controlKeyPressed) {
+			moveVerticalLinesAndText(left, totalDisplacement);
+		}
 		
 		AddColumnsCmd addColumnsCmd = new AddColumnsCmd(left, totalDisplacement, this);
 		
@@ -524,7 +530,9 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 		}
 		this.setResizeLinesToFit(true);
 		
-		resizeHorizontalLinesAndTable(xpos, totalDisplacement, addColumnsCmd.getResizedLines(), addColumnsCmd.getMovedLines());
+		if(!DragContext.controlKeyPressed) {
+			resizeHorizontalLinesAndTable(xpos, totalDisplacement, addColumnsCmd.getResizedLines(), addColumnsCmd.getMovedLines());
+		}
 		
 		onColumnsAdded(totalDisplacement);
 		

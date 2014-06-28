@@ -1012,6 +1012,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 						}
 
 						selectedDragController.clearSelection();
+						DOM.setStyleAttribute(txtEdit.getElement(), "width", (getWidthInt() - editWidget.getLeftInt()) + "px");
 						editWidget.startEditMode(txtEdit);
 						labelEditView = this;
 						return true;
@@ -1028,6 +1029,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 						((DesignGroupWidget)editWidget.getWrappedWidget()).clearSelection();
 						selectedDragController.clearSelection();
+						DOM.setStyleAttribute(txtEdit.getElement(), "width", (getWidthInt() - editWidget.getLeftInt()) + "px");
 						headerLabel.startEditMode(txtEdit);
 						labelEditView = this;
 						return true;
@@ -1875,6 +1877,8 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		case Event.ONMOUSEDOWN:  
 
 			FormDesignerUtil.enableContextMenu(getElement());
+			
+			DragContext.controlKeyPressed = event.getCtrlKey() || event.getMetaKey();
 
 			mouseMoved = false;
 			x = event.getClientX();
