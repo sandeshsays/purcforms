@@ -2049,8 +2049,30 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		else {
 			for (Entry<String, Object> entry : map.getRecord().entrySet()) {
 				RuntimeWidgetWrapper widget = widgetBindingMap.get(entry.getKey());
-				if (widget == null)
+				if (widget == null) {
+					QuestionDef qtnDef = formDef.getQuestion(entry.getKey());
+					if (qtnDef == null) {
+						continue;
+					}
+					if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+						String[] values = entry.getValue().toString().split(" ");
+						for (int index = 0; index < qtnDef.getOptionCount(); index++) {
+							OptionDef optionDef = qtnDef.getOptionAt(index);
+							widget = widgetBindingMap.get(optionDef.getBinding());
+							if (widget != null && widget.getWrappedWidget() instanceof CheckBoxWidget) {
+								((CheckBoxWidget)widget.getWrappedWidget()).setValue(arrayContains(values, optionDef.getBinding()));
+							}
+						}
+					}
+					else {
+						widget = widgetBindingMap.get(entry.getValue());
+						if (widget != null && widget.getWrappedWidget() instanceof RadioButtonWidget) {
+							((RadioButtonWidget)widget.getWrappedWidget()).setValue(true);
+						}
+					}
+					
 					continue;
+				}
 				
 				if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
 					if (groupQtnsDef == ((RuntimeGroupWidget)widget.getWrappedWidget()).groupQtnsDef) {
@@ -2064,6 +2086,16 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				}
 			}
 		}
+	}
+	
+	private boolean arrayContains(String[] values, String value) {
+		for (String val : values) {
+			if (value.equals(val)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	protected void saveCurrentRecordValues() {
