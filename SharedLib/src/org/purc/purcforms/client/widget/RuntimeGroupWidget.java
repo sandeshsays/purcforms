@@ -2072,6 +2072,26 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 						}
 					}
 					
+					if (qtnDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN) {
+						if (values == null) {
+							qtnDef.setAnswer(null);
+						}
+						else {
+							qtnDef.setAnswer(values[0]);
+						}
+						
+						String binding = qtnDef.getBinding() + "_purcforms_" + QuestionDef.TRUE_VALUE;
+						widget = widgetBindingMap.get(binding);
+						if (widget != null && widget.getWrappedWidget() instanceof CheckBox) {
+							((CheckBox)widget.getWrappedWidget()).setValue(arrayContains(values, QuestionDef.TRUE_VALUE));
+						}
+						
+						binding = qtnDef.getBinding() + "_purcforms_" + QuestionDef.FALSE_VALUE;
+						widget = widgetBindingMap.get(binding);
+						if (widget != null && widget.getWrappedWidget() instanceof CheckBox) {
+							((CheckBox)widget.getWrappedWidget()).setValue(arrayContains(values, QuestionDef.FALSE_VALUE));
+						}
+					}
 					continue;
 				}
 				
