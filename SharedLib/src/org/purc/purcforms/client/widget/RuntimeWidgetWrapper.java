@@ -956,9 +956,9 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 			String value = null;
 
-			if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
+			/*if(questionDef.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN)
 				value = questionDef.getAnswer();
-			else{
+			else{*/
 				for(int index=0; index < childWidgets.size(); index++){
 					RuntimeWidgetWrapper childWidget = childWidgets.get(index);
 					String binding = childWidget.getBinding();
@@ -967,7 +967,7 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 						break;
 					}
 				}
-			}
+			//}
 
 			questionDef.setAnswer(value);
 		}

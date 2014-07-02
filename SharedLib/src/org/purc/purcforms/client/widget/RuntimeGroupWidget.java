@@ -2077,6 +2077,12 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 							qtnDef.setAnswer(null);
 						}
 						else {
+							if ("1".equals(values[0])) {
+								values[0] = QuestionDef.TRUE_VALUE;
+							}
+							else if ("0".equals(values[0])) {
+								values[0] = QuestionDef.FALSE_VALUE;
+							}
 							qtnDef.setAnswer(values[0]);
 						}
 						

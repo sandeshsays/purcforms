@@ -754,8 +754,13 @@ public class QuestionDef implements Serializable{
 		boolean isNew = controlNode == null;
 		if(controlNode == null) //Must be new question.
 			UiElementBuilder.fromQuestionDef2Xform(this, doc, xformsNode, formDef, formNode, modelNode, groupNode, true);
-		else
+		else {
+			if((getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+					getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) && options != null){
+				updateOptionDefs(formDef, doc);
+			}
 			updateControlNodeName();
+		}
 
 		if(labelNode != null) //How can this happen
 			XmlUtil.setTextNodeValue(labelNode,text);
@@ -860,35 +865,7 @@ public class QuestionDef implements Serializable{
 
 		if((getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
 				getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) && options != null){
-			
-			Map<String, String> extendedOptionsMap = null;
-			if (getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
-				extendedOptionsMap = (Map<String, String>)formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
-			}
-
-			boolean allOptionsNew = areAllOptionsNew();
-			List newOptns = new ArrayList();
-			List optns = (List)options;
-			for(int i=0; i<optns.size(); i++){
-				OptionDef optionDef = (OptionDef)optns.get(i);
-
-				if(!allOptionsNew && optionDef.getControlNode() == null)
-					newOptns.add(optionDef);
-
-				optionDef.updateDoc(formDef, this, doc, controlNode, (extendedOptionsMap != null ? extendedOptionsMap.get(optionDef.getBinding()) : null) );
-				if(i == 0)
-					firstOptionNode = optionDef.getControlNode();
-			}
-
-			for(int k = 0; k < newOptns.size(); k++){
-				OptionDef optionDef = (OptionDef)newOptns.get(k);
-				int proposedIndex = optns.size() - (newOptns.size() - k);
-				int currentIndex = optns.indexOf(optionDef);
-				if(currentIndex == proposedIndex)
-					continue;
-
-				moveOptionNodesUp(optionDef,getRefOption(optns,newOptns,currentIndex /*currentIndex+1*/));
-			}
+			;//updateOptionDefs(formDef, doc);
 		}
 		else if(isGroupQtnsDef()){
 			getGroupQtnsDef().updateDoc(doc,xformsNode,formDef,formNode,modelNode,groupNode,withData,orgFormVarName);
@@ -932,6 +909,37 @@ public class QuestionDef implements Serializable{
 			updateNodeValue(doc,formNode,defaultValue,withData);
 
 		return isNew;
+	}
+	
+	private void updateOptionDefs(FormDef formDef, Document doc) {
+		Map<String, String> extendedOptionsMap = null;
+		if (getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+			extendedOptionsMap = (Map<String, String>)formDef.getExtentendProperty(this, XformConstants.ATTRIBUTE_NAME_EXCLUSIVE_OPTIONS);
+		}
+
+		boolean allOptionsNew = areAllOptionsNew();
+		List newOptns = new ArrayList();
+		List optns = (List)options;
+		for(int i=0; i<optns.size(); i++){
+			OptionDef optionDef = (OptionDef)optns.get(i);
+
+			if(!allOptionsNew && optionDef.getControlNode() == null)
+				newOptns.add(optionDef);
+
+			optionDef.updateDoc(formDef, this, doc, controlNode, (extendedOptionsMap != null ? extendedOptionsMap.get(optionDef.getBinding()) : null) );
+			if(i == 0)
+				firstOptionNode = optionDef.getControlNode();
+		}
+
+		for(int k = 0; k < newOptns.size(); k++){
+			OptionDef optionDef = (OptionDef)newOptns.get(k);
+			int proposedIndex = optns.size() - (newOptns.size() - k);
+			int currentIndex = optns.indexOf(optionDef);
+			if(currentIndex == proposedIndex)
+				continue;
+
+			moveOptionNodesUp(optionDef,getRefOption(optns,newOptns,currentIndex /*currentIndex+1*/));
+		}
 	}
 
 	private boolean areAllOptionsNew(){
@@ -1274,25 +1282,27 @@ public class QuestionDef implements Serializable{
 		else if(name.contains(XformConstants.NODE_NAME_SELECT_MINUS_PREFIX) &&
 				!isSelect()){
 			
-			if (!(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
-					dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
-					dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
-					isMultiMedia(dataType))){
-				if(firstOptionNode != null){
-					firstOptionNode.getParentNode().removeChild(firstOptionNode);
-					firstOptionNode = null;
-					xml = controlNode.toString();
+			if(!(name.contains(XformConstants.NODE_NAME_SELECT1_MINUS_PREFIX) && isSelect1())){
+				if (!(dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE ||
+						dataType == QuestionDef.QTN_TYPE_LIST_MULTIPLE ||
+						dataType == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE_DYNAMIC ||
+						isMultiMedia(dataType))){
+					if(firstOptionNode != null){
+						firstOptionNode.getParentNode().removeChild(firstOptionNode);
+						firstOptionNode = null;
+						xml = controlNode.toString();
+					}
 				}
-			}
-		
-			if (isInput())
-				xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
-			else if (isSelect1())
-				xml = xml.replace(name, XformConstants.NODE_NAME_SELECT1);
-			else
-				xml = xml.replace(name, XformConstants.NODE_NAME_REPEAT);
 			
-			modified = true;
+				if (isInput())
+					xml = xml.replace(name, XformConstants.NODE_NAME_INPUT);
+				else if (isSelect1())
+					xml = xml.replace(name, XformConstants.NODE_NAME_SELECT1);
+				else
+					xml = xml.replace(name, XformConstants.NODE_NAME_REPEAT);
+				
+				modified = true;
+			}
 		}
 		
 

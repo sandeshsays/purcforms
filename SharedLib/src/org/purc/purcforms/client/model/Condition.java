@@ -152,6 +152,10 @@ public class Condition implements Serializable, BindingChangeListener {
 						value = tempValue;
 						//return false;
 						//return validation; //TODO Do we really need validations to return true when qtn is not answered?
+						if (validation) {
+							return true; //if second question is not yet answered, we do not run validations on it.
+						}
+						
 						return (operator == ModelConstants.OPERATOR_NOT_EQUAL || operator == ModelConstants.OPERATOR_NOT_BETWEEN ||
 								operator == ModelConstants.OPERATOR_NOT_CONTAIN || operator == ModelConstants.OPERATOR_NOT_END_WITH ||
 								operator == ModelConstants.OPERATOR_NOT_IN_LIST || operator == ModelConstants.OPERATOR_NOT_START_WITH);

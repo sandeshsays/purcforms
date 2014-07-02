@@ -180,6 +180,9 @@ public class FormDesignerDragController extends AbstractDragController{
 
 	@Override
 	public void dragEnd() {
+		
+		if(Context.getLockWidgets())
+			return;
 
 		if(Window.getScrollLeft() != 0 || Window.getScrollTop() != 0)
 			Window.scrollTo(0, 0);
@@ -284,6 +287,10 @@ public class FormDesignerDragController extends AbstractDragController{
 	}
 
 	public void dragMove() {
+		
+		if(Context.getLockWidgets())
+			return;
+		
 		// may have changed due to scrollIntoView(), developer driven changes
 		// or manual user scrolling
 		long timeMillis = System.currentTimeMillis();
@@ -425,6 +432,9 @@ public class FormDesignerDragController extends AbstractDragController{
 	@Override
 	public void dragStart() {
 		
+		if(Context.getLockWidgets())
+			return;
+		
 		if(context.selectedWidgets.size() > 1 && isResizing()){
 			for (Widget widget : context.selectedWidgets) {
 				if(widget != context.draggable)
@@ -439,9 +449,6 @@ public class FormDesignerDragController extends AbstractDragController{
 		if(context.draggable instanceof DesignWidgetWrapper && "100%".equals(((DesignWidgetWrapper)context.draggable).getWidth())){
 			context.draggable = context.draggable;//.getParent().getParent().getParent().getParent();
 		}
-
-		//if(Context.getLockWidgets())
-		//	return;
 
 		super.dragStart();
 
@@ -572,11 +579,12 @@ public class FormDesignerDragController extends AbstractDragController{
 
 	@Override
 	public void previewDragEnd() throws VetoDragException {
+		
+		if(Context.getLockWidgets())
+			return;
+		
 		assert context.finalDropController == null;
 		assert context.vetoException == null;
-
-		//if(Context.getLockWidgets())
-		//	return;
 
 		try {
 			try {
