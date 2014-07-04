@@ -3,6 +3,8 @@ package org.purc.purcforms.client.view;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.purc.purcforms.client.Context;
@@ -347,6 +349,10 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 		menuBar.addSeparator();
 		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.open(),LocaleText.get("load")),true,new Command(){
 			public void execute() {popup.hide(); load();}});
+		
+		menuBar.addSeparator();
+		menuBar.addItem(FormDesignerUtil.createHeaderHTML(images.add(),LocaleText.get("resetTabOrder")),true,new Command(){
+			public void execute() {popup.hide(); resetTabOrder();}});
 
 		popup.setWidget(menuBar);
 	}
@@ -1182,5 +1188,43 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	
 	public static void setSelectedView(DesignGroupView selectedView){
 		DesignSurfaceView.selectedView = selectedView;
+	}
+	
+	public void resetTabOrder() {
+		if (!Window.confirm(LocaleText.get("resetTabOrderConfirmation"))) {
+			return;
+		}
+		
+		FormUtil.dlg.setText(LocaleText.get("refreshingDesignSurface"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				try{
+					TreeMap<Integer, Object> tabOrderMap = new TreeMap<Integer, Object>();
+					fillTabOrder(selectedPanel, tabOrderMap, 0, 0);
+					setTabOrder(tabOrderMap, 0);
+					
+					FormUtil.dlg.hide();
+				}
+				catch(Exception ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+	
+	private int setTabOrder(TreeMap<Integer, Object> tabOrderMap, int index) {
+		for (Entry<Integer, Object> entry : tabOrderMap.entrySet()) {
+			Object value = entry.getValue();
+			if (value instanceof DesignWidgetWrapper) {
+				((DesignWidgetWrapper)value).setTabIndex(++index);
+			}
+			else {
+				index = setTabOrder((TreeMap<Integer, Object>)entry.getValue(), index);
+			}
+		}
+		
+		return index;
 	}
 }

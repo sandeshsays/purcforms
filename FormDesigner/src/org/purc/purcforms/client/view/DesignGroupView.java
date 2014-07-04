@@ -3,6 +3,7 @@ package org.purc.purcforms.client.view;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import org.purc.purcforms.client.Context;
@@ -2951,6 +2952,47 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 
 			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
 				fillWidgetBindings(((DesignGroupWidget)widget.getWrappedWidget()).getPanel(), bindings, labels);
+		}
+	}
+	
+	public void fillTabOrder(AbsolutePanel panel, TreeMap<Integer, Object> tabOrderMap, int parentLeft, int parentTop){
+		if(panel.getWidgetIndex(rubberBand) > -1)
+			panel.remove(rubberBand);
+		
+		for(int index = 0; index < panel.getWidgetCount(); index++){
+			Widget wid = panel.getWidget(index);
+			if(!(wid instanceof DesignWidgetWrapper)) {
+				panel.remove(wid);
+				continue;
+			}
+
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)wid;
+
+			if(widget.getWrappedWidget() instanceof Label) {
+				continue;
+			}
+			
+			Integer top = widget.getTopInt() + parentTop;
+			Object value = tabOrderMap.get(top);
+			if (value == null) {
+				tabOrderMap.put(top, widget);
+			}
+			else {
+				if (value instanceof DesignWidgetWrapper) {
+					DesignWidgetWrapper wrapper = (DesignWidgetWrapper)value;
+					TreeMap<Integer, DesignWidgetWrapper> map = new TreeMap<Integer, DesignWidgetWrapper>();
+					map.put(wrapper.getLeftInt() + parentLeft, wrapper);
+					map.put(widget.getLeftInt() + parentLeft, widget);
+					tabOrderMap.put(top, map);
+				}
+				else {
+					TreeMap<Integer, DesignWidgetWrapper> map = (TreeMap<Integer, DesignWidgetWrapper>)value;
+					map.put(widget.getLeftInt() + parentLeft, widget);
+				}
+			}
+
+			if(widget.getWrappedWidget() instanceof DesignGroupWidget)
+				fillTabOrder(((DesignGroupWidget)widget.getWrappedWidget()).getPanel(), tabOrderMap, widget.getLeftInt(), widget.getTopInt());
 		}
 	}
 	
