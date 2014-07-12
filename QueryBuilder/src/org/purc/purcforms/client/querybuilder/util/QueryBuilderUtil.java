@@ -36,6 +36,7 @@ public class QueryBuilderUtil {
 	
 	private static boolean showXformsXml;
 	private static boolean showDefinitionXml;
+	private static boolean showDisplayFields = true;
 	private static boolean showSql;
 	private static boolean showResults;
 	
@@ -341,6 +342,10 @@ public class QueryBuilderUtil {
 		if("1".equals(s) || "true".equals(s))
 			showDefinitionXml = true;
 		
+		s = FormUtil.getDivValue("showDisplayFields");
+		if("0".equals(s) || "false".equals(s))
+			showDisplayFields = false;
+		
 		s = FormUtil.getDivValue("showSql");
 		if("1".equals(s) || "true".equals(s))
 			showSql = true;
@@ -391,8 +396,12 @@ public class QueryBuilderUtil {
 		return showDefinitionXml;
 	}
 	
+	public static boolean showDisplayFields(){
+		return showDisplayFields;
+	}
+	
 	public static boolean showSql(){
-		return true; //showSql;
+		return showSql;
 	}
 	
 	public static boolean showResults() {

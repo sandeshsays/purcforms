@@ -106,7 +106,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		}
 		
 		tabs.add(filterConditionsView,"Filter Conditions");
-		tabs.add(displayFieldsView,"Display Fields");
+		
+		if (QueryBuilderUtil.showDisplayFields()) {
+			tabs.add(displayFieldsView,"Display Fields");
+		}
 		
 		if (QueryBuilderUtil.showDefinitionXml())
 			tabs.add(txtDefXml,"Definition XML");
