@@ -110,6 +110,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 		if (QueryBuilderUtil.showDisplayFields()) {
 			tabs.add(displayFieldsView,"Display Fields");
 		}
+		else {
+			sqlIndex -= 1;
+			resultsIndex -= 1;
+		}
 		
 		if (QueryBuilderUtil.showDefinitionXml())
 			tabs.add(txtDefXml,"Definition XML");

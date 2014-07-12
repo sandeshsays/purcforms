@@ -177,6 +177,10 @@ public class QueryBuilderController {
 		}
 	}
 	
+	public static String getSql() {	
+		return view.getSql();
+	}
+	
 	/**
 	 * This is called from the server after an attempt to authenticate the current
 	 * user before they can submit form data.

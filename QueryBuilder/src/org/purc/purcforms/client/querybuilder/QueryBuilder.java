@@ -76,5 +76,6 @@ public class QueryBuilder implements EntryPoint {
 	// Set up the JS-callable signature as a global JS function.
 	private native void publishJS() /*-{
    		$wnd.authenticationCallback = @org.purc.purcforms.client.querybuilder.controller.QueryBuilderController::authenticationCallback(Z);
+   		$wnd.getSql = @org.purc.purcforms.client.querybuilder.controller.QueryBuilderController::getSql();
 	}-*/;
 }
