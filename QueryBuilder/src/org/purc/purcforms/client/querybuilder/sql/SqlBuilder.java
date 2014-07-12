@@ -380,7 +380,13 @@ public class SqlBuilder {
 				Float.parseFloat(value);
 				return true;
 			}
-			catch(NumberFormatException ex2) {}
+			catch(NumberFormatException ex2) {
+				if (value.indexOf(",") > 0) {
+					if (value.indexOf("'") < 0) {
+						return true;
+					}
+				}
+			}
 		}
 		
 		return false;
