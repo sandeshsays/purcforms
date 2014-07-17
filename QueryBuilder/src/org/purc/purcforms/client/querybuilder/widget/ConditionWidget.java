@@ -98,7 +98,8 @@ public class ConditionWidget extends Composite implements ItemSelectionListener,
 			valueWidget.setQuestionDef(questionDef);
 			
 			//We set the universal operator which is valid for all questions.
-			valueWidget.setOperator(ModelConstants.OPERATOR_EQUAL);
+			operator = ModelConstants.OPERATOR_EQUAL;
+			valueWidget.setOperator(operator);
 		}
 		else if(sender == operatorHyperlink){
 			operator = ((Integer)item).intValue();
