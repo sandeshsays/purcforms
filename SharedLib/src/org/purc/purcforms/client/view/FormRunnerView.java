@@ -256,32 +256,6 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 */
 	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets, boolean previewMode){
 		//FormUtil.initialize();
-		
-		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
-		if(script != null)
-			script.removeFromParent();
-		
-		script = DOM.getElementById("purcforms_css");
-		if(script != null)
-			script.removeFromParent();
-
-		if(javaScriptSrc != null){
-			Document document = Document.get();
-			script = document.createElement("script");
-			script.setAttribute("type", "text/javascript");
-			script.setAttribute("id", "purcforms_javascript");
-			script.appendChild(document.createTextNode(javaScriptSrc));
-			document.getElementsByTagName("head").getItem(0).appendChild(script);
-		}
-		
-		if(css != null){
-			Document document = Document.get();
-			script = document.createElement("style");
-			script.setAttribute("type", "text/css");
-			script.setAttribute("id", "purcforms_css");
-			script.appendChild(document.createTextNode(css));
-			document.getElementsByTagName("head").getItem(0).appendChild(script);
-		}
 
 		if(previewMode /*externalSourceWidgets == null*/){
 			//Here we must be in preview mode where we need to create a new copy of the formdef
@@ -317,6 +291,36 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 		else {
 			moveToFirstWidget();
+		}
+		
+		loadCssAndJavaScript(javaScriptSrc, css);
+	}
+	
+	private void loadCssAndJavaScript(String javaScriptSrc, String css) {
+		com.google.gwt.dom.client.Element script = DOM.getElementById("purcforms_javascript");
+		if(script != null)
+			script.removeFromParent();
+		
+		script = DOM.getElementById("purcforms_css");
+		if(script != null)
+			script.removeFromParent();
+
+		if(javaScriptSrc != null){
+			Document document = Document.get();
+			script = document.createElement("script");
+			script.setAttribute("type", "text/javascript");
+			script.setAttribute("id", "purcforms_javascript");
+			script.appendChild(document.createTextNode(javaScriptSrc));
+			document.getElementsByTagName("head").getItem(0).appendChild(script);
+		}
+		
+		if(css != null){
+			Document document = Document.get();
+			script = document.createElement("style");
+			script.setAttribute("type", "text/css");
+			script.setAttribute("id", "purcforms_css");
+			script.appendChild(document.createTextNode(css));
+			document.getElementsByTagName("head").getItem(0).appendChild(script);
 		}
 	}
 
