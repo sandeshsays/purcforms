@@ -20,7 +20,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -75,6 +74,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		ImageResource fontsize();
 		ImageResource lock();
 		ImageResource unlock();
+		ImageResource exit();
 	}
 	 
 	/** Main widget for this tool bar. */
@@ -110,6 +110,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	private PushButton btnFontFamily;
 	private PushButton btnForeColor;
 	private PushButton btnFontSize;
+	private PushButton btnExit;
 	
 	/** Widget for separating tool bar buttons from each other. */
 	private Label separatorWidget = new Label("  ");
@@ -148,6 +149,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	 * Sets up the tool bar.
 	 */
 	private void setupToolbar(){
+		btnExit = new PushButton(FormUtil.createImage(images.exit()));
 		btnNewForm = new PushButton(FormUtil.createImage(images.newform()));
 		btnOpenForm = new PushButton(FormUtil.createImage(images.open()));
 		btnSaveForm = new PushButton(FormUtil.createImage(images.save()));
@@ -187,6 +189,7 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		lbFontSize.setWidth("80" + PurcConstants.UNITS);
 		lbFontSize.setHeight("25" + PurcConstants.UNITS);*/
 		
+		btnExit.setTitle(LocaleText.get("close"));
 		btnNewForm.setTitle(LocaleText.get("newForm"));
 		btnSaveForm.setTitle(LocaleText.get("save"));
 		btnOpenForm.setTitle(LocaleText.get("open"));
@@ -221,6 +224,8 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 		btnFontFamily.setTitle(LocaleText.get("fontFamily"));
 		btnForeColor.setTitle(LocaleText.get("foreColor"));
 		btnFontSize.setTitle(LocaleText.get("fontSize"));
+		
+		panel.add(btnExit);
 		
 		if(Context.isOfflineMode())
 			panel.add(btnNewForm);
@@ -303,6 +308,9 @@ public class Toolbar extends Composite implements ILocaleListChangeListener, Col
 	 * Setup button click event handlers.
 	 */
 	private void setupClickListeners(){
+		btnExit.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent event){controller.closeForm();}});
+		
 		btnNewForm.addClickHandler(new ClickHandler(){
 			public void onClick(ClickEvent event){controller.newForm();}});
 		
