@@ -1958,6 +1958,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			currentRecordIndex = 0;
 			loadRecordValues();
 			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
 		}
 		else if (binding.equalsIgnoreCase("prevRecord")) {
 			if (!isValid(true)) {
@@ -1969,6 +1970,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			currentRecordIndex--;
 			loadRecordValues();
 			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
 		}
 		else if (binding.equalsIgnoreCase("nextRecord")) {
 			if (!isValid(true)) {
@@ -1980,6 +1982,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			currentRecordIndex++;
 			loadRecordValues();
 			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
 		}
 		else if (binding.equalsIgnoreCase("lastRecord")) {
 			if (!isValid(true)) {
@@ -1991,6 +1994,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			currentRecordIndex = records.size() - 1;
 			loadRecordValues();
 			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
 		}
 		else if (binding.equalsIgnoreCase("newRecord")) {
 			if (!isValid(true)) {
@@ -2005,6 +2009,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			records.add(new SubFormRecord());
 			currentRecordIndex = records.size() - 1;			
 			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
 		}
 		else if (binding.equalsIgnoreCase("deleteRecord")) {
 			if (Window.confirm("Do you really want to delete this record?")) {
@@ -2034,6 +2039,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				clearInputValues();
 				loadRecordValues();
 				setNavigationButtonStatus();
+				FormUtil.onRecordMoved();
 			}
 		}
 	}

@@ -1185,6 +1185,10 @@ public class FormUtil {
 	public static native boolean isAuthenticated() /*-{
 		return $wnd.isUserAuthenticated();
 	}-*/;
+	
+	public static native boolean onRecordMoved() /*-{
+		return $wnd.onRecordMoved();
+	}-*/;
 
 	/**
 	 * Checks if a user is logged on the server.
