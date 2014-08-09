@@ -88,6 +88,7 @@ public class WidgetEx extends Composite{
 	
 	public static final String WIDGET_PROPERTY_ID = "Id";
 	public static final String WIDGET_PROPERTY_EXTERNAL_ID = "externalId";
+	public static final String WIDGET_PROPERTY_EXTERNAL_ID_TEXT_LENGTH = "externalIdTextLength";
 	
 	public static final String WIDGET_PROPERTY_CLASS = "class";
 	
