@@ -180,6 +180,9 @@ public class FormUtil {
 	
 	private static boolean formatXml = true;
 	
+	public static String recordPosition;
+	public static String recordIds;
+	
 	private static HashMap<String, String> decimalSeparators = new HashMap<String, String>();
 
 	/** The dialog used to show all progress messages. */
@@ -499,6 +502,9 @@ public class FormUtil {
 		saveQueryUrlSuffix = getDivValue("saveQueryUrlSuffix");
 		openQueryUrlSuffix = getDivValue("openQueryUrlSuffix");
 		exportPdfUrlSuffix = getDivValue("exportPdfUrlSuffix");
+		
+		recordPosition = getDivValue("recordPosition");
+		recordIds = getDivValue("recordIds");
 
 		if(multimediaUrlSuffix == null || multimediaUrlSuffix.trim().length() == 0)
 			multimediaUrlSuffix = "multimedia";
@@ -864,6 +870,14 @@ public class FormUtil {
 	
 	public static String getOpenQueryUrlSuffix(){
 		return openQueryUrlSuffix;
+	}
+	
+	public static String getRecordIds() {
+		return recordIds;
+	}
+	
+	public static String getRecordPosition() {
+		return recordPosition;
 	}
 
 	public static String getFileOpenUrl(){

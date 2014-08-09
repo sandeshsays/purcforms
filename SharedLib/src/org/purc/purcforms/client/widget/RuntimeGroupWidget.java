@@ -2427,4 +2427,36 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			widget.setQuestionDef(qtnDef, false);
 		}
 	}
+	
+	public void loadForm(FormDef formDef) {
+		this.formDef = formDef;
+		
+		for (int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+			
+			if (currentWidget.getWrappedWidget() instanceof RuntimeGroupWidget) {
+				((RuntimeGroupWidget)currentWidget.getWrappedWidget()).loadForm(formDef);
+				continue;
+			}
+			
+			if (!(currentWidget.isEditable() || currentWidget.getWrappedWidget() instanceof Image)) {
+				continue;
+			}
+			
+			QuestionDef questionDef = formDef.getQuestion(currentWidget.getBinding());
+			if (questionDef == null) {
+				continue;
+			}
+			
+			currentWidget.setQuestionDef(questionDef, true);
+			
+			if (questionDef.getDataType() == QuestionDef.QTN_TYPE_IMAGE) {
+				String xpath = questionDef.getBinding();
+				if(!xpath.startsWith(formDef.getBinding())) {
+					xpath = "/" + formDef.getBinding() + "/" + questionDef.getBinding();
+				}
+				((Image)currentWidget.getWrappedWidget()).setUrl(URL.encode(FormUtil.getMultimediaUrl()+"?formId="+formDef.getId()+"&xpath="+xpath+"&time="+ new java.util.Date().getTime()));
+			}
+		}
+	}
 }

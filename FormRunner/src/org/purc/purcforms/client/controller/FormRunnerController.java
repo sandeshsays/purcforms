@@ -30,7 +30,7 @@ import com.google.gwt.user.client.Window;
  * @author daniel
  *
  */
-public class FormRunnerController implements SubmitListener{
+public class FormRunnerController implements SubmitListener, LoadListener {
 
 	private FormRunnerWidget formRunner;
 	private String xformXml;
@@ -124,12 +124,14 @@ public class FormRunnerController implements SubmitListener{
 		FormUtil.dlg.setText(LocaleText.get("openingForm"));
 		FormUtil.dlg.center();
 
+		final LoadListener listener  = this;
+		
 		DeferredCommand.addCommand(new Command(){
 			public void execute() {
 				try{
 					List<RuntimeWidgetWrapper> externalSourceWidgets = new ArrayList<RuntimeWidgetWrapper>();
 					FormDef formDef = XformParser.fromXform2FormDef(xformXml);
-					formRunner.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets);
+					formRunner.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets, listener);
 
 					FormUtil.dlg.hide();	
 				}
@@ -139,7 +141,7 @@ public class FormRunnerController implements SubmitListener{
 			}
 		});
 	}
-
+	
 	public void onCancel(){
 		String url = FormUtil.getHostPageBaseURL();
 		url += FormUtil.getAfterCancelUrlSuffix();
@@ -266,6 +268,78 @@ public class FormRunnerController implements SubmitListener{
 					});
 				}
 				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+	}
+
+	/**
+     * @see org.purc.purcforms.client.controller.LoadListener#onLoad(java.lang.String)
+     */
+    @Override
+    public void onLoad(String entyId) {
+		this.entityId = Integer.parseInt(entyId);
+
+		FormUtil.dlg.setText(LocaleText.get("loading"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+
+				//"http://127.0.0.1:8080/openmrs/moduleServlet/xforms/xformDownload?target=xformentry&formId="+formId+"&patientId="+patientId+"&contentType=xml&uname=Guyzb&pw=daniel123"
+				String url = FormUtil.getHostPageBaseURL();
+				url += FormUtil.getEntityFormDefDownloadUrlSuffix();
+				url += FormUtil.getFormIdName()+"="+formId;
+				url += "&" + FormUtil.getEntityIdName() + "="+entityId;
+				url += "&dataOnly=true";
+				url = FormUtil.appendRandomParameter(url);
+
+				RequestBuilder builder = new RequestBuilder(RequestBuilder.GET,URL.encode(url));
+
+				try{
+					builder.sendRequest(null, new RequestCallback(){
+						public void onResponseReceived(Request request, Response response){
+							
+							if(response.getStatusCode() != Response.SC_OK){
+								FormUtil.displayReponseError(response);
+								return;
+							}
+								
+							xformXml = response.getText();
+							if(xformXml == null || xformXml.length() == 0){
+								FormUtil.dlg.hide();
+								Window.alert(LocaleText.get("noDataFound"));
+								return;
+							}
+								
+							loadForm();
+						}
+
+						public void onError(Request request, Throwable exception){
+							FormUtil.displayException(exception);
+						}
+					});
+				}
+				catch(RequestException ex){
+					FormUtil.displayException(ex);
+				}
+			}
+		});
+    }
+    
+    public void loadForm() {
+		FormUtil.dlg.setText(LocaleText.get("loading"));
+		FormUtil.dlg.center();
+
+		DeferredCommand.addCommand(new Command(){
+			public void execute() {
+				try{
+					FormDef formDef = XformParser.fromXform2FormDef(xformXml);
+					formRunner.loadForm(formDef);
+					FormUtil.dlg.hide();	
+				}
+				catch(Exception ex){
 					FormUtil.displayException(ex);
 				}
 			}

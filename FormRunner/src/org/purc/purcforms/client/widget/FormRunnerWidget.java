@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.purc.purcforms.client.controller.FormRunnerController;
+import org.purc.purcforms.client.controller.LoadListener;
 import org.purc.purcforms.client.controller.SubmitListener;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.util.FormUtil;
@@ -68,8 +69,12 @@ public class FormRunnerWidget extends Composite{
 	 * @param css the css text.
 	 * @param externalSourceWidgets list of widgets whose data sources come from outside the xform.
 	 */
-	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets){
-		view.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets,false);
+	public void loadForm(FormDef formDef,String layoutXml, String javaScriptSrc, String css, List<RuntimeWidgetWrapper> externalSourceWidgets, LoadListener listener){
+		view.loadForm(formDef, layoutXml, javaScriptSrc, css, externalSourceWidgets,false, listener);
+	}
+	
+	public void loadForm(FormDef formDef) {
+		view.loadForm(formDef);
 	}
 	
 	
@@ -89,8 +94,8 @@ public class FormRunnerWidget extends Composite{
 	 * @param xformXml the xforms xml.
 	 * @param layoutXml the layout xml.
 	 */
-	public void loadForm(String xformXml, String layoutXml, String javaScriptSource, String css){
-		view.loadForm(XformParser.fromXform2FormDef(xformXml), layoutXml,javaScriptSource, css, null,false);
+	public void loadForm(String xformXml, String layoutXml, String javaScriptSource, String css, LoadListener listener){
+		view.loadForm(XformParser.fromXform2FormDef(xformXml), layoutXml,javaScriptSource, css, null,false, listener);
 	}
 	
 	
@@ -132,10 +137,10 @@ public class FormRunnerWidget extends Composite{
 	}
 	
 	
-	public void loadForm(int formId, String xformXml, String modelXml,String layoutXml, String javaScriptSource, String css){
+	public void loadForm(int formId, String xformXml, String modelXml,String layoutXml, String javaScriptSource, String css, LoadListener listener){
 		FormDef formDef = XformParser.fromXform2FormDef(xformXml,modelXml);
 		formDef.setId(formId);
-		view.loadForm(formDef, layoutXml, javaScriptSource, css, new ArrayList<RuntimeWidgetWrapper>(),false);
+		view.loadForm(formDef, layoutXml, javaScriptSource, css, new ArrayList<RuntimeWidgetWrapper>(),false, listener);
 	}
 	
 	public void clear(){
