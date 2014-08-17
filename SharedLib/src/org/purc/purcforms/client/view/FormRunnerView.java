@@ -1031,40 +1031,48 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(formDef != null)
 			FormUtil.isAuthenticated();
 		
-		clearRecord();
-		repordPosition++;
-		setRecordNavigationLabel();
-		loadRecord();
+		if (repordPosition != null) {
+			clearRecord();
+			repordPosition++;
+			setRecordNavigationLabel();
+			loadRecord();
+		}
 	}
 	
 	protected void prevRecord(){
 		if(formDef != null)
 			FormUtil.isAuthenticated();
 		
-		clearRecord();
-		repordPosition--;
-		setRecordNavigationLabel();
-		loadRecord();
+		if (repordPosition != null) {
+			clearRecord();
+			repordPosition--;
+			setRecordNavigationLabel();
+			loadRecord();
+		}
 	}
 	
 	protected void firstRecord(){
 		if(formDef != null)
 			FormUtil.isAuthenticated();
 		
-		clearRecord();
-		repordPosition = 1;
-		setRecordNavigationLabel();
-		loadRecord();
+		if (repordPosition != null) {
+			clearRecord();
+			repordPosition = 1;
+			setRecordNavigationLabel();
+			loadRecord();
+		}
 	}
 	
 	protected void lastRecord(){
 		if(formDef != null)
 			FormUtil.isAuthenticated();
 		
-		clearRecord();
-		repordPosition = recordIds.length;
-		setRecordNavigationLabel();
-		loadRecord();
+		if (repordPosition != null) {
+			clearRecord();
+			repordPosition = recordIds.length;
+			setRecordNavigationLabel();
+			loadRecord();
+		}
 	}
 	
 	protected void clearRecord() {
