@@ -226,6 +226,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private String[] recordIds = null;
 	private Label navigationLabel = null;
 	private LoadListener listener;
+	
+	private Button btnNextRecord;
+	private Button btnPrevRecord;
+	private Button btnFirstRecord;
+	private Button btnLastRecord;
 
 	/**
 	 * Constructs an instance of the form runner.
@@ -666,7 +671,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			if ("recordNavigationLabel".equals(binding) && FormUtil.getRecordPosition() != null) {
 				repordPosition = Integer.parseInt(FormUtil.getRecordPosition());
 				recordIds = FormUtil.getRecordIds().split(",");
-				widget = navigationLabel = new Label("Record " + repordPosition + "  of  " + recordIds.length);
+				widget = navigationLabel = new Label("");
+				setRecordNavigationLabel();
 			}
 		}
 		else if (s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX) || s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION)
@@ -906,6 +912,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				}
 			}
 			else if(binding.equals("nextRecord")){
+				btnNextRecord = (Button)widget;
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						nextRecord();
@@ -913,6 +920,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				});
 			}
 			else if(binding.equals("prevRecord")){
+				btnPrevRecord = (Button)widget;
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						prevRecord();
@@ -920,6 +928,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				});
 			}
 			else if(binding.equals("firstRecord")){
+				btnFirstRecord = (Button)widget;
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						firstRecord();
@@ -927,6 +936,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				});
 			}
 			else if(binding.equals("lastRecord")){
+				btnLastRecord = (Button)widget;
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						lastRecord();
@@ -1021,6 +1031,11 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	
 	private void setRecordNavigationLabel() {
 		navigationLabel.setText("Record " + repordPosition + "  of  " + recordIds.length);
+		
+		btnNextRecord.setEnabled(repordPosition < recordIds.length);
+		btnLastRecord.setEnabled(btnNextRecord.isEnabled());
+		btnPrevRecord.setEnabled(repordPosition > 1);
+		btnFirstRecord.setEnabled(btnPrevRecord.isEnabled());
 	}
 	
 	protected void loadRecord() {
