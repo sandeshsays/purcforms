@@ -6,6 +6,7 @@ import java.util.List;
 import org.purc.purcforms.client.Context;
 import org.purc.purcforms.client.Toolbar;
 import org.purc.purcforms.client.controller.ICenterPanel;
+import org.purc.purcforms.client.controller.LoadListener;
 import org.purc.purcforms.client.controller.SubmitListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
@@ -31,7 +32,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * @author daniel
  *
  */
-public class PreviewView extends FormRunnerView {
+public class PreviewView extends FormRunnerView implements LoadListener {
 
 	public interface Images extends FormRunnerView.Images,Toolbar.Images {
 		ImageResource error();
@@ -181,6 +182,8 @@ public class PreviewView extends FormRunnerView {
 	public void refresh(){
 		FormUtil.dlg.setText(LocaleText.get("refreshingPreview"));
 		FormUtil.dlg.center();
+		
+		final LoadListener listener  = this;
 
 		DeferredCommand.addCommand(new Command(){
 			public void execute() {
@@ -189,7 +192,7 @@ public class PreviewView extends FormRunnerView {
 					List<RuntimeWidgetWrapper> externalSourceWidgets = new ArrayList<RuntimeWidgetWrapper>();
 					if(Context.isOfflineMode())
 						;//externalSourceWidgets = null;
-					loadForm(centerPanel.getFormDef(), designSurfaceView.getLayoutXml(), centerPanel.getJavaScriptSource(), centerPanel.getCSS(), externalSourceWidgets, true);
+					loadForm(centerPanel.getFormDef(), designSurfaceView.getLayoutXml(), centerPanel.getJavaScriptSource(), centerPanel.getCSS(), externalSourceWidgets, true, listener);
 					FormUtil.dlg.hide();
 				}
 				catch(Exception ex){
@@ -205,4 +208,13 @@ public class PreviewView extends FormRunnerView {
 	public void clearPreview(){
 		tabs.clear();
 	}
+
+	/**
+     * @see org.purc.purcforms.client.controller.LoadListener#onLoad(java.lang.String)
+     */
+    @Override
+    public void onLoad(String entityId) {
+	    // TODO Auto-generated method stub
+	    
+    }
 }

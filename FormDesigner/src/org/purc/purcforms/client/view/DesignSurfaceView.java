@@ -1162,6 +1162,9 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 	}
 	
 	protected void ensureVisible(Widget widget) {
+		if (widget == null)
+			return;
+		
 		ScrollPanel scrollPanel = (ScrollPanel)getParent();
 		//((ScrollPanel)getParent()).ensureVisible(widget);
 		com.google.gwt.dom.client.Element scrollElement = scrollPanel.getElement();

@@ -291,7 +291,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 					if(Context.isOfflineMode())
 						;//externalSourceWidgets = null;
 
-					previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), externalSourceWidgets,true);
+					previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), externalSourceWidgets,true, previewView);
 					FormUtil.dlg.hide();
 				}
 				catch(Exception ex){
@@ -421,7 +421,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 			previewView.setFormDef(formDef);
 
 			if(selectedTabIndex == SELECTED_INDEX_PREVIEW && formDef != null)
-				previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), null, true);
+				previewView.loadForm(formDef, designSurfaceView.getLayoutXml(), getJavaScriptSource(), getCSS(), null, true, previewView);
 
 			//This is necessary for those running in a non GWT mode to update the 
 			//scroll bars on loading the form.
