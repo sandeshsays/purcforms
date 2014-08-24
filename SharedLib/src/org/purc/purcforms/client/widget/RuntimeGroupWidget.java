@@ -153,7 +153,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		//setupEventListeners();
 
 		//table.setStyleName("cw-FlexTable");
-		this.addStyleName("purcforms-repeat-border");
+		this.addStyleName(isRepeated ? "purcforms-repeat-border" : "purcforms-group-border");
 	}
 
 	//TODO The code below needs great refactoring together with PreviewView
