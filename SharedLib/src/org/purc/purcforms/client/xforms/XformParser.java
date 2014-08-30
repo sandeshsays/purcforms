@@ -571,7 +571,9 @@ public class XformParser {
 		
 		
 		//Try again with the form data node as the reference point
-		if(parentQtn != null && qtn.getControlNode().getParentNode().getNodeName().equals(XformConstants.NODE_NAME_REPEAT)) {
+		//if((parentQtn != null && qtn.getControlNode().getParentNode().getNodeName().equals(XformConstants.NODE_NAME_REPEAT)) ||
+		//		(qtn.getDataNode() == null && parentQtn != null && parentQtn.isGroupQtnsDef())) {
+		if (qtn.getDataNode() == null && parentQtn != null && parentQtn.isGroupQtnsDef()) {
 			node = formDef.getDataNode();
 			
 			xpls = new XPathExpression(node, xpath);
