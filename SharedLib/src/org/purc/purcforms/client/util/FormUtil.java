@@ -122,6 +122,7 @@ public class FormUtil {
 	private static boolean overwriteTextOnRefresh = false;
 	private static boolean maintainOrderingOnRefresh = true;
 	private static boolean manualWidgetLayout = false;
+	private static boolean dynamicDesignItems = false;
 	
 	private static String exportExcelUrlSuffix;
 	private static String saveQueryUrlSuffix;
@@ -643,6 +644,12 @@ public class FormUtil {
 				manualWidgetLayout = true;
 		}
 		
+		s = getDivValue("dynamicDesignItems");
+		if(s != null && s.trim().length() > 0){
+			if("1".equals(s) || "true".equals(s))
+				dynamicDesignItems = true;
+		}
+		
 		s = getDivValue("formatXml");
 		if("0".equals(s) || "false".equals(s))
 			formatXml = false;
@@ -1013,6 +1020,10 @@ public class FormUtil {
 	
 	public static boolean manualWidgetLayout() {
 		return manualWidgetLayout;
+	}
+	
+	public static boolean dynamicDesignItems() {
+		return dynamicDesignItems;
 	}
 	
 	public static boolean isReadOnlyMode(){
