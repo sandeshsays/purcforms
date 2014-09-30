@@ -123,6 +123,7 @@ public class FormUtil {
 	private static boolean maintainOrderingOnRefresh = true;
 	private static boolean manualWidgetLayout = false;
 	private static boolean dynamicDesignItems = false;
+	private static boolean allowPrinting = true;
 	
 	private static String exportExcelUrlSuffix;
 	private static String saveQueryUrlSuffix;
@@ -653,6 +654,10 @@ public class FormUtil {
 		s = getDivValue("formatXml");
 		if("0".equals(s) || "false".equals(s))
 			formatXml = false;
+		
+		s = getDivValue("allowPrinting");
+		if("0".equals(s) || "false".equals(s))
+			allowPrinting = false;
 
 		retrieveUrlParameters();
 	}
@@ -1024,6 +1029,10 @@ public class FormUtil {
 	
 	public static boolean dynamicDesignItems() {
 		return dynamicDesignItems;
+	}
+	
+	public static boolean allowPrinting() {
+		return allowPrinting;
 	}
 	
 	public static boolean isReadOnlyMode(){
