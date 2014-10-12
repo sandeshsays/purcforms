@@ -203,7 +203,9 @@ public class FormRunnerController implements SubmitListener, LoadListener {
 									//Prevent close confirmation dialog box.
 									FormRunnerContext.setWarnOnClose(false);
 									
-									Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
+									if (FormUtil.getRecordPosition() == null) {
+										Window.Location.replace(url); //"http://127.0.0.1:8080/openmrs/patientDashboard.form?patientId=13"
+									}
 								}
 							}
 							else
@@ -256,7 +258,9 @@ public class FormRunnerController implements SubmitListener, LoadListener {
 								//Prevent close confirmation dialog box.
 								FormRunnerContext.setWarnOnClose(false);
 								
-								Window.Location.replace(url);
+								if (FormUtil.getRecordPosition() == null) {
+									Window.Location.replace(url);
+								}
 							}
 							else
 								FormUtil.displayReponseError(response);

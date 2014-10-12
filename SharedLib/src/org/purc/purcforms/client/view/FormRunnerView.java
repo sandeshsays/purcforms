@@ -853,6 +853,9 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 				btnSave.addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
 						submit();
+						if (FormUtil.getRecordPosition() != null) {
+							makeWidgetsReadOnly(true);
+						}
 					}
 				});
 			}
