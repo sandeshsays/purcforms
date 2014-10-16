@@ -129,6 +129,7 @@ public class FormUtil {
 	private static String saveQueryUrlSuffix;
 	private static String openQueryUrlSuffix;
 	private static String exportPdfUrlSuffix;
+	private static String emailUrlSuffix;
 
 	public static String JAVAROSA = "javarosa";
 	
@@ -504,6 +505,7 @@ public class FormUtil {
 		saveQueryUrlSuffix = getDivValue("saveQueryUrlSuffix");
 		openQueryUrlSuffix = getDivValue("openQueryUrlSuffix");
 		exportPdfUrlSuffix = getDivValue("exportPdfUrlSuffix");
+		emailUrlSuffix = getDivValue("emailUrlSuffix");
 		
 		recordPosition = getDivValue("recordPosition");
 		recordIds = getDivValue("recordIds");
@@ -874,6 +876,10 @@ public class FormUtil {
 	
 	public static String getExportPdfUrlSuffix(){
 		return exportPdfUrlSuffix;
+	}
+	
+	public static String getEmailUrlSuffix(){
+		return emailUrlSuffix;
 	}
 	
 	public static String getSaveQueryUrlSuffix(){
