@@ -258,9 +258,7 @@ public class FormRunnerController implements SubmitListener, LoadListener {
 								//Prevent close confirmation dialog box.
 								FormRunnerContext.setWarnOnClose(false);
 								
-								if (FormUtil.getRecordPosition() == null) {
-									Window.Location.replace(url);
-								}
+								Window.Location.replace(url);
 							}
 							else
 								FormUtil.displayReponseError(response);
