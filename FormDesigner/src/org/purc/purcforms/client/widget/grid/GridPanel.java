@@ -313,6 +313,9 @@ public class GridPanel extends AbsolutePanel {
 				}
 				
 				widget.setWidthInt(value - left);
+				
+				//doesn't the next line slow things down?
+				resizeHorizontalLineToFit(widget);
 			}
 			
 			for(Widget w : verticalLines) {
@@ -336,6 +339,9 @@ public class GridPanel extends AbsolutePanel {
 				}
 
 				widget.setHeightInt(value - top);
+				
+				//doesn't the next line slow things down?
+				resizeVerticalLineToFit(widget);
 			}
 			
 			if (horizontalLines.size() > 0) {
