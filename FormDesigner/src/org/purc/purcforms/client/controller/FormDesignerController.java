@@ -87,6 +87,8 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 	/** Action for setting file contents. */
 	private static final byte CA_SET_FILE_CONTENTS = 4;
+	
+	private boolean layoutFileContents = false;
 
 	/** The current action by the time to try to authenticate the user at the server. */
 	private static byte currentAction = CA_NONE;
@@ -252,6 +254,7 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 			else{
 				OpenFileDialog dlg = new OpenFileDialog(this,FormUtil.getFileOpenUrl());
 				dlg.center();
+				layoutFileContents = false;
 			}
 		}
 		//}
@@ -341,7 +344,14 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	 * @param selectTabs set to true to select the layout xml tab.
 	 */
 	public void openFormLayout(boolean selectTabs) {
-		openFormLayoutDeffered(selectTabs);
+		if (isOfflineMode()) {
+			openFormLayoutDeffered(selectTabs);
+		}
+		else {
+			OpenFileDialog dlg = new OpenFileDialog(this, FormUtil.getFileOpenUrl());
+			dlg.center();
+			layoutFileContents = true;
+		}
 	}
 
 	/**
@@ -545,20 +555,33 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 	 * @see org.purc.purcforms.client.controller.IFormDesignerController#saveFormLayout()
 	 */
 	public void saveFormLayout() {
-		FormUtil.dlg.setText(LocaleText.get("savingFormLayout"));
-		FormUtil.dlg.center();
-
-		DeferredCommand.addCommand(new Command(){
-			public void execute() {
-				try{
-					centerPanel.saveFormLayout();
-					FormUtil.dlg.hide();
-				}
-				catch(Exception ex){
-					FormUtil.displayException(ex);
-				}	
+		if(!isOfflineMode()) {
+			FormDef formDef = leftPanel.getSelectedForm();
+			String fileName = "filename";
+			if (formDef != null) {
+				fileName = formDef.getName();
 			}
-		});
+			fileName += "-" + LocaleText.get("layout");
+			centerPanel.saveFormLayout();
+			SaveFileDialog dlg = new SaveFileDialog(FormUtil.getFileSaveUrl(), centerPanel.getLayoutXml(), fileName);
+			dlg.center();
+		}
+		else {
+			FormUtil.dlg.setText(LocaleText.get("savingFormLayout"));
+			FormUtil.dlg.center();
+	
+			DeferredCommand.addCommand(new Command(){
+				public void execute() {
+					try{
+						centerPanel.saveFormLayout();
+						FormUtil.dlg.hide();
+					}
+					catch(Exception ex){
+						FormUtil.displayException(ex);
+					}	
+				}
+			});
+		}
 	}
 
 	/**
@@ -1153,8 +1176,11 @@ public class FormDesignerController implements IFormDesignerListener, OpenFileDi
 
 					String contents = response.getText();
 					if(contents != null && contents.trim().length() > 0){
-						if(centerPanel.isInLayoutMode())
+						if(layoutFileContents /*centerPanel.isInLayoutMode()*/) {
+							layoutFileContents = false;
 							centerPanel.setLayoutXml(contents, false);
+							centerPanel.openFormLayout(true);
+						}
 						else{
 							centerPanel.setXformsSource(contents, true);
 							openForm();
