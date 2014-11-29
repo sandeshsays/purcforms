@@ -63,6 +63,9 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_PROPERTY_TEXT = "Text";
 	public static final String WIDGET_PROPERTY_WIDTH = "Width";
 	public static final String WIDGET_PROPERTY_HEIGHT = "Height";
+	public static final String WIDGET_PROPERTY_PAGE_WIDTH = "PageWidth";
+	public static final String WIDGET_PROPERTY_PAGE_HEIGHT = "PageHeight";
+	public static final String WIDGET_PROPERTY_PAGE_MARGIN = "PageMargin";
 	public static final String WIDGET_PROPERTY_EXTERNALSOURCE = "ExternalSource";
 	public static final String WIDGET_PROPERTY_DISPLAYFIELD = "DisplayField";
 	public static final String WIDGET_PROPERTY_VALUEFIELD = "ValueField";
