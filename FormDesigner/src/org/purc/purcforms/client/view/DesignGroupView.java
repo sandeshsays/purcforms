@@ -982,8 +982,6 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 
 	protected boolean handleStartLabelEditing(Event event){
-		String s = event.getTarget().getClassName();
-		s.toString();
 		if(!event.getCtrlKey() && !isTextBoxFocus(event)){
 			if(selectedDragController.getSelectedWidgetCount() == 1 && selectedPanel.getWidgetIndex(selectedDragController.getSelectedWidgetAt(0)) > -1 /*||
 					(selectedDragController.getSelectedWidgetCount() == 0 && this instanceof DesignGroupWidget)*/){
@@ -1888,7 +1886,11 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			y = event.getClientY();
 
 			if(editWidget != null){
-				boolean targetIsEditWidget = false;
+				if(editWidget.getWrappedWidgetEx().getElement() == event.getTarget())
+					return;
+				handleStopLabelEditing(false);
+				
+				/*boolean targetIsEditWidget = false;
 				if(editWidget.getWrappedWidgetEx().getElement() == event.getTarget()) {
 					targetIsEditWidget = true;
 					x = x - editWidget.getParent().getAbsoluteLeft();
@@ -1899,7 +1901,7 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				
 				if (targetIsEditWidget) {
 					return;
-				}
+				}*/
 			}
 
 			if((event.getButton() & Event.BUTTON_RIGHT) != 0){

@@ -186,26 +186,27 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			}
 			break;
 		case Event.ONMOUSEDOWN:
-			//if(event.getCtrlKey()) //specifically turned on for design surface view to get widget selection when ctrl is pressed
-			if(!(widget instanceof DesignGroupWidget) && !event.getCtrlKey())
-				widgetSelectionListener.onWidgetSelected(this,event.getCtrlKey()); //TODO verify that this does not introduce a bug
-			//The above is turned on for now because of selectedDragController.setBehaviorDragStartSensitivity(1);
-
-			//When the header label of a groupbox is selected, all widgets within should be deselected.
-			if(widget instanceof Label && "100%".equals(width) && getParent().getParent() instanceof DesignGroupWidget){
-				DesignGroupWidget designGroupWidget = (DesignGroupWidget)getParent().getParent();
-				if(designGroupWidget.getHeaderLabel() == this)
-					designGroupWidget.getDesignSurfaceView().recursivelyClearGroupBoxSelection();
-			}
-			else if(widget instanceof DesignGroupWidget){
-				//When a group box is clicked anywhere outside a widget, deselect it to turn off the selection graying out
-				//but reselect it such that its properties can be shown in the properties pane.
-				if((event.getButton() & Event.BUTTON_RIGHT) == 0) {//make sure its not right clicking
-					widgetSelectionListener.onWidgetSelected(null, false);
+			if (widget.getElement() == event.getTarget()) {
+				//if(event.getCtrlKey()) //specifically turned on for design surface view to get widget selection when ctrl is pressed
+				if(!(widget instanceof DesignGroupWidget) && !event.getCtrlKey())
+					widgetSelectionListener.onWidgetSelected(this,event.getCtrlKey()); //TODO verify that this does not introduce a bug
+				//The above is turned on for now because of selectedDragController.setBehaviorDragStartSensitivity(1);
+	
+				//When the header label of a groupbox is selected, all widgets within should be deselected.
+				if(widget instanceof Label && "100%".equals(width) && getParent().getParent() instanceof DesignGroupWidget){
+					DesignGroupWidget designGroupWidget = (DesignGroupWidget)getParent().getParent();
+					if(designGroupWidget.getHeaderLabel() == this)
+						designGroupWidget.getDesignSurfaceView().recursivelyClearGroupBoxSelection();
 				}
-				widgetSelectionListener.onWidgetSelected(this, false);
+				else if(widget instanceof DesignGroupWidget){
+					//When a group box is clicked anywhere outside a widget, deselect it to turn off the selection graying out
+					//but reselect it such that its properties can be shown in the properties pane.
+					if((event.getButton() & Event.BUTTON_RIGHT) == 0) {//make sure its not right clicking
+						widgetSelectionListener.onWidgetSelected(null, false);
+					}
+					widgetSelectionListener.onWidgetSelected(this, false);
+				}
 			}
-
 		case Event.ONMOUSEUP:
 		case Event.ONMOUSEOVER:
 		case Event.ONMOUSEMOVE:
