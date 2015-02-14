@@ -44,6 +44,7 @@ public class QueryBuilderUtil {
 	private static HashMap<String, String> columnMappings = new HashMap<String, String>();
 	private static HashMap<String, String> filterMappings = new HashMap<String, String>();
 	private static HashMap<String, String> orderByMappings = new HashMap<String, String>();
+	private static String tablePrefix;
 	
 	/** The name for the queryId field. */
 	private static String formIdName;
@@ -356,6 +357,11 @@ public class QueryBuilderUtil {
 		
 		tableAlias = FormUtil.getDivValue("tableAlias");
 		
+		tablePrefix = FormUtil.getDivValue("tablePrefix");
+		if (tablePrefix == null) {
+			tablePrefix = "t.";
+		}
+		
 		s = FormUtil.getDivValue("columnMappings");
 		if (s != null) {
 			String[] mappings = s.split("!");
@@ -410,6 +416,10 @@ public class QueryBuilderUtil {
 	
 	public static String getTableAlias() {
 		return tableAlias;
+	}
+	
+	public static String getTablePrefix() {
+		return tablePrefix;
 	}
 	
 	public static String getColumnMapping(String column) {

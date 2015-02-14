@@ -69,7 +69,7 @@ public class SqlBuilder {
 			return mapping;
 		}
 		else {
-			return "t." + name;
+			return QueryBuilderUtil.getTablePrefix() + name;
 		}
 	}
 	
