@@ -9,6 +9,7 @@ import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.model.FormDef;
 import org.purc.purcforms.client.util.FormUtil;
 import org.purc.purcforms.client.widget.FormRunnerWidget;
+import org.purc.purcforms.client.widget.RecordDeletedListener;
 import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.xforms.XformParser;
 
@@ -224,7 +225,7 @@ public class FormRunnerController implements SubmitListener, LoadListener {
 		});
 	}
 	
-	public void onDelete(){
+	public void onDelete(final int recordCount, final RecordDeletedListener deletedListener){
 
 		FormUtil.dlg.setText(LocaleText.get("submitting"));
 		FormUtil.dlg.center();
@@ -258,7 +259,12 @@ public class FormRunnerController implements SubmitListener, LoadListener {
 								//Prevent close confirmation dialog box.
 								FormRunnerContext.setWarnOnClose(false);
 								
-								Window.Location.replace(url);
+								if (recordCount == 1) {
+									Window.Location.replace(url);
+								}
+								else {
+									deletedListener.onRecordDeleted();
+								}
 							}
 							else
 								FormUtil.displayReponseError(response);
