@@ -31,6 +31,7 @@ import org.purc.purcforms.client.widget.EditListener;
 import org.purc.purcforms.client.widget.EnabledChangeListener;
 import org.purc.purcforms.client.widget.ListBoxWidget;
 import org.purc.purcforms.client.widget.RadioButtonWidget;
+import org.purc.purcforms.client.widget.RecordDeletedListener;
 import org.purc.purcforms.client.widget.RuntimeGroupWidget;
 import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.widget.TimeWidget;
@@ -89,7 +90,7 @@ import com.google.gwt.xml.client.XMLParser;
  * @author daniel
  *
  */
-public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener, QuestionChangeListener, WidgetListener, EnabledChangeListener{
+public class FormRunnerView extends Composite implements SelectionHandler<Integer>, EditListener, QuestionChangeListener, WidgetListener, EnabledChangeListener, RecordDeletedListener {
 
 	private final char FIELD_SEPARATOR = '|'; //TODO These may need to be changed.
 	private final char RECORD_SEPARATOR = '$';
@@ -100,11 +101,12 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 	
 	private enum ServerSideAction {
+		NONE,
 		SAVE,
 		DELETE
 	}
 	
-	private static ServerSideAction serverSideAction;
+	private static ServerSideAction serverSideAction =  ServerSideAction.NONE;
 
 	/** Images reference where we get the error icon for widgets with errors. */
 	public static final Images images = (Images) GWT.create(Images.class);
@@ -223,7 +225,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private Button btnDelete;
 	
 	private Integer repordPosition = null;
-	private String[] recordIds = null;
+	protected String[] recordIds = null;
 	private Label navigationLabel = null;
 	private LoadListener listener;
 	
@@ -1093,6 +1095,30 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		}
 	}
 	
+	public void onRecordDeleted() {
+		repordPosition--;
+		
+		boolean found = false;
+		String[] records = new String[recordIds.length - 1];
+		for (int index = 0; index < recordIds.length; index++) {
+			if (index == repordPosition) {
+				found = true;
+				continue;
+			}
+			records[(found ? index - 1 : index)] = recordIds[index];
+		}
+		
+		recordIds = records;
+
+		if (repordPosition < recordIds.length) {
+			nextRecord();
+		}
+		else {
+			repordPosition++;
+			prevRecord();
+		}
+	}
+	
 	protected void clearRecord() {
 		for (int index = 0; index < selectedPanel.getWidgetCount(); index++){
 			RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
@@ -1202,7 +1228,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 	
 	private void deleteData() {
-		submitListener.onDelete();
+		submitListener.onDelete(recordIds.length, this);
 	}
 
 
@@ -1857,7 +1883,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	 * @param authenticated true o
 	 */
 	private static void authenticationCallback(boolean authenticated) {	
-
+		
 		if(authenticated){
 			loginDlg.hide();
 			 if (serverSideAction == ServerSideAction.SAVE) {
@@ -1866,6 +1892,8 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 			 else if (serverSideAction == ServerSideAction.DELETE) {
 				 formRunnerView.deleteData();
 			 }
+			 
+			 serverSideAction = ServerSideAction.NONE;
 		}
 		else
 			loginDlg.center();

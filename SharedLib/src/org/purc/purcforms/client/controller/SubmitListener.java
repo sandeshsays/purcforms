@@ -1,5 +1,7 @@
 package org.purc.purcforms.client.controller;
 
+import org.purc.purcforms.client.widget.RecordDeletedListener;
+
 
 /**
  * This interface is implemented by those interested in listening to form level
@@ -27,5 +29,5 @@ public interface SubmitListener {
 	/**
 	 * Called when one needs to delete a record from the database.
 	 */
-	public void onDelete();
+	public void onDelete(int recordCount, RecordDeletedListener deletedListener);
 }
