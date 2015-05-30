@@ -24,6 +24,7 @@ import org.purc.purcforms.client.view.DesignSurfaceView;
 import org.purc.purcforms.client.view.PreviewView;
 import org.purc.purcforms.client.view.PropertiesView;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
+import org.purc.purcforms.client.widget.RecordDeletedListener;
 import org.purc.purcforms.client.widget.RuntimeWidgetWrapper;
 import org.purc.purcforms.client.xforms.XformConstants;
 import org.purc.purcforms.client.xforms.XmlUtil;
@@ -912,7 +913,7 @@ public class CenterPanel extends Composite implements SelectionHandler<Integer>,
 	/**
 	 * @see org.purc.purcforms.client.controller.SubmitListener#onDelete()()
 	 */
-	public void onDelete() {
+	public void onDelete(int recordCount, RecordDeletedListener deletedListener) {
 		Window.alert(LocaleText.get("formDeleteSuccess"));
 	}
 
