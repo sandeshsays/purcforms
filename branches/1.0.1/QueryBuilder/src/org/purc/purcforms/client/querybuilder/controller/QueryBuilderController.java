@@ -181,6 +181,15 @@ public class QueryBuilderController {
 		return view.getSql();
 	}
 	
+	public static String getQueryDef() {
+		return view.getQueryDef();
+	}
+	
+	public static void loadQueryDef(String xml) {
+		view.setQueryDef(xml);
+		view.parseQueryDef();
+	}
+	
 	/**
 	 * This is called from the server after an attempt to authenticate the current
 	 * user before they can submit form data.
@@ -320,6 +329,12 @@ public class QueryBuilderController {
 							view.load();
 							
 							FormUtil.dlg.hide();
+							
+							DeferredCommand.addCommand(new Command(){
+								public void execute() {
+									FormUtil.initialize();
+								};
+							});
 						}
 
 						public void onError(Request request, Throwable exception){

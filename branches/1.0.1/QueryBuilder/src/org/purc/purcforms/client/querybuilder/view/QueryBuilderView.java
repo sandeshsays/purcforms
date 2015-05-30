@@ -345,6 +345,8 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 						if(selectedTabIndex == resultsIndex && QueryBuilderUtil.showResults()) {
 							showResults();
 						}
+						
+						onQueryDefLoaded();
 					}
 					
 					FormUtil.dlg.hide();
@@ -355,6 +357,10 @@ public class QueryBuilderView  extends Composite implements SelectionHandler<Int
 			}
 		});
 	}
+	
+	public static native void onQueryDefLoaded() /*-{
+		return $wnd.onQueryDefLoaded();
+	}-*/;
 	
 	private String getTestXform(){
 		return "<xf:xforms xmlns:xf=\"http://www.w3.org/2002/xforms\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"> " +
