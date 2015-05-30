@@ -127,7 +127,10 @@ public class FormUtil {
 	
 	private static String exportExcelUrlSuffix;
 	private static String saveQueryUrlSuffix;
+	private static String saveArchiveUrlSuffix;
+	private static String deleteArchiveUrlSuffix;
 	private static String openQueryUrlSuffix;
+	private static String openArchiveUrlSuffix;
 	private static String exportPdfUrlSuffix;
 	private static String emailUrlSuffix;
 
@@ -503,7 +506,10 @@ public class FormUtil {
 		
 		exportExcelUrlSuffix = getDivValue("exportExcelUrlSuffix");
 		saveQueryUrlSuffix = getDivValue("saveQueryUrlSuffix");
+		saveArchiveUrlSuffix = getDivValue("saveArchiveUrlSuffix");
 		openQueryUrlSuffix = getDivValue("openQueryUrlSuffix");
+		openArchiveUrlSuffix = getDivValue("openArchiveUrlSuffix");
+		deleteArchiveUrlSuffix = getDivValue("deleteArchiveUrlSuffix");
 		exportPdfUrlSuffix = getDivValue("exportPdfUrlSuffix");
 		emailUrlSuffix = getDivValue("emailUrlSuffix");
 		
@@ -886,8 +892,20 @@ public class FormUtil {
 		return saveQueryUrlSuffix;
 	}
 	
+	public static String getSaveArchiveUrlSuffix(){
+		return saveArchiveUrlSuffix;
+	}
+	
+	public static String getDeleteArchiveUrlSuffix(){
+		return deleteArchiveUrlSuffix;
+	}
+	
 	public static String getOpenQueryUrlSuffix(){
 		return openQueryUrlSuffix;
+	}
+	
+	public static String getOpenArchiveUrlSuffix(){
+		return openArchiveUrlSuffix;
 	}
 	
 	public static String getRecordIds() {
