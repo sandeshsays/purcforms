@@ -124,7 +124,7 @@ public class PreviewView extends FormRunnerView implements LoadListener {
 	@Override
 	protected void delete(){		
 		if(formDef != null){
-			submitListener.onDelete();
+			submitListener.onDelete(recordIds.length, this);
 		}
 	}
 
