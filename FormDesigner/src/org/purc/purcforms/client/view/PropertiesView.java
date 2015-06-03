@@ -428,19 +428,19 @@ public class PropertiesView extends Composite implements IFormSelectionListener,
 						beforeChangeText = "";
 				}
 
-				String s = txtBinding.getText();
+				/*String s = txtBinding.getText();
 
 				s = s.replace("%", "");
 				s = s.replace("(", "");
 				s = s.replace("!", "");
-				s = s.replace("&", "");
+				//s = s.replace("&", "");
 				//s = s.replace(".", ""); //Looks like this is an allowed character in xml node names.
 				s = s.replace("'", "");
 				s = s.replace("\"", "");
 				s = s.replace("$", "");
 				s = s.replace("#", "");
 
-				txtBinding.setText(s);
+				txtBinding.setText(s);*/
 				updateBinding(false);
 			}
 		});
