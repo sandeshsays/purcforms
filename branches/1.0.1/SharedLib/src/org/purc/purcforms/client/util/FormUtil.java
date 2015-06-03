@@ -860,6 +860,10 @@ public class FormUtil {
 		return afterSubmitUrlSuffix;
 	}
 	
+	public static void setAfterSubmitUrlSuffix(String afterSubmitUrlSuffix) {
+		FormUtil.afterSubmitUrlSuffix = afterSubmitUrlSuffix;
+	}
+	
 	public static String getAfterCancelUrlSuffix(){
 		return afterCancelUrlSuffix;
 	}

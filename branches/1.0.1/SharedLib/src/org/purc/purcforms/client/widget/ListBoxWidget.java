@@ -1,8 +1,11 @@
 package org.purc.purcforms.client.widget;
 
+import org.purc.purcforms.client.util.FormUtil;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 
 
@@ -40,6 +43,15 @@ public class ListBoxWidget extends ListBox{
 					((RuntimeWidgetWrapper)getParent().getParent()).isLocked()){
 				super.setSelectedIndex(selectedIndex);
 				return;
+			}
+			else if(getParent().getParent() instanceof RuntimeWidgetWrapper) {
+				int index = getSelectedIndex();
+				if (index != -1) {
+					String value = getValue(index);
+					if (value.contains("?target=xformentry&formId=")) {
+						FormUtil.setAfterSubmitUrlSuffix(value);
+					}
+				}
 			}
 		}
 
