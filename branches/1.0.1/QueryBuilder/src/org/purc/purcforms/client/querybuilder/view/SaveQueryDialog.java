@@ -8,6 +8,7 @@ import org.purc.purcforms.client.util.FormUtil;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.Button;
@@ -82,7 +83,7 @@ public class SaveQueryDialog extends DialogBox{
 						action += "&";
 					else
 						action += "?";
-					action += "queryName=" + queryName;
+					action += "queryName=" + URL.encodeQueryString(queryName);
 					
 					form.setAction(action);
 					((VerticalPanel)txtName.getParent()).add(txtArea);
