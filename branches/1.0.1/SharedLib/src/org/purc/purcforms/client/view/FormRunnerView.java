@@ -1228,7 +1228,7 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	}
 	
 	private void deleteData() {
-		submitListener.onDelete(recordIds.length, this);
+		submitListener.onDelete(recordIds == null ? 1 : recordIds.length, this);
 	}
 
 
