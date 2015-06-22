@@ -5,7 +5,6 @@ import org.purc.purcforms.client.util.FormUtil;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 
 
@@ -32,7 +31,7 @@ public class ListBoxWidget extends ListBox{
 	 */
 	public ListBoxWidget(boolean isMultipleSelect){
 		super(isMultipleSelect);
-	    sinkEvents(Event.getTypeInt(ChangeEvent.getType().getName()));
+	    sinkEvents(Event.getTypeInt(ChangeEvent.getType().getName()) | Event.ONKEYPRESS);
 	}
 
 	
@@ -50,6 +49,20 @@ public class ListBoxWidget extends ListBox{
 					String value = getValue(index);
 					if (value.contains("?target=xformentry&formId=")) {
 						FormUtil.setAfterSubmitUrlSuffix(value);
+					}
+				}
+			}
+		}
+		else if (DOM.eventGetType(event) == Event.ONKEYPRESS) {
+			int code = event.getCharCode();
+			if (code > 0) {
+				String s = String.valueOf((char)code);
+				int count = getItemCount();
+				for (int index = 0; index < count; index++) {
+					String value = getValue(index);
+					if (value.startsWith(s)) {
+						setSelectedIndex(index);
+						break;
 					}
 				}
 			}
