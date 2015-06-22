@@ -2147,20 +2147,22 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			if (questionDef != null) {
 				if (record.getDataNode(questionDef.getBinding()) == null) {
 					if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
-						if (record.getParentDataNode() == null) {
-							Element newRepeatDataNode = (Element)repeatDataNodeClone.cloneNode(true);
-							groupQtnsDef.getQtnDef().getDataNode().getParentNode().appendChild(newRepeatDataNode);
-							record.setParentDataNode(newRepeatDataNode);
+						if (records.size() > 1) {
+							if (record.getParentDataNode() == null) {
+								Element newRepeatDataNode = (Element)repeatDataNodeClone.cloneNode(true);
+								groupQtnsDef.getQtnDef().getDataNode().getParentNode().appendChild(newRepeatDataNode);
+								record.setParentDataNode(newRepeatDataNode);
+							}
+							widget.setQuestionDef(new QuestionDef(questionDef, questionDef.getParent()), false);
+							setDataNode(widget, record.getParentDataNode(), questionDef.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
+							
+							if (widget.getQuestionDef().getDataNode() == null) {
+								widget.getQuestionDef().setDataNode(record.getParentDataNode());
+							}
+							
+							//setDataNodes(record.getParentDataNode(), false, groupQtnsDef.getQtnDef().getBinding());
+							record.setDataNode(questionDef.getBinding(), widget.getQuestionDef().getDataNode());
 						}
-						widget.setQuestionDef(new QuestionDef(questionDef, questionDef.getParent()), false);
-						setDataNode(widget, record.getParentDataNode(), questionDef.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
-						
-						if (widget.getQuestionDef().getDataNode() == null) {
-							widget.getQuestionDef().setDataNode(record.getParentDataNode());
-						}
-						
-						//setDataNodes(record.getParentDataNode(), false, groupQtnsDef.getQtnDef().getBinding());
-						record.setDataNode(questionDef.getBinding(), widget.getQuestionDef().getDataNode());
 					}
 					else if (record.getParentDataNode() != null) {
 						//setDataNode(widget, record.getParentDataNode(), questionDef.getBinding(), false, groupQtnsDef.getQtnDef().getBinding());
