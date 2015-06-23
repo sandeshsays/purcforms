@@ -2264,7 +2264,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			setDataNode(widget, newRepeatDataNode, widget.getBinding(), false, parentBinding);
 			
 			if (widget.getWrappedWidget() instanceof RuntimeGroupWidget) {
-				((RuntimeGroupWidget)widget.getWrappedWidget()).saveAllRecordValues(widget.getQuestionDef().getDataNode());
+				//((RuntimeGroupWidget)widget.getWrappedWidget()).saveAllRecordValues(widget.getQuestionDef().getDataNode());
+				((RuntimeGroupWidget)widget.getWrappedWidget()).saveRecordValues(qtnDef.getBinding(), widget.getQuestionDef().getDataNode());
 			}
 			else {
 				widget.saveValue(formDef);
