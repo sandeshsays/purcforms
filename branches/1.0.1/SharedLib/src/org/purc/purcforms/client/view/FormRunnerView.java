@@ -1471,10 +1471,17 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		if(widget.getParent().getParent() != null){
 			if(widget.getParent().getParent() instanceof RuntimeGroupWidget){
 				//Non repeating widgets in a group box
-				if(((RuntimeGroupWidget)widget.getParent().getParent()).onMoveToNextWidget(widget))
+				if(((RuntimeGroupWidget)widget.getParent().getParent()).onMoveToNextWidget(widget)) {
 					return;
-				else
+				}
+				else {
 					widget = widget.getParent().getParent().getParent().getParent();
+					Widget grandParent = widget.getParent().getParent();
+					if (widget instanceof RuntimeWidgetWrapper && grandParent instanceof RuntimeGroupWidget) {
+						((RuntimeGroupWidget)grandParent).onMoveToNextWidget(widget);
+						return;
+					}
+				}
 			}
 			else if(widget.getParent().getParent().getParent() instanceof RuntimeGroupWidget){
 				//Repeating widgets.
