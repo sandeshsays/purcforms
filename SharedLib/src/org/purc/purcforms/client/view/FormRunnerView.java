@@ -1037,10 +1037,21 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 	private void setRecordNavigationLabel() {
 		navigationLabel.setText("Record " + repordPosition + "  of  " + recordIds.length);
 		
-		btnNextRecord.setEnabled(repordPosition < recordIds.length);
-		btnLastRecord.setEnabled(btnNextRecord.isEnabled());
-		btnPrevRecord.setEnabled(repordPosition > 1);
-		btnFirstRecord.setEnabled(btnPrevRecord.isEnabled());
+		if (btnNextRecord != null) {
+			btnNextRecord.setEnabled(repordPosition < recordIds.length);
+			
+			if (btnLastRecord != null) {
+				btnLastRecord.setEnabled(btnNextRecord.isEnabled());
+			}
+		}
+		
+		if (btnPrevRecord != null) {
+			btnPrevRecord.setEnabled(repordPosition > 1);
+			
+			if (btnFirstRecord != null) {
+				btnFirstRecord.setEnabled(btnPrevRecord.isEnabled());
+			}
+		}
 	}
 	
 	protected void loadRecord() {
