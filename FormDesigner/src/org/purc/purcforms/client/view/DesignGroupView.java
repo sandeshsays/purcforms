@@ -56,6 +56,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratedTabPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -1432,6 +1433,24 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		return wrapper;
 	}
 	
+	/**
+	 * Adds a new html widget to the selected page.
+	 * 
+	 * @param text the label text.
+	 * @param select set to true if you want to automatically select the widget.
+	 * @return the new label widget.
+	 */
+	protected DesignWidgetWrapper addNewHtml(String text, boolean select){
+		if(text == null)
+			text = LocaleText.get("html");
+		HTML label = new HTML(text);
+
+		DesignWidgetWrapper wrapper = addNewWidget(label,select);		
+		wrapper.setFontFamily(FormUtil.getDefaultFontFamily());
+		wrapper.setFontSize(FormUtil.getDefaultFontSize());
+		return wrapper;
+	}
+	
 	protected DesignWidgetWrapper addNewHorizontalLine(boolean select){
 		HorizontalGridLine line = new HorizontalGridLine(200);
 		DesignWidgetWrapper wrapper = addNewWidget(line, select);
@@ -1725,6 +1744,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 		else if(text.equals(LocaleText.get("verticalLine"))) {
 			retWidget = addNewVerticalLine(true);
 			resizeParent = false;
+		}
+		else if(text.equals("Html")) {
+			retWidget = addNewHtml("Html",true);
 		}
 		/*else if(text.equals(LocaleText.get("searchServer")))
 			retWidget = addNewSearchServerWidget(null,null,true);*/

@@ -49,6 +49,7 @@ public class PaletteView extends Composite {
 		verticalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("label"))));
+		verticalPanel.add(createPaletteWidget(new HTML("Html")));
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("textBox"))));
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("checkBox"))));
 		verticalPanel.add(createPaletteWidget(new HTML(LocaleText.get("radioButton"))));

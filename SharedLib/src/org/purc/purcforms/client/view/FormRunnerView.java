@@ -640,6 +640,10 @@ public class FormRunnerView extends Composite implements SelectionHandler<Intege
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VERTICAL_LINE)){
 			widget = new VerticalGridLine(0);
 		}
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_HTML)){
+			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
+			widget = new HTML(text);
+		}
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL)){
 			String text = node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT);
 			widget = new Label(text);
