@@ -46,6 +46,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -614,6 +615,8 @@ public class DesignSurfaceView extends DesignGroupView implements SelectionHandl
 			widget = new HorizontalGridLine(0);
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_VERTICAL_LINE))
 			widget = new VerticalGridLine(0);
+		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_HTML))
+			widget = new HTML(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_LABEL))
 			widget = new Label(node.getAttribute(WidgetEx.WIDGET_PROPERTY_TEXT));
 		else if(s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_GROUPBOX) || s.equalsIgnoreCase(WidgetEx.WIDGET_TYPE_REPEATSECTION))

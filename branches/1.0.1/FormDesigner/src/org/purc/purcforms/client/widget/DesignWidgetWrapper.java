@@ -49,6 +49,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -280,7 +281,9 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			}
 
 			String text = null;
-			if(widget instanceof Label)
+			if(widget instanceof HTML)
+				text = ((HTML)widget).getHTML();
+			else if(widget instanceof Label)
 				text = ((Label)widget).getText();
 			else if(widget instanceof Hyperlink)
 				text = ((Hyperlink)widget).getText();
@@ -488,6 +491,8 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 			return WidgetEx.WIDGET_TYPE_HORIZONTAL_LINE;
 		else if(widget instanceof VerticalGridLine)
 			return WidgetEx.WIDGET_TYPE_VERTICAL_LINE;
+		else if(widget instanceof HTML)
+			return WidgetEx.WIDGET_TYPE_HTML;
 		else if(widget instanceof Label)
 			return WidgetEx.WIDGET_TYPE_LABEL;
 		else if(widget instanceof Image){

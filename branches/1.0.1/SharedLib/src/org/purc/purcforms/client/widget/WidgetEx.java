@@ -44,6 +44,7 @@ public class WidgetEx extends Composite{
 	public static final String WIDGET_TYPE_REPEATSECTION = "RepeatSection";
 	public static final String WIDGET_TYPE_LISTBOX = "ListBox";
 	public static final String WIDGET_TYPE_LABEL = "Label";
+	public static final String WIDGET_TYPE_HTML = "Html";
 	public static final String WIDGET_TYPE_DATEPICKER = "DatePicker";
 	public static final String WIDGET_TYPE_IMAGE = "Picture";
 	public static final String WIDGET_TYPE_VIDEO_AUDIO = "VideoAudio";
@@ -239,6 +240,8 @@ public class WidgetEx extends Composite{
 		}
 		else if(widget.widget instanceof TextBox)
 			this.widget = new TextBox();
+		else if(widget.widget instanceof HTML)
+			this.widget = new HTML();
 		else if(widget.widget instanceof Label){
 			this.widget = new Label(((Label)widget.widget).getText());
 			((Label)this.widget).setWordWrap(false);
@@ -257,6 +260,8 @@ public class WidgetEx extends Composite{
 			widget.setHeight(height);
 		if(width != null)
 			widget.setWidth(width);
+		
+		HTML html = new HTML();
 	}
 	
 	public String getText(){
@@ -266,6 +271,8 @@ public class WidgetEx extends Composite{
 			return ((CheckBox)widget).getText();
 		else if(widget instanceof Button)
 			return ((Button)widget).getText();
+		else if(widget instanceof HTML)
+			return ((HTML)widget).getHTML();
 		else if(widget instanceof Label)
 			return ((Label)widget).getText();
 		else if(widget instanceof TextArea)
@@ -289,6 +296,8 @@ public class WidgetEx extends Composite{
 			((CheckBox)widget).setText(text);
 		else if(widget instanceof Button)
 			((Button)widget).setText(text);
+		else if(widget instanceof HTML)
+			((HTML)widget).setHTML(text);
 		else if(widget instanceof Label)
 			((Label)widget).setText(text);
 		else if(widget instanceof TextArea)
