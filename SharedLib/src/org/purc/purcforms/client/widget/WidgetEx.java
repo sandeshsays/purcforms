@@ -756,10 +756,6 @@ public class WidgetEx extends Composite{
 		 value = node.getAttribute("borderColor");
 		 if(value != null && value.trim().length() > 0)
 			 widget.setBorderColor(value);
-		 
-		 value = node.getAttribute("textAlign");
-		 if(value != null && value.trim().length() > 0)
-			 widget.setTextAlign(value);
 	 }
 	
 	public String getLeft(){
