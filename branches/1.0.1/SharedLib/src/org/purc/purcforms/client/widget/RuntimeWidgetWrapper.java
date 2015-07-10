@@ -1177,13 +1177,15 @@ public class RuntimeWidgetWrapper extends WidgetEx implements QuestionChangeList
 
 		//Date, Time & DateTime parse text input and give an answer of null if the entered
 		//value is not valid and hence we need to show the error flag.
-		if((widget instanceof TextBoxBase && questionDef.getAnswer() == null && ((TextBoxBase)widget).getText().trim().length() > 0) ||
-				(widget instanceof TimeWidget && questionDef.getAnswer() == null && ((TimeWidget)widget).getText().trim().length() > 0) ||
-				(widget instanceof DateTimeWidget && questionDef.getAnswer() == null && ((DateTimeWidget)widget).getText().trim().length() > 0)){
-
-			if(panel.getWidgetCount() < 2)
-				panel.add(errorImage);
-			return false;
+		if (questionDef.isDate() ) {
+			if((widget instanceof TextBoxBase && questionDef.getAnswer() == null && ((TextBoxBase)widget).getText().trim().length() > 0) ||
+					(widget instanceof TimeWidget && questionDef.getAnswer() == null && ((TimeWidget)widget).getText().trim().length() > 0) ||
+					(widget instanceof DateTimeWidget && questionDef.getAnswer() == null && ((DateTimeWidget)widget).getText().trim().length() > 0)){
+	
+				if(panel.getWidgetCount() < 2)
+					panel.add(errorImage);
+				return false;
+			}
 		}
 
 		if(panel.getWidgetCount() > 1)
