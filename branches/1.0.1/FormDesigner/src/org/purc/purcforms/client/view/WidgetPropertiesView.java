@@ -1487,6 +1487,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 								"edit".equalsIgnoreCase(value) || "delete".equalsIgnoreCase(value) ||
 								"nextRecord".equalsIgnoreCase(value) || "prevRecord".equalsIgnoreCase(value) || 
 								"firstRecord".equalsIgnoreCase(value) || "lastRecord".equalsIgnoreCase(value) ||
+								"searchRecord".equalsIgnoreCase(value) ||
 								"newRecord".equalsIgnoreCase(value) || "deleteRecord".equalsIgnoreCase(value) || 
 								"recordNavigationLabel".equalsIgnoreCase(value) ||
 								(this.widget.getWrappedWidget() instanceof Label || this.widget.getWrappedWidget() instanceof Hyperlink) ||
@@ -1638,6 +1639,7 @@ public class WidgetPropertiesView extends Composite implements WidgetSelectionLi
 		oracle.add("prevRecord");
 		oracle.add("lastRecord");
 		oracle.add("firstRecord");
+		oracle.add("searchRecord");
 		oracle.add("newRecord");
 		oracle.add("deleteRecord");
 		oracle.add("recordNavigationLabel");
