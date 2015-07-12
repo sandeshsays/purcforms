@@ -2056,7 +2056,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				return;
 			}
 			
-			int index = getRecordIndex(lastSearch);
+			int index = getRecordIndex(lastSearch.toLowerCase());
 			if (index == -1) {
 				Window.alert("No record found.");
 				return;
@@ -2086,7 +2086,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				if (value instanceof SubFormRecord) {
 					continue;
 				}
-				if (value.toString().contains(text)) {
+				if (value != null && value.toString().toLowerCase().contains(text)) {
 					return index;
 				}
 			}
