@@ -111,6 +111,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	private Button btnLastRecord;
 	private Label lblRecordNavigation;
 	
+	private String lastSearch = "";
+	
 	private Element repeatDataNodeClone;
 	
 	/**
@@ -724,6 +726,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 					binding.equals("nextRecord")||binding.equals("prevRecord") ||
 					binding.equals("firstRecord")||binding.equals("lastRecord") ||
 					binding.equals("newRecord")||binding.equals("deleteRecord") ||
+					binding.equals("searchRecord") ||
 					binding.equals("search") || binding.equals("nextPage")||binding.equals("prevPage")){
 				((Button)widget).addClickHandler(new ClickHandler(){
 					public void onClick(ClickEvent event){
@@ -2042,6 +2045,54 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				FormUtil.onRecordMoved();
 			}
 		}
+		else if (binding.equalsIgnoreCase("searchRecord")) {
+			if (!isValid(true)) {
+				getInvalidWidget().setFocus();
+				return;
+			}
+
+			lastSearch = Window.prompt("Please enter the search text", lastSearch);
+			if (lastSearch == null || lastSearch.trim().length() == 0) {
+				return;
+			}
+			
+			int index = getRecordIndex(lastSearch);
+			if (index == -1) {
+				Window.alert("No record found.");
+				return;
+			}
+			
+			saveCurrentRecordValues();
+			currentRecordIndex = index;
+			loadRecordValues();
+			setNavigationButtonStatus();
+			FormUtil.onRecordMoved();
+		}
+	}
+	
+	private int getRecordIndex(String text) {
+		int index = getRecordIndex(text, currentRecordIndex + 1, records.size());
+		if (index == -1) {
+			index = getRecordIndex(text, 0, currentRecordIndex);
+		}
+		
+		return index;
+	}
+	
+	private int getRecordIndex(String text, int fromIndex, int toIndex) {
+		for (int index = fromIndex; index < toIndex; index++) {
+			SubFormRecord record = records.get(index);
+			for (Object value : record.getRecord().values()) {
+				if (value instanceof SubFormRecord) {
+					continue;
+				}
+				if (value.toString().contains(text)) {
+					return index;
+				}
+			}
+		}
+		
+		return -1;
 	}
 	
 	protected void loadRecordValues() {
