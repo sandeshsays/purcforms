@@ -2102,7 +2102,9 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		if (map.getRecord().size() == 0) {
 			for (Entry<String, RuntimeWidgetWrapper> entry : widgetBindingMap.entrySet()) {
 				if (!(entry.getValue().getWrappedWidget() instanceof RuntimeGroupWidget)) {
-					entry.getValue().setAnswer(null);
+					if (entry.getValue().getQuestionDef() != null) {
+						entry.getValue().setAnswer(null);
+					}
 				}
 			}
 		}
