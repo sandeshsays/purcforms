@@ -79,7 +79,7 @@ public class SqlBuilder {
 			return mapping;
 		}
 		else {
-			return "t." + name;
+			return QueryBuilderUtil.getTablePrefix() + name;
 		}
 	}
 	
@@ -152,7 +152,25 @@ public class SqlBuilder {
 					selectList += "IFNULL(" + getFieldMapping(field.getName()) + ",'TOTAL')" ;
 				}
 				else {
-					selectList += getFieldMapping(field.getName());
+					if (field.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
+							field.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+						
+						String sql = " CASE " + getFieldMapping(field.getName());
+						for (int index = 0; index < field.getQuestionDef().getOptionCount(); index++) {
+							OptionDef optionDef = field.getQuestionDef().getOptionAt(index);
+							if (isNumeric(optionDef.getBinding())) {
+								sql += " WHEN " + optionDef.getBinding() + " THEN '" + optionDef.getText() + "'";
+							}
+							else {
+								sql += " WHEN '" + optionDef.getBinding() + "' THEN '" + optionDef.getText() + "'";
+							}
+						}
+						sql += " ELSE 'NULL' END ";
+						selectList += sql;
+					}
+					else {
+						selectList += getFieldMapping(field.getName());
+					}
 				}
 			}
 			
