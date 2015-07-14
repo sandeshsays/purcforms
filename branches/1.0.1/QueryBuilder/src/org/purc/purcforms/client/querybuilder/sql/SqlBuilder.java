@@ -168,6 +168,13 @@ public class SqlBuilder {
 						sql += " ELSE 'NULL' END ";
 						selectList += sql;
 					}
+					else if (field.getDataType() == QuestionDef.QTN_TYPE_BOOLEAN) {
+						String sql = " CASE " + getFieldMapping(field.getName());
+						sql += " WHEN 0 THEN '" + QuestionDef.FALSE_DISPLAY_VALUE + "'";
+						sql += " WHEN 1 THEN '" + QuestionDef.TRUE_DISPLAY_VALUE + "'";
+						sql += " ELSE 'NULL' END ";
+						selectList += sql;
+					}
 					else {
 						selectList += getFieldMapping(field.getName());
 					}
