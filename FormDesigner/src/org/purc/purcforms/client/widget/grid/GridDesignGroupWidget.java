@@ -16,7 +16,6 @@ import org.purc.purcforms.client.controller.IWidgetPopupMenuListener;
 import org.purc.purcforms.client.locale.LocaleText;
 import org.purc.purcforms.client.util.FormDesignerUtil;
 import org.purc.purcforms.client.util.FormUtil;
-import org.purc.purcforms.client.view.DesignGroupView;
 import org.purc.purcforms.client.widget.DesignGroupWidget;
 import org.purc.purcforms.client.widget.DesignWidgetWrapper;
 
@@ -386,7 +385,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void onRowsAdded(int totalDisplacement) {
-		((DesignGroupView)getWidgetPopupMenuListener()).onRowsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		((DesignWidgetWrapper)getParent().getParent()).getView().onRowsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		//((DesignGroupView)getWidgetPopupMenuListener()).onRowsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void addColumns(boolean right) {
@@ -540,7 +540,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void onColumnsAdded(int totalDisplacement) {
-		((DesignGroupView)getWidgetPopupMenuListener()).onColumnsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		((DesignWidgetWrapper)getParent().getParent()).getView().onColumnsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		//((DesignGroupView)getWidgetPopupMenuListener()).onColumnsAdded((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void moveVerticalLinesAndText(int left, int totalDisplacement) {
@@ -735,7 +736,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void onColumnsRemoved(int totalDisplacement) {
-		((DesignGroupView)getWidgetPopupMenuListener()).onColumnsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		((DesignWidgetWrapper)getParent().getParent()).getView().onColumnsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		//((DesignGroupView)getWidgetPopupMenuListener()).onColumnsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public void deleteRow() {
@@ -833,7 +835,8 @@ public class GridDesignGroupWidget extends DesignGroupWidget {
 	}
 	
 	public void onRowsRemoved(int totalDisplacement) {
-		((DesignGroupView)getWidgetPopupMenuListener()).onRowsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		((DesignWidgetWrapper)getParent().getParent()).getView().onRowsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
+		//((DesignGroupView)getWidgetPopupMenuListener()).onRowsRemoved((DesignWidgetWrapper)getParent().getParent(), totalDisplacement);
 	}
 	
 	public WidgetCollection getHorizontalLines(){

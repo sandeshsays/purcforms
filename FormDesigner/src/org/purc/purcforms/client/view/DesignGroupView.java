@@ -4039,9 +4039,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				currentWidget.setTopInt(top + increment);
 		}
 
-		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()+increment+PurcConstants.UNITS);	
-
 		setParentHeight(true, tableWidget, increment);
+		
+		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()+increment+PurcConstants.UNITS);	
 	}
 	
 	public void onColumnsAdded(DesignWidgetWrapper tableWidget, int increment){
@@ -4059,9 +4059,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				currentWidget.setLeftInt(left + increment);
 		}
 
-		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()+increment+PurcConstants.UNITS);	
-
-		setParentHeight(true, tableWidget, increment);
+		setParentWidth(true, tableWidget, increment);
+		
+		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()+increment+PurcConstants.UNITS);
 	}
 	
 	public void onRowsRemoved(DesignWidgetWrapper tableWidget, int decrement){
@@ -4080,9 +4080,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				currentWidget.setTopInt(top - decrement);
 		}
 
-		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()-decrement+PurcConstants.UNITS);
-
 		setParentHeight(false, tableWidget, decrement);
+		
+		DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt()-decrement+PurcConstants.UNITS);
 	}
 	
 	public void onColumnsRemoved(DesignWidgetWrapper tableWidget, int decrement){
@@ -4101,9 +4101,9 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 				currentWidget.setLeftInt(left - decrement);
 		}
 
-		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()-decrement+PurcConstants.UNITS);
-
 		setParentWidth(false, tableWidget, decrement);
+		
+		DOM.setStyleAttribute(selectedPanel.getElement(), "width", getWidthInt()-decrement+PurcConstants.UNITS);
 	}
 
 	private int getBottomYPos(DesignWidgetWrapper tableWidget){
@@ -4149,17 +4149,64 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 	}
 	
 	private void setParentHeight(boolean increase, DesignWidgetWrapper tableWidget, int change){
+		boolean firstTime = true;
 		Widget parent = tableWidget.getParent();
 		while(parent != null){
 			if(parent instanceof DesignGroupWidget){
 				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
 				int height = wrapper.getHeightInt();
-				wrapper.setHeight((increase ? height+change : height-change)+PurcConstants.UNITS);
+				
+				wrapper.getView().moveWidgetsBelow((increase ? change : -change), (height + wrapper.getTopInt()));
+				
+				if (!firstTime) {
+					wrapper.setHeight((increase ? height+change : height-change)+PurcConstants.UNITS);
+				}
+				else {
+					firstTime = false;
+				}
 			}
-			else if(parent instanceof DesignSurfaceView)
+			else if (parent instanceof DesignSurfaceView) {
+				DesignSurfaceView view = (DesignSurfaceView)parent;
+				int height = FormUtil.convertDimensionToInt(view.getHeight());
+				view.setHeight((increase ? height+change : height-change)+PurcConstants.UNITS);
 				return;
+			}
 
 			parent = parent.getParent();
+		}
+	}
+	
+	private void moveWidgetsBelow(int change, int from) {
+		for (Widget w : selectedPanel) {
+			if (!(w instanceof DesignWidgetWrapper)) {
+				continue;
+			}
+			
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if("100%".equals(widget.getWidth()))
+				continue; //header label widget
+			
+			int currentTop = widget.getTopInt();
+			if(currentTop >= from) {
+				widget.setTopInt(currentTop + change);
+			}
+		}
+	}
+	
+	private void moveWidgetsRight(int change, int from) {
+		for (Widget w : selectedPanel) {
+			if (!(w instanceof DesignWidgetWrapper)) {
+				continue;
+			}
+			
+			DesignWidgetWrapper widget = (DesignWidgetWrapper)w;
+			if("100%".equals(widget.getWidth()))
+				continue; //header label widget
+			
+			int currentLeft = widget.getLeftInt();
+			if(currentLeft >= from) {
+				widget.setLeftInt(currentLeft + change);
+			}
 		}
 	}
 	
@@ -4169,10 +4216,15 @@ public class DesignGroupView extends Composite implements WidgetSelectionListene
 			if(parent instanceof DesignGroupWidget){
 				DesignWidgetWrapper wrapper = (DesignWidgetWrapper)((DesignGroupWidget)parent).getParent().getParent();
 				int width = wrapper.getWidthInt();
+				wrapper.getView().moveWidgetsRight((increase ? change : -change), (width + wrapper.getLeftInt()));
 				wrapper.setWidth((increase ? width+change : width-change)+PurcConstants.UNITS);
 			}
-			else if(parent instanceof DesignSurfaceView)
+			else if(parent instanceof DesignSurfaceView) {
+				DesignSurfaceView view = (DesignSurfaceView)parent;
+				int width = FormUtil.convertDimensionToInt(view.getWidth());
+				view.setWidth((increase ? width+change : width-change)+PurcConstants.UNITS);
 				return;
+			}
 
 			parent = parent.getParent();
 		}
