@@ -83,4 +83,8 @@ public class ColumnActionHyperlink extends Hyperlink {
 	public void setAggregateFunctionMode(boolean set){
 		aggregateFunction = set;
 	}
+	
+	public boolean isAggregateFunction() {
+		return aggregateFunction;
+	}
 }

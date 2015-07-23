@@ -24,7 +24,7 @@ public class SortHyperlink extends Hyperlink implements ItemSelectionListener{
 	private ItemSelectionListener itemSelectionListener;
 	
 	private boolean includeNotSorted = true;
-	
+	private int sortOrder;
 	
 	public SortHyperlink(String text, String targetHistoryToken,ItemSelectionListener itemSelectionListener,boolean includeNotSorted){
 		super(text,targetHistoryToken);
@@ -77,6 +77,9 @@ public class SortHyperlink extends Hyperlink implements ItemSelectionListener{
 	}
 	
 	public void setSortOrder(int sortOrder){
+		
+		this.sortOrder = sortOrder;
+		
 		String text = SORT_TEXT_NOT_SORTED; 
 		if(sortOrder == SortField.SORT_ASCENDING)
 			text = SORT_TEXT_ASCENDING;
@@ -84,5 +87,9 @@ public class SortHyperlink extends Hyperlink implements ItemSelectionListener{
 			text = SORT_TEXT_DESCENDING;
 		
 		setText(text);
+	}
+	
+	public int getSortOrder() {
+		return sortOrder;
 	}
 }

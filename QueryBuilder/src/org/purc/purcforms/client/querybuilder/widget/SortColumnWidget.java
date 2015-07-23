@@ -22,7 +22,8 @@ public class SortColumnWidget extends Composite implements ItemSelectionListener
 	private SortColumnActionHyperlink actionHyperlink;
 	private Label fieldText;
 	private SortHyperlink sortHyperlink;
-	SortColumnActionListener listener;
+	private SortColumnActionListener listener;
+	private String name;
 	
 	public SortColumnWidget(int sortOrder,SortColumnActionListener listener){
 		setupWidgets(sortOrder,listener);
@@ -58,11 +59,20 @@ public class SortColumnWidget extends Composite implements ItemSelectionListener
 		
 	}
 	
-	public void setText(String text){
+	public void setText(String text, String name){
 		fieldText.setText(text);
+		this.name = name;
 	}
 	
 	public void setSortOrder(int sortOrder){
 		sortHyperlink.setSortOrder(sortOrder);
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public int getSortOrder() {
+		return sortHyperlink.getSortOrder();
 	}
 }

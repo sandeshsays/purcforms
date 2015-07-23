@@ -164,7 +164,9 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 
 			DisplayColumnWidget displayColumnWidget = dispColMap.remove(sortColumnWidget);
 			sortColMap.remove(displayColumnWidget);
-			displayColumnWidget.setSortOrder(SortField.SORT_NULL);
+			if (displayColumnWidget != null) {
+				displayColumnWidget.setSortOrder(SortField.SORT_NULL);
+			}
 		}
 	}
 
@@ -184,7 +186,7 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 				else
 					sortWidget.setSortOrder(sortOrder);
 
-				sortWidget.setText(displayColumnWidget.getText());
+				sortWidget.setText(displayColumnWidget.getText(), displayColumnWidget.getName());
 			}
 			else if(sortPanel.getWidgetIndex(sortWidget) > -1){
 				sortPanel.remove(sortWidget);
@@ -194,17 +196,24 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 		else if(sender instanceof SortColumnActionHyperlink){
 			SortColumnWidget sortWidget = (SortColumnWidget)sender.getParent().getParent();
 			sortWidget.setSortOrder(sortOrder);
-			dispColMap.get(sortWidget).setSortOrder(sortOrder);
+			DisplayColumnWidget widget = dispColMap.get(sortWidget);
+			if (widget != null) {
+				widget.setSortOrder(sortOrder);
+			}
 		}
-		else
-			dispColMap.get((SortColumnWidget)sender).setSortOrder(sortOrder);
+		else {
+			DisplayColumnWidget widget = dispColMap.get((SortColumnWidget)sender);
+			if (widget != null) {
+				widget.setSortOrder(sortOrder);
+			}
+		}
 	}
 
 	public void changeDisplayText(Widget sender, String text){
 		DisplayColumnWidget displayColumnWidget = (DisplayColumnWidget)sender;
 		SortColumnWidget sortWidget = sortColMap.get(displayColumnWidget);
 		if(sortWidget != null)
-			sortWidget.setText(text);
+			sortWidget.setText(text, displayColumnWidget.getName());
 	}
 
 	public List<DisplayField> getDisplayFields(){
@@ -229,8 +238,15 @@ public class DisplayFieldsView  extends Composite implements DisplayColumnAction
 
 		int count = sortPanel.getWidgetCount();
 		for(int i=1; i<count; i++){
-			DisplayColumnWidget displayColumnWidget = dispColMap.get(sortPanel.getWidget(i));
-			sortFields.add(new SortField(displayColumnWidget.getName(),displayColumnWidget.getSortOrder()));
+			Widget widget = sortPanel.getWidget(i);
+			DisplayColumnWidget displayColumnWidget = dispColMap.get(widget);
+			if (displayColumnWidget != null) {
+				sortFields.add(new SortField(displayColumnWidget.getName(),displayColumnWidget.getSortOrder()));
+			}
+			else if (widget instanceof SortColumnWidget ) {
+				SortColumnWidget sortWidget = (SortColumnWidget)widget;
+				sortFields.add(new SortField(sortWidget.getName(), sortWidget.getSortOrder()));
+			}
 		}
 
 		return sortFields;
