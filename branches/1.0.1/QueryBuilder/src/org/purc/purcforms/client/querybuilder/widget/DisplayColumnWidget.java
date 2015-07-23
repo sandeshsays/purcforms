@@ -83,7 +83,7 @@ public class DisplayColumnWidget extends Composite implements ItemSelectionListe
 	public void onItemSelected(Object sender, Object item) {
 		if(sender == fieldWidget){
 			questionDef = (QuestionDef)item;
-			fieldNameWidget.setValue(questionDef.getText());
+			fieldNameWidget.setValue(questionDef.getText() + (actionHyperlink.isAggregateFunction() ?  " " + aggFuncHyperlink.getText() : ""));
 			aggFuncHyperlink.setQuestionDef(questionDef);
 		}
 		else if(sender == fieldWidget){
