@@ -117,6 +117,8 @@ public class FormDesignerDragController extends AbstractDragController{
 	private DragDropListener dragDropListener;
 	
 	private static FormDesignerDragController instance;
+	
+	private String prevCursor = "";
 
 	public static FormDesignerDragController getInstance(AbsolutePanel boundaryPanel, boolean allowDroppingOnBoundaryPanel, DragDropListener dragDropListener){
 		if(instance == null) {
@@ -220,8 +222,10 @@ public class FormDesignerDragController extends AbstractDragController{
 				CommandList commands = new CommandList((DesignGroupView)dragDropListener);
 
 				if(!"move".equals(cursor)){
-					if(((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget && ((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel() != null)
-						cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getWrappedWidget().getElement(), "cursor");
+					if(((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget && ((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel() != null) {
+						//cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getWrappedWidget().getElement(), "cursor");
+						cursor = prevCursor;
+					}
 				}
 
 				if("move".equals(cursor) || ("".equals(cursor) && 
@@ -321,7 +325,8 @@ public class FormDesignerDragController extends AbstractDragController{
 			}*/
 
 				String cursor = DOM.getStyleAttribute(((DesignWidgetWrapper)context.draggable).getWrappedWidget().getElement(), "cursor");
-
+				prevCursor = cursor;
+				
 				if("default".equals(cursor) && ((DesignWidgetWrapper)context.draggable).getWrappedWidget() instanceof DesignGroupWidget){
 					//cursor = DOM.getStyleAttribute(((DesignGroupWidget)((DesignWidgetWrapper)context.draggable).getWrappedWidget()).getHeaderLabel().getElement(), "cursor");
 					Event event = DOM.eventGetCurrentEvent();
