@@ -207,6 +207,12 @@ public class FormDesignerDragController extends AbstractDragController{
 		if (!getBehaviorDragProxy()) {
 			restoreSelectedWidgetsStyle();
 		}
+		
+		for (Widget widget : context.selectedWidgets) {
+			if (widget instanceof DesignWidgetWrapper) {
+				((DesignWidgetWrapper)widget).getWrappedWidget().getElement().getStyle().setProperty("whiteSpace", "pre-wrap");
+			}
+		}
 
 		movablePanel.removeFromParent();
 		movablePanel = null;
@@ -708,6 +714,10 @@ public class FormDesignerDragController extends AbstractDragController{
 					info.width = ((DesignWidgetWrapper)widget).getWidthInt();
 					info.height = ((DesignWidgetWrapper)widget).getHeightInt();
 					((DesignWidgetWrapper)widget).storePrevPanel();
+					
+					if (((DesignWidgetWrapper)widget).getWrappedWidget() instanceof Label) {
+						((DesignWidgetWrapper)widget).getWrappedWidget().getElement().getStyle().setProperty("whiteSpace", "pre");
+					}
 				}
 			} else if (info.initialDraggableParent instanceof HorizontalPanel) {
 				info.initialDraggableIndex = ((HorizontalPanel) info.initialDraggableParent).getWidgetIndex(widget);
