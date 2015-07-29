@@ -152,8 +152,9 @@ public class SqlBuilder {
 					selectList += "IFNULL(" + getFieldMapping(field.getName()) + ",'TOTAL')" ;
 				}
 				else {
-					if (field.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
-							field.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) {
+					if ((field.getDataType() == QuestionDef.QTN_TYPE_LIST_EXCLUSIVE || 
+							field.getDataType() == QuestionDef.QTN_TYPE_LIST_MULTIPLE) &&
+							!getFieldMapping(field.getName()).endsWith(".name")) {
 						
 						String sql = " CASE " + getFieldMapping(field.getName());
 						for (int index = 0; index < field.getQuestionDef().getOptionCount(); index++) {
