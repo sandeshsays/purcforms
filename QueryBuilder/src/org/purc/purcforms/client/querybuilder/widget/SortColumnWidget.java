@@ -52,6 +52,7 @@ public class SortColumnWidget extends Composite implements ItemSelectionListener
 	}
 	
 	public void onItemSelected(Object sender, Object item){
+		sortHyperlink.setSortOrder(((Integer)item).intValue());
 		listener.changeSortOrder(this, ((Integer)item).intValue());
 	}
 	
