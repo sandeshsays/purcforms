@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import org.purc.purcforms.client.PurcConstants;
 import org.purc.purcforms.client.controller.OpenFileDialogEventListener;
 import org.purc.purcforms.client.controller.QuestionChangeListener;
 import org.purc.purcforms.client.locale.LocaleText;
@@ -35,6 +36,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
@@ -90,6 +92,8 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 	protected HashMap<Label,String> labelReplaceText = new HashMap<Label,String>();
 
 	protected HashMap<QuestionDef,List<CheckBox>> checkBoxGroupMap = new HashMap<QuestionDef,List<CheckBox>>();
+	
+	protected HashMap<QuestionDef, Integer> hiddenWidgetMap = new HashMap<QuestionDef, Integer>();
 
 	protected HashMap<QuestionDef,List<RuntimeWidgetWrapper>> calcWidgetMap = new HashMap<QuestionDef,List<RuntimeWidgetWrapper>>();
 
@@ -174,7 +178,7 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				widgetMap.put(parentBinding, parentWrapper);
 				//addWidget(parentWrapper); //Misplaces first widget (with tabindex > 0) of a group (CheckBox and RadioButtons)
 
-				qtn.addChangeListener(this);
+				qtn.insertChangeListener(this);
 				List<CheckBox> list = new ArrayList<CheckBox>();
 				list.add((CheckBox)widget);
 				checkBoxGroupMap.put(qtn, list);
@@ -1737,6 +1741,23 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 		RuntimeWidgetWrapper headerLabel = (RuntimeWidgetWrapper)selectedPanel.getWidget(0);
 		return headerLabel.getHeightInt();
 	}
+	
+	private void setParentHeight(boolean increase, RuntimeWidgetWrapper rptWidget, int change){
+		Widget parent = rptWidget.getParent();
+		while(parent != null){
+			if(parent instanceof RuntimeGroupWidget){
+				rptWidget = (RuntimeWidgetWrapper)((RuntimeGroupWidget)parent).getParent().getParent();
+				int height = rptWidget.getHeightInt();
+				rptWidget.setHeight((increase ? height+change : height-change)+PurcConstants.UNITS);
+			}
+			else if(parent instanceof FormRunnerView) {
+				((FormRunnerView)parent).adjustHeight(increase, rptWidget, change);
+				return;
+			}
+
+			parent = parent.getParent();
+		}
+	}
 
 	public void onWidgetHidden(RuntimeWidgetWrapper widget, int decrement){
 		Widget parent = getParent().getParent();
@@ -1746,10 +1767,10 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			groupWidget.onWidgetHidden(wrapper, decrement);
 		}
 
-		int bottomYpos = widget.getTopInt();
+		//int bottomYpos = widget.getTopInt();
 
 		if(!isRepeated){
-			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			/*for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				if(currentWidget == widget)
 					continue;
@@ -1757,11 +1778,86 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				int top = currentWidget.getTopInt();
 				if(top >= bottomYpos)
 					currentWidget.setTopInt(top - decrement);
+			}*/
+			
+			if (widget.getQuestionDef() == null) {
+				return;
 			}
+			
+			int bottomYpos = widget.getTopInt();
+			
+			int max = 0;
+			if (decrement == 0) {
+				int min = Integer.MAX_VALUE;
+				RuntimeWidgetWrapper minWidget = null;
+				List<CheckBox> list = checkBoxGroupMap.get(widget.getQuestionDef());
+				if (list == null) {
+					return;
+				}
+				
+				for (CheckBox checkBox : list){
+					int top = ((RuntimeWidgetWrapper)checkBox.getParent().getParent()).getTopInt();
+					if (top > max) {
+						max = top;
+					}
+					
+					if (top < min) {
+						min = top;
+						minWidget = (RuntimeWidgetWrapper)checkBox.getParent().getParent();
+					}
+				}
+				
+				if (minWidget != null && !widget.getBinding().equals(minWidget.getBinding())) {
+					bottomYpos = minWidget.getTopInt();
+				}
+			}
+			
+			//Get the current bottom y position of the widget.
+			String binding = widget.getBinding();
+			
+			int min = 0;
+			for (int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == widget || binding.equals(currentWidget.getBinding()))
+					continue;
+						
+				int top = currentWidget.getTopInt();
+				if (top >= bottomYpos && top > max) {
+					if (min == 0) {
+						min = top;
+					}
+					else if (top < min) {
+						min = top;
+					}
+				}
+			}
+			
+			if (min == 0) {
+				decrement = getHeightInt() - bottomYpos;
+			}
+			else {
+				decrement = min - bottomYpos;
+			}
+			
+			hiddenWidgetMap.put(widget.getQuestionDef(), decrement);
+			
+			//Move widgets which are below the bottom of the widget.
+			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == widget || binding.equals(currentWidget.getBinding()))
+					continue;
+						
+				int top = currentWidget.getTopInt();
+				if(top >= bottomYpos)
+					currentWidget.setTopInt(top - decrement);
+			}
+			
+			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() - decrement + PurcConstants.UNITS);
+			setParentHeight(false, (RuntimeWidgetWrapper)getParent().getParent(), decrement);
 		}
 	}
 
-	public void onWidgetShown(RuntimeWidgetWrapper widget, int increment){
+	public boolean onWidgetShown(RuntimeWidgetWrapper widget, int increment){
 		Widget parent = getParent().getParent();
 		if(parent instanceof RuntimeGroupWidget){
 			RuntimeGroupWidget groupWidget = (RuntimeGroupWidget)parent;
@@ -1769,10 +1865,15 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 			groupWidget.onWidgetShown(wrapper, increment);
 		}
 
-		int bottomYpos = widget.getTopInt();
+		//int bottomYpos = widget.getTopInt();
 
 		if(!isRepeated){
-			for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
+			
+			if (widget.getQuestionDef() == null || !hiddenWidgetMap.containsKey(widget.getQuestionDef())) {
+				return false;
+			}
+			
+			/*for(int index = 0; index < selectedPanel.getWidgetCount(); index++){
 				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
 				if(currentWidget == widget)
 					continue;
@@ -1780,8 +1881,58 @@ public class RuntimeGroupWidget extends Composite implements OpenFileDialogEvent
 				int top = currentWidget.getTopInt();
 				if(top >= bottomYpos)
 					currentWidget.setTopInt(top + increment);
+			}*/
+			
+			int bottomYpos = widget.getTopInt();
+			
+			List<CheckBox> list = checkBoxGroupMap.get(widget.getQuestionDef());
+			if (list != null) {
+				int min = Integer.MAX_VALUE;
+				RuntimeWidgetWrapper minWidget = null;
+				for (CheckBox checkBox : list){
+					((RuntimeWidgetWrapper)checkBox.getParent().getParent()).refreshPosition();
+					int top = ((RuntimeWidgetWrapper)checkBox.getParent().getParent()).getTopInt();
+					if (top < min) {
+						min = top;
+						minWidget = (RuntimeWidgetWrapper)checkBox.getParent().getParent();
+					}
+				}
+				
+				if (minWidget != null && !widget.getBinding().equals(minWidget.getBinding())) {
+					bottomYpos = minWidget.getTopInt();
+				}
 			}
+			
+			//Get the current bottom y position of the widget.
+			String binding = widget.getBinding();
+			String parentBinding = widget.getQuestionDef().getBinding();
+
+			increment = hiddenWidgetMap.get(widget.getQuestionDef());
+			
+			//Move widgets which are below the bottom of the widget.
+			for (int index = 0; index < selectedPanel.getWidgetCount(); index++){
+				RuntimeWidgetWrapper currentWidget = (RuntimeWidgetWrapper)selectedPanel.getWidget(index);
+				if(currentWidget == widget || binding.equals(currentWidget.getBinding()) 
+						|| parentBinding.equals(currentWidget.getParentBinding())) {
+					continue;
+				}
+						
+				if (parentBinding.equals(currentWidget.getBinding())) {
+					currentWidget.getLeftInt();
+					currentWidget.refreshPosition();
+					continue;
+				}
+				
+				int top = currentWidget.getTopInt();
+				if (top >= bottomYpos)
+					currentWidget.setTopInt(top + increment);
+			}
+			
+			DOM.setStyleAttribute(selectedPanel.getElement(), "height", getHeightInt() + increment + PurcConstants.UNITS);
+			setParentHeight(true, (RuntimeWidgetWrapper)getParent().getParent(), increment);
 		}
+		
+		return true;
 	}
 	
 	public void onValidationFailed(ValidationRule validationRule){

@@ -593,6 +593,10 @@ public class QuestionDef implements Serializable{
 		if(!changeListeners.contains(changeListener))
 			changeListeners.add(changeListener);
 	}
+	
+	public void insertChangeListener(QuestionChangeListener changeListener) {
+		changeListeners.add(0, changeListener);
+	}
 
 	public void clearChangeListeners(){
 		if(changeListeners != null)
