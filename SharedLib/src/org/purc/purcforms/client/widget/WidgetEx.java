@@ -771,9 +771,26 @@ public class WidgetEx extends Composite{
 		String s = DOM.getStyleAttribute(getElement(), "top");
 		if(s == null || s.trim().length() == 0)
 			s = top;
-		else
+		else {
+			if (top != null && !top.equals(s)) {
+				if (!isVisible()) {
+					return top;
+				}
+			}
 			top = s;
+		}
 		return s;
+	}
+	
+	public boolean isVisible() {
+		return super.isVisible() && widget.isVisible();
+	}
+	
+	public void setVisible(boolean visible) {
+		if (!visible) {
+			this.storePosition();
+		}
+		super.setVisible(visible);
 	}
 	
 	public void storePosition(){
@@ -865,6 +882,11 @@ public class WidgetEx extends Composite{
 
 	public void setTop(String sTop){
 		DOM.setStyleAttribute(getElement(), "top",sTop);
+	}
+	
+	public void setAndStoreTop(long top) {
+		setTopInt(top);
+		this.top = top + PurcConstants.UNITS;
 	}
 	
 	public int getTabIndex(){
