@@ -208,6 +208,11 @@ public class DesignWidgetWrapper extends WidgetEx implements QuestionChangeListe
 					widgetSelectionListener.onWidgetSelected(this, false);
 				}
 			}
+			else if (widget instanceof CheckBox) {
+				if(!event.getCtrlKey()) {
+					widgetSelectionListener.onWidgetSelected(this, false);
+				}
+			}
 		case Event.ONMOUSEUP:
 		case Event.ONMOUSEOVER:
 		case Event.ONMOUSEMOVE:
